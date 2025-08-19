@@ -1,0 +1,57 @@
+---
+import type { Review } from '../types/review';
+
+const { review } = Astro.props;
+
+// Generate star rating
+const stars = Array.from({ length: 5 }, (_, i) => i < review.rating);
+---
+
+<div class="card bg-base-100 shadow-xl h-full">
+  <div class="card-body">
+    <!-- Rating Stars -->
+    <div class="flex items-center gap-1 mb-4">
+      {stars.map((filled, index) => (
+        <svg 
+          class={`h-5 w-5 ${filled ? 'text-yellow-400 fill-yellow-400' : 'text-base-300'}`} 
+          fill="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+        </svg>
+      ))}
+      <span class="ml-2 text-sm text-base-content/70">({review.rating}/5)</span>
+    </div>
+    
+    <!-- Review Text -->
+    <p class="text-base-content/80 mb-6 leading-relaxed">
+      "{review.comment}"
+    </p>
+    
+    <!-- Course Badge -->
+    <div class="mb-4">
+      <div class="badge badge-primary badge-sm">{review.course}</div>
+    </div>
+    
+    <!-- Reviewer Info -->
+    <div class="flex items-center gap-3">
+      <div class="avatar avatar-placeholder">
+        {review.image ? (
+          <div class="w-12 h-12 rounded-full">
+            <img src={review.image} alt={review.name} />
+          </div>
+        ) : (
+          <div class="bg-primary text-primary-content rounded-full w-12 h-12">
+            <span class="text-lg font-bold">
+              {review.name.split(' ').map(n => n[0]).join('')}
+            </span>
+          </div>
+        )}
+      </div>
+      <div>
+        <h4 class="font-semibold">{review.name}</h4>
+        <p class="text-sm text-base-content/70">{review.role} at {review.company}</p>
+      </div>
+    </div>
+  </div>
+</div>

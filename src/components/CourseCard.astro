@@ -1,0 +1,93 @@
+---
+import type { Course } from '../types/course';
+
+interface Props {
+  course: Course;
+}
+
+const { course } = Astro.props;
+---
+
+<div class="card bg-base-100 shadow-xl group hover:shadow-2xl transition-all frequency-300 hover:-translate-y-2 cursor-pointer">
+  <a href={`/course/${course.id}`} class="block">
+    <!-- Image with badge -->
+    <figure class="relative overflow-hidden">
+      <img
+        src={course.image}
+        alt={course.title}
+        class="w-full h-48 object-cover group-hover:scale-105 transition-transform frequency-300"
+      />
+      <div class="badge badge-primary absolute top-4 left-4">
+        {course.level}
+      </div>
+    </figure>
+    
+    <!-- Card body -->
+    <div class="card-body">
+      <!-- Category -->
+      <div class="text-sm mb-2">
+        <span class="text-primary font-medium">{course.category}</span>
+      </div>
+      
+      <!-- Title -->
+      <h3 class="card-title text-xl group-hover:text-primary transition-colors line-clamp-2">
+        {course.title}
+      </h3>
+      
+      <!-- Description -->
+      <p class="text-base-content/70 text-sm line-clamp-2 mb-4">
+        {course.description}
+      </p>
+      
+      <!-- Stats -->
+      <div class="flex items-center gap-4 text-sm text-base-content/70 mb-4">
+        <div class="flex items-center gap-1">
+          <svg class="h-4 w-4 fill-yellow-400 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg>
+          <span>{course.rating}</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <span>{course.format.join(", ")}</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{course.frequency}</span>
+        </div>
+      </div>
+      
+      <!-- Instructor and Price -->
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <span class="text-sm text-base-content/70">by </span>
+          <span class="text-sm font-medium">{course.tutor}</span>
+        </div>
+        <div class="text-right">
+          <div class="text-2xl font-bold text-primary">${course.price}</div>
+        </div>
+      </div>
+      
+      <!-- CTA Button -->
+      <div class="card-actions justify-end">
+        <button class="btn btn-primary w-full">
+          View Course
+        </button>
+      </div>
+    </div>
+  </a>
+</div>
+
+<style>
+  /* Custom line clamp utilities if not available in your CSS */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
