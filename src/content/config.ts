@@ -1,0 +1,37 @@
+import { defineCollection, z } from 'astro:content';
+
+const coursesCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    id: z.string(), // Matches backend course ID
+    acronym: z.string(),
+    title: z.string(),
+    department: z.enum(['Matemática', 'Física', 'Eléctrica', 'Computación', 'Industrial']),
+    level: z.enum(['Plan Común', 'Major', 'Minor']),
+    description: z.string(),
+    basePrice: z.number(), // TODO : ver precio
+    image: z.string().optional(),
+    featured: z.boolean().default(false),
+  })
+});
+
+const reviewsCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    id: z.string(),
+    name: z.string(),
+    profile: z.string(),
+    studies: z.string(),
+    comment: z.string(),
+    course: z.string(),
+    rating: z.number().min(1).max(5).optional(),
+    image: z.string().optional(),
+    featured: z.boolean().default(false), // For highlighting special reviews
+    date: z.string().optional(), // For sorting by date if needed
+  })
+});
+
+export const collections = {
+  courses: coursesCollection,
+  reviews: reviewsCollection,
+};

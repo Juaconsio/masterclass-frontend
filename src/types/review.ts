@@ -1,9 +1,8 @@
 export interface Review {
   id: string;
   name: string;
-  role: string;
-  company: string;
-  rating: number;
+  profile: string;
+  studies: string;
   comment: string;
   course: string;
   image?: string;
