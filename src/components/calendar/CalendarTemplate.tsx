@@ -77,10 +77,15 @@ function goNextWeek() {
 function goToday() {
   setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }))
 }
+  function deleteEvent(id: string) {
+    setEvents(events.filter(event => event.id !== id));
+    setSelectedEvent(null);
+  }
+
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
       <Toolbar
-      currentWeek={currentWeek}
+        currentWeek={currentWeek}
         onPrev={goPrevWeek}
         onNext={goNextWeek}
         onToday={goToday}
@@ -90,6 +95,7 @@ function goToday() {
       <EventDetailsModal
         event={selectedEvent}
         onClose={() => setSelectedEvent(null)}
+        onDelete={deleteEvent}
       />
       <NewEventModal
         open={showNewEventModal}

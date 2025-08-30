@@ -1,14 +1,17 @@
 import { Calendar, Clock, MapPin, Users } from "lucide-react";
 import type { IEvent } from "@interfaces/IEvent";
 
+
 interface EventDetailsModalProps {
   event: IEvent | null;
   onClose: () => void;
+  onDelete?: (id: string) => void;
 }
 
 export default function EventDetailsModal({
   event,
   onClose,
+  onDelete,
 }: EventDetailsModalProps) {
   if (!event) return null;
   return (
@@ -59,10 +62,18 @@ export default function EventDetailsModal({
             <p className="opacity-80 leading-relaxed">{event.description}</p>
           </div>
         </div>
-        <div className="modal-action">
+        <div className="modal-action flex gap-2">
           <button className="btn" onClick={onClose}>
             Cerrar
           </button>
+          {onDelete && (
+            <button
+              className="btn btn-error"
+              onClick={() => onDelete(event.id)}
+            >
+              Eliminar
+            </button>
+          )}
         </div>
       </div>
     </dialog>
