@@ -91,13 +91,13 @@ function goToday() {
         event={selectedEvent}
         onClose={() => setSelectedEvent(null)}
       />
-      {/* <NewEventModal
+      <NewEventModal
         open={showNewEventModal}
         onClose={() => setShowNewEventModal(false)}
         onCreate={(newEvent) =>
           setEvents([...events, { ...newEvent, slotUsed: 1 }])
         }
-      /> */}
+      />
     </div>
   );
 }
