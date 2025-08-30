@@ -3,18 +3,30 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "astro check && astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/react": "^4.3.0",
+    "@astrojs/ts-plugin": "^1.10.4",
     "@astrojs/vercel": "^8.2.5",
     "@tailwindcss/vite": "^4.1.11",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
     "astro": "^5.12.9",
-    "tailwindcss": "^4.1.11"
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.541.0",
+    "react": "^19.1.1",
+    "react-day-picker": "^9.9.0",
+    "react-dom": "^19.1.1",
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5.9.2"
   },
   "devDependencies": {
+    "daisyui": "^5.0.50",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14"
   }
