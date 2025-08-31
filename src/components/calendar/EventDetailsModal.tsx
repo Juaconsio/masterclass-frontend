@@ -1,19 +1,68 @@
 import { Calendar, Clock, MapPin, Users } from "lucide-react";
+import { useState } from "react";
 import type { IEvent } from "@interfaces/IEvent";
+import EventForm from "./EventForm";
+import type { EventFormValues } from "./EventForm";
 
 
 interface EventDetailsModalProps {
   event: IEvent | null;
   onClose: () => void;
   onDelete?: (id: string) => void;
+  onEdit?: (event: IEvent) => void;
 }
 
 export default function EventDetailsModal({
   event,
   onClose,
   onDelete,
+  onEdit,
 }: EventDetailsModalProps) {
+  const [isEditing, setIsEditing] = useState(false);
+
   if (!event) return null;
+  if (isEditing) {
+    const initialValues: EventFormValues = {
+      title: event.title,
+      start: event.start,
+      end: event.end,
+      location: event.location,
+      participants: event.participants.join(", "),
+      description: event.description,
+      color: event.color,
+    };
+    function handleEdit(data: EventFormValues) {
+      if (onEdit && event) {
+        onEdit({
+          id: event.id,
+          slotUsed: event.slotUsed ?? 1,
+          title: data.title,
+          start: new Date(data.start),
+          end: new Date(data.end),
+          location: data.location,
+          participants: data.participants
+            ? data.participants.split(",").map((p) => p.trim())
+            : [],
+          description: data.description,
+          color: data.color,
+        });
+      }
+      setIsEditing(false);
+    }
+    return (
+      <dialog open className="modal modal-open in-line">
+        <div className="modal-box max-w-md">
+          <h3 className="font-bold text-lg mb-4">Editar Evento</h3>
+          <EventForm
+            initialValues={initialValues}
+            submitLabel="Guardar"
+            onSubmit={handleEdit}
+            onCancel={() => setIsEditing(false)}
+          />
+        </div>
+      </dialog>
+    );
+  }
   return (
     <dialog open className="modal modal-open in-line">
       <div className="modal-box max-w-md">
@@ -66,6 +115,11 @@ export default function EventDetailsModal({
           <button className="btn" onClick={onClose}>
             Cerrar
           </button>
+          {onEdit && (
+            <button className="btn btn-info" onClick={() => setIsEditing(true)}>
+              Editar
+            </button>
+          )}
           {onDelete && (
             <button
               className="btn btn-error"

@@ -77,8 +77,14 @@ function goNextWeek() {
 function goToday() {
   setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }))
 }
+
   function deleteEvent(id: string) {
     setEvents(events.filter(event => event.id !== id));
+    setSelectedEvent(null);
+  }
+
+  function editEvent(updatedEvent: IEvent) {
+    setEvents(events.map(event => event.id === updatedEvent.id ? updatedEvent : event));
     setSelectedEvent(null);
   }
 
@@ -96,6 +102,7 @@ function goToday() {
         event={selectedEvent}
         onClose={() => setSelectedEvent(null)}
         onDelete={deleteEvent}
+        onEdit={editEvent}
       />
       <NewEventModal
         open={showNewEventModal}
