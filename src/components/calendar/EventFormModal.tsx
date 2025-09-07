@@ -1,28 +1,24 @@
-import { useForm, Controller } from "react-hook-form"
-import type { IEvent } from "@interfaces/IEvent"
-import EventForm from "./EventForm"
-import type { EventFormValues } from "./EventForm"
+import { useForm, Controller } from 'react-hook-form';
+import type { IEvent } from '@interfaces/IEvent';
+import EventForm from './EventForm';
+import type { EventFormValues } from './EventForm';
 interface NewEventModalProps {
-  open: boolean
-  onClose: () => void
-  onCreate: (event: IEvent) => void
+  open: boolean;
+  onClose: () => void;
+  onCreate: (event: IEvent) => void;
 }
 
 type FormValues = {
-  title: string
-  start: Date
-  end: Date
-  location: string
-  participants: string
-  description: string
-  color: string
-}
+  title: string;
+  start: Date;
+  end: Date;
+  location: string;
+  participants: string;
+  description: string;
+  color: string;
+};
 
-export default function NewEventModal({
-  open,
-  onClose,
-  onCreate,
-}: NewEventModalProps) {
+export default function NewEventModal({ open, onClose, onCreate }: NewEventModalProps) {
   const {
     register,
     handleSubmit,
@@ -31,15 +27,15 @@ export default function NewEventModal({
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
-      title: "",
+      title: '',
       start: new Date(),
       end: new Date(),
-      location: "",
-      participants: "",
-      description: "",
-      color: "bg-primary",
+      location: '',
+      participants: '',
+      description: '',
+      color: 'bg-primary',
     },
-  })
+  });
 
   if (!open) return null;
 
@@ -52,30 +48,23 @@ export default function NewEventModal({
       start: startDate!,
       end: endDate!,
       location: data.location,
-      participants: data.participants
-        ? data.participants.split(",").map((p) => p.trim())
-        : [],
+      participants: data.participants ? data.participants.split(',').map((p) => p.trim()) : [],
       description: data.description,
       color: data.color,
       slotUsed: 1,
-    })
+    });
 
-    onClose()
+    onClose();
   }
 
-  if (!open) return null
+  if (!open) return null;
 
   return (
-        <dialog open className="modal modal-open in-line">
+    <dialog open className="modal modal-open in-line">
       <div className="modal-box max-w-md">
-        <h3 className="font-bold text-lg mb-4">Crear Nuevo Evento</h3>
-        <EventForm
-          submitLabel="Crear"
-          onSubmit={handleCreate}
-          onCancel={onClose}
-
-        />
-              </div>
+        <h3 className="mb-4 text-lg font-bold">Crear Nuevo Evento</h3>
+        <EventForm submitLabel="Crear" onSubmit={handleCreate} onCancel={onClose} />
+      </div>
     </dialog>
-  )
+  );
 }
