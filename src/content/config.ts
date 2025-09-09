@@ -9,6 +9,7 @@ const coursesCollection = defineCollection({
     department: z.enum(['Matemática', 'Física', 'Eléctrica', 'Computación', 'Industrial']),
     level: z.enum(['Plan Común', 'Major', 'Minor']),
     description: z.string(),
+    prerequisites: z.array(z.string()).optional(),
     basePrice: z.number(), // TODO : ver precio
     image: z.string().optional(),
     featured: z.boolean().default(false),
