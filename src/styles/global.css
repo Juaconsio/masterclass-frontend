@@ -1,5 +1,6 @@
 @import "tailwindcss";
-
+@plugin "daisyui";
+@plugin '@tailwindcss/typography';
 
 @theme {
   --color-primary: oklch(0.879 0.1796 94.68);

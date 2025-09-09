@@ -1,0 +1,147 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Navbar from "../../components/Navbar.astro";
+import CourseCard from '../../components/CourseCard.astro';
+import CourseFilters from '../../components/CourseFilters.astro';
+
+// Get all static course content
+const courses = await getCollection('courses');
+
+// Extract unique values for filters
+const departments = [...new Set(courses.map(course => course.data.department))];
+const levels = [...new Set(courses.map(course => course.data.level))];
+
+// Sort courses: featured first, then by department
+const sortedCourses = courses.sort((a, b) => {
+  if (a.data.featured && !b.data.featured) return -1;
+  if (!a.data.featured && b.data.featured) return 1;
+  return a.data.department.localeCompare(b.data.department, 'es');
+});
+---
+
+<Layout title="Cursos Disponibles - Tutoría Universitaria">
+  <main class="min-h-screen bg-base-100">
+    <Navbar />
+    <!-- Hero Section -->
+    <section class="hero min-h-96 py-32 bg-gradient-to-r from-primary to-secondary">
+      <div class="hero-content text-center text-primary-content">
+        <div class="max-w-4xl">
+          <h1 class="text-5xl font-bold mb-4">Cursos de Tutoría Universitaria</h1>
+          <p class="text-xl mb-8">
+            Domina las materias fundamentales de ingeniería con tutores expertos. 
+            Encuentra el curso perfecto para tu nivel académico.
+          </p>
+          <div class="stats stats-horizontal shadow bg-base-100 text-base-content">
+            <div class="stat">
+              <div class="stat-value text-primary">{courses.length}</div>
+              <div class="stat-title">Cursos Disponibles</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value text-secondary">{departments.length}</div>
+              <div class="stat-title">Departamentos</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value text-accent">{levels.length}</div>
+              <div class="stat-title">Niveles</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container mx-auto px-4 py-8">
+      <!-- Filters Section -->
+      <CourseFilters 
+        departments={departments}
+        levels={levels}
+        courses={sortedCourses}
+      />
+
+      <!-- Featured Courses Banner -->
+      {courses.some(course => course.data.featured) && (
+        <div class="mb-8">
+          <div class="alert alert-info">
+            <svg class="stroke-current shrink-0 w-6 h-6" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>¡Revisa nuestros cursos destacados! Estos son especialmente recomendados por nuestros tutores expertos.</span>
+          </div>
+        </div>
+      )}
+
+      <!-- Department Overview -->
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold mb-4">Departamentos</h2>
+        <div class="flex flex-wrap gap-3">
+          {departments.map(department => {
+            const courseCount = courses.filter(course => course.data.department === department).length;
+            return (
+              <div class="stats shadow">
+                <div class="stat py-4 px-6">
+                  <div class="stat-figure text-2xl">
+                    {department === 'Matemática' ? '📐' : 
+                     department === 'Física' ? '⚛️' : 
+                     department === 'Eléctrica' ? '⚡' : 
+                     department === 'Computación' ? '💻' : '⚙️'}
+                  </div>
+                  <div class="stat-title text-sm">{department}</div>
+                  <div class="stat-value text-lg">{courseCount}</div>
+                  <div class="stat-desc">cursos</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <!-- Course Grid -->
+      <div class="course-grid-container">
+        <div id="course-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {sortedCourses.map((course) => (
+            <CourseCard course={course} />
+          ))}
+        </div>
+
+        <!-- Empty state -->
+        <div id="empty-state" class="hidden text-center py-12">
+          <div class="text-6xl mb-4">📚</div>
+          <h3 class="text-2xl font-bold text-base-content mb-2">No se encontraron cursos</h3>
+          <p class="text-base-content/70 mb-6">
+            Intenta ajustar los filtros para ver más cursos.
+          </p>
+          <button id="clear-filters" class="btn btn-primary">
+            Limpiar Filtros
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .course-grid-container {
+    min-height: 400px;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .course-card {
+    animation: fadeInUp 0.5s ease-out;
+  }
+  
+  /* Stagger animation for course cards */
+  .course-card:nth-child(1) { animation-delay: 0.1s; }
+  .course-card:nth-child(2) { animation-delay: 0.2s; }
+  .course-card:nth-child(3) { animation-delay: 0.3s; }
+  .course-card:nth-child(4) { animation-delay: 0.4s; }
+</style>
