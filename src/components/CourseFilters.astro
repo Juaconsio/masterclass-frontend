@@ -1,0 +1,466 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { Department, Level } from '../types/course';
+
+interface Props {
+  departments: Department[];
+  levels: Level[];
+  courses: CollectionEntry<'courses'>[];
+}
+
+const { departments, levels, courses } = Astro.props;
+---
+
+<div class="card bg-base-100 shadow-lg mb-8">
+  <div class="card-body">
+    <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+      <!-- Search Input -->
+      <div class="flex-1 min-w-0">
+        <div class="form-control">
+          <div class="input-group">
+            <input 
+              type="text" 
+              placeholder="Buscar por nombre, sigla o descripción..." 
+              class="input input-bordered flex-1"
+              id="search-input"
+            />
+            <button class="btn btn-square btn-primary" id="search-btn">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Dropdowns -->
+      <div class="flex flex-wrap gap-3">
+        <div class="form-control">
+          <select class="select select-bordered select-sm w-40" id="department-filter">
+            <option value="">Todos los Departamentos</option>
+            {departments.map(department => (
+              <option value={department}>{department}</option>
+            ))}
+          </select>
+        </div>
+
+        <div class="form-control">
+          <select class="select select-bordered select-sm w-32" id="level-filter">
+            <option value="">Todos los Niveles</option>
+            {levels.map(level => (
+              <option value={level}>{level}</option>
+            ))}
+          </select>
+        </div>
+
+        <!-- Featured Toggle -->
+        <div class="form-control">
+          <label class="label cursor-pointer gap-2">
+            <span class="label-text text-sm">Solo destacados</span>
+            <input type="checkbox" class="toggle toggle-primary toggle-sm" id="featured-toggle" />
+          </label>
+        </div>
+
+        <!-- Price Range / TODO: ver si lo dejamos o no, hidden por ahora -->
+        
+        <div class="form-control hidden">
+          <select class="select select-bordered select-sm w-32" id="price-filter">
+            <option value="">Cualquier precio</option>
+            <option value="0-20000">$0 - $20.000</option>
+            <option value="20000-40000">$20.000 - $40.000</option>
+            <option value="40000-60000">$40.000 - $60.000</option>
+            <option value="60000+">$60.000+</option>
+          </select>
+        </div>
+
+        <!-- Clear Filters Button -->
+        <button class="btn btn-ghost btn-sm" id="clear-filters">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          Limpiar
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Filters Display -->
+    <div id="active-filters" class="hidden mt-4 pt-4 border-t border-base-300">
+      <div class="flex items-center gap-2 text-sm">
+        <span class="text-base-content/70">Filtros activos:</span>
+        <div id="filter-tags" class="flex flex-wrap gap-2"></div>
+      </div>
+    </div>
+
+    <!-- Results Count and Sort -->
+    <div class="flex justify-between items-center mt-4 text-sm text-base-content/70">
+      <span id="results-count">Mostrando todos los {courses.length} cursos</span>
+      
+      <!-- Sort Dropdown -->
+      <div class="form-control">
+        <select class="select select-bordered select-xs w-auto" id="sort-select">
+          <option value="default">Ordenar por defecto</option>
+          <option value="name-asc">Nombre A-Z</option>
+          <option value="name-desc">Nombre Z-A</option>
+          <option value="price-asc">Precio menor a mayor</option>
+          <option value="price-desc">Precio mayor a menor</option>
+          <option value="department">Por departamento</option>
+          <option value="level">Por nivel</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  interface FilterState {
+    search: string;
+    department: string;
+    level: string;
+    featured: boolean;
+    priceRange: '0-20000' | '20000-40000' | '40000-60000' | '60000+' | '';
+    sort: string;
+  }
+
+  interface FilterTag {
+    label: string;
+    key: string;
+  }
+
+  class CourseFilters {
+
+    private searchInput!: HTMLInputElement;
+    private departmentFilter!: HTMLSelectElement;
+    private levelFilter!: HTMLSelectElement;
+    private featuredToggle!: HTMLInputElement;
+    private priceFilter!: HTMLSelectElement;
+    private sortSelect!: HTMLSelectElement;
+    private clearButton!: HTMLButtonElement;
+    private activeFiltersContainer!: HTMLElement;
+    private filterTagsContainer!: HTMLElement;
+    private resultsCount!: HTMLElement;
+    private courseCards!: NodeListOf<HTMLElement>;
+    private emptyState!: HTMLElement;
+    private courseGrid!: HTMLElement;
+
+    constructor() {
+      this.initializeElements();
+      this.attachEventListeners();
+      this.updateResultsCount(-1);
+    }
+
+    initializeElements() {
+      this.searchInput = document.querySelector('#search-input')!;
+      this.departmentFilter = document.querySelector('#department-filter')!;
+      this.levelFilter = document.querySelector('#level-filter')!;
+      this.featuredToggle = document.querySelector('#featured-toggle')!;
+      this.priceFilter = document.querySelector('#price-filter')!;
+      this.sortSelect = document.querySelector('#sort-select')!;
+      this.clearButton = document.querySelector('#clear-filters')!;
+      this.activeFiltersContainer = document.querySelector('#active-filters')!;
+      this.filterTagsContainer = document.querySelector('#filter-tags')!;
+      this.resultsCount = document.querySelector('#results-count')!;
+      
+      // Get elements from the main page
+      this.courseCards = document.querySelectorAll('.course-card');
+      this.emptyState = document.querySelector('#empty-state')!;
+      this.courseGrid = document.querySelector('#course-grid')!;
+    }
+
+    attachEventListeners() {
+      // Search input with debounce
+      let searchTimeout: ReturnType<typeof setTimeout>;;
+      this.searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => this.applyFilters(), 300);
+      });
+
+      // Filter controls
+      [
+        this.departmentFilter, 
+        this.levelFilter, 
+        this.priceFilter,
+        this.sortSelect
+      ].forEach(filter => {
+        filter.addEventListener('change', () => this.applyFilters());
+      });
+
+      this.featuredToggle.addEventListener('change', () => this.applyFilters());
+
+      // Clear filters button
+      this.clearButton.addEventListener('click', () => this.clearAllFilters());
+
+      // Clear filters from empty state
+      const emptyClearButton = document.querySelector('#empty-state #clear-filters');
+      if (emptyClearButton) {
+        emptyClearButton.addEventListener('click', () => this.clearAllFilters());
+      }
+    }
+
+    getCurrentFilters() {
+      return {
+        search: this.searchInput.value.toLowerCase().trim(),
+        department: this.departmentFilter.value,
+        level: this.levelFilter.value,
+        featured: this.featuredToggle.checked,
+        priceRange: this.priceFilter.value as '0-20000' | '20000-40000' | '40000-60000' | '60000+' | '',
+        sort: this.sortSelect.value,
+      };
+    }
+
+    matchesPriceRange(price: number, range: string) {
+      if (!range) return true;
+      
+      switch (range) {
+        case '0-20000':
+          return price >= 0 && price <= 20000;
+        case '20000-40000':
+          return price > 20000 && price <= 40000;
+        case '40000-60000':
+          return price > 40000 && price <= 60000;
+        case '60000+':
+          return price > 60000;
+        default:
+          return true;
+      }
+    }
+
+    applyFilters() {
+      const filters = this.getCurrentFilters();
+      let visibleCards: HTMLElement[] = [];
+
+      this.courseCards.forEach((card) => {
+        const cardDepartment = card.dataset.department || '';
+        const cardLevel = card.dataset.level || '';
+        const cardAcronym = card.dataset.acronym || '';
+        
+        // Get searchable text from the card
+        const titleElement = card.querySelector('.card-title');
+        const descriptionElement = card.querySelector('p');
+        const cardTitle = titleElement ? titleElement.textContent!.toLowerCase() : '';
+        const cardDescription = descriptionElement ? descriptionElement.textContent!.toLowerCase() : '';
+        const searchableText = `${cardTitle} ${cardDescription} ${cardAcronym.toLowerCase()}`;
+
+        // Get price from the card
+        const priceElement = card.querySelector('.text-primary');
+        const priceText = priceElement ? priceElement.textContent!.replace(/[^\d]/g, '') : '0';
+        const cardPrice = parseInt(priceText) || 0;
+
+        // Check if featured
+        const isFeatured = card.querySelector('.badge-warning') !== null;
+
+        // Apply filters
+        const matchesSearch = !filters.search || searchableText.includes(filters.search);
+        const matchesDepartment = !filters.department || cardDepartment === filters.department;
+        const matchesLevel = !filters.level || cardLevel === filters.level;
+        const matchesFeatured = !filters.featured || isFeatured;
+        const matchesPrice = this.matchesPriceRange(cardPrice, filters.priceRange);
+
+        const isVisible = matchesSearch && matchesDepartment && matchesLevel && matchesFeatured && matchesPrice;
+
+        if (isVisible) {
+          card.style.display = 'block';
+          card.classList.add('animate-fadeIn');
+          visibleCards.push(card);
+        } else {
+          card.style.display = 'none';
+          card.classList.remove('animate-fadeIn');
+        }
+      });
+
+      // Apply sorting to visible cards
+      if (filters.sort !== 'default') {
+        this.sortCards(visibleCards, filters.sort);
+      }
+
+      this.updateUI(filters, visibleCards.length);
+    }
+
+    sortCards(cards: HTMLElement[], sortType: string) {
+      const parent = this.courseGrid;
+      
+      cards.sort((a, b) => {
+        switch (sortType) {
+          case 'name-asc':
+            const titleA = a.querySelector('.card-title')?.textContent || '';
+            const titleB = b.querySelector('.card-title')?.textContent || '';
+            return titleA.localeCompare(titleB, 'es');
+            
+          case 'name-desc':
+            const titleDescA = a.querySelector('.card-title')?.textContent || '';
+            const titleDescB = b.querySelector('.card-title')?.textContent || '';
+            return titleDescB.localeCompare(titleDescA, 'es');
+            
+          case 'price-asc':
+            const priceA = parseInt(a.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0');
+            const priceB = parseInt(b.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0');
+            return priceA - priceB;
+            
+          case 'price-desc':
+            const priceDescA = parseInt(a.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0');
+            const priceDescB = parseInt(b.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0');
+            return priceDescB - priceDescA;
+            
+          case 'department':
+            const deptA = a.dataset.department || '';
+            const deptB = b.dataset.department || '';
+            return deptA.localeCompare(deptB, 'es');
+            
+          case 'level':
+            const levelA = a.dataset.level || '';
+            const levelB = b.dataset.level || '';
+            return levelA.localeCompare(levelB, 'es');
+            
+          default:
+            return 0;
+        }
+      });
+
+      // Reorder DOM elements
+      cards.forEach(card => {
+        if (parent) {
+          parent.appendChild(card);
+        }
+      });
+    }
+
+    updateUI(filters: FilterState, visibleCount: number) {
+      // Update results count
+      this.updateResultsCount(visibleCount);
+
+      // Show/hide empty state
+      if (visibleCount === 0) {
+        if (this.courseGrid) this.courseGrid.style.display = 'none';
+        if (this.emptyState) this.emptyState.classList.remove('hidden');
+      } else {
+        if (this.courseGrid) this.courseGrid.style.display = 'grid';
+        if (this.emptyState) this.emptyState.classList.add('hidden');
+      }
+
+      // Update active filters display
+      this.updateActiveFilters(filters);
+    }
+
+    updateResultsCount(count: number) {
+      if (count === -1) {
+        count = Array.from(this.courseCards).filter(card => 
+          card.style.display !== 'none'
+        ).length;
+      }
+      
+      const total = this.courseCards.length;
+      if (this.resultsCount) {
+        this.resultsCount.textContent = count === total 
+          ? `Mostrando todos los ${total} cursos`
+          : `Mostrando ${count} de ${total} cursos`;
+      }
+    }
+
+    updateActiveFilters(filters: FilterState) {
+      const activeFilters: FilterTag[] = [];
+
+      if (filters.search) {
+        activeFilters.push({ label: `Búsqueda: "${filters.search}"`, key: 'search' });
+      }
+      if (filters.department) {
+        activeFilters.push({ label: `Departamento: ${filters.department}`, key: 'department' });
+      }
+      if (filters.level) {
+        activeFilters.push({ label: `Nivel: ${filters.level}`, key: 'level' });
+      }
+      if (filters.featured) {
+        activeFilters.push({ label: 'Solo destacados', key: 'featured' });
+      }
+      if (filters.priceRange) {
+        const priceLabels = {
+          '0-20000': '$0 - $20.000',
+          '20000-40000': '$20.000 - $40.000',
+          '40000-60000': '$40.000 - $60.000',
+          '60000+': '$60.000+'
+        };
+        const priceLabel = priceLabels[filters.priceRange] || filters.priceRange;
+        activeFilters.push({ label: `Precio: ${priceLabel}`, key: 'priceRange' });
+      }
+
+      if (activeFilters.length > 0) {
+        if (this.activeFiltersContainer) {
+          this.activeFiltersContainer.classList.remove('hidden');
+        }
+        if (this.filterTagsContainer) {
+          this.filterTagsContainer.innerHTML = activeFilters.map(filter => `
+            <div class="badge badge-primary gap-2">
+              ${filter.label}
+              <button class="btn btn-xs btn-circle btn-ghost" data-filter-key="${filter.key}">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          `).join('');
+
+          // Add event listeners to remove individual filters
+          this.filterTagsContainer.querySelectorAll('[data-filter-key]').forEach(button => {
+            button.addEventListener('click', (e) => {
+              const target = e.currentTarget as HTMLElement;
+              const filterKey = target.dataset.filterKey;
+              if (filterKey) {
+                this.removeFilter(filterKey);
+              }
+            });
+          });
+        }
+      } else {
+        if (this.activeFiltersContainer) {
+          this.activeFiltersContainer.classList.add('hidden');
+        }
+      }
+    }
+
+    removeFilter(filterKey: string) {
+      switch (filterKey) {
+        case 'search':
+          this.searchInput.value = '';
+          break;
+        case 'department':
+          this.departmentFilter.value = '';
+          break;
+        case 'level':
+          this.levelFilter.value = '';
+          break;
+        case 'featured':
+          this.featuredToggle.checked = false;
+          break;
+        case 'priceRange':
+          this.priceFilter.value = '';
+          break;
+      }
+      this.applyFilters();
+    }
+
+    clearAllFilters() {
+      this.searchInput.value = '';
+      this.departmentFilter.value = '';
+      this.levelFilter.value = '';
+      this.featuredToggle.checked = false;
+      this.priceFilter.value = '';
+      this.sortSelect.value = 'default';
+      this.applyFilters();
+    }
+  }
+
+  // Initialize when DOM is loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    new CourseFilters();
+  });
+</script>
+
+<style>
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+  }
+</style>
