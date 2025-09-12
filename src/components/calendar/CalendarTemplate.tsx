@@ -1,51 +1,15 @@
 import { useEffect, useState } from 'react';
 import { startOfWeek, addDays, format, getDay, isToday, addWeeks, subWeeks } from 'date-fns';
-
+import { fetchSlots } from '@client/slots';
 import Toolbar from './Toolbar';
 import CalendarGrid from './CalendarGrid';
 import EventDetailsModal from './EventDetailsModal';
 import NewEventModal from './EventFormModal';
-import type { IEvent } from '@interfaces/IEvent';
-
-const initialEvents: IEvent[] = [
-  {
-    id: '1',
-    title: 'Reunión de Equipo',
-    start: new Date(2025, 7, 30, 9, 0), // 30 ago 2025 09:00
-    end: new Date(2025, 7, 30, 12, 0),
-    location: 'Sala de Conferencias A',
-    participants: ['Ana García', 'Carlos López', 'María Rodríguez'],
-    description: 'Revisión semanal del progreso del proyecto y planificación de tareas.',
-    color: 'bg-primary',
-    slotUsed: 3,
-  },
-  {
-    id: '2',
-    title: 'Presentación Cliente',
-    start: new Date(2025, 7, 29, 10, 0), // 29 ago 2025 10:00
-    end: new Date(2025, 7, 29, 11, 30), // 29 ago 2025 11:30
-    location: 'Oficina Principal',
-    participants: ['Juan Pérez', 'Laura Martín'],
-    description: 'Presentación de la propuesta final al cliente ABC Corp.',
-    color: 'bg-accent',
-    slotUsed: 2,
-  },
-  {
-    id: '3',
-    title: 'Workshop Diseño',
-    start: new Date(2025, 7, 29, 13, 0),
-    end: new Date(2025, 7, 29, 14, 0),
-    location: 'Sala Creativa',
-    participants: ['Pedro Sánchez', 'Elena Torres', 'Miguel Ruiz', 'Sofia Vega'],
-    description: 'Sesión colaborativa para definir la nueva identidad visual.',
-    color: 'bg-secondary',
-    slotUsed: 3,
-  },
-];
+import type { IEvent } from '@interfaces/events/IEvent';
 
 export default function CalendarTemplate() {
   const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null);
-  const [events, setEvents] = useState<IEvent[]>(initialEvents);
+  const [events, setEvents] = useState<IEvent[]>([]);
   const [showNewEventModal, setShowNewEventModal] = useState(false);
 
   const today = new Date();
@@ -55,6 +19,19 @@ export default function CalendarTemplate() {
   useEffect(() => {
     console.log(events);
   }, [events]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetchSlots();
+        setEvents(res);
+      } catch (err) {
+        console.error('Error fetching bookings', err);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   function goPrevWeek() {
     setCurrentWeek(subWeeks(currentWeek, 1));
@@ -68,7 +45,7 @@ export default function CalendarTemplate() {
     setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }));
   }
 
-  function deleteEvent(id: string) {
+  function deleteEvent(id: number) {
     setEvents(events.filter((event) => event.id !== id));
     setSelectedEvent(null);
   }
@@ -94,10 +71,11 @@ export default function CalendarTemplate() {
         onDelete={deleteEvent}
         onEdit={editEvent}
       />
+
       <NewEventModal
         open={showNewEventModal}
         onClose={() => setShowNewEventModal(false)}
-        onCreate={(newEvent) => setEvents([...events, { ...newEvent, slotUsed: 1 }])}
+        onCreate={(newEvent) => setEvents([...events, { ...newEvent }])}
       />
     </div>
   );

@@ -1,22 +1,13 @@
 import { useForm, Controller } from 'react-hook-form';
-import type { IEvent } from '@interfaces/IEvent';
+import type { IEvent, EventFormValues, FormValues } from '@interfaces/events/IEvent';
 import EventForm from './EventForm';
-import type { EventFormValues } from './EventForm';
+// Actualizamos el tipo para que incluya los campos de IEvent
+
 interface NewEventModalProps {
   open: boolean;
   onClose: () => void;
   onCreate: (event: IEvent) => void;
 }
-
-type FormValues = {
-  title: string;
-  start: Date;
-  end: Date;
-  location: string;
-  participants: string;
-  description: string;
-  color: string;
-};
 
 export default function NewEventModal({ open, onClose, onCreate }: NewEventModalProps) {
   const {
@@ -25,35 +16,36 @@ export default function NewEventModal({ open, onClose, onCreate }: NewEventModal
     control,
     reset,
     formState: { errors },
-  } = useForm<FormValues>({
+  } = useForm<EventFormValues>({
     defaultValues: {
-      title: '',
+      classId: 0,
+      professorId: 0,
       start: new Date(),
       end: new Date(),
-      location: '',
-      participants: '',
-      description: '',
-      color: 'bg-primary',
+      modality: 'ONLINE',
+      status: 'CANDIDATE',
+      minStudents: undefined,
+      maxStudents: 1,
     },
   });
 
   if (!open) return null;
 
   function handleCreate(data: EventFormValues) {
-    const startDate = data.start ? new Date(data.start) : null;
-    const endDate = data.end ? new Date(data.end) : null;
+    const startTime = data.start ? new Date(data.start).toISOString() : '';
+    const endTime = data.end ? new Date(data.end).toISOString() : '';
     onCreate({
-      id: Date.now().toString(),
-      title: data.title,
-      start: startDate!,
-      end: endDate!,
-      location: data.location,
-      participants: data.participants ? data.participants.split(',').map((p) => p.trim()) : [],
-      description: data.description,
-      color: data.color,
-      slotUsed: 1,
+      id: Date.now(),
+      classId: data.classId,
+      professorId: data.professorId,
+      startTime,
+      endTime,
+      modality: data.modality,
+      status: data.status,
+      minStudents: data.minStudents,
+      maxStudents: data.maxStudents,
+      reservations: [],
     });
-
     onClose();
   }
 

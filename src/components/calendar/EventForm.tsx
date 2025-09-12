@@ -1,16 +1,6 @@
 import { useForm, Controller } from 'react-hook-form';
 import DateTimeInput from '@components/UI/DateTimeInput';
-import type { IEvent } from '@interfaces/IEvent';
-
-export type EventFormValues = {
-  title: string;
-  start: Date;
-  end: Date;
-  location: string;
-  participants: string;
-  description: string;
-  color: string;
-};
+import type { IEvent, EventFormValues } from '@interfaces/events/IEvent';
 
 interface EventFormProps {
   initialValues?: Partial<EventFormValues>;
@@ -33,13 +23,14 @@ export default function EventForm({
     formState: { errors },
   } = useForm<EventFormValues>({
     defaultValues: {
-      title: initialValues.title || '',
+      classId: initialValues.classId || 0,
+      professorId: initialValues.professorId || 0,
       start: initialValues.start || new Date(),
       end: initialValues.end || new Date(),
-      location: initialValues.location || '',
-      participants: initialValues.participants || '',
-      description: initialValues.description || '',
-      color: initialValues.color || 'bg-primary',
+      modality: initialValues.modality || 'ONLINE',
+      status: initialValues.status || 'CANDIDATE',
+      minStudents: initialValues.minStudents || undefined,
+      maxStudents: initialValues.maxStudents || 1,
     },
   });
 
@@ -50,15 +41,27 @@ export default function EventForm({
 
   return (
     <form onSubmit={handleSubmit(submitHandler)} className="space-y-3">
+      <label className="label">ID de clase</label>
       <input
-        {...register('title', { required: 'El título es obligatorio' })}
-        placeholder="Título"
-        className={`input input-bordered w-full ${errors.title ? 'input-error' : ''}`}
+        type="number"
+        {...register('classId', { required: 'ID de clase es obligatorio' })}
+        placeholder="ID de clase"
+        className={`input input-bordered w-full ${errors.classId ? 'input-error' : ''}`}
       />
-      {errors.title && <p className="text-error text-sm">{errors.title.message}</p>}
+      {errors.classId && <p className="text-error text-sm">{errors.classId.message}</p>}
+
+      <label className="label">ID de profesor</label>
+      <input
+        type="number"
+        {...register('professorId', { required: 'ID de profesor es obligatorio' })}
+        placeholder="ID de profesor"
+        className={`input input-bordered w-full ${errors.professorId ? 'input-error' : ''}`}
+      />
+      {errors.professorId && <p className="text-error text-sm">{errors.professorId.message}</p>}
 
       <div className="flex gap-2">
         <div className="w-1/2">
+          <label className="label">Fecha de inicio</label>
           <Controller
             control={control}
             name="start"
@@ -70,6 +73,7 @@ export default function EventForm({
           {errors.start && <p className="text-error text-sm">{errors.start.message}</p>}
         </div>
         <div className="w-1/2">
+          <label className="label">Fecha de fin</label>
           <Controller
             control={control}
             name="end"
@@ -82,30 +86,44 @@ export default function EventForm({
         </div>
       </div>
 
-      <input
-        {...register('location', { required: 'La ubicación es obligatoria' })}
-        placeholder="Ubicación"
-        className={`input input-bordered w-full ${errors.location ? 'input-error' : ''}`}
-      />
-      {errors.location && <p className="text-error text-sm">{errors.location.message}</p>}
+      <label className="label">Modalidad</label>
+      <select
+        {...register('modality', { required: 'Modalidad es obligatoria' })}
+        className="select select-bordered w-full"
+      >
+        <option value="ONLINE">Online</option>
+        <option value="PRESENTIAL">Presencial</option>
+        <option value="HYBRID">Híbrido</option>
+      </select>
+      {errors.modality && <p className="text-error text-sm">{errors.modality.message}</p>}
 
+      <label className="label">Estado</label>
+      <select
+        {...register('status', { required: 'Estado es obligatorio' })}
+        className="select select-bordered w-full"
+      >
+        <option value="CANDIDATE">Candidato</option>
+        <option value="CONFIRMED">Confirmado</option>
+        <option value="CANCELLED">Cancelado</option>
+      </select>
+      {errors.status && <p className="text-error text-sm">{errors.status.message}</p>}
+
+      <label className="label">Mínimo de estudiantes</label>
       <input
-        {...register('participants')}
-        placeholder="Participantes (separados por coma)"
+        type="number"
+        {...register('minStudents')}
+        placeholder="Mínimo de estudiantes"
         className="input input-bordered w-full"
       />
 
-      <textarea
-        {...register('description')}
-        placeholder="Descripción"
-        className="textarea textarea-bordered w-full"
+      <label className="label">Máximo de estudiantes</label>
+      <input
+        type="number"
+        {...register('maxStudents', { required: 'Máximo de estudiantes es obligatorio' })}
+        placeholder="Máximo de estudiantes"
+        className={`input input-bordered w-full ${errors.maxStudents ? 'input-error' : ''}`}
       />
-
-      <select {...register('color')} className="select select-bordered w-full">
-        <option value="bg-primary">Azul</option>
-        <option value="bg-accent">Verde</option>
-        <option value="bg-secondary">Morado</option>
-      </select>
+      {errors.maxStudents && <p className="text-error text-sm">{errors.maxStudents.message}</p>}
 
       <div className="modal-action">
         <button type="submit" className="btn btn-primary">
