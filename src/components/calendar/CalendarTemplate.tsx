@@ -72,11 +72,7 @@ export default function CalendarTemplate() {
         onEdit={editEvent}
       />
 
-      <NewEventModal
-        open={showNewEventModal}
-        onClose={() => setShowNewEventModal(false)}
-        onCreate={(newEvent) => setEvents([...events, { ...newEvent }])}
-      />
+      <NewEventModal open={showNewEventModal} onClose={() => setShowNewEventModal(false)} />
     </div>
   );
 }

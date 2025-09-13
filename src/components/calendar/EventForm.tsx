@@ -91,9 +91,8 @@ export default function EventForm({
         {...register('modality', { required: 'Modalidad es obligatoria' })}
         className="select select-bordered w-full"
       >
-        <option value="ONLINE">Online</option>
-        <option value="PRESENTIAL">Presencial</option>
-        <option value="HYBRID">Híbrido</option>
+        <option value="group">Online</option>
+        <option value="private">Presencial</option>
       </select>
       {errors.modality && <p className="text-error text-sm">{errors.modality.message}</p>}
 
@@ -102,9 +101,10 @@ export default function EventForm({
         {...register('status', { required: 'Estado es obligatorio' })}
         className="select select-bordered w-full"
       >
-        <option value="CANDIDATE">Candidato</option>
-        <option value="CONFIRMED">Confirmado</option>
-        <option value="CANCELLED">Cancelado</option>
+        <option value="candidate">Candidato</option>
+        <option value="confirmed">Confirmado</option>
+        <option value="completed">Confirmado</option>
+        <option value="cancelled">Cancelado</option>
       </select>
       {errors.status && <p className="text-error text-sm">{errors.status.message}</p>}
 

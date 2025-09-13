@@ -31,12 +31,12 @@ export interface IProfessor {
 }
 
 export type EventFormValues = {
-  classId: number;
-  professorId: number;
+  classId: string;
+  professorId: string;
   start: Date;
   end: Date;
-  modality: 'ONLINE' | 'PRESENTIAL' | 'HYBRID';
-  status: 'CANDIDATE' | 'CONFIRMED' | 'CANCELLED';
+  modality: string;
+  status: string;
   minStudents?: number;
   maxStudents: number;
 };
