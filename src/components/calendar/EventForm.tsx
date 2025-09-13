@@ -23,8 +23,8 @@ export default function EventForm({
     formState: { errors },
   } = useForm<EventFormValues>({
     defaultValues: {
-      classId: initialValues.classId || 0,
-      professorId: initialValues.professorId || 0,
+      classId: initialValues.classId?.toString() || '',
+      professorId: initialValues.professorId?.toString() || '',
       start: initialValues.start || new Date(),
       end: initialValues.end || new Date(),
       modality: initialValues.modality || 'ONLINE',

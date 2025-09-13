@@ -19,8 +19,8 @@ export default function NewEventModal({ open, onClose }: NewEventModalProps) {
     formState: { errors },
   } = useForm<EventFormValues>({
     defaultValues: {
-      classId: 0,
-      professorId: 0,
+      classId: '0',
+      professorId: '0',
       start: new Date(),
       end: new Date(),
       modality: 'ONLINE',
