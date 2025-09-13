@@ -1,0 +1,15 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Sessions from './course.tsx';
+export async function getStaticPaths() {
+  // Example: fetch courses from API
+  const res = await fetch('https://masterclass-backend-gcne.onrender.com/course');
+  const courses = await res.json();
+  return courses.map((course: any) => ({ params: { courseId: course.id.toString() } }));
+}
+const { courseId } = Astro.params;
+---
+<Layout>
+  <h1>Course {courseId}</h1>
+  <Sessions client:load courseId={Number(courseId)} />
+</Layout>
