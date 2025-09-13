@@ -66,19 +66,6 @@ class HttpClient {
   }
 
   private setupInterceptors() {
-    // this.axiosInstance.interceptors.request.use(
-    //   (config) => {
-    //     const token = localStorage.getItem('token');
-    //     if (token) config.headers.Authorization = `Bearer ${token}`;
-    //     this.logRequest(config);
-    //     return config;
-    //   },
-    //   (error) => {
-    //     this.logError(error);
-    //     return Promise.reject(error);
-    //   }
-    // );
-
     this.axiosInstance.interceptors.response.use(
       (response) => {
         this.logResponse(response);
