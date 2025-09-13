@@ -1,3 +1,19 @@
+---
+import '../styles/global.css';
+
+// Define props interface
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+// Get props with defaults
+const {
+  title = 'Salva Ramos | Clases particulares y grupales',
+  description = 'Salva tus Ramos con sesiones en vivo de profesores expertos. Clases particulares y grupales de ingeniería.',
+} = Astro.props;
+---
+
 <!doctype html>
 <html lang="es">
   <head>
@@ -6,7 +22,8 @@
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <title>Salva Ramos | Clases particulares y grupales</title>
+    <title>{title}</title>
+    <meta name="description" content={description} />
   </head>
   <body>
     <slot />

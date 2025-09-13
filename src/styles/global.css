@@ -1,4 +1,4 @@
 @import "tailwindcss";
+@plugin "daisyui";
+@plugin '@tailwindcss/typography';
 @import "react-day-picker/style.css";
-@plugin "daisyui" {
-}
