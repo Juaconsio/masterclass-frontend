@@ -13,6 +13,7 @@
     "@astrojs/react": "^4.3.0",
     "@astrojs/ts-plugin": "^1.10.4",
     "@astrojs/vercel": "^8.2.5",
+    "@hookform/resolvers": "^5.2.1",
     "@tailwindcss/vite": "^4.1.11",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
@@ -26,7 +27,8 @@
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.62.0",
     "tailwindcss": "^4.1.11",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "zod": "^4.1.8"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.16",

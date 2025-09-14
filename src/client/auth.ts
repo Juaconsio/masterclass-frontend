@@ -1,8 +1,9 @@
 import { httpClient } from './config';
 
-async function registerUser() {
-  const res = await httpClient.post('/register');
-  return res.data;
+// phone no esta entrando como string
+async function registerUser(payload: any) {
+  const res = await httpClient.post('auth/register', payload);
+  return { ok: true };
 }
 
 // falta ver caso de credenciales incorrectas
@@ -20,4 +21,4 @@ async function getToken(payload: any) {
   }
 }
 
-export { getToken };
+export { registerUser, getToken };
