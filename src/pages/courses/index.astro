@@ -2,9 +2,6 @@
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import Navbar from "../../components/Navbar.astro";
-import CourseCard from '../../components/CourseCard.astro';
-import CourseFilters from '../../components/CourseFilters.astro';
-
 // Get all static course content
 const courses = await getCollection('courses');
 
@@ -29,7 +26,7 @@ const sortedCourses = courses.sort((a, b) => {
         <div class="max-w-4xl">
           <h1 class="text-5xl font-bold mb-4">Cursos de Tutoría Universitaria</h1>
           <p class="text-xl mb-8">
-            Domina las materias fundamentales de ingeniería con tutores expertos. 
+            Domina las materias fundamentales de ingeniería con tutores expertos.
             Encuentra el curso perfecto para tu nivel académico.
           </p>
           <div class="stats stats-horizontal shadow bg-base-100 text-base-content">
@@ -52,11 +49,7 @@ const sortedCourses = courses.sort((a, b) => {
 
     <div class="container mx-auto px-4 py-8">
       <!-- Filters Section -->
-      <CourseFilters 
-        departments={departments}
-        levels={levels}
-        courses={sortedCourses}
-      />
+
 
       <!-- Featured Courses Banner -->
       {courses.some(course => course.data.featured) && (
@@ -80,9 +73,9 @@ const sortedCourses = courses.sort((a, b) => {
               <div class="stats shadow">
                 <div class="stat py-4 px-6">
                   <div class="stat-figure text-2xl">
-                    {department === 'Matemática' ? '📐' : 
-                     department === 'Física' ? '⚛️' : 
-                     department === 'Eléctrica' ? '⚡' : 
+                    {department === 'Matemática' ? '📐' :
+                     department === 'Física' ? '⚛️' :
+                     department === 'Eléctrica' ? '⚡' :
                      department === 'Computación' ? '💻' : '⚙️'}
                   </div>
                   <div class="stat-title text-sm">{department}</div>
@@ -96,12 +89,12 @@ const sortedCourses = courses.sort((a, b) => {
       </div>
 
       <!-- Course Grid -->
-      <div class="course-grid-container">
+      <!-- <div class="course-grid-container">
         <div id="course-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {sortedCourses.map((course) => (
             <CourseCard course={course} />
           ))}
-        </div>
+        </div> -->
 
         <!-- Empty state -->
         <div id="empty-state" class="hidden text-center py-12">
@@ -123,7 +116,7 @@ const sortedCourses = courses.sort((a, b) => {
   .course-grid-container {
     min-height: 400px;
   }
-  
+
   @keyframes fadeInUp {
     from {
       opacity: 0;
@@ -134,11 +127,11 @@ const sortedCourses = courses.sort((a, b) => {
       transform: translateY(0);
     }
   }
-  
+
   .course-card {
     animation: fadeInUp 0.5s ease-out;
   }
-  
+
   /* Stagger animation for course cards */
   .course-card:nth-child(1) { animation-delay: 0.1s; }
   .course-card:nth-child(2) { animation-delay: 0.2s; }
