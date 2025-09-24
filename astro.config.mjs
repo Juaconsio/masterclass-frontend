@@ -10,6 +10,7 @@ import react from "@astrojs/react";
 export default defineConfig({
   vite: {
     plugins: [
+      // @ts-expect-error
       tailwindcss(),
       {
         name: "@astrojs/ts-plugin",
