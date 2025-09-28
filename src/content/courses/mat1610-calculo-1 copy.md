@@ -5,7 +5,7 @@ title: "Cálculo I"
 department: "Matemática"
 level: "Plan Común"
 description: "El primer cálculo. Refuerza contenidos sobre límites, derivadas e integrales."
-basePrice: 75
+basePrice: 15_000
 featured: true
 image: "/images/courses/calculus.png"
 ---
