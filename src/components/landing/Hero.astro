@@ -1,80 +1,76 @@
+---
+import { Icon } from 'astro-icon/components';
+import Carousel from './Carousel.astro';
+---
 
-<section class="hero relative min-h-screen">
-  <!-- Background Image with Overlay -->
-  <div class="hero-overlay absolute inset-0">
-    <img
-      src="/images/clases.jpeg"
-      alt="Engineering Education"
-      class="w-full h-full object-cover"
-    />
-    <div class="absolute inset-0 bg-gradient-to-r from-primary/90 to-accent/80"></div>
-  </div>
+<div class="bg-[url('public/images/Simple_Shiny.svg')]
+  bg-center bg-cover z-20">
+  <section class="hero relative min-h-screen text-secondary-content">
+    <!-- Hero Content -->
+    <div>
+      <div class="hero-content flex flex-col relative z-30 container mx-auto px-4">
+        <div class="flex w-full">
+          <div class="max-w-3xl">
+            <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
+              Clases en vivo de
+              <span class="text-primary relative border-b-4 border-primary"> Excelencia.</span>
+            </h1>
 
-  <!-- Hero Content -->
-  <div class="hero-content relative z-10 container mx-auto px-4">
-    <div class="max-w-3xl text-white">
-      <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
-        Sesiones en vivo de
-        <span class="block bg-gradient-to-r from-white to-accent bg-clip-text text-transparent">
-          Excelencia
-        </span>
-      </h1>
-      
-      <p class="text-xl md:text-2xl mb-8 text-white/90 leading-relaxed">
-        Aprende mediante sesiones grupales o personales, con foco a desarrollar herramientas para que 
-        rindas tus exámenes de la mejor forma posible. Salva tu ramo ahora!
-      </p>
-      
-      <div class="flex flex-col sm:flex-row gap-4 mb-12">
-        <button class="btn btn-lg bg-white text-primary hover:bg-white/90 border-none text-lg px-8 py-4 h-auto">
-          Explora los Cursos
-          <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-          </svg>
-        </button>
-        <button class="btn btn-lg btn-outline border-white text-white hover:bg-white hover:text-primary text-lg px-8 py-4 h-auto">
-          Ver Reseñas
-        </button>
+            <p class="text-xl md:text-2xl mb-8 leading-relaxed max-w-3xl">
+              Aprende mediante sesiones grupales o personales, con foco a desarrollar herramientas
+              para que rindas tus exámenes de la mejor forma posible. <span
+                class="font-semibold
+            text-primary">¡Salva tu ramo ahora!</span
+              >
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 mb-12">
+              <button class="btn btn-wide btn-lg btn-primary border-none text-lg px-8 py-4 h-auto">
+                Busca tu curso!
+              </button>
+              <button class="btn btn-lg btn-soft btn-primary text-lg px-8 py-4 h-auto">
+                Ver Reseñas
+              </button>
+            </div>
+          </div>
+          <div class="w-sm flex items-center rounded-2xl overflow-hidden shadow-2xl">
+            <img src="public/images/clases.jpeg" class="w-full h-full object-cover" />
+          </div>
+        </div>
       </div>
 
       <!-- Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="flex items-center gap-3">
-          <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
-            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
+      <div class="flex md:flex-row flex-col justify-around gap-8">
+        <div class="flex items-start gap-3">
+          <div class="flex items-center h-full gap-3">
+            <Icon name="mdi:book-open-variant" size={32} class="text-primary" />
           </div>
           <div>
-            <div class="text-2xl font-bold">20+</div>
-            <div class="text-white/80">Cursos enseñados</div>
+            <div class="text-3xl font-bold">+20</div>
+            <div class="w-32">Cursos impartidos</div>
           </div>
         </div>
 
-        <div class="flex items-center gap-3">
-          <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
-            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
+        <div class="flex items-start gap-3 justify-start">
+          <div class="flex items-center h-full gap-3">
+            <Icon name="mdi:user-group" size={32} class="text-primary" />
           </div>
           <div>
-            <div class="text-2xl font-bold">100+</div>
-            <div class="text-white/80">Estudiantes cada semestre</div>
+            <div class="text-3xl font-bold">+100</div>
+            <div class="w-32">Estudiantes por semestre</div>
           </div>
         </div>
 
-        <div class="flex items-center gap-3">
-          <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
-            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <div class="flex items-start gap-3">
+          <div class="flex items-center h-full gap-3">
+            <Icon name="mdi:refresh-circle" size={32} class="text-primary" />
           </div>
           <div>
-            <div class="text-2xl font-bold">95%</div>
-            <div class="text-white/80">Success Rate</div>
+            <div class="text-3xl font-bold">~40%</div>
+            <div class="w-32">Volvió a tomar clases</div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
