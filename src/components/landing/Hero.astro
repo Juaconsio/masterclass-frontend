@@ -4,12 +4,12 @@ import Carousel from './Carousel.astro';
 ---
 
 <div class="bg-[url('public/images/Simple_Shiny.svg')]
-  bg-center bg-cover z-20">
+  bg-center bg-cover mt-16">
   <section class="hero relative min-h-screen text-secondary-content">
     <!-- Hero Content -->
     <div>
       <div class="hero-content flex flex-col relative z-30 container mx-auto px-4">
-        <div class="flex w-full">
+        <div class="flex w-full flex-col lg:flex-row items-center gap-12 lg:gap-24 mb-16">
           <div class="max-w-3xl">
             <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
               Clases en vivo de
@@ -24,7 +24,7 @@ import Carousel from './Carousel.astro';
               >
             </p>
 
-            <div class="flex flex-col sm:flex-row gap-4 mb-12">
+            <div class="flex flex-col sm:flex-row gap-4">
               <button class="btn btn-wide btn-lg btn-primary border-none text-lg px-8 py-4 h-auto">
                 Busca tu curso!
               </button>
@@ -33,14 +33,16 @@ import Carousel from './Carousel.astro';
               </button>
             </div>
           </div>
-          <div class="w-sm flex items-center rounded-2xl overflow-hidden shadow-2xl">
-            <img src="public/images/clases.jpeg" class="w-full h-full object-cover" />
+          <div
+            class="hidden md:flex md:h-[28rem] md:w-sm items-center rounded-2xl overflow-hidden shadow-2xl"
+          >
+            <img src="public/images/clases.jpeg" class="h-full object-cover" />
           </div>
         </div>
       </div>
 
       <!-- Stats -->
-      <div class="flex md:flex-row flex-col justify-around gap-8">
+      <div class="flex md:flex-row flex-wrap justify-around gap-8">
         <div class="flex items-start gap-3">
           <div class="flex items-center h-full gap-3">
             <Icon name="mdi:book-open-variant" size={32} class="text-primary" />
@@ -70,6 +72,12 @@ import Carousel from './Carousel.astro';
             <div class="w-32">Volvió a tomar clases</div>
           </div>
         </div>
+      </div>
+
+      <div
+        class="md:hidden md:h-[28rem] md:w-sm items-center rounded-2xl overflow-hidden shadow-2xl m-6"
+      >
+        <img src="public/images/clases.jpeg" class="h-full object-cover" />
       </div>
     </div>
   </section>
