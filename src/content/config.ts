@@ -11,6 +11,7 @@ const courseSchema = z.object({
   basePrice: z.number(), // TODO : ver precio
   image: z.string().optional(),
   featured: z.boolean().default(false),
+  class_count: z.number().optional(),
 });
 
 const coursesCollection = defineCollection({
