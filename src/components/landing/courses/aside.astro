@@ -1,11 +1,11 @@
 ---
-import type { Course } from '../../content/config';
+import type { Course } from '../../../content/config';
 
 const { course } = Astro.props as { course: Course };
 ---
 
-<div class="space-y-6">
-  <div class="card bg-primary text-primary-content shadow-xl">
+<div class="flex md:flex-col flex-row gap-6">
+  <div class="card w-xs md:w-full bg-primary text-primary-content shadow-xl">
     <div class="card-body text-center">
       <span class="text-xs inline-block">Agenda desde</span>
       <h3 class="card-title justify-center text-2xl">
@@ -34,7 +34,7 @@ const { course } = Astro.props as { course: Course };
     </div>
   </div>
 
-  <div class="card bg-base-100 shadow-xl">
+  <div class="card bg-base-100 shadow-xl w-2xs h-fit md:w-full">
     <div class="card-body">
       <h3 class="card-title text-info">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

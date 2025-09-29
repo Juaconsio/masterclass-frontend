@@ -1,10 +1,9 @@
 ---
 import { getEntry, getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
-import { DEPARTMENT_COLORS, LEVEL_COLORS, DEPARTMENT_ICONS } from '../../types/course';
 import NavBar from '@components/landing/Navbar.astro';
-import Header from '../../pages/courses/header.astro';
-import Aside from '../../pages/courses/aside.astro';
+import Header from '@components/landing/courses/header.astro';
+import Aside from '@components/landing/courses/aside.astro';
 
 export const prerender = false; // para el contenido dinámico
 
@@ -28,7 +27,7 @@ const relatedCourses = allCourses
 <Layout title={`${course.data.acronym} - ${course.data.title}`}>
   <main class="min-h-screen bg-base-100 flex flex-col">
     <NavBar />
-    <div class="flex-grow pt-16">
+    <div class="flex-grow pt-16 flex flex-col">
       <!-- Breadcrumbs -->
       <div class="breadcrumbs text-sm container mx-auto px-4 pt-4">
         <ul>
@@ -46,10 +45,13 @@ const relatedCourses = allCourses
         </ul>
       </div>
 
-      <div class="mx-auto min-h-screen h-full flex gap-10">
-        <div class="flex flex-col basis-7/10 overflow-y-auto mx-10">
+      <div class="order-2 mx-auto min-h-screen h-full flex gap-10">
+        <div class="flex flex-col md:basis-7/10 overflow-y-auto mx-10">
           <div class="basis-4/10">
             <Header course={course.data} />
+          </div>
+          <div class="h-full w-full md:hidden right-0 md:sticky top-16 p-4">
+            <Aside course={course.data} />
           </div>
           <div class="card bg-base-100 shadow-xl">
             <div class="card-body">
@@ -125,7 +127,7 @@ const relatedCourses = allCourses
             )
           }
         </div>
-        <div class="h-full basis-3/10 right-0 sticky top-16 p-4 hidden lg:block">
+        <div class="h-full w-sm md:basis-3/10 right-0 md:sticky top-16 p-4 hidden md:block">
           <Aside course={course.data} />
         </div>
       </div>
