@@ -2,6 +2,7 @@
 import { getEntry, getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import { DEPARTMENT_COLORS, LEVEL_COLORS, DEPARTMENT_ICONS } from '../../types/course';
+import Navbar from '../../components/Navbar.astro';
 
 export const prerender = false; // para el contenido dinámico
 
@@ -24,6 +25,7 @@ const relatedCourses = allCourses
 
 <Layout title={`${course.data.acronym} - ${course.data.title}`}>
   <main class="min-h-screen bg-base-100">
+    <Navbar />
     <!-- Breadcrumbs -->
     <div class="breadcrumbs text-sm container mx-auto px-4 pt-4">
       <ul>
@@ -122,10 +124,7 @@ const relatedCourses = allCourses
           <div class="card bg-primary text-primary-content shadow-xl">
             <div class="card-body text-center">
               <h3 class="card-title justify-center text-2xl">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                </svg>
-                Precio Base
+                Precio Clase Grupal
               </h3>
               
               <div class="text-4xl font-bold mb-4">
@@ -133,7 +132,7 @@ const relatedCourses = allCourses
               </div>
               
               <div class="text-sm opacity-90 mb-6">
-                * El precio puede variar según la modalidad y duración de las sesiones
+                * El precio puede variar según la modalidad y promociones disponibles
               </div>
               
               <div class="card-actions justify-center">
@@ -195,15 +194,20 @@ const relatedCourses = allCourses
                 ¿Tienes Dudas?
               </h3>
               <p class="text-sm text-base-content/70 mb-4">
-                Nuestros coordinadores académicos pueden ayudarte a elegir el tutor ideal para este curso.
+                Nuestros coordinadores académicos pueden ayudarte sobre dudas que tengas sobre el curso, formato, precios o el sitio en general.
               </p>
               <div class="card-actions">
-                <button class="btn btn-info btn-outline btn-sm btn-block">
+                <a
+                  href="https://ig.me/m/salvaramos_ing?text=Hola%21%20Tengo%20una%20duda%20sobre%20un%20curso"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-info btn-outline btn-sm btn-block"
+                >
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                   </svg>
                   Contactar
-                </button>
+                </a>
               </div>
             </div>
           </div>

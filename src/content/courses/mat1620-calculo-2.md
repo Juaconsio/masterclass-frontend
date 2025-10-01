@@ -5,7 +5,7 @@ title: "Cálculo II"
 department: "Matemática"
 level: "Plan Común"
 description: "Aprende sobre integrales indeterminadas y series."
-basePrice: 75
+basePrice: 15000
 featured: true
 image: "/images/courses/calculus.png"
 ---
