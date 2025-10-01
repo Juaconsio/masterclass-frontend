@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../hooks/useAuth";
+import { fetchSlots } from "../client/slots";
 
 interface Course {
   id: number;
@@ -16,6 +17,9 @@ const Dashboard: React.FC = () => {
   const [reservations, setReservations] = useState<any[]>([]);
   const [reservationsLoading, setReservationsLoading] = useState(false);
   const [reservationsError, setReservationsError] = useState("");
+  const [slots, setSlots] = useState<any[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [slotsError, setSlotsError] = useState("");
 
 
   useEffect(() => {
@@ -71,9 +75,37 @@ const Dashboard: React.FC = () => {
         setReservationsLoading(false);
       }
     }
+    async function fetchAllSlots() {
+      setSlotsLoading(true);
+      setSlotsError("");
+      try {
+        const allSlots = await fetchSlots();
+        setSlots(allSlots);
+      } catch (err: any) {
+        setSlotsError("Error fetching slots");
+      } finally {
+        setSlotsLoading(false);
+      }
+    }
     fetchCourses();
     fetchReservations();
+    fetchAllSlots();
   }, [user]);
+
+  const handleDeleteReservation = async (reservationId: number) => {
+    try {
+      await fetch(`http://localhost:3000/reservations/${reservationId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: localStorage.getItem('token') ? `Bearer ${localStorage.getItem('token')}` : '',
+        },
+      });
+      setReservations((prev) => prev.filter((r) => r.id !== reservationId));
+    } catch (err) {
+      alert("Error deleting reservation");
+    }
+  };
 
   // useEffect(() => {
   //   if (!user) {
@@ -112,13 +144,32 @@ const Dashboard: React.FC = () => {
         {reservationsError && <div className="text-red-500">{reservationsError}</div>}
         <ul>
           {reservations.length > 0 ? (
-            reservations.map((r) => (
-              <li key={r.id} className="mb-4 p-4 bg-white border border-purple-200 rounded shadow flex flex-col md:flex-row md:items-center justify-between">
-                <span className="font-bold text-black">Slot #{r.slotId}</span>
-                <span className="text-black">Reservation ID: {r.id}</span>
-                {/* Add more reservation info here if available */}
-              </li>
-            ))
+            reservations.map((r) => {
+              const slot = slots.find((s) => s.id === r.slotId);
+              return (
+                <li key={r.id} className="mb-4 p-4 bg-white border border-purple-200 rounded shadow flex flex-col md:flex-row md:items-center justify-between">
+                  <div className="flex flex-col">
+                    <span className="font-bold text-black">Slot #{r.slotId}</span>
+                    {slot ? (
+                      <>
+                        <span className="text-black">Date: {new Date(slot.startTime).toLocaleDateString()} {new Date(slot.startTime).toLocaleTimeString()} - {new Date(slot.endTime).toLocaleTimeString()}</span>
+                        <span className="text-black">Modality: {slot.modality}</span>
+                        <span className="text-black">Status: {slot.status}</span>
+                      </>
+                    ) : (
+                      <span className="text-gray-500">Slot info not found</span>
+                    )}
+                  </div>
+                  <span className="text-black">Reservation ID: {r.id}</span>
+                  <button
+                    className="ml-4 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition"
+                    onClick={() => handleDeleteReservation(r.id)}
+                  >
+                    Delete
+                  </button>
+                </li>
+              );
+            })
           ) : (
             !reservationsLoading && <li className="text-gray-500">No reservations found.</li>
           )}
