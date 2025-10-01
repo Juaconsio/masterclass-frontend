@@ -6,8 +6,19 @@ import CalendarGrid from './CalendarGrid';
 import EventDetailsModal from './EventDetailsModal';
 import NewEventModal from './EventFormModal';
 import type { IEvent } from '@interfaces/events/IEvent';
+import { useSessionContext } from '../../context/SessionContext';
 
 export default function CalendarTemplate() {
+  const { user, isAuthenticated } = useSessionContext();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      window.location.href = '/auth/signIn';
+    }
+  }, [isAuthenticated]);
+
+  console.log('User from context:', user);
+
   const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null);
   const [events, setEvents] = useState<IEvent[]>([]);
   const [showNewEventModal, setShowNewEventModal] = useState(false);
@@ -56,23 +67,25 @@ export default function CalendarTemplate() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
-      <Toolbar
-        currentWeek={currentWeek}
-        onPrev={goPrevWeek}
-        onNext={goNextWeek}
-        onToday={goToday}
-        openCreateEventModal={() => setShowNewEventModal(true)}
-      />
-      <CalendarGrid currentWeek={currentWeek} events={events} onEventClick={setSelectedEvent} />
-      <EventDetailsModal
-        event={selectedEvent}
-        onClose={() => setSelectedEvent(null)}
-        onDelete={deleteEvent}
-        onEdit={editEvent}
-      />
+    <>
+      <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
+        <Toolbar
+          currentWeek={currentWeek}
+          onPrev={goPrevWeek}
+          onNext={goNextWeek}
+          onToday={goToday}
+          openCreateEventModal={() => setShowNewEventModal(true)}
+        />
+        <CalendarGrid currentWeek={currentWeek} events={events} onEventClick={setSelectedEvent} />
+        <EventDetailsModal
+          event={selectedEvent}
+          onClose={() => setSelectedEvent(null)}
+          onDelete={deleteEvent}
+          onEdit={editEvent}
+        />
 
-      <NewEventModal open={showNewEventModal} onClose={() => setShowNewEventModal(false)} />
-    </div>
+        <NewEventModal open={showNewEventModal} onClose={() => setShowNewEventModal(false)} />
+      </div>
+    </>
   );
 }
