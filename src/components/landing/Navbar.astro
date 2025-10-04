@@ -1,114 +1,117 @@
-<nav class="navbar fixed top-0 w-full bg-primary backdrop-blur-md border-b border-base-300 z-50">
-  <div class="container mx-auto px-4 flex justify-between items-center max-w-7xl">
-    <div class="navbar-start">
-      <!-- Mobile menu dropdown -->
-      <div class="dropdown lg:hidden">
-        <div tabindex="0" role="button" class="btn btn-primary border-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h8m-8 6h16"></path>
-          </svg>
-        </div>
-        <ul
-          tabindex="0"
-          class="menu menu-sm bg-primary dropdown-content mt-3 z-[1] p-2 shadow rounded-box w-52"
-        >
-          <li><a href="/" class="navlink-mobile-astro">Home</a></li>
-          <li>
-            <a href="/about" class="navlink-mobile-astro">About Us</a>
-          </li>
-          <li>
-            <a href="/courses" class="navlink-mobile-astro">Courses</a>
-          </li>
-          <li>
-            <a href="#contact" class="navlink-mobile-astro">Contact</a>
-          </li>
-        </ul>
-      </div>
+---
+// Get current page for active state
+const currentPath = Astro.url.pathname;
 
-      <!-- Logo -->
-      <a href="/" class="btn btn-secondary text-xl border-0">
-        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+const isActive = (path: string) => currentPath === path;
+---
+
+<nav
+  class="navbar fixed top-0 w-full bg-base-100/80 backdrop-blur-md border-b border-base-300 z-50"
+>
+  <div class="navbar-start">
+    <!-- Mobile menu dropdown -->
+    <div class="dropdown lg:hidden">
+      <div tabindex="0" role="button" class="btn btn-ghost">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
-            d="M12 14l9-5-9-5-9 5 9 5z"></path>
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
-          ></path>
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
-          ></path>
+            d="M4 6h16M4 12h8m-8 6h16"></path>
         </svg>
-        SalvaRamos
-      </a>
-    </div>
-
-    <!-- Desktop menu -->
-    <div class="navbar-center hidden lg:flex">
-      <ul class="menu menu-horizontal px-1 gap-2 font-semibold">
+      </div>
+      <ul
+        tabindex="0"
+        class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+      >
+        <li><a href="/" class={isActive('/') ? 'text-primary font-medium' : ''}>Home</a></li>
         <li>
-          <a href="/" class="navlink-astro transition-colors"> Inicio </a>
+          <a href="/about" class={isActive('/about') ? 'text-primary font-medium' : ''}>About Us</a>
         </li>
         <li>
-          <a href="/about" class="navlink-astro transition-colors"> Nosotros </a>
-
-          <li>
-            <a href="/courses" class="navlink-astro transition-colors"> Ramos </a>
-          </li>
+          <a href="/courses" class={isActive('/courses') ? 'text-primary font-medium' : ''}
+            >Courses</a>
         </li>
         <li>
-          <a href="#how-it-works" class="navlink-astro transition-colors"> Como funciona </a>
-        </li>
-        <li>
-          <a href="/#contact" class="navlink-astro transition-colors"> Contacto </a>
+          <a href="#contact" class={isActive('#contact') ? 'text-primary font-medium' : ''}
+            >Contact</a>
         </li>
       </ul>
     </div>
 
-    <!-- CTA Button -->
-    <div class="navbar-end">
-      <a href="/courses" class="btn btn-soft btn-primary">Explora los cursos</a>
-    </div>
+    <!-- Logo -->
+    <a href="/" class="btn btn-ghost text-xl text-primary">
+      <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 14l9-5-9-5-9 5 9 5z"></path>
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
+        ></path>
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
+        ></path>
+      </svg>
+      SalvaRamos
+    </a>
+  </div>
+
+  <!-- Desktop menu -->
+  <div class="navbar-center hidden lg:flex">
+    <ul class="menu menu-horizontal px-1 gap-2">
+      <li>
+        <a
+          href="/"
+          class={`hover:text-primary transition-colors ${
+            isActive('/') ? 'text-primary font-medium' : 'text-base-content'
+          }`}
+        >
+          Home
+        </a>
+      </li>
+      <li>
+        <a
+          href="/about"
+          class={`hover:text-primary transition-colors ${
+            isActive('/about') ? 'text-primary font-medium' : 'text-base-content'
+          }`}
+        >
+          Nosotros
+        </a>
+      </li>
+      <li>
+        <a
+          href="/courses"
+          class={`hover:text-primary transition-colors ${
+            isActive('/courses') ? 'text-primary font-medium' : 'text-base-content'
+          }`}
+        >
+          Cursos
+        </a>
+      </li>
+      <li>
+        <a
+          href="#contact"
+          class={`hover:text-primary transition-colors ${
+            isActive('#contact') ? 'text-primary font-medium' : 'text-base-content'
+          }`}
+        >
+          Contacto
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- CTA Button -->
+  <div class="navbar-end">
+    <button class="btn btn-primary"> Reservar Sesión </button>
   </div>
 </nav>
-<script>
-  // Marca el enlace activo en el cliente para desktop y móvil
-  document.addEventListener('DOMContentLoaded', () => {
-    const currentPath = window.location.pathname;
-
-    console.log('Current Path:', currentPath);
-    console.log('Nav Links:', document.querySelectorAll('.navlink-astro'));
-    console.log('Nav Mobile Links:', document.querySelectorAll('.navlink-mobile-astro'));
-    // Desktop
-    document.querySelectorAll('.navlink-astro').forEach((link) => {
-      if (link.getAttribute('href') === currentPath) {
-        link.classList.add('text-primary-content', 'font-bold');
-        link.classList.remove('text-base-content');
-      } else {
-        link.classList.remove('text-primary-content', 'font-bold');
-        link.classList.add('text-base-content');
-      }
-    });
-    // Móvil
-    document.querySelectorAll('.navlink-mobile-astro').forEach((link) => {
-      if (link.getAttribute('href') === currentPath) {
-        link.classList.add('text-primary-content', 'font-bold');
-        link.classList.remove('text-base-content');
-      } else {
-        link.classList.remove('text-primary-content', 'font-bold');
-        link.classList.add('text-base-content');
-      }
-    });
-  });
-</script>

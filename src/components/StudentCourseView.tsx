@@ -78,6 +78,9 @@ const StudentCourseView: React.FC<{ courseId: string }> = ({ courseId }) => {
               <span className={session.isActive ? "text-green-600" : "text-red-500"}>
                 {session.isActive ? "Active" : "Inactive"}
               </span>
+              <a href={`/dashboard/session/${courseId}/${session.id}`} className="ml-4 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                View
+              </a>
             </li>
           ))
         ) : (

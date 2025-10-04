@@ -18,6 +18,7 @@ async function getToken(payload: any) {
     if (res.status == 200) {
       const userData = JSON.stringify(jwtDecode(res.data.token));
       localStorage.setItem('user', userData);
+      localStorage.setItem('token', res.data.token);
       return { ok: true };
     }
     return { ok: false, message: res.data?.message };
