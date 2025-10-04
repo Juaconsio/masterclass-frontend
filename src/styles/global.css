@@ -14,7 +14,6 @@
   --color-primary: oklch(0.7049 0.1867 47.6);
   --color-secondary: oklch(0.7049 0.1867 47.6);
   --color-secondary: oklch(0.7049 0.1867 47.6);
-
   --color-accent: oklch(0.93 0.03 47.6);
   --color-accent-content: oklch(0.3729 0.0306 259.73);
 
@@ -36,4 +35,11 @@
   body {
     @apply bg-base-100 text-base-content;
   }
+}
+
+[data-navlink].active {
+  @apply text-primary-content bg-primary/20 rounded-lg font-bold;
+}
+[data-navlink]:not(.active) {
+  @apply text-base-content hover:text-primary-content;
 }
