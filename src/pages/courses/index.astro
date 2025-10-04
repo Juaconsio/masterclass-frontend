@@ -1,7 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
-import Layout from '../../layouts/Layout.astro';
-import Navbar from '../../components/landing/Navbar.astro';
+import Layout from '@layouts/Layout.astro';
+import Navbar from '@components/landing/Navbar.astro';
+import CourseCard from '@components/landing/courses/CourseCard.astro';
+import CourseFilters from '@components/landing/courses/CourseFilters.astro';
 // Get all static course content
 const courses = await getCollection('courses');
 
@@ -21,7 +23,7 @@ const sortedCourses = courses.sort((a, b) => {
   <main class="min-h-screen bg-base-100">
     <Navbar />
     <!-- Hero Section -->
-    <section class="hero min-h-96 py-32 bg-gradient-to-r from-primary to-secondary">
+    <section class="hero min-h-50 py-32 bg-gradient-to-r from-primary to-secondary">
       <div class="hero-content text-center text-primary-content">
         <div class="max-w-4xl">
           <h1 class="text-5xl font-bold mb-4">Cursos de Tutoría Universitaria</h1>
@@ -39,7 +41,7 @@ const sortedCourses = courses.sort((a, b) => {
               <div class="stat-title">Departamentos</div>
             </div>
             <div class="stat">
-              <div class="stat-value text-accent">{levels.length}</div>
+              <div class="stat-value text-secondary-content">{levels.length}</div>
               <div class="stat-title">Niveles</div>
             </div>
           </div>
@@ -48,13 +50,10 @@ const sortedCourses = courses.sort((a, b) => {
     </section>
 
     <div class="container mx-auto px-4 py-8">
-      <!-- Filters Section -->
-
-      <!-- Featured Courses Banner -->
       {
         courses.some((course) => course.data.featured) && (
-          <div class="mb-8">
-            <div class="alert alert-info">
+          <div class="mb-4">
+            <div class="alert alert-accent shadow-lg">
               <svg class="stroke-current shrink-0 w-6 h-6" fill="none" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
@@ -71,9 +70,31 @@ const sortedCourses = courses.sort((a, b) => {
           </div>
         )
       }
+      <!-- Filters Section -->
+      <CourseFilters departments={departments} levels={levels} courses={sortedCourses} />
+
+      <!-- Featured Courses Banner -->
+
+      <!-- Course Grid -->
+      <div class="course-grid-container">
+        <div
+          id="course-grid"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        >
+          {sortedCourses.map((course) => <CourseCard course={course} />)}
+        </div>
+
+        <!-- Empty state -->
+        <div id="empty-state" class="hidden text-center py-12">
+          <div class="text-6xl mb-4">📚</div>
+          <h3 class="text-2xl font-bold text-base-content mb-2">No se encontraron cursos</h3>
+          <p class="text-base-content/70 mb-6">Intenta ajustar los filtros para ver más cursos.</p>
+          <button id="clear-filters" class="btn btn-primary"> Limpiar Filtros </button>
+        </div>
+      </div>
 
       <!-- Department Overview -->
-      <div class="mb-8">
+      <div class="my-4">
         <h2 class="text-2xl font-bold mb-4">Departamentos</h2>
         <div class="flex flex-wrap gap-3">
           {
@@ -105,57 +126,41 @@ const sortedCourses = courses.sort((a, b) => {
           }
         </div>
       </div>
-
-      <!-- Course Grid -->
-      <!-- <div class="course-grid-container">
-        <div id="course-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {sortedCourses.map((course) => (
-            <CourseCard course={course} />
-          ))}
-        </div> -->
-
-      <!-- Empty state -->
-      <div id="empty-state" class="hidden text-center py-12">
-        <div class="text-6xl mb-4">📚</div>
-        <h3 class="text-2xl font-bold text-base-content mb-2">No se encontraron cursos</h3>
-        <p class="text-base-content/70 mb-6">Intenta ajustar los filtros para ver más cursos.</p>
-        <button id="clear-filters" class="btn btn-primary"> Limpiar Filtros </button>
-      </div>
     </div>
   </main>
+
+  <style>
+    .course-grid-container {
+      min-height: 400px;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .course-card {
+      animation: fadeInUp 0.5s ease-out;
+    }
+
+    /* Stagger animation for course cards */
+    .course-card:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+    .course-card:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .course-card:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+    .course-card:nth-child(4) {
+      animation-delay: 0.4s;
+    }
+  </style>
 </Layout>
-
-<style>
-  .course-grid-container {
-    min-height: 400px;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .course-card {
-    animation: fadeInUp 0.5s ease-out;
-  }
-
-  /* Stagger animation for course cards */
-  .course-card:nth-child(1) {
-    animation-delay: 0.1s;
-  }
-  .course-card:nth-child(2) {
-    animation-delay: 0.2s;
-  }
-  .course-card:nth-child(3) {
-    animation-delay: 0.3s;
-  }
-  .course-card:nth-child(4) {
-    animation-delay: 0.4s;
-  }
-</style>

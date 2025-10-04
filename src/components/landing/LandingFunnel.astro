@@ -2,10 +2,12 @@
 // Import components
 import Navbar from './Navbar.astro';
 import Hero from './Hero.astro';
-import CourseCard from './CourseCard.astro';
+import CourseCard from './courses/CourseCard.astro';
 import ReviewCard from './ReviewCard.astro';
 import { Icon } from 'astro-icon/components';
-import Carousel from './Carousel.astro';
+// import Carousel from './Carousel.astro';
+// Uncomment and update the path below if Carousel.astro exists elsewhere:
+// import Carousel from '../path/to/Carousel.astro';
 // Import Astro content collections
 import { getCollection } from 'astro:content';
 
@@ -114,7 +116,7 @@ const main = [
         </div>
 
         <div class="flex justify-center">
-          <Carousel />
+          <!-- <Carousel /> -->
         </div>
       </div>
 

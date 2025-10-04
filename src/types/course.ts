@@ -17,7 +17,7 @@ export type Level = 'Plan Común' | 'Major' | 'Minor';
 
 // Department colors for UI
 export const DEPARTMENT_COLORS = {
-  Matemática: 'badge-primary',
+  Matemática: 'badge-primary ',
   Física: 'badge-secondary',
   Eléctrica: 'badge-accent',
   Computación: 'badge-info',
@@ -27,9 +27,9 @@ export const DEPARTMENT_COLORS = {
 // Level colors for UI
 // TO DO
 export const LEVEL_COLORS = {
-  'Plan Común': 'badge-info',
-  Major: 'badge-success',
-  Minor: 'badge-error',
+  'Plan Común': 'badge-info badge-soft',
+  Major: 'badge-success badge-soft',
+  Minor: 'badge-error badge-soft',
 } as const;
 
 // Department icons

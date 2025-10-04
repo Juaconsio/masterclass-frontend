@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import type { Department, Level } from '../../types/course';
+import type { Department, Level } from '../../../types/course';
 
 interface Props {
   departments: Department[];
@@ -54,7 +54,7 @@ const { departments, levels, courses } = Astro.props;
         </div>
 
         <!-- Featured Toggle -->
-        <div class="form-control">
+        <div class="form-control flex items-center">
           <label class="label cursor-pointer gap-2">
             <span class="label-text text-sm">Solo destacados</span>
             <input type="checkbox" class="toggle toggle-primary toggle-sm" id="featured-toggle" />

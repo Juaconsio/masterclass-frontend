@@ -1,7 +1,7 @@
 ---
 import { Icon } from 'astro-icon/components';
 import type { CollectionEntry } from 'astro:content';
-import { DEPARTMENT_COLORS, LEVEL_COLORS, DEPARTMENT_ICONS } from '../../types/course';
+import { DEPARTMENT_COLORS, LEVEL_COLORS, DEPARTMENT_ICONS } from '../../../types/course';
 interface Props {
   course: CollectionEntry<'courses'>;
 }
@@ -10,7 +10,7 @@ const { course } = Astro.props;
 ---
 
 <div
-  class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 course-card cursor-pointer"
+  class="card bg-base-100 shadow-xl hover:shadow-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2 course-card cursor-pointer"
   data-department={course.data.department}
   data-level={course.data.level}
   data-acronym={course.data.acronym}
@@ -23,7 +23,7 @@ const { course } = Astro.props;
           <img
             src={course.data.image}
             alt={course.data.title}
-            class="h-48 w-full object-cover"
+            class="h-40 w-full object-cover"
             loading="lazy"
           />
           {course.data.featured && (
@@ -44,7 +44,7 @@ const { course } = Astro.props;
       )
     }
 
-    <div class="card-body p-6">
+    <div class="card-body p-6 justify-between">
       <!-- Course Acronym and Title -->
       <div class="mb-3">
         <div class="flex items-center gap-2 mb-2">
@@ -57,16 +57,10 @@ const { course } = Astro.props;
             {course.data.level}
           </div>
         </div>
-        <div class="flex items-center justify-between mt-3">
+        <div class="flex items-center justify-between mt-3 gap-2">
           <h2 class="card-title text-2xl font-bold line-clamp-2">
             {course.data.title}
           </h2>
-          <div class="flex flex-col items-start relative">
-            <span class="text-xs text-base-content/70 mb-1 absolute -top-3 -left-3">desde</span>
-            <h3 class="font-bold text-2xl text-primary">
-              ${course.data.basePrice.toLocaleString('es-CL')}
-            </h3>
-          </div>
         </div>
       </div>
 
