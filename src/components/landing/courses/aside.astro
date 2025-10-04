@@ -1,0 +1,68 @@
+---
+import type { Course } from '../../../content/config';
+
+const { course } = Astro.props as { course: Course };
+---
+
+<div class="flex md:flex-col flex-row gap-6">
+  <div class="card w-xs md:w-full bg-primary text-primary-content shadow-xl">
+    <div class="card-body text-center">
+      <span class="text-xs inline-block">Agenda desde</span>
+      <h3 class="card-title justify-center text-2xl">
+        <div class="text-4xl font-bold mb-4">
+          ${course.basePrice.toLocaleString('es-CL')} CLP
+        </div>
+      </h3>
+
+      <div class="text-sm opacity-90 mb-6">
+        * El precio puede variar según la modalidad y duración de las sesiones
+      </div>
+
+      <div class="card-actions justify-center">
+        <button class="btn btn-accent btn-block btn-lg">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            ></path>
+          </svg>
+          Reservar Sesión
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-xl w-2xs h-fit md:w-full">
+    <div class="card-body">
+      <h3 class="card-title text-info">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          ></path>
+        </svg>
+        ¿Tienes Dudas?
+      </h3>
+      <p class="text-sm text-base-content/70 mb-4">
+        Nuestros coordinadores académicos pueden ayudarte a elegir el tutor ideal para este curso.
+      </p>
+      <div class="card-actions">
+        <button class="btn btn-info btn-outline btn-sm btn-block">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            ></path>
+          </svg>
+          Contactar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

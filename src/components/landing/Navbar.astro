@@ -2,6 +2,7 @@
 // Get current page for active state
 const currentPath = Astro.url.pathname;
 
+<<<<<<< HEAD
 const isActive = (path: string) => currentPath === path;
 ---
 
@@ -13,12 +14,18 @@ const isActive = (path: string) => currentPath === path;
     <div class="dropdown lg:hidden">
       <div tabindex="0" role="button" class="btn btn-ghost">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+=======
+      <!-- Logo -->
+      <a href="/" class="btn btn-ghost text-xl text-primary">
+        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+>>>>>>> 60652ee (Merge branch 'booking/student' into landing/color-palett-changes)
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
             d="M4 6h16M4 12h8m-8 6h16"></path>
         </svg>
+<<<<<<< HEAD
       </div>
       <ul
         tabindex="0"
@@ -30,13 +37,11 @@ const isActive = (path: string) => currentPath === path;
         </li>
         <li>
           <a href="/courses" class={isActive('/courses') ? 'text-primary font-medium' : ''}
-            >Courses</a
-          >
+            >Courses</a>
         </li>
         <li>
           <a href="#contact" class={isActive('#contact') ? 'text-primary font-medium' : ''}
-            >Contact</a
-          >
+            >Contact</a>
         </li>
       </ul>
     </div>
@@ -110,12 +115,98 @@ const isActive = (path: string) => currentPath === path;
         </a>
       </li>
     </ul>
-  </div>s
+  </div>
 
   <!-- CTA Button -->
   <div class="navbar-end">
-    <a href="/dashboard">
-      <button class="btn btn-primary"> Reservar Sesión </button>
-    </a>
+    <button class="btn btn-primary"> Reservar Sesión </button>
   </div>
 </nav>
+=======
+        SalvaRamos
+      </a>
+    </div>
+    <!-- Logo -->
+    <a href="/" class="btn btn-secondary text-xl border-0">
+      <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 14l9-5-9-5-9 5 9 5z"></path>
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
+        ></path>
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
+        ></path>
+      </svg>
+      SalvaRamos
+    </a>
+  </div>
+
+  <!-- Desktop menu -->
+  <div class="navbar-center hidden lg:flex">
+    <ul class="menu menu-horizontal px-1 gap-2 font-semibold">
+      <li>
+        <a href="/" class="navlink-astro transition-colors"> Inicio </a>
+      </li>
+      <li>
+        <a href="/about" class="navlink-astro transition-colors"> Nosotros </a>
+
+        <li>
+          <a href="/courses" class="navlink-astro transition-colors"> Ramos </a>
+        </li>
+      </li>
+      <li>
+        <a href="#how-it-works" class="navlink-astro transition-colors"> Como funciona </a>
+      </li>
+      <li>
+        <a href="/#contact" class="navlink-astro transition-colors"> Contacto </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- CTA Button -->
+  <div class="navbar-end">
+    <a href="/courses" class="btn btn-soft btn-primary">Explora los cursos</a>
+  </div>
+</nav>
+
+<script>
+  // Marca el enlace activo en el cliente para desktop y móvil
+  document.addEventListener('DOMContentLoaded', () => {
+    const currentPath = window.location.pathname;
+
+    console.log('Current Path:', currentPath);
+    console.log('Nav Links:', document.querySelectorAll('.navlink-astro'));
+    console.log('Nav Mobile Links:', document.querySelectorAll('.navlink-mobile-astro'));
+    // Desktop
+    document.querySelectorAll('.navlink-astro').forEach((link) => {
+      if (link.getAttribute('href') === currentPath) {
+        link.classList.add('text-primary-content', 'font-bold');
+        link.classList.remove('text-base-content');
+      } else {
+        link.classList.remove('text-primary-content', 'font-bold');
+        link.classList.add('text-base-content');
+      }
+    });
+    // Móvil
+    document.querySelectorAll('.navlink-mobile-astro').forEach((link) => {
+      if (link.getAttribute('href') === currentPath) {
+        link.classList.add('text-primary-content', 'font-bold');
+        link.classList.remove('text-base-content');
+      } else {
+        link.classList.remove('text-primary-content', 'font-bold');
+        link.classList.add('text-base-content');
+      }
+    });
+  });
+</script>
+>>>>>>> 60652ee (Merge branch 'booking/student' into landing/color-palett-changes)

@@ -2,9 +2,12 @@
 // Import components
 import Navbar from './Navbar.astro';
 import Hero from './Hero.astro';
-import CourseCard from './CourseCard.astro';
+import CourseCard from './courses/CourseCard.astro';
 import ReviewCard from './ReviewCard.astro';
-
+import { Icon } from 'astro-icon/components';
+// import Carousel from './Carousel.astro';
+// Uncomment and update the path below if Carousel.astro exists elsewhere:
+// import Carousel from '../path/to/Carousel.astro';
 // Import Astro content collections
 import { getCollection } from 'astro:content';
 
@@ -24,6 +27,29 @@ const reviewsToShow =
   featuredReviewsFiltered.length >= 6
     ? featuredReviewsFiltered.slice(0, 6)
     : allReviews.slice(0, 6);
+
+const main = [
+  {
+    title: 'Clases de excelencia para salvar ramos',
+    icon: 'mdi:target-arrow',
+    desc: 'Los mejores tips y técnicas para que rendir en tus evaluaciones',
+  },
+  {
+    title: 'Sesiones en vivo ',
+    icon: 'mdi:account-voice',
+    desc: 'Aquí aprenderás en tiempo real con resoluciones de dudas al instante',
+  },
+  {
+    title: 'Recursos y materiales exclusivos',
+    icon: 'mdi:book-open-page-variant',
+    desc: 'Creados por el equipo para afrontar las evaluaciones más difíciles',
+  },
+  {
+    title: 'Una comunidad que te acompaña',
+    icon: 'mdi:account-group',
+    desc: 'Todos tenemos el mismo objetivo y nos apoyamos para lograrlo',
+  },
+];
 ---
 
 <div class="min-h-screen">
@@ -33,7 +59,7 @@ const reviewsToShow =
   <Hero />
 
   <!-- Featured Courses Section -->
-  <section id="courses" class="py-20 bg-base-200">
+  <section id="courses" class="py-20">
     <div class="container mx-auto px-4">
       <div class="text-center mb-16">
         <h2 class="text-4xl md:text-5xl font-bold mb-6">Revisa los cursos que enseñamos</h2>
@@ -53,127 +79,68 @@ const reviewsToShow =
   </section>
 
   <!-- About Us Section -->
-  <section id="about" class="py-20">
-    <div class="container mx-auto px-4">
-      <div class="grid lg:grid-cols-2 gap-16 items-center">
-        <div>
-          <h2 class="text-4xl md:text-5xl font-bold mb-8">¿Por qué SalvaRamos?</h2>
-          <p class="text-xl text-base-content/70 mb-8 leading-relaxed">
-            Aquí va un largo texto de que somos bacanes, pendiente si lo dejamos o no.
-          </p>
-
-          <div class="space-y-6">
-            <div class="flex items-start gap-4">
-              <div class="badge badge-primary badge-lg p-4">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-              </div>
-              <div>
-                <h3 class="text-xl font-semibold mb-2">Expert Instructors</h3>
-                <p class="text-base-content/70">
-                  Learn from seasoned professionals with years of industry experience
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-4">
-              <div class="badge badge-primary badge-lg p-4">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                  ></path>
-                </svg>
-              </div>
-              <div>
-                <h3 class="text-xl font-semibold mb-2">Practical Learning</h3>
-                <p class="text-base-content/70">
-                  Hands-on projects and real-world case studies in every course
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-4">
-              <div class="badge badge-primary badge-lg p-4">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  ></path>
-                </svg>
-              </div>
-              <div>
-                <h3 class="text-xl font-semibold mb-2">Community Support</h3>
-                <p class="text-base-content/70">
-                  Join a vibrant community of learners and get peer support
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-6">
-          <div class="card bg-base-100 shadow-xl">
-            <div class="card-body text-center">
-              <div class="text-3xl font-bold text-primary mb-2">10,000+</div>
-              <p class="text-base-content/70">Active Students</p>
-            </div>
-          </div>
-
-          <div class="card bg-base-100 shadow-xl">
-            <div class="card-body text-center">
-              <div class="text-3xl font-bold text-primary mb-2">{allCourses.length}+</div>
-              <p class="text-base-content/70">Expert Courses</p>
-            </div>
-          </div>
-
-          <div class="card bg-base-100 shadow-xl">
-            <div class="card-body text-center">
-              <div class="text-3xl font-bold text-primary mb-2">95%</div>
-              <p class="text-base-content/70">Success Rate</p>
-            </div>
-          </div>
-
-          <div class="card bg-base-100 shadow-xl">
-            <div class="card-body text-center">
-              <div class="text-3xl font-bold text-primary mb-2">24/7</div>
-              <p class="text-base-content/70">Support Available</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Reviews Section -->
-  <section id="reviews" class="py-20">
-    <div class="container mx-auto px-4">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold mb-6">Nuestros Estudiantes</h2>
-        <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
-          Si no estás convencido/a, revisa las opiniones de nuestros estudiantes acá!
+  <section id="about" class="py-20 min-h-screen">
+    <div class="flex flex-col mx-auto px-4 max-w-7xl gap-10">
+      <div class="px-4 text-center mb-4 flex gap-4 flex-col justify-center">
+        <h2 class="text-4xl md:text-5xl font-bold">
+          Clases hechas pa’ remontar, materiales <br />que te salvan y un equipo que te banca. <Icon
+            name="mdi:handshake"
+            class="inline text-primary"
+          />
+        </h2>
+        <p class="text-xl text-base-content/70 leading-relaxed w-4/5 mx-auto">
+          Más que una plataforma de cursos en línea.
         </p>
       </div>
 
-      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {reviewsToShow.map((review) => <ReviewCard review={review} />)}
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+        <div class="flex flex-col justify-center">
+          <div class="space-y-2">
+            <h3 class="text-base-content/50">Somos...</h3>
+            <div class="space-y-6">
+              {
+                main.map((item) => (
+                  <div class="flex items-start gap-4">
+                    <div class="flex justify-center items-center bg-primary text-primary-content rounded-xl p-4">
+                      <Icon name={item.icon} size={32} />
+                    </div>
+                    <div>
+                      <h3 class="text-2xl mb-2">{item.title}</h3>
+                      <p class="text-base-content/50">{item.desc}</p>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-center">
+          <!-- <Carousel /> -->
+        </div>
       </div>
 
-      <div class="text-center mt-12">
-        <button class="btn btn-outline btn-primary"> View All Reviews </button>
-      </div>
+      <!-- Reviews Section -->
+      <section id="reviews" class="py-20">
+        <div class="container mx-auto px-4">
+          <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Nuestros Estudiantes</h2>
+            <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
+              Si no estás convencido/a, revisa las opiniones de nuestros estudiantes acá!
+            </p>
+          </div>
+
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {reviewsToShow.map((review) => <ReviewCard review={review} />)}
+          </div>
+
+          <div class="text-center mt-12">
+            <button class="btn btn-outline btn-primary"> View All Reviews </button>
+          </div>
+        </div>
+      </section>
     </div>
   </section>
-
   <!-- Contact Section -->
   <section id="contact" class="py-20 bg-base-200">
     <div class="container mx-auto px-4">
@@ -272,7 +239,6 @@ const reviewsToShow =
     </div>
   </section>
 
-  <!-- Footer -->
   <footer class="footer footer-center p-12 bg-primary text-primary-content">
     <div class="text-center">
       <div class="text-2xl font-bold mb-4">SalvaRamos</div>
