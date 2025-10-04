@@ -37,7 +37,12 @@ const { review } = Astro.props;
         )}
       </div>
       <div>
-        <h4 class="font-semibold">{review.data.name}</h4>
+        <div class="flex items-center gap-2">
+          <h4 class="font-semibold">{review.data.name}</h4>
+          {review.data.date && (
+            <span class="text-xs text-base-content/60">• {review.data.date}</span>
+          )}
+        </div>
         <p class="text-sm text-base-content/70">
           {review.data.profile}
           {review.data.studies && (

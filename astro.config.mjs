@@ -12,6 +12,7 @@ import icon from "astro-icon";
 export default defineConfig({
   vite: {
     plugins: [
+      // @ts-expect-error
       tailwindcss(),
       {
         name: "@astrojs/ts-plugin",
