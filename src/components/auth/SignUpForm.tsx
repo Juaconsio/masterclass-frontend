@@ -21,9 +21,9 @@ export default function SignInForm() {
     try {
       const res = await getToken(data);
       if (res.ok) {
-        window.location.href = '/spa';
+        window.location.href = '/home';
       } else {
-        setFeedback('Credenciales incorrectas o error de servidor.');
+        setFeedback('Credenciales incorrectas o error de servidor. ' + res.message);
       }
     } catch {
       setFeedback('Error de red o servidor.');

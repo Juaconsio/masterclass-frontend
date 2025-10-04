@@ -1,0 +1,84 @@
+---
+import { Icon } from 'astro-icon/components';
+import Carousel from './Carousel.astro';
+---
+
+<div class="bg-[url('public/images/Simple_Shiny.svg')]
+  bg-center bg-cover mt-16">
+  <section class="hero relative min-h-screen text-secondary-content">
+    <!-- Hero Content -->
+    <div>
+      <div class="hero-content flex flex-col relative z-30 container mx-auto px-4">
+        <div class="flex w-full flex-col lg:flex-row items-center gap-12 lg:gap-24 mb-16">
+          <div class="max-w-3xl">
+            <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
+              Clases en vivo de
+              <span class="text-primary relative border-b-4 border-primary"> Excelencia.</span>
+            </h1>
+
+            <p class="text-xl md:text-2xl mb-8 leading-relaxed max-w-3xl">
+              Aprende mediante sesiones grupales o personales, con foco a desarrollar herramientas
+              para que rindas tus exámenes de la mejor forma posible. <span
+                class="font-semibold
+            text-primary">¡Salva tu ramo ahora!</span
+              >
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4">
+              <button class="btn btn-wide btn-lg btn-primary border-none text-lg px-8 py-4 h-auto">
+                Busca tu curso!
+              </button>
+              <button class="btn btn-lg btn-soft btn-primary text-lg px-8 py-4 h-auto">
+                Ver Reseñas
+              </button>
+            </div>
+          </div>
+          <div
+            class="hidden md:flex md:h-[28rem] md:w-sm items-center rounded-2xl overflow-hidden shadow-2xl"
+          >
+            <img src="public/images/clases.jpeg" class="h-full object-cover" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="flex md:flex-row flex-wrap justify-around gap-8">
+        <div class="flex items-start gap-3">
+          <div class="flex items-center h-full gap-3">
+            <Icon name="mdi:book-open-variant" size={32} class="text-primary" />
+          </div>
+          <div>
+            <div class="text-3xl font-bold">+20</div>
+            <div class="w-32">Cursos impartidos</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 justify-start">
+          <div class="flex items-center h-full gap-3">
+            <Icon name="mdi:user-group" size={32} class="text-primary" />
+          </div>
+          <div>
+            <div class="text-3xl font-bold">+100</div>
+            <div class="w-32">Estudiantes por semestre</div>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="flex items-center h-full gap-3">
+            <Icon name="mdi:refresh-circle" size={32} class="text-primary" />
+          </div>
+          <div>
+            <div class="text-3xl font-bold">~40%</div>
+            <div class="w-32">Volvió a tomar clases</div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="md:hidden md:h-[28rem] md:w-sm items-center rounded-2xl overflow-hidden shadow-2xl m-6"
+      >
+        <img src="public/images/clases.jpeg" class="h-full object-cover" />
+      </div>
+    </div>
+  </section>
+</div>

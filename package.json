@@ -18,9 +18,11 @@
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "astro": "^5.12.9",
+    "astro-icon": "^1.1.5",
     "axios": "^1.11.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.541.0",
     "react": "^19.1.1",
     "react-day-picker": "^9.9.0",
@@ -31,6 +33,7 @@
     "zod": "^4.1.8"
   },
   "devDependencies": {
+    "@iconify-json/mdi": "^1.2.3",
     "@tailwindcss/typography": "^0.5.16",
     "daisyui": "^5.0.50",
     "prettier": "^3.6.2",

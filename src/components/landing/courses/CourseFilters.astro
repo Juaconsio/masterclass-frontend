@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import type { Department, Level } from '../types/course';
+import type { Department, Level } from '../../../types/course';
 
 interface Props {
   departments: Department[];
@@ -18,15 +18,19 @@ const { departments, levels, courses } = Astro.props;
       <div class="flex-1 min-w-0">
         <div class="form-control">
           <div class="input-group">
-            <input 
-              type="text" 
-              placeholder="Buscar por nombre, sigla o descripción..." 
+            <input
+              type="text"
+              placeholder="Buscar por nombre, sigla o descripción..."
               class="input input-bordered flex-1"
               id="search-input"
             />
             <button class="btn btn-square btn-primary" id="search-btn">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
               </svg>
             </button>
           </div>
@@ -38,23 +42,19 @@ const { departments, levels, courses } = Astro.props;
         <div class="form-control">
           <select class="select select-bordered select-sm w-40" id="department-filter">
             <option value="">Todos los Departamentos</option>
-            {departments.map(department => (
-              <option value={department}>{department}</option>
-            ))}
+            {departments.map((department) => <option value={department}>{department}</option>)}
           </select>
         </div>
 
         <div class="form-control">
           <select class="select select-bordered select-sm w-32" id="level-filter">
             <option value="">Todos los Niveles</option>
-            {levels.map(level => (
-              <option value={level}>{level}</option>
-            ))}
+            {levels.map((level) => <option value={level}>{level}</option>)}
           </select>
         </div>
 
         <!-- Featured Toggle -->
-        <div class="form-control">
+        <div class="form-control flex items-center">
           <label class="label cursor-pointer gap-2">
             <span class="label-text text-sm">Solo destacados</span>
             <input type="checkbox" class="toggle toggle-primary toggle-sm" id="featured-toggle" />
@@ -62,7 +62,7 @@ const { departments, levels, courses } = Astro.props;
         </div>
 
         <!-- Price Range / TODO: ver si lo dejamos o no, hidden por ahora -->
-        
+
         <div class="form-control hidden">
           <select class="select select-bordered select-sm w-32" id="price-filter">
             <option value="">Cualquier precio</option>
@@ -76,7 +76,11 @@ const { departments, levels, courses } = Astro.props;
         <!-- Clear Filters Button -->
         <button class="btn btn-ghost btn-sm" id="clear-filters">
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"></path>
           </svg>
           Limpiar
         </button>
@@ -94,7 +98,7 @@ const { departments, levels, courses } = Astro.props;
     <!-- Results Count and Sort -->
     <div class="flex justify-between items-center mt-4 text-sm text-base-content/70">
       <span id="results-count">Mostrando todos los {courses.length} cursos</span>
-      
+
       <!-- Sort Dropdown -->
       <div class="form-control">
         <select class="select select-bordered select-xs w-auto" id="sort-select">
@@ -112,7 +116,6 @@ const { departments, levels, courses } = Astro.props;
 </div>
 
 <script>
-
   interface FilterState {
     search: string;
     department: string;
@@ -128,7 +131,6 @@ const { departments, levels, courses } = Astro.props;
   }
 
   class CourseFilters {
-
     private searchInput!: HTMLInputElement;
     private departmentFilter!: HTMLSelectElement;
     private levelFilter!: HTMLSelectElement;
@@ -160,7 +162,7 @@ const { departments, levels, courses } = Astro.props;
       this.activeFiltersContainer = document.querySelector('#active-filters')!;
       this.filterTagsContainer = document.querySelector('#filter-tags')!;
       this.resultsCount = document.querySelector('#results-count')!;
-      
+
       // Get elements from the main page
       this.courseCards = document.querySelectorAll('.course-card');
       this.emptyState = document.querySelector('#empty-state')!;
@@ -169,21 +171,18 @@ const { departments, levels, courses } = Astro.props;
 
     attachEventListeners() {
       // Search input with debounce
-      let searchTimeout: ReturnType<typeof setTimeout>;;
+      let searchTimeout: ReturnType<typeof setTimeout>;
       this.searchInput.addEventListener('input', () => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => this.applyFilters(), 300);
       });
 
       // Filter controls
-      [
-        this.departmentFilter, 
-        this.levelFilter, 
-        this.priceFilter,
-        this.sortSelect
-      ].forEach(filter => {
-        filter.addEventListener('change', () => this.applyFilters());
-      });
+      [this.departmentFilter, this.levelFilter, this.priceFilter, this.sortSelect].forEach(
+        (filter) => {
+          filter.addEventListener('change', () => this.applyFilters());
+        }
+      );
 
       this.featuredToggle.addEventListener('change', () => this.applyFilters());
 
@@ -203,14 +202,19 @@ const { departments, levels, courses } = Astro.props;
         department: this.departmentFilter.value,
         level: this.levelFilter.value,
         featured: this.featuredToggle.checked,
-        priceRange: this.priceFilter.value as '0-20000' | '20000-40000' | '40000-60000' | '60000+' | '',
+        priceRange: this.priceFilter.value as
+          | '0-20000'
+          | '20000-40000'
+          | '40000-60000'
+          | '60000+'
+          | '',
         sort: this.sortSelect.value,
       };
     }
 
     matchesPriceRange(price: number, range: string) {
       if (!range) return true;
-      
+
       switch (range) {
         case '0-20000':
           return price >= 0 && price <= 20000;
@@ -233,12 +237,14 @@ const { departments, levels, courses } = Astro.props;
         const cardDepartment = card.dataset.department || '';
         const cardLevel = card.dataset.level || '';
         const cardAcronym = card.dataset.acronym || '';
-        
+
         // Get searchable text from the card
         const titleElement = card.querySelector('.card-title');
         const descriptionElement = card.querySelector('p');
         const cardTitle = titleElement ? titleElement.textContent!.toLowerCase() : '';
-        const cardDescription = descriptionElement ? descriptionElement.textContent!.toLowerCase() : '';
+        const cardDescription = descriptionElement
+          ? descriptionElement.textContent!.toLowerCase()
+          : '';
         const searchableText = `${cardTitle} ${cardDescription} ${cardAcronym.toLowerCase()}`;
 
         // Get price from the card
@@ -256,7 +262,8 @@ const { departments, levels, courses } = Astro.props;
         const matchesFeatured = !filters.featured || isFeatured;
         const matchesPrice = this.matchesPriceRange(cardPrice, filters.priceRange);
 
-        const isVisible = matchesSearch && matchesDepartment && matchesLevel && matchesFeatured && matchesPrice;
+        const isVisible =
+          matchesSearch && matchesDepartment && matchesLevel && matchesFeatured && matchesPrice;
 
         if (isVisible) {
           card.style.display = 'block';
@@ -278,46 +285,54 @@ const { departments, levels, courses } = Astro.props;
 
     sortCards(cards: HTMLElement[], sortType: string) {
       const parent = this.courseGrid;
-      
+
       cards.sort((a, b) => {
         switch (sortType) {
           case 'name-asc':
             const titleA = a.querySelector('.card-title')?.textContent || '';
             const titleB = b.querySelector('.card-title')?.textContent || '';
             return titleA.localeCompare(titleB, 'es');
-            
+
           case 'name-desc':
             const titleDescA = a.querySelector('.card-title')?.textContent || '';
             const titleDescB = b.querySelector('.card-title')?.textContent || '';
             return titleDescB.localeCompare(titleDescA, 'es');
-            
+
           case 'price-asc':
-            const priceA = parseInt(a.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0');
-            const priceB = parseInt(b.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0');
+            const priceA = parseInt(
+              a.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0'
+            );
+            const priceB = parseInt(
+              b.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0'
+            );
             return priceA - priceB;
-            
+
           case 'price-desc':
-            const priceDescA = parseInt(a.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0');
-            const priceDescB = parseInt(b.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0');
+            const priceDescA = parseInt(
+              a.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0'
+            );
+            const priceDescB = parseInt(
+              b.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0'
+            );
             return priceDescB - priceDescA;
-            
+
           case 'department':
             const deptA = a.dataset.department || '';
             const deptB = b.dataset.department || '';
             return deptA.localeCompare(deptB, 'es');
-            
+
           case 'level':
             const levelA = a.dataset.level || '';
             const levelB = b.dataset.level || '';
             return levelA.localeCompare(levelB, 'es');
-            
+
           default:
             return 0;
         }
       });
 
       // Reorder DOM elements
-      cards.forEach(card => {
+      cards.forEach((card) => {
         if (parent) {
           parent.appendChild(card);
         }
@@ -343,16 +358,15 @@ const { departments, levels, courses } = Astro.props;
 
     updateResultsCount(count: number) {
       if (count === -1) {
-        count = Array.from(this.courseCards).filter(card => 
-          card.style.display !== 'none'
-        ).length;
+        count = Array.from(this.courseCards).filter((card) => card.style.display !== 'none').length;
       }
-      
+
       const total = this.courseCards.length;
       if (this.resultsCount) {
-        this.resultsCount.textContent = count === total 
-          ? `Mostrando todos los ${total} cursos`
-          : `Mostrando ${count} de ${total} cursos`;
+        this.resultsCount.textContent =
+          count === total
+            ? `Mostrando todos los ${total} cursos`
+            : `Mostrando ${count} de ${total} cursos`;
       }
     }
 
@@ -376,7 +390,7 @@ const { departments, levels, courses } = Astro.props;
           '0-20000': '$0 - $20.000',
           '20000-40000': '$20.000 - $40.000',
           '40000-60000': '$40.000 - $60.000',
-          '60000+': '$60.000+'
+          '60000+': '$60.000+',
         };
         const priceLabel = priceLabels[filters.priceRange] || filters.priceRange;
         activeFilters.push({ label: `Precio: ${priceLabel}`, key: 'priceRange' });
@@ -387,7 +401,9 @@ const { departments, levels, courses } = Astro.props;
           this.activeFiltersContainer.classList.remove('hidden');
         }
         if (this.filterTagsContainer) {
-          this.filterTagsContainer.innerHTML = activeFilters.map(filter => `
+          this.filterTagsContainer.innerHTML = activeFilters
+            .map(
+              (filter) => `
             <div class="badge badge-primary gap-2">
               ${filter.label}
               <button class="btn btn-xs btn-circle btn-ghost" data-filter-key="${filter.key}">
@@ -396,10 +412,12 @@ const { departments, levels, courses } = Astro.props;
                 </svg>
               </button>
             </div>
-          `).join('');
+          `
+            )
+            .join('');
 
           // Add event listeners to remove individual filters
-          this.filterTagsContainer.querySelectorAll('[data-filter-key]').forEach(button => {
+          this.filterTagsContainer.querySelectorAll('[data-filter-key]').forEach((button) => {
             button.addEventListener('click', (e) => {
               const target = e.currentTarget as HTMLElement;
               const filterKey = target.dataset.filterKey;
@@ -456,10 +474,16 @@ const { departments, levels, courses } = Astro.props;
 
 <style>
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-  
+
   .animate-fadeIn {
     animation: fadeIn 0.3s ease-out;
   }
