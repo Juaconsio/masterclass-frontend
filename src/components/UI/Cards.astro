@@ -1,0 +1,54 @@
+---
+const cardsInfo = [
+  {
+    title: 'Agenda tu clase',
+    href: '/spa',
+    description:
+      'Reserva tu espacio en nuestras clases en línea y asegura tu lugar en el aprendizaje.',
+    tags: [
+      { name: 'Reserva', color: 'badge-primary' },
+      { name: 'Clases', color: 'badge-secondary' },
+    ],
+  },
+  {
+    title: 'Explora cursos',
+    description: 'Descubre una variedad de cursos en línea y encuentra el adecuado para ti.',
+    tags: [
+      { name: 'Explorar', color: 'badge-accent' },
+      { name: 'Cursos', color: 'badge-warning' },
+    ],
+  },
+  {
+    title: 'Pagos',
+    description: 'Accede a tu historial de pagos y gestiona tus métodos de pago de manera segura.',
+    tags: [
+      { name: 'Pagos', color: 'badge-success' },
+      { name: 'Seguridad', color: 'badge-info' },
+    ],
+  },
+];
+---
+
+<section>
+  <h2 class="text-xl font-bold mb-4">Accesos directos</h2>
+  <div class="flex flex-row gap-4">
+    {
+      cardsInfo.map((card) => (
+        <div
+          class="card bg-base-200 shadow-md hover:shadow-xl hover:shadow-accent/10 transition-shadow duration-300"
+          onclick={`location.href='${card.href || '#'}'`}
+        >
+          <div class="card-body">
+            <h3 class="card-title">{card.title}</h3>
+            <div>
+              {card.tags.map((tag) => (
+                <div class={`badge ${tag.color} mr-2`}>{tag.name}</div>
+              ))}
+            </div>
+            <p>{card.description}</p>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>

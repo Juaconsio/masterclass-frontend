@@ -1,7 +1,45 @@
-@import "tailwindcss";
-@plugin "daisyui";
+@import 'tailwindcss';
+@plugin "daisyui" {
+  themes: light --default;
+}
 @plugin '@tailwindcss/typography';
+@import 'react-day-picker/style.css';
+/* oklch(0.3729 0.0306 259.73) */
+/* oklch(0.7049 0.1867 47.6) */
+/* oklch(0.2101 0.0318 264.66) */
 
-@theme {
-  --color-primary: oklch(0.879 0.1796 94.68);
+@plugin "daisyui/theme" {
+  name: 'light';
+  default: true;
+  --color-primary: oklch(0.7049 0.1867 47.6);
+  --color-secondary: oklch(0.7049 0.1867 47.6);
+  --color-secondary: oklch(0.7049 0.1867 47.6);
+  --color-accent: oklch(0.93 0.03 47.6);
+  --color-accent-content: oklch(0.3729 0.0306 259.73);
+
+  --color-neutral: oklch(0.98 0.01 47.6);
+  --color-base-100: oklch(0.98 0.01 47.6); /* Blanco cálido, muy contrastante con el naranja */
+  --color-base-200: oklch(
+    0.93 0.03 47.6
+  ); /* Gris muy claro, mantiene contraste y suaviza el fondo */
+  --color-primary-content: white;
+  --color-base-content: oklch(
+    0.15 0.01 47.6
+  ); /*Gris oscuro, excelente contraste con fondos claros y naranja */
+  --color-neutral-content: oklch(0.15 0.01 47.6);
+  --color-secondary-content: oklch(
+    0.35 0.02 259.73
+  ); /* Azul grisáceo, combina con tu color secundario */
+}
+@layer base {
+  body {
+    @apply bg-base-100 text-base-content;
+  }
+}
+
+[data-navlink].active {
+  @apply text-primary-content bg-primary/20 rounded-lg font-bold;
+}
+[data-navlink]:not(.active) {
+  @apply text-base-content hover:text-primary-content;
 }
