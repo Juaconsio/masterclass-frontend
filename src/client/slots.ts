@@ -10,13 +10,13 @@ async function createSlot(payload: any) {
   return res.data;
 }
 
-async function updateSlot(payload: any) {
-  const res = await httpClient.put('/slots', payload);
+async function updateSlot(id: number, payload: any) {
+  const res = await httpClient.put(`/slots/${id}`, payload);
   return res.data;
 }
 
-async function deleteSlot() {
-  const res = await httpClient.delete('/slots');
+async function deleteSlot(id: number) {
+  const res = await httpClient.delete(`/slots/${id}`);
   return res.data;
 }
 
