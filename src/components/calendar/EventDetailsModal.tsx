@@ -1,8 +1,8 @@
-import { Calendar, Clock, MapPin, Users } from 'lucide-react';
 import { useState } from 'react';
 import type { IEvent } from '@interfaces/events/IEvent';
 import EventForm from './EventForm';
-
+import type { EventFormValues } from '@interfaces/events/IEvent';
+import { updateSlot } from '@client/slots';
 interface EventDetailsModalProps {
   event: IEvent | null;
   onClose: () => void;
@@ -18,41 +18,88 @@ export default function EventDetailsModal({
 }: EventDetailsModalProps) {
   const [isEditing, setIsEditing] = useState(false);
 
-  if (!event) return null;
-  if (isEditing) {
-    // Al modal se le agrega un padding, no se de donde pero es molesto para la UI
-    return (
-      <dialog open className="modal modal-open in-line p-0!">
-        <div className="modal-box max-w-md">
-          <h3 className="mb-4 text-lg font-bold">Editar Evento</h3>
-          <div className="space-y-2">
-            <div>ID: {event.id}</div>
-            <div>Clase: {event.classId}</div>
-            <div>Profesor: {event.professorId}</div>
-            <div>Inicio: {event.startTime}</div>
-            <div>Fin: {event.endTime}</div>
-            <div>Modalidad: {event.modality}</div>
-            <div>Estado: {event.status}</div>
-            <div>Min. estudiantes: {event.minStudents ?? '-'}</div>
-            <div>Max. estudiantes: {event.maxStudents}</div>
-          </div>
-          <div className="modal-action flex gap-2">
-            <button className="btn" onClick={() => setIsEditing(false)}>
-              Cancelar
-            </button>
-            <button className="btn btn-primary" onClick={() => setIsEditing(false)}>
-              Guardar (no implementado)
-            </button>
-          </div>
-        </div>
-      </dialog>
-    );
+  // Helper: construye solo los campos que realmente cambiaron
+  function buildSlotUpdatePayload(original: IEvent, form: EventFormValues) {
+    type UpdateSlotPayload = Partial<
+      Pick<
+        IEvent,
+        | 'classId'
+        | 'professorId'
+        | 'startTime'
+        | 'endTime'
+        | 'modality'
+        | 'status'
+        | 'minStudents'
+        | 'maxStudents'
+      >
+    >;
+
+    const payload: UpdateSlotPayload = {};
+
+    // Normaliza fechas (ignorando diferencias de formato pero no de instante real)
+    const iso = (d: Date) => d.toISOString();
+    const sameInstant = (a: string, b: string) => new Date(a).getTime() === new Date(b).getTime();
+
+    const newStartISO = iso(form.start instanceof Date ? form.start : new Date(form.start));
+    if (!sameInstant(newStartISO, original.startTime)) payload.startTime = newStartISO;
+
+    const newEndISO = iso(form.end instanceof Date ? form.end : new Date(form.end));
+    if (!sameInstant(newEndISO, original.endTime)) payload.endTime = newEndISO;
+
+    const newClassId = Number(form.classId);
+    if (newClassId !== original.classId) payload.classId = newClassId;
+
+    const newProfessorId = Number(form.professorId);
+    if (newProfessorId !== original.professorId) payload.professorId = newProfessorId;
+
+    if (form.modality !== original.modality) payload.modality = form.modality as any;
+    if (form.status !== original.status) payload.status = form.status as any;
+
+    // minStudents: permitir limpiar el valor. Si el usuario lo deja vacío, interpretamos que quiere quitarlo.
+    // Asunción: para "quitar" enviamos null (ajusta si tu API espera undefined o no permitir clearing).
+    const formMin = form.minStudents === undefined ? null : form.minStudents; // estandarizamos null para "sin valor"
+    const originalMin = original.minStudents === undefined ? null : original.minStudents;
+    if (formMin !== originalMin) payload.minStudents = formMin === null ? undefined : formMin; // decide aquí qué enviar
+
+    if (form.maxStudents !== original.maxStudents) payload.maxStudents = form.maxStudents;
+
+    return payload;
   }
 
-  // Al modal se le agrega un padding, no se de donde pero es molesto para la UI
-  return (
-    <dialog open className="modal modal-open in-line">
-      <div className="modal-box max-w-md">
+  async function handleUpdate(data: EventFormValues) {
+    try {
+      if (!event) return;
+      const payload = buildSlotUpdatePayload(event, data);
+      if (Object.keys(payload).length === 0) {
+        console.log('Sin cambios, no se envía update.');
+        onClose();
+        return;
+      }
+      console.log('Payload to update:', payload);
+      const res = await updateSlot(event.id, payload);
+      console.log(res);
+      onClose();
+    } catch (error: any) {
+      console.log(error.messages);
+    }
+  }
+
+  if (!event) return null;
+
+  let content: React.ReactNode;
+
+  if (isEditing) {
+    content = (
+      <EventForm
+        submitLabel="Actualizar"
+        onSubmit={handleUpdate}
+        onCancel={() => setIsEditing(false)}
+        initialValues={event}
+      />
+    );
+  } else {
+    content = (
+      <>
         <h3 className="mb-2 text-lg font-bold">Detalle del Evento</h3>
         <div className="space-y-2 py-2">
           <div>ID: {event.id}</div>
@@ -70,7 +117,6 @@ export default function EventDetailsModal({
           <div>Estado: {event.status}</div>
           <div>Min. estudiantes: {event.minStudents ?? '-'}</div>
           <div>Max. estudiantes: {event.maxStudents}</div>
-          {/* <div>Reservas: {event.reservations.}</div> */}
         </div>
         <div className="modal-action mt-4 flex gap-2">
           <button className="btn" onClick={onClose}>
@@ -87,7 +133,13 @@ export default function EventDetailsModal({
             </button>
           )}
         </div>
-      </div>
+      </>
+    );
+  }
+
+  return (
+    <dialog open className="modal modal-open in-line">
+      <div className="modal-box max-w-md">{content}</div>
     </dialog>
   );
 }

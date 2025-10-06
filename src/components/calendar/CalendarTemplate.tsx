@@ -13,7 +13,8 @@ export default function CalendarTemplate() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      window.location.href = '/auth/signIn';
+      // window.location.href = '/auth/signIn';
+      console.log('No auth en context');
     }
   }, [isAuthenticated]);
 
