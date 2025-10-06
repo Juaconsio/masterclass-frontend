@@ -60,7 +60,7 @@ export default function SignInForm() {
       </form>
       <div className="mt-6 text-center">
         <span>¿Ya tienes cuenta?</span>
-        <a href="/auth/signUp" className="link link-primary ml-2">
+        <a href="/auth/signIn" className="link link-primary ml-2">
           Regístrate
         </a>
       </div>

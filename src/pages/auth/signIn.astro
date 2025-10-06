@@ -1,11 +1,15 @@
 ---
+import Navbar from '@components/landing/Navbar.astro';
 import Layout from '../../layouts/Layout.astro';
 import SignInForm from '@components/auth/SignInForm';
 ---
 
 <Layout>
+  <Navbar />
   <div class="min-h-screen flex items-center justify-center bg-base-200">
-    <div class="flex flex-col md:flex-row shadow-xl rounded-xl overflow-hidden w-full max-w-4xl">
+    <div
+      class="flex flex-col bg-white md:flex-row shadow-xl rounded-xl overflow-hidden w-full max-w-4xl"
+    >
       <div class="hidden md:flex md:w-1/2 bg-base-100 items-center justify-center">
         <img
           src="/images/engineering.jpg"
