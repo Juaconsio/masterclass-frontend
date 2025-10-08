@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
+import { createReservation } from "../client/createReservation";
 
 interface Session {
   id: number;
@@ -17,6 +19,9 @@ const StudentSessionView: React.FC<{ courseId: string; sessionId: string }> = ({
   const [slots, setSlots] = useState<any[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [slotsError, setSlotsError] = useState("");
+  const [reserveLoading, setReserveLoading] = useState<number|null>(null);
+  const [reserveError, setReserveError] = useState("");
+  const [reserveSuccess, setReserveSuccess] = useState("");
 
   useEffect(() => {
     async function fetchSession() {
@@ -61,6 +66,27 @@ const StudentSessionView: React.FC<{ courseId: string; sessionId: string }> = ({
     }
     getSlots();
   }, [sessionId]);
+
+  const handleReserve = async (slotId: number) => {
+    setReserveLoading(slotId);
+    setReserveError("");
+    setReserveSuccess("");
+    try {
+      const jwt = localStorage.getItem("token");
+      let studentId = null;
+      if (jwt) {
+        const decoded: any = jwtDecode(jwt);
+        studentId = decoded.id;
+      }
+      if (!studentId) throw new Error("No student ID found");
+      await createReservation(studentId, slotId);
+      setReserveSuccess("Reservation successful!");
+    } catch (err: any) {
+      setReserveError("Error reserving slot");
+    } finally {
+      setReserveLoading(null);
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded shadow">
@@ -114,7 +140,13 @@ const StudentSessionView: React.FC<{ courseId: string; sessionId: string }> = ({
                           {end.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
-                      {/* Add more slot info/actions here if needed */}
+                      <button
+                        className="ml-4 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                        onClick={() => handleReserve(slot.id)}
+                        disabled={reserveLoading === slot.id}
+                      >
+                        {reserveLoading === slot.id ? 'Reserving...' : 'Reserve'}
+                      </button>
                     </li>
                   );
                 })}
@@ -123,6 +155,8 @@ const StudentSessionView: React.FC<{ courseId: string; sessionId: string }> = ({
               !slotsLoading && <div className="text-gray-500">No available slots for this session.</div>
             )}
           </div>
+          {reserveError && <div className="text-red-500 mt-4">{reserveError}</div>}
+          {reserveSuccess && <div className="text-green-600 mt-4">{reserveSuccess}</div>}
         </>
       )}
     </div>

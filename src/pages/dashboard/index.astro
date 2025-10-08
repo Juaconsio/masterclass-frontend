@@ -1,7 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import DashboardComponent from '../../components/Dashboard.tsx';
+import DashboardComponent from '../../components/dashboard/DashboardNew.tsx';
 ---
 <Layout>
+  <link rel="stylesheet" href="/src/styles/dashboard.css" />
   <DashboardComponent client:load />
 </Layout>
