@@ -45,6 +45,7 @@
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "astro": "^5.12.9",
+    "astro-icon": "^1.1.5",
     "axios": "^1.11.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -70,6 +71,7 @@
     "zod": "^4.1.8"
   },
   "devDependencies": {
+    "@iconify-json/mdi": "^1.2.3",
     "@tailwindcss/typography": "^0.5.16",
     "daisyui": "^5.0.50",
     "prettier": "^3.6.2",

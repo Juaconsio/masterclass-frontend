@@ -6,10 +6,13 @@ import vercel from "@astrojs/vercel";
 
 import react from "@astrojs/react";
 
+import icon from "astro-icon";
+
 // https://astro.build/config
 export default defineConfig({
   vite: {
     plugins: [
+      // @ts-expect-error
       tailwindcss(),
       {
         name: "@astrojs/ts-plugin",
@@ -18,5 +21,5 @@ export default defineConfig({
   },
 
   adapter: vercel(),
-  integrations: [react()],
+  integrations: [react(), icon()],
 });

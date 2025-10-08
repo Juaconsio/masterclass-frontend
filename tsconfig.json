@@ -15,8 +15,8 @@
       "@/*": ["./src/*"],
       "@interfaces/*": ["./src/interfaces/*"],
       "@components/*": ["./src/components/*"],
-      "@client/*": ["./src/client/*"]
-
+      "@client/*": ["./src/client/*"],
+      "@layouts/*": ["./src/layouts/*"]
     }
   }
 }
