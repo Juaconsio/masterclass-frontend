@@ -1,61 +1,54 @@
-import React, { useState } from 'react';
-import { registerUser } from '@client/auth';
+import { useState } from 'react';
+import { getToken } from '@client/auth';
 import { useForm } from 'react-hook-form';
+import { useSessionContext } from '../../context/SessionContext';
 import clsx from 'clsx';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import phoneSchema from './lib/numberhelper';
-
-const signInSchema = z
-  .object({
-    email: z.email('Ingresa un correo válido.').min(1, 'El correo es obligatorio.'),
-    password: z.string().min(6, 'La contraseña debe tener mínimo 6 caracteres.'),
-    confirmed_password: z.string().min(6, 'La contraseña debe tener mínimo 6 caracteres.'),
-    phone: phoneSchema,
-  })
-  .refine((data) => data.password === data.confirmed_password, {
-    message: 'Las contraseñas no coinciden.',
-    path: ['confirmed_password'],
-  });
-
-type FormData = z.infer<typeof signInSchema>;
+import { useNavigate } from 'react-router';
+interface FormData {
+  email: string;
+  password: string;
+}
 
 export default function SignInForm() {
+  const { handleToken } = useSessionContext();
+  const navigate = useNavigate();
+
+  // [TODO] Revisar si hay en localhost, validar y redireccionar a app
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<FormData>({
-    resolver: zodResolver(signInSchema as any),
-  });
-
+  } = useForm<FormData>();
   const [feedback, setFeedback] = useState('');
 
   const onSubmit = async (data: FormData) => {
     setFeedback('');
+    console.log('Submitting', data);
     try {
-      const res = await registerUser(data);
-      if (res.ok) {
-        window.location.href = '/spa';
+      const res = await getToken(data);
+      console.log('Token response', res);
+      if (res.ok && res.token) {
+        handleToken(res.token);
+        navigate('/app');
       } else {
-        setFeedback('Credenciales incorrectas o error de servidor.');
+        setFeedback('Credenciales incorrectas o error de servidor. ' + res.message);
       }
-    } catch {
-      setFeedback('Error de red o servidor.');
+    } catch (error: any) {
+      setFeedback('Error de red o servidor.' + error.message);
     }
   };
 
   return (
     <>
-      <h2 className="text-primary mb-2 text-3xl font-bold">Crea tu cuenta</h2>
+      <h2 className="text-primary mb-2 text-3xl font-bold">Iniciar sesión</h2>
       <p className="text-base-content mb-6">
-        Registrate y sé parte de la comunidad. La oportunidad de aprobar esta luego de este
-        formulario
+        Bienvenido de vuelta. Ingresa tus credenciales para continuar.
       </p>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
         <input
           type="email"
-          {...register('email')}
+          {...register('email', { required: 'El correo es obligatorio.' })}
           placeholder="Correo electrónico"
           className={clsx('input input-bordered w-full', { 'input-error': errors.email })}
           autoComplete="email"
@@ -63,38 +56,21 @@ export default function SignInForm() {
         {errors.email && <span className="text-error text-xs">{errors.email.message}</span>}
         <input
           type="password"
-          {...register('password')}
+          {...register('password', { required: 'La contraseña es obligatoria.' })}
           placeholder="Contraseña"
           className={clsx('input input-bordered w-full', { 'input-error': errors.password })}
           autoComplete="current-password"
         />
         {errors.password && <span className="text-error text-xs">{errors.password.message}</span>}
-        <input
-          type="password"
-          {...register('confirmed_password')}
-          placeholder="Confirma tu contraseña"
-          className={clsx('input input-bordered w-full', { 'input-error': errors.password })}
-        />
-        {errors.confirmed_password && (
-          <span className="text-error text-xs">{errors.confirmed_password.message}</span>
-        )}
-        <input
-          type="string"
-          {...register('phone')}
-          placeholder="Ingresa tu número telefonico"
-          className={clsx('input input-bordered w-full', { 'input-error': errors.password })}
-          autoComplete="tel"
-        />
-        {errors.phone && <span className="text-error text-xs">{errors.phone.message}</span>}
         <button type="submit" className="btn btn-primary w-full" disabled={isSubmitting}>
-          {isSubmitting ? 'Registrandote...' : 'Regístrate'}
+          {isSubmitting ? 'Entrando...' : 'Entrar'}
         </button>
-        <div className="text-error mt-2 min-h-[1.5em] text-sm">{feedback}</div>
+        <div className="text-error mt-2 h-fit min-h-[1.5em] text-sm"> {feedback}</div>
       </form>
       <div className="mt-6 text-center">
-        <span>¿No tienes cuenta?</span>
-        <a href="/auth/signUp" className="link link-primary ml-2">
-          Ingresa
+        <span>¿Ya tienes cuenta?</span>
+        <a href="/auth/signIn" className="link link-primary ml-2">
+          Regístrate
         </a>
       </div>
     </>
