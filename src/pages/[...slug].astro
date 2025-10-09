@@ -1,0 +1,10 @@
+---
+// src/pages/app/[...slug].astro
+import Layout from '@layouts/Layout.astro';
+
+export const prerender = false;
+
+import Spa from '@components/App.tsx';
+---
+
+<Layout title="Salva Ramos - Portal"><Spa client:only /></Layout>

@@ -1,20 +1,33 @@
-import React, { createContext, useContext } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import React, { createContext, useContext, useState } from 'react';
+import { jwtDecode } from 'jwt-decode';
 
-// Ajusta el tipo de usuario según tu modelo
 export type SessionContextType = {
   user: any;
   isAuthenticated: boolean;
-
-  // Agrega más funciones/propiedades según lo que necesites
+  handleToken: (token: string) => void;
 };
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const session = useAuth();
+  const [user, setUser] = useState<any>(null);
+  const isAuthenticated = !!user;
 
-  return <SessionContext.Provider value={session}>{children}</SessionContext.Provider>;
+  const handleToken = (token: string) => {
+    setUser(jwtDecode(token));
+  };
+
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    console.log('Token encontrado en localStorage, autenticando usuario...');
+    handleToken(token);
+  }
+
+  return (
+    <SessionContext.Provider value={{ user, isAuthenticated, handleToken }}>
+      {children}
+    </SessionContext.Provider>
+  );
 };
 
 export const useSessionContext = () => {
