@@ -1,12 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Card } from "@/components/ui-dashboard/card"
-import { Button } from "@/components/ui-dashboard/button"
 import { Play, CheckCircle2, Circle, ChevronDown, ChevronUp, FileText, Code } from "lucide-react"
-import { Badge } from "@/components/ui-dashboard/badge"
 import { httpClient } from '@/client/config'
-import React from 'react'
+import * as React from 'react'
 
 interface CourseContentProps {
   course?: any
@@ -111,10 +108,12 @@ export function CourseContent({ course: propCourse, courseId }: CourseContentPro
 
   return (
     <div className="space-y-6">
-      <Card className="p-6 border-border bg-card">
-        <h2 className="text-2xl font-bold text-foreground mb-4">About This Course</h2>
-        <p className="text-muted-foreground leading-relaxed">{displayCourse.description}</p>
-      </Card>
+      <div className="card bg-base-100 shadow-xl border">
+        <div className="card-body p-6">
+          <h2 className="text-2xl font-bold text-foreground mb-4">About This Course</h2>
+          <p className="text-muted-foreground leading-relaxed">{displayCourse.description}</p>
+        </div>
+      </div>
 
       <div>
         <h2 className="text-2xl font-bold text-foreground mb-4">Course Curriculum</h2>
@@ -125,7 +124,7 @@ export function CourseContent({ course: propCourse, courseId }: CourseContentPro
             const totalCount = section.lessons.length
 
             return (
-              <Card key={section.id} className="border-border bg-card overflow-hidden">
+              <div key={section.id} className="card bg-base-100 shadow-xl border overflow-hidden">
                 <button
                   onClick={() => toggleSection(section.id)}
                   className="w-full p-4 flex items-center justify-between hover:bg-secondary/50 transition-colors"
@@ -142,9 +141,9 @@ export function CourseContent({ course: propCourse, courseId }: CourseContentPro
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="bg-background/50">
+                    <span className="badge badge-outline badge-sm">
                       {totalCount} lessons
-                    </Badge>
+                    </span>
                     {isExpanded ? (
                       <ChevronUp className="h-5 w-5 text-muted-foreground" />
                     ) : (
@@ -180,55 +179,59 @@ export function CourseContent({ course: propCourse, courseId }: CourseContentPro
                         <div className="flex items-center gap-3">
                           <span className="text-sm text-muted-foreground">{lesson.duration}</span>
                           {!lesson.completed && (
-                            <Button size="sm" variant="ghost" className="text-primary hover:text-primary">
+                            <button className="btn btn-sm btn-ghost text-primary hover:text-primary">
                               Start
-                            </Button>
+                            </button>
                           )}
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
-              </Card>
+              </div>
             )
           })}
         </div>
       </div>
       {/* Sessions (available classes) - show after the curriculum, like old StudentCourseView */}
-      <Card className="p-6 border-border bg-card mt-6">
-        <h2 className="text-2xl font-bold text-foreground mb-4">Clases disponibles</h2>
-        <div className="grid gap-3">
-          {sessions && sessions.length > 0 ? (
-            sessions.map((session: any) => (
-              <Card key={session.id} className="p-4 border-border bg-card">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground">{session.title}</h3>
-                    {session.description && (
-                      <p className="text-sm text-muted-foreground mt-1">{session.description}</p>
-                    )}
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <Badge variant="outline" className="bg-background/50 text-xs">
-                      {session.isActive ? 'Active' : 'Inactive'}
-                    </Badge>
-                    {resolvedCourseId ? (
-                      <a
-                        href={`/dashboard/session/${resolvedCourseId}/${session.id}`}
-                        className="rounded bg-primary px-3 py-1 text-white text-sm hover:bg-primary/90"
-                      >
-                        View
-                      </a>
-                    ) : null}
+      <div className="card bg-base-100 shadow-xl border mt-6">
+        <div className="card-body p-6">
+          <h2 className="text-2xl font-bold text-foreground mb-4">Clases disponibles</h2>
+          <div className="grid gap-3">
+            {sessions && sessions.length > 0 ? (
+              sessions.map((session: any) => (
+                <div key={session.id} className="card bg-base-100 shadow-sm border">
+                  <div className="card-body p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-foreground">{session.title}</h3>
+                        {session.description && (
+                          <p className="text-sm text-muted-foreground mt-1">{session.description}</p>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        <span className={`badge badge-outline badge-sm ${session.isActive ? 'badge-success' : 'badge-ghost'}`}>
+                          {session.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                        {resolvedCourseId ? (
+                          <a
+                            href={`/dashboard/session/${resolvedCourseId}/${session.id}`}
+                            className="btn btn-sm btn-primary"
+                          >
+                            View
+                          </a>
+                        ) : null}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </Card>
-            ))
-          ) : (
-            <div className="text-muted-foreground">No se encontraron clases.</div>
-          )}
+              ))
+            ) : (
+              <div className="text-muted-foreground">No se encontraron clases.</div>
+            )}
+          </div>
         </div>
-      </Card>
+      </div>
     </div>
   )
 }

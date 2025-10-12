@@ -68,8 +68,8 @@ export default function SignInForm() {
         <div className="text-error mt-2 h-fit min-h-[1.5em] text-sm"> {feedback}</div>
       </form>
       <div className="mt-6 text-center">
-        <span>¿Ya tienes cuenta?</span>
-        <a href="/ingresar" className="link link-primary ml-2">
+        <span>¿No tienes cuenta?</span>
+        <a href="/registrar" className="link link-primary ml-2">
           Regístrate
         </a>
       </div>
