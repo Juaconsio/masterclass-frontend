@@ -6,6 +6,7 @@ import SignInForm from '@components/auth/SignInForm.tsx';
 import SignUpForm from '@components/auth/SignUpForm.tsx';
 import NotFound from './UI/NotFound.tsx';
 import Home from './home';
+import Courses from './courses';
 
 export default function Spa() {
   return (
@@ -21,6 +22,7 @@ export default function Spa() {
           <Route path="/app">
             <Route index element={<Home />} />
             <Route path="reservas" element={<CalendarTemplate />} />
+            <Route path="cursos" element={<Courses />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
