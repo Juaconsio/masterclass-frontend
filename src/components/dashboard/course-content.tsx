@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui-dashboard/card"
+import { Button } from "@/components/ui-dashboard/button"
 import { Play, CheckCircle2, Circle, ChevronDown, ChevronUp, FileText, Code } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui-dashboard/badge"
 import { httpClient } from '@/client/config'
 import React from 'react'
 

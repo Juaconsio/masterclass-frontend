@@ -3,7 +3,7 @@ import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../../hooks/useAuth';
 import { fetchSlots } from '../../client/slots';
 import { DashboardHeader } from './dashboardHeader';
-import { CoursesSection } from './courseSection';
+import { CoursesSection } from './course-section';
 import { fetchCourses } from '@client/courses';
 import { fetchReservations } from '@/client/reservations';
 
