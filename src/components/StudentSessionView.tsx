@@ -22,6 +22,7 @@ const StudentSessionView: React.FC<{ courseId: string; sessionId: string }> = ({
   const [reserveLoading, setReserveLoading] = useState<number|null>(null);
   const [reserveError, setReserveError] = useState("");
   const [reserveSuccess, setReserveSuccess] = useState("");
+  const apiUrl = import.meta.env.PUBLIC_BACKEND_API_URL;
 
   useEffect(() => {
     async function fetchSession() {
@@ -29,7 +30,7 @@ const StudentSessionView: React.FC<{ courseId: string; sessionId: string }> = ({
       setError("");
       try {
         const jwt = localStorage.getItem("token");
-        const res = await fetch(`http://localhost:3000/courses/${courseId}/sessions/${sessionId}`,
+        const res = await fetch(`${apiUrl}/courses/${courseId}/sessions/${sessionId}`,
           {
             headers: { Authorization: jwt ? `Bearer ${jwt}` : "" },
             method: 'GET',
