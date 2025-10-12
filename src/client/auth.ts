@@ -17,19 +17,23 @@ async function registerUser(payload: any) {
 async function getToken(payload: any): Promise<{ ok: boolean; token?: string; message?: string }> {
   const existingToken = localStorage.getItem('token');
   if (existingToken) {
-    return { ok: true, token: existingToken };
+    try {
+      const resTokenValidate = await httpClient.post('auth/validate', { token: existingToken });
+      if (resTokenValidate.status == 200) return { ok: true, token: existingToken };
+    } catch (error) {
+      // Token inválido o error en la validación, proceder a obtener un nuevo token
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
   }
   try {
     const res = await httpClient.post('auth/login', payload);
-    if (res.status == 200 && res.data?.token) {
-      const userData = JSON.stringify(jwtDecode(res.data.token));
-      localStorage.setItem('user', userData);
-      localStorage.setItem('token', res.data.token);
-      return { ok: true, token: res.data.token };
-    }
-    return { ok: false, message: res.data?.message };
+    const userData = JSON.stringify(jwtDecode(res.data.token));
+    localStorage.setItem('user', userData);
+    localStorage.setItem('token', res.data.token);
+    return { ok: true, token: res.data.token };
   } catch (error: any) {
-    return { ok: false };
+    return { ok: false, message: error.response?.data?.message || 'Error desconocido' };
   }
 }
 
