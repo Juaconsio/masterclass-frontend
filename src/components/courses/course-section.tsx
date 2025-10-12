@@ -1,7 +1,4 @@
-import { Card } from "@components/ui-dashboard/card"
 import { Clock } from "lucide-react"
-import { Badge } from "@components/ui-dashboard/badge"
-import { Progress } from "@components/ui-dashboard/progress"
 
 // Use courses passed in via props; default to empty array to avoid relying on mock data
 
@@ -23,9 +20,9 @@ export function CoursesSection({ courses: propCourses, loading }: CoursesSection
       {!loading && data.length === 0 && <div className="text-muted-foreground">No courses found.</div>}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {data.map((course) => (
-          <Card
+          <div
             key={course.id}
-            className="overflow-hidden border-border bg-card hover:border-primary/50 transition-colors group"
+            className="card bg-base-100 shadow-xl border hover:shadow-2xl transition-all duration-300 group"
           >
             <div className="aspect-video relative overflow-hidden bg-secondary">
               <img
@@ -34,21 +31,18 @@ export function CoursesSection({ courses: propCourses, loading }: CoursesSection
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
               <div className="absolute top-3 right-3">
-                <Badge
-                  variant={
-                    course.status === 'Completed'
-                      ? 'default'
-                      : course.status === 'In Progress'
-                        ? 'secondary'
-                        : 'outline'
-                  }
-                  className="bg-background/90 backdrop-blur-sm"
-                >
+                <span className={`badge ${
+                  course.status === 'Completed'
+                    ? 'badge-success'
+                    : course.status === 'In Progress'
+                      ? 'badge-secondary'
+                      : 'badge-outline'
+                }`}>
                   {course.status}
-                </Badge>
+                </span>
               </div>
             </div>
-            <div className="p-4 space-y-3">
+            <div className="card-body p-4 space-y-3">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <h3 className="font-semibold text-foreground text-balance mb-1 group-hover:text-primary transition-colors">
@@ -62,7 +56,7 @@ export function CoursesSection({ courses: propCourses, loading }: CoursesSection
                 <div className="flex-shrink-0">
                   <a
                     href={`/dashboard/course-content/${course.id}`}
-                    className="ml-4 rounded bg-blue-600 px-3 py-1 text-white transition hover:bg-blue-700 text-sm"
+                    className="btn btn-sm btn-primary ml-4"
                   >
                     View
                   </a>
@@ -78,11 +72,11 @@ export function CoursesSection({ courses: propCourses, loading }: CoursesSection
                     <span className="text-muted-foreground">Progress</span>
                     <span className="font-medium text-foreground">{course.progress}%</span>
                   </div>
-                  <Progress value={course.progress} className="h-2" />
+                  <progress className="progress progress-primary h-2" value={course.progress} max="100"></progress>
                 </div>
               )}
             </div>
-          </Card>
+          </div>
         ))}
       </div>
     </section>
