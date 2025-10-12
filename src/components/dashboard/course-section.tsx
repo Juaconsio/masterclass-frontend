@@ -1,7 +1,7 @@
-import { Card } from "@components/ui/card"
+import { Card } from "@components/ui-dashboard/card"
 import { Clock } from "lucide-react"
-import { Badge } from "@components/ui/badge"
-import { Progress } from "@components/ui/progress"
+import { Badge } from "@components/ui-dashboard/badge"
+import { Progress } from "@components/ui-dashboard/progress"
 
 // Use courses passed in via props; default to empty array to avoid relying on mock data
 

@@ -1,11 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Card } from "@components/ui/card"
-import { Button } from "@components/ui/button"
+import { Card } from "@components/ui-dashboard/card"
+import { Button } from "@components/ui-dashboard/button"
 import { ChevronLeft, ChevronRight, CalendarIcon, Clock } from "lucide-react"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@components/ui/dialog"
-import { Badge } from "@components/ui/badge"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@components/ui-dashboard/dialog"
+import { Badge } from "@components/ui-dashboard/badge"
 
 // No mock reservation data — use only the provided reservationsByDate prop
 
