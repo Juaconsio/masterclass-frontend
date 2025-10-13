@@ -66,7 +66,6 @@ class HttpClient {
   }
 
   private setupInterceptors() {
-    // ✅ Request interceptor - Añade automáticamente el token JWT
     this.axiosInstance.interceptors.request.use(
       (config) => {
         const token = localStorage.getItem('token');
@@ -81,8 +80,6 @@ class HttpClient {
         return Promise.reject(error);
       }
     );
-
-    // Response interceptor
   }
 
   public get<T = any>(url: string, config?: AxiosRequestConfig) {
