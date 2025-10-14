@@ -2,14 +2,7 @@ import { useSessionContext } from '../../context/SessionContext';
 import { useNavigate, Link } from 'react-router';
 import { useEffect } from 'react';
 const Home = () => {
-  const navigate = useNavigate();
   const { user, isLoading } = useSessionContext();
-
-  useEffect(() => {
-    if (!isLoading && !user) {
-      navigate('/ingresar', { replace: true });
-    }
-  }, [user, isLoading, navigate]);
 
   if (isLoading) {
     return (

@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router';
+import { validateToken } from '@/client/auth';
 
 export type SessionContextType = {
   user: any;
@@ -14,17 +16,31 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const isAuthenticated = !!user;
+  const navigate = useNavigate();
 
   const handleToken = (token: string) => {
     setUser(jwtDecode(token));
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
+    async function loadUserFromStorage() {
+      if (user) {
+        setIsLoading(false);
+        return;
+      }
+
+      const token = await validateToken();
+
+      if (!token) {
+        navigate('/ingresar', { replace: true });
+        return;
+      }
+
       handleToken(token);
+      setIsLoading(false);
     }
-    setIsLoading(false);
+
+    loadUserFromStorage();
   }, []);
 
   return (
