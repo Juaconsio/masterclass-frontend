@@ -5,7 +5,6 @@ import { jwtDecode } from 'jwt-decode';
 async function registerUser(payload: any) {
   try {
     const res = await httpClient.post('auth/register', payload);
-
     if (res.status == 201) return { ok: true };
     throw new Error('Error en el registro' + res.data?.message);
   } catch (error) {
@@ -13,19 +12,29 @@ async function registerUser(payload: any) {
   }
 }
 
-// falta ver caso de credenciales incorrectas
-async function getToken(payload: any): Promise<{ ok: boolean; token?: string; message?: string }> {
+async function validateToken() {
   const existingToken = localStorage.getItem('token');
-  if (existingToken) {
-    try {
-      const resTokenValidate = await httpClient.post('auth/validate', { token: existingToken });
-      if (resTokenValidate.status == 200) return { ok: true, token: existingToken };
-    } catch (error) {
-      // Token inválido o error en la validación, proceder a obtener un nuevo token
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+  if (!existingToken) return null;
+
+  try {
+    const decoded: { exp: number } = jwtDecode(existingToken);
+    const now = Math.floor(Date.now() / 1000);
+    const shouldValidateWithServer = decoded.exp - now < 5 * 60;
+    if (!shouldValidateWithServer) {
+      return existingToken;
     }
+    const resTokenValidate = await httpClient.get('auth/validate');
+    if (resTokenValidate.status == 200) return existingToken;
+  } catch (error) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    return null;
   }
+}
+
+async function getToken(payload: any): Promise<{ ok: boolean; token?: string; message?: string }> {
+  const tokenValidation = await validateToken();
+  if (tokenValidation) return { ok: true, token: tokenValidation };
   try {
     const res = await httpClient.post('auth/login', payload);
     const userData = JSON.stringify(jwtDecode(res.data.token));
@@ -37,4 +46,4 @@ async function getToken(payload: any): Promise<{ ok: boolean; token?: string; me
   }
 }
 
-export { registerUser, getToken };
+export { registerUser, getToken, validateToken };
