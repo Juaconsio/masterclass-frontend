@@ -1,4 +1,6 @@
-<nav class="navbar fixed top-0 w-full bg-primary/80 backdrop-blur border-b border-base-300 z-50">
+<nav
+  class="navbar h-navbar fixed top-0 w-full bg-primary/80 backdrop-blur border-b border-base-300 z-50"
+>
   <!-- Start -->
   <div class="navbar-start">
     <!-- Mobile dropdown -->
@@ -66,12 +68,10 @@
   document.addEventListener('DOMContentLoaded', () => {
     const currentPath = window.location.pathname;
     const currentHash = window.location.hash;
-    console.log({ currentPath, currentHash });
     const current = currentPath.concat(currentHash);
     const links = document.querySelectorAll('[data-navlink]');
     links.forEach((el) => {
       const href = el.getAttribute('href');
-      console.log({ href, current });
       if (href === current) {
         el.classList.add('active');
         el.setAttribute('aria-current', 'page');

@@ -41,6 +41,15 @@
 [data-navlink].active {
   @apply text-primary-content bg-primary/20 rounded-lg font-bold;
 }
+
 [data-navlink]:not(.active) {
   @apply text-base-content hover:text-primary-content;
+}
+
+@utility h-navbar {
+  height: 4.5rem;
+}
+
+@utility h-hero {
+  height: calc(100vh - 4.5rem);
 }
