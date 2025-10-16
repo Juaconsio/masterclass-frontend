@@ -14,6 +14,8 @@
     "@astrojs/ts-plugin": "^1.10.4",
     "@astrojs/vercel": "^8.2.5",
     "@hookform/resolvers": "^5.2.1",
+    "@splidejs/react-splide": "^0.7.12",
+    "@splidejs/splide": "^4.1.4",
     "@tailwindcss/vite": "^4.1.11",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",

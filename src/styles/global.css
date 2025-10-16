@@ -4,6 +4,7 @@
 }
 @plugin '@tailwindcss/typography';
 @import 'react-day-picker/style.css';
+@import '@splidejs/react-splide/css';
 /* oklch(0.3729 0.0306 259.73) */
 /* oklch(0.7049 0.1867 47.6) */
 /* oklch(0.2101 0.0318 264.66) */

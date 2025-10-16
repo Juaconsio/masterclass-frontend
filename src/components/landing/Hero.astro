@@ -1,6 +1,6 @@
 ---
 import { Icon } from 'astro-icon/components';
-import Carousel from './Carousel.astro';
+import Carousel from '../UI/Carousel.tsx';
 ---
 
 <div class="bg-[url('/images/Simple_Shiny.svg')]
@@ -33,11 +33,7 @@ import Carousel from './Carousel.astro';
               </button>
             </div>
           </div>
-          <div
-            class="hidden md:flex md:h-[28rem] md:w-sm items-center rounded-2xl overflow-hidden shadow-2xl"
-          >
-            <img src="/images/clases.jpeg" class="h-full object-cover" />
-          </div>
+          <Carousel client:load />
         </div>
       </div>
 
