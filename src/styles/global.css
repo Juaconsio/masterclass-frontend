@@ -50,9 +50,19 @@
 }
 
 @utility h-hero {
-  height: calc(100vh - 4.5rem);
+  /* Mobile: altura automática basada en contenido */
+  min-height: calc(100vh - 4.5rem);
   margin-top: 4.5rem;
   padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .h-hero {
+    /* Desktop: altura fija para mantener diseño */
+    height: calc(100vh - 4.5rem);
+    padding-bottom: 0;
+  }
 }
 
 @utility btn-navbar {
