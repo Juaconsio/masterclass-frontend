@@ -14,7 +14,6 @@
   default: true;
   --color-primary: oklch(0.7049 0.1867 47.6);
   --color-secondary: oklch(0.7049 0.1867 47.6);
-  --color-secondary: oklch(0.7049 0.1867 47.6);
   --color-accent: oklch(0.93 0.03 47.6);
   --color-accent-content: oklch(0.3729 0.0306 259.73);
 
@@ -52,4 +51,10 @@
 
 @utility h-hero {
   height: calc(100vh - 4.5rem);
+  margin-top: 4.5rem;
+  padding-top: 2rem;
+}
+
+@utility btn-navbar {
+  @apply btn-outline btn-secondary text-secondary-content border-0;
 }

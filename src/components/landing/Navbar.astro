@@ -1,68 +1,133 @@
+---
+import { Icon } from 'astro-icon/components';
+
+const links = [
+  { href: '/', label: 'Inicio' },
+  { href: '/about', label: 'Nosotros' },
+  { href: '/courses', label: 'Cursos' },
+  { href: '#how-it-works', label: 'Reservas' },
+  { href: '/#contact', label: 'Contacto' },
+];
+
+const authLinks = [
+  { href: '/ingresar', label: 'Iniciar Sesión', showOnDesktop: true },
+  { href: '/registro', label: 'Registrarse', showOnDesktop: false },
+  { href: '/recuperar', label: 'Recuperar Contraseña', showOnDesktop: false },
+];
+---
+
+<!-- Navbar principal -->
 <nav
-  class="navbar h-navbar fixed top-0 w-full bg-primary/80 backdrop-blur border-b border-base-300 z-50"
+  class="navbar h-navbar px-12 fixed top-0 w-full bg-primary/80 backdrop-blur border-b border-base-300 z-50"
 >
-  <!-- Start -->
-  <div class="navbar-start">
-    <!-- Mobile dropdown -->
-    <div class="dropdown lg:hidden">
-      <button tabindex="0" class="btn btn-ghost" aria-label="Abrir menú">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h16"></path>
-        </svg>
-      </button>
-      <ul
-        tabindex="0"
-        class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-56 font-medium"
-      >
-        <li><a data-navlink href="/">Inicio</a></li>
-        <li><a data-navlink href="/about">Nosotros</a></li>
-        <li><a data-navlink href="/courses">Ramos</a></li>
-        <li><a data-navlink href="#how-it-works">Cómo funciona</a></li>
-        <li><a data-navlink href="/#contact">Contacto</a></li>
-      </ul>
-    </div>
-    <!-- Brand -->
-    <a href="/" class="btn btn-ghost normal-case text-xl font-bold tracking-wide">
-      <svg class="h-7 w-7 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M12 14l9-5-9-5-9 5 9 5z"></path>
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
-        ></path>
-      </svg>
-      SalvaRamos
+  <!-- Mobile: Botón menú principal (izquierda) -->
+  <div class="flex-none lg:hidden">
+    <label for="main-drawer" aria-label="open main menu" class="btn btn-navbar btn-square">
+      <Icon name="mdi:menu" size={32} />
+    </label>
+  </div>
+
+  <!-- Logo/título -->
+  <div class="flex-1 lg:flex-none">
+    <a
+      href="/"
+      class="btn btn-navbar normal-case text-xl font-bold tracking-wide justify-center lg:justify-start"
+    >
+      <Icon name="mdi:school" size={32} class="mr-2" />
+      <span>Salva Ramos</span>
     </a>
   </div>
 
-  <!-- Center (desktop menu) -->
-  <div class="navbar-center hidden lg:flex">
-    <ul class="menu menu-horizontal px-1 font-semibold gap-1">
-      <li><a data-navlink href="/">Inicio</a></li>
-      <li><a data-navlink href="/about">Nosotros</a></li>
-      <li><a data-navlink href="/courses">Ramos</a></li>
-      <li><a data-navlink href="#how-it-works">Cómo funciona</a></li>
-      <li><a data-navlink href="/#contact">Contacto</a></li>
+  <!-- Desktop: Menú de navegación (centro) -->
+  <div class="hidden lg:flex lg:flex-1 lg:justify-center">
+    <ul class="menu menu-horizontal">
+      {
+        links.map((link) => (
+          <li>
+            <a data-navlink href={link.href} class="text-lg font-medium">
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
     </ul>
   </div>
 
-  <!-- End -->
-  <div class="navbar-end gap-2">
-    <a href="/auth/signIn" class="btn btn-primary btn-outline border-0 btn-sm text-primary-content"
-      >Ingresar</a
-    >
-    <a href="/courses" class="btn btn-primary btn-sm font-semibold shadow-md">Explora los cursos</a>
+  <!-- Desktop: AuthLinks + Icono cuenta (derecha) -->
+  <div class="flex items-center gap-2">
+    <!-- Desktop: Links de autenticación -->
+    <div class="hidden lg:flex">
+      <ul class="menu menu-horizontal">
+        {
+          authLinks
+            .filter((link) => link.showOnDesktop)
+            .map((link) => (
+              <li>
+                <a data-navlink href={link.href} class="text-lg font-medium">
+                  {link.label}
+                </a>
+              </li>
+            ))
+        }
+      </ul>
+    </div>
+
+    <!-- Icono cuenta (siempre visible) -->
+    <label for="auth-drawer" aria-label="open auth menu" class="btn btn-navbar btn-square">
+      <Icon name="mdi:account" size={32} />
+    </label>
   </div>
 </nav>
+
+<!-- Drawer 1: Menú principal -->
+<div class="drawer z-60">
+  <input id="main-drawer" type="checkbox" class="drawer-toggle" />
+  <div class="drawer-content"></div>
+  <div class="drawer-side">
+    <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+    <ul class="menu bg-base-200 min-h-full w-80 p-4">
+      <li class="menu-title">
+        <span>Navegación</span>
+      </li>
+      {
+        links.map((link) => (
+          <li>
+            <a data-navlink href={link.href} class="text-lg font-medium">
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</div>
+
+<!-- Drawer 2: Menú de autenticación -->
+<div class="drawer drawer-end z-60">
+  <input id="auth-drawer" type="checkbox" class="drawer-toggle" />
+  <div class="drawer-content"></div>
+  <div class="drawer-side">
+    <label for="auth-drawer" aria-label="close auth menu" class="drawer-overlay"></label>
+    <ul class="menu bg-base-200 min-h-full w-80 p-4">
+      <li class="menu-title">
+        <span>Cuenta</span>
+      </li>
+      {
+        authLinks.map((link) => (
+          <li>
+            <a href={link.href} class="text-lg font-medium">
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+      <div class="divider"></div>
+      <li>
+        <a href="/courses" class="btn btn-primary"> Explora los cursos </a>
+      </li>
+    </ul>
+  </div>
+</div>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
