@@ -1,0 +1,18 @@
+---
+import { Icon } from 'astro-icon/components';
+
+const { href, icon, title, subtitle } = Astro.props;
+---
+
+<a
+  href={href}
+  target="_blank"
+  class="flex items-center gap-4 p-4 rounded-xl hover:bg-secondary/10 transition-all transform hover:scale-105 hover:shadow-lg duration-200"
+>
+  <Icon name={icon} size={32} />
+
+  <div>
+    <h4 class="text-base-content/70">{title}</h4>
+    <p class="text-xl font-semibold">{subtitle}</p>
+  </div>
+</a>
