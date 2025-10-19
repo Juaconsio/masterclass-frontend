@@ -1,7 +1,9 @@
 import { httpClient } from './config';
 
-async function fetchCourses() {
-  const res = await httpClient.get('/courses');
+async function fetchCourses(studentId?: number) {
+  const res = await httpClient.get(
+    '/courses' + (studentId ? `?studentId=${studentId.toString()}` : '')
+  );
   return res.data;
 }
 

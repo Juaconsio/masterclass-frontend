@@ -28,6 +28,7 @@ const StudentCourseView: React.FC<{ courseId: string }> = ({ courseId }) => {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const apiUrl = import.meta.env.PUBLIC_BACKEND_API_URL;
 
   useEffect(() => {
     async function fetchData() {
@@ -36,12 +37,12 @@ const StudentCourseView: React.FC<{ courseId: string }> = ({ courseId }) => {
       try {
         const jwt = localStorage.getItem("token");
         // Fetch course info
-        const courseRes = await fetch(`http://localhost:3000/courses/${courseId}`);
+        const courseRes = await fetch(`${apiUrl}/courses/${courseId}`);
         if (!courseRes.ok) throw new Error("Failed to fetch course info");
         const courseData = await courseRes.json();
         setCourse(courseData);
         // Fetch available slots
-        const sessions = await fetch(`http://localhost:3000/courses/${courseId}/sessions`, {
+        const sessions = await fetch(`${apiUrl}/courses/${courseId}/sessions`, {
           headers: { Authorization: jwt ? `Bearer ${jwt}` : "" },
         });
         if (!sessions.ok) throw new Error("Failed to fetch sessions");

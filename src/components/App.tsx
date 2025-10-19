@@ -1,11 +1,12 @@
-import CalendarTemplate from './calendar/CalendarTemplate.tsx';
-import { SessionProvider } from '../context/SessionContext.tsx';
+import CalendarTemplate from './calendar/CalendarTemplate';
+import { SessionProvider } from '../context/SessionContext';
 import { BrowserRouter, Routes, Route } from 'react-router';
-import AuthLayout from '@layouts/authLayout.tsx';
-import SignInForm from '@components/auth/SignInForm.tsx';
-import SignUpForm from '@components/auth/SignUpForm.tsx';
-import NotFound from './UI/NotFound.tsx';
+import AuthLayout from '@layouts/authLayout';
+import SignInForm from '@components/auth/SignInForm';
+import SignUpForm from '@components/auth/SignUpForm';
+import NotFound from './UI/NotFound';
 import Home from './home';
+import Courses from './courses';
 
 export default function Spa() {
   return (
@@ -21,6 +22,7 @@ export default function Spa() {
           <Route path="/app">
             <Route index element={<Home />} />
             <Route path="reservas" element={<CalendarTemplate />} />
+            <Route path="cursos" element={<Courses />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
