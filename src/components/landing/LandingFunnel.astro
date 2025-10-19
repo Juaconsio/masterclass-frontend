@@ -1,16 +1,13 @@
 ---
-// Import components
 import Navbar from './Navbar.astro';
 import Hero from './Hero.astro';
 import CourseCard from './courses/CourseCard.astro';
 import ReviewCard from './ReviewCard.astro';
 import { Icon } from 'astro-icon/components';
-// import Carousel from './Carousel.astro';
-// Uncomment and update the path below if Carousel.astro exists elsewhere:
-// import Carousel from '../path/to/Carousel.astro';
-// Import Astro content collections
 import { getCollection } from 'astro:content';
-
+import Carousel from '../UI/Carousel.tsx';
+import ContactUs from './contactUs/index.astro';
+import Footer from './footer.astro';
 // Get collections
 const allCourses = await getCollection('courses');
 const allReviews = await getCollection('reviews');
@@ -37,7 +34,7 @@ const main = [
   {
     title: 'Sesiones en vivo ',
     icon: 'mdi:account-voice',
-    desc: 'Aquí aprenderás en tiempo real con resoluciones de dudas al instante',
+    desc: 'Aquí aprenderás en tiempo real con resolución de dudas al instante',
   },
   {
     title: 'Recursos y materiales exclusivos',
@@ -47,19 +44,19 @@ const main = [
   {
     title: 'Una comunidad que te acompaña',
     icon: 'mdi:account-group',
-    desc: 'Todos tenemos el mismo objetivo y nos apoyamos para lograrlo',
+    desc: 'Compartimos el mismo objetivo y nos apoyamos para lograrlo',
   },
 ];
 ---
 
-<div class="min-h-screen">
+<div>
   <Navbar />
 
   <!-- Hero Section -->
   <Hero />
 
   <!-- Featured Courses Section -->
-  <section id="courses" class="py-20">
+  <section id="courses" class="h-hero">
     <div class="container mx-auto px-4">
       <div class="text-center mb-16">
         <h2 class="text-4xl md:text-5xl font-bold mb-6">Revisa los cursos que enseñamos</h2>
@@ -79,17 +76,15 @@ const main = [
   </section>
 
   <!-- About Us Section -->
-  <section id="about" class="py-20 min-h-screen">
+  <section id="about" class="py-20 h-hero bg-base-300">
     <div class="flex flex-col mx-auto px-4 max-w-7xl gap-10">
       <div class="px-4 text-center mb-4 flex gap-4 flex-col justify-center">
         <h2 class="text-4xl md:text-5xl font-bold">
-          Clases hechas pa’ remontar, materiales <br />que te salvan y un equipo que te banca. <Icon
-            name="mdi:handshake"
-            class="inline text-primary"
-          />
-        </h2>
-        <p class="text-xl text-base-content/70 leading-relaxed w-4/5 mx-auto">
           Más que una plataforma de cursos en línea.
+          <Icon name="mdi:handshake" class="inline text-primary" />
+        </h2>
+        <p class="text-xl text-base-content/70 leading-relaxed">
+          Clases hechas pa’ remontar, materiales que te salvan y un equipo que te banca.
         </p>
       </div>
 
@@ -116,139 +111,36 @@ const main = [
         </div>
 
         <div class="flex justify-center">
-          <!-- <Carousel /> -->
+          <Carousel client:load />
         </div>
       </div>
-
-      <!-- Reviews Section -->
-      <section id="reviews" class="py-20">
-        <div class="container mx-auto px-4">
-          <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold mb-6">Nuestros Estudiantes</h2>
-            <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
-              Si no estás convencido/a, revisa las opiniones de nuestros estudiantes acá!
-            </p>
-          </div>
-
-          <div class="carousel w-full rounded-box space-x-4 p-4 overflow-x-auto">
-            {
-              reviewsToShow.map((review, index) => (
-                <div class="carousel-item w-80 flex-shrink-0">
-                  <ReviewCard review={review} />
-                </div>
-              ))
-            }
-          </div>
-        </div>
-      </section>
     </div>
-
-    <!-- Contact Section -->
-    <section id="contact" class="py-20 bg-base-200">
-      <div class="container mx-auto px-4">
-        <div class="text-center mb-16">
-          <h2 class="text-4xl md:text-5xl font-bold mb-6">Contáctanos</h2>
-          <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
-            Alguna duda? Háblanos a cualquiera de nuestras redes :)
-          </p>
-        </div>
-
-        <div class="grid lg:grid-cols-2 gap-16">
-          <div class="p-10">
-            <h3 class="text-2xl font-bold mb-8">Información de Contacto</h3>
-
-            <div class="space-y-6">
-              <a
-                href="mailto:salvaramos@gmail.com"
-                class="flex items-center gap-4 p-4 rounded-xl hover:bg-primary/10 transition-all transform hover:scale-105 hover:shadow-lg duration-200"
-              >
-                <div class="badge badge-primary badge-lg p-4">
-                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                    ></path>
-                  </svg>
-                </div>
-                <div>
-                  <h4 class="font-semibold mb-1">Email</h4>
-                  <p class="text-base-content/70">salvaramos@gmail.com</p>
-                </div>
-              </a>
-
-              <a
-                href="https://wa.me/33744867324"
-                target="_blank"
-                class="flex items-center gap-4 p-4 rounded-xl hover:bg-primary/10 transition-all transform hover:scale-105 hover:shadow-lg duration-200"
-              >
-                <div class="badge badge-primary badge-lg p-4">
-                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                    ></path>
-                  </svg>
-                </div>
-                <div>
-                  <h4 class="font-semibold mb-1">WhatsApp</h4>
-                  <p class="text-base-content/70">+33 7 4486 7324</p>
-                </div>
-              </a>
-
-              <a
-                href="https://www.instagram.com/salvaramos_ing"
-                target="_blank"
-                class="flex items-center gap-4 p-4 rounded-xl hover:bg-primary/10 transition-all transform hover:scale-105 hover:shadow-lg duration-200"
-              >
-                <div class="badge badge-primary badge-lg p-4">
-                  <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
-                    ></path>
-                  </svg>
-                </div>
-                <div>
-                  <h4 class="font-semibold mb-1">Instagram</h4>
-                  <p class="text-base-content/70">@salvaramos_ing</p>
-                </div>
-              </a>
-            </div>
-          </div>
-
-          <div class="flex justify-center items-center">
-            <div class="card bg-base-100 shadow-xl">
-              <div class="card-body text-center">
-                <h3 class="card-title justify-center mb-6">¡Contáctanos por WhatsApp!</h3>
-                <p class="text-base-content/70 mb-6">
-                  Escanea el código QR con tu teléfono para iniciar una conversación
-                </p>
-                <div class="flex justify-center">
-                  <img
-                    src="/images/WA_QRcode.png"
-                    alt="WhatsApp QR Code"
-                    class="w-64 h-64 rounded-lg shadow-md"
-                  />
-                </div>
-                <p class="text-sm text-base-content/50 mt-4">O búscanos directamente en WhatsApp</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <footer class="footer footer-center p-12 bg-primary text-primary-content">
-      <div class="text-center">
-        <div class="text-2xl font-bold mb-4">SalvaRamos</div>
-        <p class="text-primary-content/80 mb-6">
-          Salva tus Ramos con sesiones en vivo de profesores expertos.
-        </p>
-        <div class="text-sm text-primary-content/60">© 2025 SalvaRamos</div>
-      </div>
-    </footer>
   </section>
+
+  <!-- Reviews Section -->
+  <section id="reviews" class="pt-20">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl md:text-5xl font-bold mb-6">Que te lo cuenten ellas y ellos</h2>
+        <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
+          Conoce la experiencia de quienes ya han confiado en nosotros.
+        </p>
+      </div>
+
+      <div class="carousel w-full rounded-box space-x-4 p-4 overflow-x-auto">
+        {
+          reviewsToShow.map((review, index) => (
+            <div class="carousel-item w-80 flex-shrink-0">
+              <ReviewCard review={review} />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <ContactUs />
+
+  <Footer />
 </div>

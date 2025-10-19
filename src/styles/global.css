@@ -13,7 +13,10 @@
   name: 'light';
   default: true;
   --color-primary: oklch(0.7049 0.1867 47.6);
-  --color-secondary: oklch(0.7049 0.1867 47.6);
+  --color-primary-content: white;
+  --color-secondary: oklch(0.2101 0.0318 264.66);
+  --color-secondary-content: white;
+
   --color-accent: oklch(0.93 0.03 47.6);
   --color-accent-content: oklch(0.3729 0.0306 259.73);
 
@@ -22,18 +25,14 @@
   --color-base-200: oklch(
     0.93 0.03 47.6
   ); /* Gris muy claro, mantiene contraste y suaviza el fondo */
-  --color-primary-content: white;
   --color-base-content: oklch(
     0.15 0.01 47.6
   ); /*Gris oscuro, excelente contraste con fondos claros y naranja */
   --color-neutral-content: oklch(0.15 0.01 47.6);
-  --color-secondary-content: oklch(
-    0.35 0.02 259.73
-  ); /* Azul grisáceo, combina con tu color secundario */
 }
 @layer base {
   body {
-    @apply bg-base-100 text-base-content;
+    @apply bg-base-100 text-base-content min-h-screen min-w-sm;
   }
 }
 
@@ -51,8 +50,8 @@
 
 @utility h-hero {
   /* Mobile: altura automática basada en contenido */
-  min-height: calc(100vh - 4.5rem);
-  margin-top: 4.5rem;
+  min-height: calc(100vh - 4rem);
+  margin-top: 4rem;
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
@@ -60,11 +59,11 @@
 @media (min-width: 1024px) {
   .h-hero {
     /* Desktop: altura fija para mantener diseño */
-    height: calc(100vh - 4.5rem);
+    height: calc(100vh - 4rem);
     padding-bottom: 0;
   }
 }
 
 @utility btn-navbar {
-  @apply btn-outline btn-secondary text-secondary-content border-0;
+  @apply btn-outline btn-primary text-secondary-content border-0;
 }

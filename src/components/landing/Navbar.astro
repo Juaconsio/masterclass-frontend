@@ -2,23 +2,23 @@
 import { Icon } from 'astro-icon/components';
 
 const links = [
-  { href: '/', label: 'Inicio' },
-  { href: '/about', label: 'Nosotros' },
-  { href: '/courses', label: 'Cursos' },
-  { href: '#how-it-works', label: 'Reservas' },
-  { href: '/#contact', label: 'Contacto' },
+  { href: '/', label: 'Inicio', icon: 'mdi:home' },
+  { href: '/about', label: 'Nosotros', icon: 'mdi:information' },
+  { href: '/courses', label: 'Cursos', icon: 'mdi:book' },
+  // { href: '#how-it-works', label: 'Reservas', icon: 'mdi:calendar' },
+  { href: '/#contact', label: 'Contacto', icon: 'mdi:contact-mail' },
 ];
 
 const authLinks = [
-  { href: '/ingresar', label: 'Iniciar Sesión', showOnDesktop: true },
-  { href: '/registro', label: 'Registrarse', showOnDesktop: false },
-  { href: '/recuperar', label: 'Recuperar Contraseña', showOnDesktop: false },
+  { href: '/ingresar', label: 'Iniciar Sesión', icon: 'mdi:sign-in-variant' },
+  { href: '/registro', label: 'Registrarse', icon: 'mdi:account-plus' },
+  { href: '/recuperar', label: 'Recuperar Contraseña', icon: 'mdi:lock-reset' },
 ];
 ---
 
 <!-- Navbar principal -->
 <nav
-  class="navbar h-navbar px-12 fixed top-0 w-full bg-primary/80 backdrop-blur border-b border-base-300 z-50"
+  class="navbar h-navbar px-4 md:px-12 fixed top-0 bg-primary/80 backdrop-blur border-b border-base-300 z-50 flex justify-between"
 >
   <!-- Mobile: Botón menú principal (izquierda) -->
   <div class="flex-none lg:hidden">
@@ -28,7 +28,7 @@ const authLinks = [
   </div>
 
   <!-- Logo/título -->
-  <div class="flex-1 lg:flex-none">
+  <div class="lg:flex-none">
     <a
       href="/"
       class="btn btn-navbar normal-case text-xl font-bold tracking-wide justify-center lg:justify-start"
@@ -54,29 +54,18 @@ const authLinks = [
   </div>
 
   <!-- Desktop: AuthLinks + Icono cuenta (derecha) -->
-  <div class="flex items-center gap-2">
-    <!-- Desktop: Links de autenticación -->
-    <div class="hidden lg:flex">
-      <ul class="menu menu-horizontal">
-        {
-          authLinks
-            .filter((link) => link.showOnDesktop)
-            .map((link) => (
-              <li>
-                <a data-navlink href={link.href} class="text-lg font-medium">
-                  {link.label}
-                </a>
-              </li>
-            ))
-        }
-      </ul>
-    </div>
 
-    <!-- Icono cuenta (siempre visible) -->
-    <label for="auth-drawer" aria-label="open auth menu" class="btn btn-navbar btn-square">
-      <Icon name="mdi:account" size={32} />
-    </label>
-  </div>
+  <!-- Icono cuenta (siempre visible) -->
+  <ul class="menu menu-horizontal">
+    <li>
+      <a data-navlink href="/ingresar" class="text-lg font-medium"> Iniciar Sesión </a>
+    </li>
+    <li>
+      <label for="auth-drawer" aria-label="open auth menu" class="btn btn-navbar btn-square">
+        <Icon name="mdi:plus" size={32} />
+      </label>
+    </li>
+  </ul>
 </nav>
 
 <!-- Drawer 1: Menú principal -->
@@ -92,8 +81,9 @@ const authLinks = [
       {
         links.map((link) => (
           <li>
-            <a data-navlink href={link.href} class="text-lg font-medium">
-              {link.label}
+            <a data-navlink href={link.href} class="text-lg font-medium flex justify-between">
+              <Icon name={link.icon} size={24} />
+              <span>{link.label}</span>
             </a>
           </li>
         ))
@@ -109,14 +99,15 @@ const authLinks = [
   <div class="drawer-side">
     <label for="auth-drawer" aria-label="close auth menu" class="drawer-overlay"></label>
     <ul class="menu bg-base-200 min-h-full w-80 p-4">
-      <li class="menu-title">
+      <li class="menu-title text-left">
         <span>Cuenta</span>
       </li>
       {
         authLinks.map((link) => (
           <li>
-            <a href={link.href} class="text-lg font-medium">
-              {link.label}
+            <a href={link.href} class="text-lg font-medium flex justify-end">
+              <span>{link.label}</span>
+              <Icon name={link.icon} size={24} />
             </a>
           </li>
         ))

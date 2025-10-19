@@ -1,0 +1,88 @@
+---
+import ContactCard from './contactCard.astro';
+const contactData = [
+  {
+    href: 'mailto:salvaramos@gmail.com',
+    icon: 'mdi:alternate-email',
+    title: 'Correo Electrónico',
+    subtitle: 'salvaramos@gmail.com',
+  },
+  {
+    href: 'https://wa.me/56934476377',
+    icon: 'mdi:whatsapp',
+    title: 'WhatsApp',
+    subtitle: '+56 9 3447 6377',
+  },
+  {
+    href: 'https://www.instagram.com/salvaramos_ing',
+    icon: 'mdi:instagram',
+    title: 'Instagram',
+    subtitle: '@salvaramos_ing',
+  },
+];
+---
+
+<section id="contact" class="h-hero justify-center flex flex-col gap-10">
+  <!-- Bento Grid Layout -->
+  <div class="h-4/5 flex flex-wrap lg:grid lg:grid-cols-6 lg:grid-rows-3 gap-6 max-w-6xl mx-auto">
+    <!-- Card 1: Formas de Contacto -->
+    <div class="card card-sm gap-2 bg-white shadow-xl lg:col-span-3 lg:row-span-1">
+      <div class="card-body">
+        <h3 class="card-title text-3xl text-primary">No perdamos el contacto</h3>
+        <span class="text-lg text-base-content/70">
+          ¿Alguna duda? Háblanos a cualquiera de nuestras redes :)
+        </span>
+      </div>
+    </div>
+
+    <div
+      class="card bg-white shadow-xl lg:col-span-2 lg:row-span-2 flex flex-col justify-around p-8"
+    >
+      <h3 class="card-title text-primary">Nuestras Redes</h3>
+      {
+        contactData.map((contact) => (
+          <ContactCard
+            href={contact.href}
+            icon={contact.icon}
+            title={contact.title}
+            subtitle={contact.subtitle}
+          />
+        ))
+      }
+    </div>
+
+    <!-- Card 2: QR Code -->
+    <div class="card bg-white shadow-xl lg:col-span-2 lg:row-span-2 lg:row-start-2 lg:col-start-5">
+      <figure>
+        <img
+          src="/images/WA_QRcode.png"
+          alt="WhatsApp QR Code"
+          class="w-full h-full rounded-lg shadow-md object-contain"
+        />
+      </figure>
+      <div class="card-body items-center">
+        <div class="card-title">Escanea el código</div>
+      </div>
+    </div>
+
+    <!-- Card 3: Fotografía del equipo -->
+
+    <div class="bg-base-100 shadow-xl lg:col-span-4 lg:col-start-4 lg:row-start-1">
+      <div class="p-0 h-full">
+        <div class="relative h-full rounded-lg overflow-hidden">
+          <img src="/images/image0.jpeg" alt="Equipo SalvaRamos" class="w-full object-contain" />
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
+          >
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+            <h3 class="text-xl font-bold mb-2">Estamos aquí para ayudarte</h3>
+            <p class="text-white/90 text-sm">
+              Nuestro equipo está listo para resolver tus dudas y ayudarte en lo que necesites.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

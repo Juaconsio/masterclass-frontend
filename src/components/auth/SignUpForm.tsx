@@ -23,7 +23,6 @@ const signUpSchema = z
 type FormData = z.infer<typeof signUpSchema>;
 
 export default function SignUpForm() {
-  const { setUser } = useSessionContext();
   const {
     register,
     handleSubmit,
