@@ -75,7 +75,7 @@ export default function SignInForm() {
       </form>
       <div className="mt-6 text-center">
         <span>¿No tienes cuenta?</span>
-        <a href="/registrate" className="link link-primary ml-2">
+        <a href="/registrar" className="link link-primary ml-2">
           Regístrate
         </a>
       </div>
