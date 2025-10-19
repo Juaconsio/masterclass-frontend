@@ -1,29 +1,46 @@
 import React, { useState } from 'react';
-import { getToken } from '@client/auth';
+import { registerUser } from '@client/auth';
 import { useForm } from 'react-hook-form';
 import clsx from 'clsx';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import phoneSchema from './lib/numberhelper';
+import { useSessionContext } from '../../context/SessionContext';
+import { useAuth } from '../../hooks/useAuth';
 
-interface FormData {
-  email: string;
-  password: string;
-}
+const signUpSchema = z
+  .object({
+    email: z.email('Ingresa un correo válido.').min(1, 'El correo es obligatorio.'),
+    password: z.string().min(6, 'La contraseña debe tener mínimo 6 caracteres.'),
+    confirmed_password: z.string().min(6, 'La contraseña debe tener mínimo 6 caracteres.'),
+    phone: phoneSchema,
+  })
+  .refine((data) => data.password === data.confirmed_password, {
+    message: 'Las contraseñas no coinciden.',
+    path: ['confirmed_password'],
+  });
 
-export default function SignInForm() {
+type FormData = z.infer<typeof signUpSchema>;
+
+export default function SignUpForm() {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<FormData>();
+  } = useForm<FormData>({
+    resolver: zodResolver(signUpSchema as any),
+  });
+
   const [feedback, setFeedback] = useState('');
 
   const onSubmit = async (data: FormData) => {
     setFeedback('');
     try {
-      const res = await getToken(data);
-      if (res.ok) {
-        window.location.href = '/home';
+      const { ok } = await registerUser(data);
+      if (ok) {
+        window.location.href = '/ingresar';
       } else {
-        setFeedback('Credenciales incorrectas o error de servidor. ' + res.message);
+        setFeedback('  incorrectas o error de servidor.');
       }
     } catch {
       setFeedback('Error de red o servidor.');
@@ -32,14 +49,15 @@ export default function SignInForm() {
 
   return (
     <>
-      <h2 className="text-primary mb-2 text-3xl font-bold">Iniciar sesión</h2>
+      <h2 className="text-primary mb-2 text-3xl font-bold">Crea tu cuenta</h2>
       <p className="text-base-content mb-6">
-        Bienvenido de vuelta. Ingresa tus credenciales para continuar.
+        Registrate y sé parte de la comunidad. La oportunidad de aprobar esta luego de este
+        formulario
       </p>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
         <input
           type="email"
-          {...register('email', { required: 'El correo es obligatorio.' })}
+          {...register('email')}
           placeholder="Correo electrónico"
           className={clsx('input input-bordered w-full', { 'input-error': errors.email })}
           autoComplete="email"
@@ -47,21 +65,38 @@ export default function SignInForm() {
         {errors.email && <span className="text-error text-xs">{errors.email.message}</span>}
         <input
           type="password"
-          {...register('password', { required: 'La contraseña es obligatoria.' })}
+          {...register('password')}
           placeholder="Contraseña"
           className={clsx('input input-bordered w-full', { 'input-error': errors.password })}
           autoComplete="current-password"
         />
         {errors.password && <span className="text-error text-xs">{errors.password.message}</span>}
+        <input
+          type="password"
+          {...register('confirmed_password')}
+          placeholder="Confirma tu contraseña"
+          className={clsx('input input-bordered w-full', { 'input-error': errors.password })}
+        />
+        {errors.confirmed_password && (
+          <span className="text-error text-xs">{errors.confirmed_password.message}</span>
+        )}
+        <input
+          type="string"
+          {...register('phone')}
+          placeholder="Ingresa tu número telefonico"
+          className={clsx('input input-bordered w-full', { 'input-error': errors.password })}
+          autoComplete="tel"
+        />
+        {errors.phone && <span className="text-error text-xs">{errors.phone.message}</span>}
         <button type="submit" className="btn btn-primary w-full" disabled={isSubmitting}>
-          {isSubmitting ? 'Entrando...' : 'Entrar'}
+          {isSubmitting ? 'Registrandote...' : 'Regístrate'}
         </button>
         <div className="text-error mt-2 min-h-[1.5em] text-sm">{feedback}</div>
       </form>
       <div className="mt-6 text-center">
         <span>¿Ya tienes cuenta?</span>
-        <a href="/auth/signUp" className="link link-primary ml-2">
-          Regístrate
+        <a href="/ingresar" className="link link-primary ml-2">
+          Ingresa
         </a>
       </div>
     </>

@@ -21,6 +21,8 @@ export interface IReservation {
 export interface IClass {
   id: number;
   name: string;
+  professors: IProfessor[];
+  title: string;
   // otros campos del modelo Class
 }
 
@@ -31,11 +33,12 @@ export interface IProfessor {
 }
 
 export type EventFormValues = {
-  classId: string;
-  professorId: string;
+  classId: number | null;
+  professorId: number | null;
   start: Date;
   end: Date;
   modality: string;
+  studentsGroup: string;
   status: string;
   minStudents?: number;
   maxStudents: number;

@@ -19,16 +19,19 @@ export default function CalendarWeeklyGrid({
 }: CalendarGridProps) {
   const days = Array.from({ length: 7 }).map((_, i) => addDays(currentWeek, i));
   const minHour = HOURS[0];
-  
+
   return (
-    <div className="bg-base-300 grid h-[70vh] max-h-[70vh] grid-cols-8 overflow-y-scroll rounded-lg border border-white/50">
+    <div className="bg-base-200 grid h-[70vh] max-h-[70vh] grid-cols-8 overflow-y-scroll rounded-lg border-white/50 shadow-lg">
       {/* Columna de horas */}
       <div className="border-r border-white/50">
-        <div className="bg-base-300 sticky top-0 z-20 h-10 border-b border-white/50 flex items-center justify-center font-medium text-white">
+        <div className="bg-base-200 sticky top-0 z-20 flex h-10 items-center justify-center border-b border-white/50 font-medium">
           Hora / Día
         </div>
         {HOURS.map((h) => (
-          <div key={h} className="h-[60px] border-b border-white/50 pr-1 flex items-start justify-end text-xs pt-1">
+          <div
+            key={h}
+            className="flex h-[60px] items-start justify-end border-b border-white/50 pt-1 pr-1 text-xs"
+          >
             {h}:00
           </div>
         ))}
@@ -46,7 +49,8 @@ export default function CalendarWeeklyGrid({
           .sort((a, b) => a.start.getTime() - b.start.getTime());
 
         // Algoritmo simple para asignar columnas
-        const positioned: ((typeof eventsOfDay)[number] & { col: number; totalCols: number })[] = [];
+        const positioned: ((typeof eventsOfDay)[number] & { col: number; totalCols: number })[] =
+          [];
         eventsOfDay.forEach((event) => {
           let col = 0;
           while (
@@ -63,13 +67,13 @@ export default function CalendarWeeklyGrid({
           <div
             key={i}
             className={`relative border-r border-white/50 ${
-              highlight ? 'bg-base-100' : 'bg-base-300'
+              highlight ? 'bg-base-300' : 'bg-base-100'
             }`}
           >
             {/* Cabecera */}
             <div
-              className={`sticky top-0 z-20 h-10 border-b border-white/50 flex items-center justify-center font-medium ${
-                highlight ? 'bg-primary text-white' : 'bg-indigo-400'
+              className={`sticky top-0 z-20 flex h-10 items-center justify-center border-b border-white/50 font-medium ${
+                highlight ? 'bg-primary text-white' : 'bg-base-200'
               }`}
             >
               {format(day, 'EEE d', { locale: es })}
@@ -84,7 +88,7 @@ export default function CalendarWeeklyGrid({
             {positioned.map((e) => {
               const startHour = e.start.getHours() + e.start.getMinutes() / 60;
               const endHour = e.end.getHours() + e.end.getMinutes() / 60;
-              
+
               // Position relative to the header (after the sticky header)
               const top = HEADER_HEIGHT + (startHour - minHour) * ROW_HEIGHT;
               const height = (endHour - startHour) * ROW_HEIGHT;
@@ -104,13 +108,13 @@ export default function CalendarWeeklyGrid({
                   }}
                   onClick={() => onEventClick(e)}
                 >
-                  <div className="text-primary-content h-full border-2 border-black shadow-md transition-all duration-150 hover:shadow-lg overflow-hidden">
-                    <div className="p-2 h-full flex flex-col">
+                  <div className="text-primary-content h-full overflow-hidden border-2 border-black shadow-md transition-all duration-150 hover:shadow-lg">
+                    <div className="flex h-full flex-col p-2">
                       <h2 className="truncate border-b px-2 py-1 text-xs font-semibold">
                         Slot {e.id} - Class {e.classId} - Prof {e.professorId}
                       </h2>
                       {e.modality && (
-                        <p className="line-clamp-2 text-[10px] leading-tight mt-1">{e.modality}</p>
+                        <p className="mt-1 line-clamp-2 text-[10px] leading-tight">{e.modality}</p>
                       )}
                     </div>
                   </div>

@@ -21,7 +21,7 @@ export default function Toolbar({
   const end = endOfWeek(currentWeek, { weekStartsOn: 1 });
   const weekRange = `${format(start, 'd MMM', { locale: es })} - ${format(end, 'd MMM', { locale: es })}`;
   return (
-    <div className="card bg-base-300 shadow-md">
+    <div className="card bg-base-200 shadow-md">
       <div className="card-body">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -38,10 +38,7 @@ export default function Toolbar({
             <button className="btn btn-outline btn-sm" onClick={onToday}>
               Hoy
             </button>
-            <button
-              className="btn btn-outline btn-sm flex items-center gap-1 text-white"
-              onClick={onNext}
-            >
+            <button className="btn btn-outline btn-sm flex items-center gap-1" onClick={onNext}>
               Siguiente
               <ChevronRight size={16} />
             </button>

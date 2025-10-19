@@ -2,15 +2,18 @@
   "extends": "astro/tsconfigs/strict",
   "include": [
     ".astro/types.d.ts",
-    "**/*"
+    "**/*",
+    "src/types/splide.d.ts"
   ],
   "exclude": [
     "dist"
   ],
   "compilerOptions": {
+    "baseUrl": ".",
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "paths": {
+      "@/*": ["./src/*"],
       "@interfaces/*": ["./src/interfaces/*"],
       "@components/*": ["./src/components/*"],
       "@client/*": ["./src/client/*"],

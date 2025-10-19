@@ -1,11 +1,10 @@
 import { useForm } from 'react-hook-form';
-import { updateSlot } from '@client/slots';
+import { createSlot } from '@client/slots';
 import type { IEvent } from '@interfaces/events/IEvent';
 
 interface NewEventModalProps {
   open: boolean;
   onClose: () => void;
-  onCreate?: (event: IEvent) => void;
 }
 
 const defaultValues: Partial<IEvent> = {
@@ -20,7 +19,7 @@ const defaultValues: Partial<IEvent> = {
   reservations: [],
 };
 
-export default function NewEventModal({ open, onClose, onCreate }: NewEventModalProps) {
+export default function NewEventModal({ open, onClose }: NewEventModalProps) {
   const {
     register,
     handleSubmit,
@@ -35,8 +34,7 @@ export default function NewEventModal({ open, onClose, onCreate }: NewEventModal
   async function handleCreate(data: IEvent) {
     try {
       // Llamada al backend para crear el evento
-      const res = await updateSlot(data);
-      if (onCreate) onCreate(res.data);
+      const res = await createSlot(data);
       reset();
       onClose();
     } catch (err) {
