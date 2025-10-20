@@ -1,0 +1,13 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import StudentCourseView from '../../../components/StudentCourseView.tsx';
+export async function getStaticPaths() {
+  // Fetch all courses for static generation (or return empty for SSR only)
+  return [];
+}
+export const prerender = false;
+const { slug } = Astro.params;
+---
+<Layout>
+  <StudentCourseView client:load courseId={slug!} />
+</Layout>
