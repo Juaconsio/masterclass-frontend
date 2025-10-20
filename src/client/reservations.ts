@@ -5,8 +5,17 @@ async function fetchReservations() {
   return res.data;
 }
 
-async function createReservation(payload: any) {
-  const res = await httpClient.post('/reservations', payload);
+async function createReservation(studentId: number, slotId: number) {
+  const token = localStorage.getItem('token');
+  const res = await httpClient.post(
+    '/reservations',
+    { studentId, slotId },
+    {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : '',
+      },
+    }
+  );
   return res.data;
 }
 

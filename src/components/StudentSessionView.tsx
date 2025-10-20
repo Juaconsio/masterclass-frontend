@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { jwtDecode } from "jwt-decode";
-import { createReservation } from "../client/createReservation";
+import React, { useEffect, useState } from 'react';
+import { jwtDecode } from 'jwt-decode';
+import { createReservation } from '@client/reservations';
 
 interface Session {
   id: number;
