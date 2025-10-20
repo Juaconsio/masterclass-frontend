@@ -94,8 +94,8 @@ export default function SignUpForm() {
         <div className="text-error mt-2 min-h-[1.5em] text-sm">{feedback}</div>
       </form>
       <div className="mt-6 text-center">
-        <span>¿No tienes cuenta?</span>
-        <a href="/auth/signUp" className="link link-primary ml-2">
+        <span>¿Ya tienes cuenta?</span>
+        <a href="/ingresar" className="link link-primary ml-2">
           Ingresa
         </a>
       </div>

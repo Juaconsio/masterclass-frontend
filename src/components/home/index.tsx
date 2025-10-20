@@ -1,12 +1,16 @@
 import { useSessionContext } from '../../context/SessionContext';
-import { useNavigate } from 'react-router';
+import { useNavigate, Link } from 'react-router';
 import { useEffect } from 'react';
 const Home = () => {
-  const navigate = useNavigate();
-  const { user } = useSessionContext();
+  const { user, isLoading } = useSessionContext();
 
-  if (!user) {
-    navigate('/ingresar');
+  if (isLoading) {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center gap-3">
+        <div className="loading loading-spinner loading-lg"></div>
+        <h2>Estamos buscando el conocimiento para salvar el ramo...</h2>
+      </div>
+    );
   }
 
   return (
@@ -15,15 +19,15 @@ const Home = () => {
       <aside className="bg-accent-content hidden w-48 p-4 shadow-lg md:flex md:flex-col">
         <div className="mb-4 text-lg font-bold">MasterClass</div>
         <nav className="flex flex-col space-y-2">
-          <a href="#" className="hover:text-primary">
+          <Link to="/" className="hover:text-primary">
             Inicio
-          </a>
-          <a href="#" className="hover:text-primary">
+          </Link>
+          <Link to="/perfil" className="hover:text-primary">
             Perfil
-          </a>
-          <a href="#" className="hover:text-primary">
+          </Link>
+          <Link to="/configuracion" className="hover:text-primary">
             Configuración
-          </a>
+          </Link>
         </nav>
         <div className="mt-auto pt-4 text-sm">
           {user ? `Conectado como: ${user.name || user.email}` : 'No autenticado'}
@@ -66,41 +70,51 @@ const Home = () => {
               <h2 className="card-title">Reservas</h2>
               <p>Gestiona todas tus reservas desde un solo lugar.</p>
               <div className="card-actions justify-end">
-                <button className="btn btn-primary" onClick={() => navigate('reservas')}>
+                <Link to="reservas" className="btn btn-primary">
                   Ver Reservas
-                </button>
+                </Link>
               </div>
             </div>
           </div>
           <div className="card bg-base-200 shadow-lg">
             <div className="card-body">
-              <h2 className="card-title">Clases</h2>
+              <h2 className="card-title">Cursos y Clases</h2>
               <p>Administra y programa tus clases fácilmente.</p>
               <div className="card-actions justify-end">
-                <button className="btn btn-primary">Ver Clases</button>
+                <Link to="cursos" className="btn btn-primary">
+                  Ver Cursos
+                </Link>
               </div>
             </div>
           </div>
-          <div className="card bg-base-200 shadow-lg">
-            <div className="card-body">
-              <h2 className="card-title">Usuarios</h2>
-              <p>Controla el acceso y los permisos de los usuarios.</p>
-              <div className="card-actions justify-end">
-                <button className="btn btn-primary">Ver Usuarios</button>
+          {user?.role === 'admin' && (
+            <div className="card bg-base-200 shadow-lg">
+              <div className="card-body">
+                <h2 className="card-title">Usuarios</h2>
+                <p>Controla el acceso y los permisos de los usuarios.</p>
+                <div className="card-actions justify-end">
+                  <Link to="usuarios" className="btn btn-primary">
+                    Ver Usuarios
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
         <div className="mt-6">
-          <div className="card bg-base-200 shadow-lg">
-            <div className="card-body">
-              <h2 className="card-title">Estadísticas</h2>
-              <p>Visualiza el rendimiento y las métricas clave.</p>
-              <div className="card-actions justify-end">
-                <button className="btn btn-primary">Ver Estadísticas</button>
+          {user?.role === 'admin' && (
+            <div className="card bg-base-200 shadow-lg">
+              <div className="card-body">
+                <h2 className="card-title">Estadísticas</h2>
+                <p>Visualiza el rendimiento y las métricas clave.</p>
+                <div className="card-actions justify-end">
+                  <Link to="/estadisticas" className="btn btn-primary">
+                    Ver Estadísticas
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </main>
     </div>

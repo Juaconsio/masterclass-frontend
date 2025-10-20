@@ -9,6 +9,11 @@ interface FormData {
   password: string;
 }
 
+const ERROR_RESPONSE = {
+  'Incorrect email.': 'El correo no está registrado.',
+  'Incorrect password.': 'La contraseña es incorrecta.',
+};
+
 export default function SignInForm() {
   const { handleToken } = useSessionContext();
   const navigate = useNavigate();
@@ -27,12 +32,13 @@ export default function SignInForm() {
     console.log('Submitting', data);
     try {
       const res = await getToken(data);
-      console.log('Token response', res);
       if (res.ok && res.token) {
         handleToken(res.token);
         navigate('/app');
       } else {
-        setFeedback('Credenciales incorrectas o error de servidor. ' + res.message);
+        const errorMessage =
+          ERROR_RESPONSE[res.message as keyof typeof ERROR_RESPONSE] || 'Error desconocido';
+        setFeedback(errorMessage);
       }
     } catch (error: any) {
       setFeedback('Error de red o servidor.' + error.message);

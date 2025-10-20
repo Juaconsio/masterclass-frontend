@@ -66,17 +66,17 @@ class HttpClient {
   }
 
   private setupInterceptors() {
-    this.axiosInstance.interceptors.response.use(
-      (response) => {
-        this.logResponse(response);
-        return response;
+    this.axiosInstance.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+          config.headers = config.headers || {};
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        this.logRequest(config);
+        return config;
       },
       (error) => {
-        this.logError(error);
-        if (error.response?.status === 401) {
-          // manejar logout/redirección
-          console.log('Re direction to auth not implement');
-        }
         return Promise.reject(error);
       }
     );
