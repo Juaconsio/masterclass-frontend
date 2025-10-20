@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 
-
 interface Slot {
   id: number;
   classId: number;
@@ -36,7 +35,7 @@ export default function CourseSessionCalendar({ courseId }: CourseSessionCalenda
         setLoading(false);
       }
     }
-  
+
     fetchSlots();
   }, [courseId]);
 
@@ -52,12 +51,12 @@ export default function CourseSessionCalendar({ courseId }: CourseSessionCalenda
         weekday: 'long',
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
       }),
       time: date.toLocaleTimeString('es-CL', {
         hour: '2-digit',
-        minute: '2-digit'
-      })
+        minute: '2-digit',
+      }),
     };
   };
 
@@ -80,8 +79,18 @@ export default function CourseSessionCalendar({ courseId }: CourseSessionCalenda
         <div className="card-body">
           <h3 className="card-title">Próximas Sesiones</h3>
           <div className="alert alert-error">
-            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 shrink-0 stroke-current"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <span>{error}</span>
           </div>
@@ -96,8 +105,18 @@ export default function CourseSessionCalendar({ courseId }: CourseSessionCalenda
         <div className="card-body">
           <h3 className="card-title">Próximas Sesiones</h3>
           <div className="alert alert-info mt-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 shrink-0 stroke-current"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <span>No hay sesiones disponibles para este curso en este momento.</span>
           </div>
@@ -105,21 +124,26 @@ export default function CourseSessionCalendar({ courseId }: CourseSessionCalenda
       </div>
     );
   }
-  
+
   const displaySlots = slots.slice(0, 3);
 
   return (
     <div className="card bg-white shadow-xl">
       <div className="card-body">
         <h3 className="card-title">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
           </svg>
           Próximas Sesiones
         </h3>
 
-        <div className="space-y-3 mt-4">
-        {displaySlots.map((slot) => {
+        <div className="mt-4 space-y-3">
+          {displaySlots.map((slot) => {
             const start = formatDateTime(slot.startTime);
             const end = formatDateTime(slot.endTime);
             const availableSpots = slot.maxStudents - slot.minStudents;
@@ -127,26 +151,26 @@ export default function CourseSessionCalendar({ courseId }: CourseSessionCalenda
             return (
               <div
                 key={slot.id}
-                className={`card bg-base-200 hover:bg-base-300 transition-colors cursor-pointer ${
-                  selectedSlot === slot.id ? 'ring-2 ring-primary' : ''
+                className={`card bg-base-200 hover:bg-base-300 cursor-pointer transition-colors ${
+                  selectedSlot === slot.id ? 'ring-primary ring-2' : ''
                 }`}
                 onClick={() => setSelectedSlot(slot.id)}
               >
                 <div className="card-body p-4">
-                  <div className="flex justify-between items-start">
+                  <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <p className="font-medium text-base-content">
-                        {start.date}
-                      </p>
-                      <p className="text-sm text-base-content/70">
+                      <p className="text-base-content font-medium">{start.date}</p>
+                      <p className="text-base-content/70 text-sm">
                         {start.time} - {end.time}
                       </p>
-                      <p className="text-sm text-base-content/70 mt-1">
+                      <p className="text-base-content/70 mt-1 text-sm">
                         Modalidad: {slot.modality}
                       </p>
                     </div>
                     <div className="text-right">
-                      <div className={`badge ${availableSpots > 5 ? 'badge-success' : availableSpots > 0 ? 'badge-warning' : 'badge-error'}`}>
+                      <div
+                        className={`badge ${availableSpots > 5 ? 'badge-success' : availableSpots > 0 ? 'badge-warning' : 'badge-error'}`}
+                      >
                         {availableSpots > 0 ? `${availableSpots} cupos` : 'Lleno'}
                       </div>
                     </div>
@@ -158,11 +182,8 @@ export default function CourseSessionCalendar({ courseId }: CourseSessionCalenda
         </div>
 
         {selectedSlot && (
-          <div className="card-actions justify-end mt-4">
-            <button
-              onClick={() => handleSelectSlot(selectedSlot)}
-              className="btn btn-primary"
-            >
+          <div className="card-actions mt-4 justify-end">
+            <button onClick={() => handleSelectSlot(selectedSlot)} className="btn btn-primary">
               Inscribirse en esta sesión
             </button>
           </div>
