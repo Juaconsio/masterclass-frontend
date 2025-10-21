@@ -1,81 +1,82 @@
-"use client"
+'use client';
 
-import { useEffect, useState } from "react"
-import { Play, CheckCircle2, Circle, ChevronDown, ChevronUp, FileText, Code } from "lucide-react"
-import { httpClient } from '@/client/config'
-import * as React from 'react'
+import { useEffect, useState } from 'react';
+import { Play, CheckCircle2, Circle, ChevronDown, ChevronUp, FileText, Code } from 'lucide-react';
+import { httpClient } from '@/client/config';
+import * as React from 'react';
 
 interface CourseContentProps {
-  course?: any
-  courseId?: string
+  course?: any;
+  courseId?: string;
 }
 
 export function CourseContent({ course: propCourse, courseId }: CourseContentProps) {
-  const [expandedSections, setExpandedSections] = useState<number[]>([1, 2])
-  const [course, setCourse] = useState<any | null>(propCourse || null)
-  const [sessions, setSessions] = useState<any[]>([])
-  const [loading, setLoading] = useState<boolean>(!propCourse)
-  const [error, setError] = useState<string>('')
+  const [expandedSections, setExpandedSections] = useState<number[]>([1, 2]);
+  const [course, setCourse] = useState<any | null>(propCourse || null);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(!propCourse);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    let mounted = true
+    let mounted = true;
     async function loadCourse() {
-      if (!courseId) return
-      setLoading(true)
-      setError('')
+      if (!courseId) return;
+      setLoading(true);
+      setError('');
       try {
-        const token = localStorage.getItem('token')
+        const token = localStorage.getItem('token');
         const res = await httpClient.get(`/courses/${courseId}`, {
           headers: { Authorization: token ? `Bearer ${token}` : '' },
-        })
-        if (!mounted) return
-        setCourse(res.data || null)
+        });
+        if (!mounted) return;
+        setCourse(res.data || null);
 
         // fetch sessions (same as StudentCourseView)
         try {
           const sessionsRes = await httpClient.get(`/courses/${courseId}/sessions`, {
             headers: { Authorization: token ? `Bearer ${token}` : '' },
-          })
-          if (!mounted) return
-          setSessions(sessionsRes.data || [])
+          });
+          if (!mounted) return;
+          setSessions(sessionsRes.data || []);
         } catch (e) {
           // ignore sessions error
-          setSessions([])
+          setSessions([]);
         }
       } catch (e: any) {
-        if (!mounted) return
-        setError(e?.message || 'Error loading course')
+        if (!mounted) return;
+        setError(e?.message || 'Error loading course');
       } finally {
-        if (mounted) setLoading(false)
+        if (mounted) setLoading(false);
       }
     }
-    if (!propCourse) loadCourse()
+    if (!propCourse) loadCourse();
     return () => {
-      mounted = false
-    }
-  }, [courseId, propCourse])
+      mounted = false;
+    };
+  }, [courseId, propCourse]);
 
   const toggleSection = (sectionId: number) => {
     setExpandedSections((prev) =>
-      prev.includes(sectionId) ? prev.filter((id) => id !== sectionId) : [...prev, sectionId],
-    )
-  }
+      prev.includes(sectionId) ? prev.filter((id) => id !== sectionId) : [...prev, sectionId]
+    );
+  };
 
   const getLessonIcon = (type: string) => {
     switch (type) {
-      case "video":
-        return <Play className="h-4 w-4" />
-      case "exercise":
-        return <Code className="h-4 w-4" />
+      case 'video':
+        return <Play className="h-4 w-4" />;
+      case 'exercise':
+        return <Code className="h-4 w-4" />;
       default:
-        return <FileText className="h-4 w-4" />
+        return <FileText className="h-4 w-4" />;
     }
-  }
+  };
 
   // default sample course to show UI when no data is available
   const defaultCourse = {
     title: 'Example Course',
-    description: 'This is a sample course description used for previewing the course content layout.',
+    description:
+      'This is a sample course description used for previewing the course content layout.',
     curriculum: [
       {
         id: 1,
@@ -94,90 +95,90 @@ export function CourseContent({ course: propCourse, courseId }: CourseContentPro
         ],
       },
     ],
-  }
+  };
 
-  const hasFullCourse = (c: any) => c && Array.isArray(c.curriculum) && c.curriculum.length > 0
+  const hasFullCourse = (c: any) => c && Array.isArray(c.curriculum) && c.curriculum.length > 0;
 
   const displayCourse = hasFullCourse(propCourse)
     ? propCourse
     : hasFullCourse(course)
-    ? course
-    : defaultCourse
+      ? course
+      : defaultCourse;
 
-  const resolvedCourseId = courseId || propCourse?.id || course?.id
+  const resolvedCourseId = courseId || propCourse?.id || course?.id;
 
   return (
     <div className="space-y-6">
-      <div className="card bg-base-100 shadow-xl border">
+      <div className="card bg-base-100 border shadow-xl">
         <div className="card-body p-6">
-          <h2 className="text-2xl font-bold text-foreground mb-4">About This Course</h2>
+          <h2 className="text-foreground mb-4 text-2xl font-bold">About This Course</h2>
           <p className="text-muted-foreground leading-relaxed">{displayCourse.description}</p>
         </div>
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-4">Course Curriculum</h2>
+        <h2 className="text-foreground mb-4 text-2xl font-bold">Course Curriculum</h2>
         <div className="space-y-3">
           {displayCourse.curriculum.map((section: any) => {
-            const isExpanded = expandedSections.includes(section.id)
-            const completedCount = section.lessons.filter((l: any) => l.completed).length
-            const totalCount = section.lessons.length
+            const isExpanded = expandedSections.includes(section.id);
+            const completedCount = section.lessons.filter((l: any) => l.completed).length;
+            const totalCount = section.lessons.length;
 
             return (
-              <div key={section.id} className="card bg-base-100 shadow-xl border overflow-hidden">
+              <div key={section.id} className="card bg-base-100 overflow-hidden border shadow-xl">
                 <button
                   onClick={() => toggleSection(section.id)}
-                  className="w-full p-4 flex items-center justify-between hover:bg-secondary/50 transition-colors"
+                  className="hover:bg-secondary/50 flex w-full items-center justify-between p-4 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm">
+                    <div className="bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold">
                       {section.id}
                     </div>
                     <div className="text-left">
-                      <h3 className="font-semibold text-foreground">{section.title}</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <h3 className="text-foreground font-semibold">{section.title}</h3>
+                      <p className="text-muted-foreground text-sm">
                         {completedCount} of {totalCount} lessons completed
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="badge badge-outline badge-sm">
-                      {totalCount} lessons
-                    </span>
+                    <span className="badge badge-outline badge-sm">{totalCount} lessons</span>
                     {isExpanded ? (
-                      <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                      <ChevronUp className="text-muted-foreground h-5 w-5" />
                     ) : (
-                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                      <ChevronDown className="text-muted-foreground h-5 w-5" />
                     )}
                   </div>
                 </button>
 
                 {isExpanded && (
-                  <div className="border-t border-border">
+                  <div className="border-border border-t">
                     {section.lessons.map((lesson: any, index: number) => (
                       <div
                         key={lesson.id}
-                        className={`flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors cursor-pointer ${
-                          index !== section.lessons.length - 1 ? "border-b border-border/50" : ""
+                        className={`hover:bg-secondary/30 flex cursor-pointer items-center justify-between p-4 transition-colors ${
+                          index !== section.lessons.length - 1 ? 'border-border/50 border-b' : ''
                         }`}
                       >
-                        <div className="flex items-center gap-3 flex-1">
+                        <div className="flex flex-1 items-center gap-3">
                           {lesson.completed ? (
-                            <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
+                            <CheckCircle2 className="text-primary h-5 w-5 flex-shrink-0" />
                           ) : (
-                            <Circle className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                            <Circle className="text-muted-foreground h-5 w-5 flex-shrink-0" />
                           )}
-                          <div className="flex items-center gap-2 flex-1">
-                            <span className="text-muted-foreground">{getLessonIcon(lesson.type)}</span>
+                          <div className="flex flex-1 items-center gap-2">
+                            <span className="text-muted-foreground">
+                              {getLessonIcon(lesson.type)}
+                            </span>
                             <span
-                              className={`${lesson.completed ? "text-muted-foreground" : "text-foreground font-medium"}`}
+                              className={`${lesson.completed ? 'text-muted-foreground' : 'text-foreground font-medium'}`}
                             >
                               {lesson.title}
                             </span>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-sm text-muted-foreground">{lesson.duration}</span>
+                          <span className="text-muted-foreground text-sm">{lesson.duration}</span>
                           {!lesson.completed && (
                             <button className="btn btn-sm btn-ghost text-primary hover:text-primary">
                               Start
@@ -189,28 +190,32 @@ export function CourseContent({ course: propCourse, courseId }: CourseContentPro
                   </div>
                 )}
               </div>
-            )
+            );
           })}
         </div>
       </div>
       {/* Sessions (available classes) - show after the curriculum, like old StudentCourseView */}
-      <div className="card bg-base-100 shadow-xl border mt-6">
+      <div className="card bg-base-100 mt-6 border shadow-xl">
         <div className="card-body p-6">
-          <h2 className="text-2xl font-bold text-foreground mb-4">Clases disponibles</h2>
+          <h2 className="text-foreground mb-4 text-2xl font-bold">Clases disponibles</h2>
           <div className="grid gap-3">
             {sessions && sessions.length > 0 ? (
               sessions.map((session: any) => (
-                <div key={session.id} className="card bg-base-100 shadow-sm border">
+                <div key={session.id} className="card bg-base-100 border shadow-sm">
                   <div className="card-body p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-foreground">{session.title}</h3>
+                        <h3 className="text-foreground font-semibold">{session.title}</h3>
                         {session.description && (
-                          <p className="text-sm text-muted-foreground mt-1">{session.description}</p>
+                          <p className="text-muted-foreground mt-1 text-sm">
+                            {session.description}
+                          </p>
                         )}
                       </div>
                       <div className="flex flex-col items-end gap-2">
-                        <span className={`badge badge-outline badge-sm ${session.isActive ? 'badge-success' : 'badge-ghost'}`}>
+                        <span
+                          className={`badge badge-outline badge-sm ${session.isActive ? 'badge-success' : 'badge-ghost'}`}
+                        >
                           {session.isActive ? 'Active' : 'Inactive'}
                         </span>
                         {resolvedCourseId ? (
@@ -233,5 +238,5 @@ export function CourseContent({ course: propCourse, courseId }: CourseContentPro
         </div>
       </div>
     </div>
-  )
+  );
 }

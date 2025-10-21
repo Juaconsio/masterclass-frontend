@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../../hooks/useAuth';
 import { fetchSlots } from '../../client/slots';
-import { httpClient } from '@/client/config'
+import { httpClient } from '@/client/config';
 import { DashboardHeader } from './dashboardHeader';
 import { CoursesSection } from './course-section';
 import { fetchCourses } from '@client/courses';
@@ -35,21 +35,21 @@ const Dashboard: React.FC = () => {
 
         // fetch classes/sessions (optional endpoint)
         try {
-          const token = localStorage.getItem('token')
+          const token = localStorage.getItem('token');
           const classesRes = await httpClient.get('/courses/sessions', {
             headers: { Authorization: token ? `Bearer ${token}` : '' },
-          })
-          setClasses(classesRes.data || [])
+          });
+          setClasses(classesRes.data || []);
         } catch (e) {
-          setClasses([])
+          setClasses([]);
         }
 
         // fetch slots
         try {
-          const slotsData = await fetchSlots()
-          setSlots(slotsData || [])
+          const slotsData = await fetchSlots();
+          setSlots(slotsData || []);
         } catch (e) {
-          setSlots([])
+          setSlots([]);
         }
       } catch (error: any) {
         console.error('Error fetching courses:', error);
@@ -63,37 +63,37 @@ const Dashboard: React.FC = () => {
   }, [user]);
 
   // transform reservations into date-keyed map for the calendar component
-  const reservationsByDate: Record<string, any[]> = {}
+  const reservationsByDate: Record<string, any[]> = {};
   for (const r of reservations) {
-    const slot = slots.find((s) => s.id === r.slotId)
-    const start = slot?.startTime ? new Date(slot.startTime) : null
+    const slot = slots.find((s) => s.id === r.slotId);
+    const start = slot?.startTime ? new Date(slot.startTime) : null;
     const dateKey = start
       ? `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(
-          start.getDate(),
+          start.getDate()
         ).padStart(2, '0')}`
-      : null
+      : null;
     if (dateKey) {
-      reservationsByDate[dateKey] = reservationsByDate[dateKey] || []
-      reservationsByDate[dateKey].push({ ...r, slot })
+      reservationsByDate[dateKey] = reservationsByDate[dateKey] || [];
+      reservationsByDate[dateKey].push({ ...r, slot });
     }
   }
-  console.debug('Reservations by date', reservationsByDate)
+  console.debug('Reservations by date', reservationsByDate);
 
   async function removeReservation(reservationId: number) {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token');
     // optimistic remove
-    setReservations((prev) => prev.filter((r) => r.id !== reservationId))
+    setReservations((prev) => prev.filter((r) => r.id !== reservationId));
     try {
       await httpClient.delete(`/reservations/${reservationId}`, {
         headers: { Authorization: token ? `Bearer ${token}` : '' },
-      })
+      });
     } catch (err) {
-      console.error('Failed to delete reservation', err)
+      console.error('Failed to delete reservation', err);
       // revert by refetching reservations
       try {
-        const refreshed = await fetchReservations().then((d) => d || [])
-        const filtered = refreshed.filter((r: any) => r.studentId === user?.id)
-        setReservations(filtered || [])
+        const refreshed = await fetchReservations().then((d) => d || []);
+        const filtered = refreshed.filter((r: any) => r.studentId === user?.id);
+        setReservations(filtered || []);
       } catch (e) {
         // ignore
       }
