@@ -78,7 +78,7 @@ export default function UpcomingClasses() {
           <div className="mt-4 space-y-3">
             {sessions.length === 0 && <div className="text-sm text-muted-foreground">No upcoming sessions.</div>}
             {sessions.map((s, idx) => (
-              <div key={`${s.courseId}-${s.classId}-${s.slot.id}-${idx}`} className="flex items-center justify-between bg-secondary p-3 rounded">
+              <div key={`${s.courseId}-${s.classId}-${s.slot.id}-${idx}`} className="flex bg-white items-center justify-between p-3 rounded">
                 <div>
                   <div className="font-medium">{s.courseTitle} — {s.classTitle}</div>
                   <div className="text-sm text-muted-foreground">{new Date(s.slot.startTime).toLocaleString()}</div>
@@ -86,7 +86,7 @@ export default function UpcomingClasses() {
                   <div className="text-xs text-muted-foreground">Reserved: {s.reservedCount} · Available: {s.available ? 'Yes' : 'No'} · {s.isReservedByMe ? 'You reserved' : ''}</div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button className="btn btn-sm btn-ghost" onClick={() => window.location.href = `/dashboard/course-content/${s.courseId}`}>
+                  <button className="btn btn-sm" onClick={() => window.location.href = `/dashboard/course-content/${s.courseId}`}>
                     View course
                   </button>
                   <button className="btn btn-sm btn-accent" disabled={reserving === s.slot.id} onClick={() => onReserve(s.slot.id)}>
@@ -95,19 +95,6 @@ export default function UpcomingClasses() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </div>
-      <div className="card bg-card border border-border shadow-lg">
-        <div className="card-body">
-          <h4 className="font-medium">Request logs (dev)</h4>
-          <div className="text-xs text-muted-foreground">
-            {requestLogs.length === 0 ? 'No requests yet' : null}
-            <ul className="list-disc list-inside">
-              {requestLogs.map((r, i) => (
-                <li key={i} className="text-xs text-muted-foreground">{r}</li>
-              ))}
-            </ul>
           </div>
         </div>
       </div>

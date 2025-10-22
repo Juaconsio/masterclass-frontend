@@ -1,5 +1,6 @@
 import { useSessionContext } from '../../context/SessionContext';
 import { useNavigate, Link } from 'react-router';
+import UpcomingClasses from '../courses/UpcomingClasses';
 import { useEffect } from 'react';
 const Home = () => {
   const { user, isLoading } = useSessionContext();
@@ -31,6 +32,23 @@ const Home = () => {
         </nav>
         <div className="mt-auto pt-4 text-sm">
           {user ? `Conectado como: ${user.name || user.email}` : 'No autenticado'}
+        </div>
+        <div className="p-4">
+          <button
+            className="bg-error/10 text-error hover:bg-error/20 w-full rounded-lg px-4 py-2 text-sm font-medium"
+            onClick={() => {
+              try {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+              } catch (e) {
+                // ignore in environments without localStorage
+              }
+              // navigate to home
+              window.location.href = '/';
+            }}
+          >
+            Logout
+          </button>
         </div>
       </aside>
       {/* Mobile Navbar Button */}
@@ -64,6 +82,37 @@ const Home = () => {
           <p className="text-lg">Tu plataforma de gestión de reservas y clases.</p>
         </div>
 
+        {/* // card to go to upcoming classes */}
+
+        <div className="card bg-base-200 shadow-lg">
+          <div className="card-body">
+            <h2 className="card-title">Próximas Clases</h2>
+            <p>Consulta las clases que están por venir y no te las pierdas.</p>
+            <div className="card-actions justify-end">
+              <Link to="proximas-clases" className="btn btn-primary">
+                Ver Próximas Clases
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* card to go to create class (only if user is professor) */}
+
+        <div>
+          {user?.role === 'professor' && (
+            <div className="card bg-base-200 shadow-lg">
+              <div className="card-body">
+                <h2 className="card-title">Crear Nueva Clase</h2>
+                <p>Programa y gestiona tus clases de manera eficiente.</p>
+                <div className="card-actions justify-end">
+                  <Link to="crear-clase" className="btn btn-primary">
+                    Crear Clase
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <div className="card bg-base-200 shadow-lg">
             <div className="card-body">

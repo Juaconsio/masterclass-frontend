@@ -40,6 +40,7 @@ async function getToken(payload: any): Promise<{ ok: boolean; token?: string; me
     const userData = JSON.stringify(jwtDecode(res.data.token));
     localStorage.setItem('user', userData);
     localStorage.setItem('token', res.data.token);
+    console.log('User data stored in localStorage:', userData);
     return { ok: true, token: res.data.token };
   } catch (error: any) {
     return { ok: false, message: error.response?.data?.message || 'Error desconocido' };
