@@ -30,7 +30,10 @@ const Dashboard: React.FC = () => {
         const courses = await fetchCourses(user?.id);
         setCourses(courses || []);
         const reservationsRes = await fetchReservations().then((dataJson) => dataJson || []);
-        const filteredReservations = reservationsRes.filter((r: any) => r.studentId === user?.id);
+        // backend may return studentId or studentUserId depending on context, accept either
+        const filteredReservations = reservationsRes.filter((r: any) =>
+          r.studentId === user?.id || r.studentUserId === user?.id || r.student?.id === user?.id,
+        );
         setReservations(filteredReservations || []);
 
         // fetch classes/sessions (optional endpoint)
@@ -65,7 +68,8 @@ const Dashboard: React.FC = () => {
   // transform reservations into date-keyed map for the calendar component
   const reservationsByDate: Record<string, any[]> = {}
   for (const r of reservations) {
-    const slot = slots.find((s) => s.id === r.slotId)
+    // prefer nested slot on reservation if present (some endpoints return slot embedded)
+    const slot = r.slot ?? slots.find((s) => s.id === r.slotId)
     const start = slot?.startTime ? new Date(slot.startTime) : null
     const dateKey = start
       ? `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(

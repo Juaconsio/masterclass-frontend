@@ -20,4 +20,19 @@ async function deleteSlot(id: number) {
   return res.data;
 }
 
-export { fetchSlots, createSlot, updateSlot, deleteSlot };
+async function reserveSlot(slotId: number) {
+  const res = await httpClient.post(`v2/slots/${slotId}/reserve`);
+  return res.data;
+}
+
+async function fetchUpcomingSlots(daysAhead?: number, token?: string) {
+  const params: any = {}
+  if (typeof daysAhead === 'number') params.daysAhead = daysAhead
+  const config = token
+    ? { params, headers: { Authorization: `Bearer ${token}` } }
+    : { params }
+  const res = await httpClient.get('v2/upcoming', config)
+  return res.data
+}
+
+export { fetchSlots, fetchUpcomingSlots, createSlot, updateSlot, deleteSlot, reserveSlot };

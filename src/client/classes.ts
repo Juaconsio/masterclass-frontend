@@ -5,6 +5,11 @@ async function fetchClasses() {
   return res.data;
 }
 
+async function fetchClassesByCourse(courseId: number) {
+  const res = await httpClient.get(`/courses/${courseId}/classes`);
+  return res.data;
+}
+
 async function createClass(payload: any) {
   const res = await httpClient.post('/classes', payload);
   return res.data;
@@ -20,4 +25,4 @@ async function deleteClass() {
   return res.data;
 }
 
-export { fetchClasses, createClass, updateClass, deleteClass };
+export { fetchClasses, fetchClassesByCourse, createClass, updateClass, deleteClass };

@@ -5,6 +5,14 @@ async function fetchReservations() {
   return res.data;
 }
 
+async function fetchMyReservations(token?: string) {
+  // If a token is provided, include it explicitly; otherwise rely on httpClient interceptor
+  const config = token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
+
+  const res = await httpClient.get('v2/me/reservations', config);
+  return res.data; // expected shape: { reservations: [...], courses: [...] }
+}
+
 async function createReservation(payload: any) {
   const res = await httpClient.post('/reservations', payload);
   return res.data;
@@ -20,4 +28,10 @@ async function deleteReservation() {
   return res.data;
 }
 
-export { fetchReservations, createReservation, updateReservation, deleteReservation };
+export {
+  fetchReservations,
+  fetchMyReservations,
+  createReservation,
+  updateReservation,
+  deleteReservation,
+};

@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro'
+import UpcomingClasses from '../components/courses/UpcomingClasses'
+---
+
+<Layout>
+  <div class="container mx-auto py-8">
+    <h1 class="text-2xl font-bold mb-4">Upcoming classes</h1>
+    <UpcomingClasses client:load />
+  </div>
+</Layout>
