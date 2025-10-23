@@ -11,7 +11,7 @@ async function createSlot(payload: any) {
 }
 
 async function updateSlot(id: number, payload: any) {
-  const res = await httpClient.put(`/slots/${id}`, payload);
+  const res = await httpClient.patch(`/slots/${id}`, payload);
   return res.data;
 }
 
