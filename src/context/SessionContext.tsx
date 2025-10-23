@@ -24,20 +24,26 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   useEffect(() => {
     async function loadUserFromStorage() {
-      if (user) {
-        setIsLoading(false);
-        return;
-      }
+      setIsLoading(true);
+      try {
+        if (user) {
+          return;
+        }
 
-      const token = await validateToken();
+        const token = await validateToken();
 
-      if (!token) {
+        if (token) {
+          handleToken(token);
+        } else {
+          navigate('/ingresar', { replace: true });
+        }
+      } catch (error) {
+        // On any error validating the token, navigate to sign in
         navigate('/ingresar', { replace: true });
-        return;
+      } finally {
+        // Always clear loading state
+        setIsLoading(false);
       }
-
-      handleToken(token);
-      setIsLoading(false);
     }
 
     loadUserFromStorage();
