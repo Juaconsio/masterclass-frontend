@@ -4,7 +4,7 @@ import { createSlot } from '@client/slots';
 
 interface NewEventModalProps {
   open: boolean;
-  onClose: () => void;
+  onClose: (res?: IEvent) => void;
 }
 
 export default function NewEventModal({ open, onClose }: NewEventModalProps) {
@@ -25,10 +25,8 @@ export default function NewEventModal({ open, onClose }: NewEventModalProps) {
         minStudents: Number(data.minStudents) || 1,
         maxStudents: Number(data.maxStudents) || 1,
       };
-      console.log('Payload to create:', payload);
       const res = await createSlot(payload);
-      console.log(res);
-      onClose();
+      onClose(res);
     } catch (error: any) {
       console.log(error.messages);
     }
@@ -38,7 +36,7 @@ export default function NewEventModal({ open, onClose }: NewEventModalProps) {
 
   return (
     <dialog open className="modal modal-open in-line">
-      <div className="modal-box max-w-md">
+      <div className="modal-box w-11/12 max-w-3xl">
         <h3 className="mb-4 text-lg font-bold">Crear Nuevo Evento</h3>
         <EventForm submitLabel="Crear" onSubmit={handleCreate} onCancel={onClose} />
       </div>

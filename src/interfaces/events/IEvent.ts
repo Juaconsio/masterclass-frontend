@@ -4,11 +4,22 @@ export interface IEvent {
   professorId: number;
   startTime: string;
   endTime: string;
-  modality: 'ONLINE' | 'PRESENTIAL' | 'HYBRID'; // depende de tu enum SlotModality
-  status: 'CANDIDATE' | 'CONFIRMED' | 'CANCELLED'; // depende de tu enum SlotStatus
+  modality: 'ONLINE' | 'PRESENTIAL' | 'HYBRID' | 'remote' | 'onsite';
+  studentsGroup?: 'group' | 'private';
+  status:
+    | 'CANDIDATE'
+    | 'CONFIRMED'
+    | 'CANCELLED'
+    | 'COMPLETED'
+    | 'candidate'
+    | 'confirmed'
+    | 'cancelled'
+    | 'completed'; // depende de tu enum SlotStatus
   minStudents?: number;
   maxStudents: number;
-  reservations: IReservation[]; // reflejando la relación
+  reservations: IReservation[];
+  class?: IClass;
+  professor?: IProfessor;
 }
 
 export interface IReservation {
