@@ -4,6 +4,7 @@ import DateTimeInput from '@components/UI/DateTimeInput';
 import type { IEvent, EventFormValues, IProfessor, IClass } from '@interfaces/events/IEvent';
 import { fetchProfessors } from '@client/professors';
 import { fetchCourses } from '@client/courses';
+import { CircleX } from 'lucide-react';
 
 interface EventFormProps {
   initialValues?: Partial<EventFormValues>;
@@ -30,7 +31,7 @@ export default function EventForm({
     reset,
     watch,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<EventFormValues>({
     defaultValues: {
       classId: initialValues.classId ?? null,
@@ -55,9 +56,16 @@ export default function EventForm({
     try {
       await onSubmit(data);
       reset();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log('Error al guardar el evento:', error);
-      setRequestError(error.response.data.error || 'Ocurrió un error al guardar el evento');
+      let message = 'Ocurrió un error al guardar el evento';
+      if (error && typeof error === 'object') {
+        const e = error as { response?: { data?: { error?: string } }; message?: string };
+        message = e.response?.data?.error ?? e.message ?? message;
+      } else if (error instanceof Error) {
+        message = error.message || message;
+      }
+      setRequestError(message);
     }
   };
 
@@ -95,7 +103,11 @@ export default function EventForm({
   }, [initialValues, professors, classes]);
 
   return (
-    <form onSubmit={handleSubmit(submitHandler)} className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <form
+      onSubmit={handleSubmit(submitHandler)}
+      aria-busy={isSubmitting}
+      className="grid grid-cols-1 gap-4 md:grid-cols-2"
+    >
       {loadingData ? (
         <>
           <div className="md:col-span-1">
@@ -115,7 +127,7 @@ export default function EventForm({
               id="professor"
               className="select select-bordered w-full"
               value={watchProfessorId ?? ''}
-              disabled={loadingData}
+              disabled={loadingData || isSubmitting}
               onChange={(e) => {
                 const v = e.target.value;
                 const num = v === '' ? null : Number(v);
@@ -142,7 +154,7 @@ export default function EventForm({
               id="class"
               className="select select-bordered w-full"
               value={watchClassId ?? ''}
-              disabled={loadingData}
+              disabled={loadingData || isSubmitting}
               onChange={(e) => {
                 const v = e.target.value;
                 setValue('classId', v === '' ? null : Number(v), { shouldDirty: true });
@@ -182,7 +194,11 @@ export default function EventForm({
               return true;
             },
           }}
-          render={({ field }) => <DateTimeInput value={field.value} onChange={field.onChange} />}
+          render={({ field }) => (
+            <div className={isSubmitting ? 'pointer-events-none opacity-60' : ''}>
+              <DateTimeInput value={field.value} onChange={field.onChange} />
+            </div>
+          )}
         />
         {errors.start && <p className="text-error text-sm">{errors.start.message}</p>}
       </div>
@@ -213,7 +229,11 @@ export default function EventForm({
               return true;
             },
           }}
-          render={({ field }) => <DateTimeInput value={field.value} onChange={field.onChange} />}
+          render={({ field }) => (
+            <div className={isSubmitting ? 'pointer-events-none opacity-60' : ''}>
+              <DateTimeInput value={field.value} onChange={field.onChange} />
+            </div>
+          )}
         />
         {errors.end && <p className="text-error text-sm">{errors.end.message}</p>}
       </div>
@@ -223,6 +243,7 @@ export default function EventForm({
         <select
           {...register('modality', { required: 'Modalidad es obligatoria' })}
           className="select select-bordered w-full"
+          disabled={isSubmitting}
         >
           <option value="">Seleciona una modalidad</option>
           <option value="remote">Online</option>
@@ -236,6 +257,7 @@ export default function EventForm({
         <select
           {...register('studentsGroup', { required: 'Clase grupal o individual es obligatoria' })}
           className="select select-bordered w-full"
+          disabled={isSubmitting}
         >
           <option value="">Seleciona una clase</option>
           <option value="group">Grupal</option>
@@ -251,6 +273,7 @@ export default function EventForm({
         <select
           {...register('status', { required: 'Estado es obligatorio' })}
           className="select select-bordered w-full"
+          disabled={isSubmitting}
         >
           <option value="">Seleciona un estado</option>
           <option value="candidate">Candidato</option>
@@ -268,6 +291,7 @@ export default function EventForm({
           {...register('minStudents')}
           placeholder="Mínimo de estudiantes"
           className="input input-bordered w-full"
+          disabled={isSubmitting}
         />
       </div>
 
@@ -278,24 +302,25 @@ export default function EventForm({
           {...register('maxStudents', { required: 'Máximo de estudiantes es obligatorio' })}
           placeholder="Máximo de estudiantes"
           className={`input input-bordered w-full ${errors.maxStudents ? 'input-error' : ''}`}
+          disabled={isSubmitting}
         />
         {errors.maxStudents && <p className="text-error text-sm">{errors.maxStudents.message}</p>}
       </div>
 
       {requestError && (
-        <div className="collapse-arrow bg-warning/40 collapse border md:col-span-2">
-          <input type="radio" name="my-accordion-2" />
-          <div className="collapse-title font-semibold">Ocurrió un error</div>
-          <div className="collapse-content text-sm">{requestError}</div>
+        <div role="alert" className="alert alert-error alert-soft md:col-span-2">
+          <CircleX className="h-4 w-4" />
+          <span>{requestError}</span>
         </div>
       )}
 
       <div className="modal-action grid w-full grid-cols-2 gap-2 md:col-span-2">
-        <button type="button" className="btn w-full" onClick={onCancel}>
+        <button type="button" className="btn w-full" onClick={onCancel} disabled={isSubmitting}>
           Cancelar
         </button>
-        <button type="submit" className="btn btn-primary w-full">
-          {submitLabel}
+        <button type="submit" className="btn btn-primary w-full" disabled={isSubmitting}>
+          {isSubmitting && <span className="loading loading-spinner loading-sm" />}
+          <span>{submitLabel}</span>
         </button>
       </div>
     </form>

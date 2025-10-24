@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { startOfWeek, addWeeks, subWeeks } from 'date-fns';
-import { fetchSlots } from '@client/slots';
+import { fetchSlots, createSlot, updateSlot, deleteSlot } from '@client/slots';
 import Toolbar from './Toolbar';
 import CalendarGrid from './CalendarGrid';
 import EventDetailsModal from './EventDetailsModal';
-import NewEventModal from './EventFormModal';
-import type { IEvent } from '@interfaces/events/IEvent';
+import NewEventModal from './NewEventModal';
+import type { EventCreatePayload, IEvent } from '@interfaces/events/IEvent';
 import { useSessionContext } from '../../context/SessionContext';
 import { useNavigate } from 'react-router';
 
@@ -58,21 +58,17 @@ export default function CalendarTemplate() {
     setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }));
   }
 
-  function deleteEvent(id: number) {
-    setEvents(events.filter((event) => event.id !== id));
-    setSelectedEvent(null);
-  }
-
-  function editEvent(updatedEvent: IEvent) {
+  async function handleEdit(id: number, payload: Partial<IEvent>) {
+    const updatedEvent = await updateSlot(id, payload);
     setEvents(events.map((event) => (event.id === updatedEvent.id ? updatedEvent : event)));
-    setSelectedEvent(null);
+    setSelectedEvent(updatedEvent);
   }
 
-  function handleUpdateEvents(newEvent?: IEvent) {
+  async function handleCreate(newEventPayload?: EventCreatePayload) {
+    const createdEvent = await createSlot(newEventPayload);
     setShowNewEventModal(false);
-    // Actualiza bien pero no actualiza el slots
-    if (newEvent) {
-      setEvents([...events, newEvent]);
+    if (createdEvent) {
+      setEvents([...events, createdEvent]);
     }
   }
 
@@ -107,11 +103,14 @@ export default function CalendarTemplate() {
           event={selectedEvent}
           open={showEventDetailsModal}
           onClose={() => setShowEventDetailsModal(false)}
-          onDelete={deleteEvent}
-          onEdit={editEvent}
+          handleEdit={handleEdit}
         />
 
-        <NewEventModal open={showNewEventModal} onClose={handleUpdateEvents} />
+        <NewEventModal
+          open={showNewEventModal}
+          handleCreate={handleCreate}
+          onClose={() => setShowNewEventModal(false)}
+        />
       </div>
     </>
   );

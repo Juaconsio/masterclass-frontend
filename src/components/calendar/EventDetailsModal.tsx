@@ -16,32 +16,39 @@ import EventForm from './EventForm';
 import type { EventFormValues } from '@interfaces/events/IEvent';
 import { updateSlot, deleteSlot } from '@client/slots';
 
+type EventUpdatePayload = Partial<
+  Pick<
+    IEvent,
+    | 'classId'
+    | 'professorId'
+    | 'startTime'
+    | 'endTime'
+    | 'modality'
+    | 'status'
+    | 'minStudents'
+    | 'maxStudents'
+  >
+>;
+
 interface EventDetailsModalProps {
   event: IEvent | null;
   open: boolean;
   onClose: (event?: IEvent) => void;
-  onDelete?: (id: number) => void;
-  onEdit?: (event: IEvent) => void;
+  handleDelete?: (id: number) => void;
+  handleEdit?: (id: number, payload: EventUpdatePayload) => void;
 }
 
 export default function EventDetailsModal({
   event,
   open,
   onClose,
-  onDelete,
-  onEdit,
+  handleDelete,
+  handleEdit,
 }: EventDetailsModalProps) {
   if (!open) return null;
 
   const [isEditing, setIsEditing] = useState(false);
 
-  function handleDelete(id: number) {
-    deleteSlot(id).then(() => {
-      if (onDelete) onDelete(id);
-    });
-  }
-
-  // Helper: construye solo los campos que realmente cambiaron
   function buildSlotUpdatePayload(original: IEvent, form: EventFormValues) {
     type UpdateSlotPayload = Partial<
       Pick<
@@ -78,27 +85,24 @@ export default function EventDetailsModal({
     if (form.modality !== original.modality) payload.modality = form.modality as any;
     if (form.status !== original.status) payload.status = form.status as any;
 
-    // minStudents: permitir limpiar el valor. Si el usuario lo deja vacío, interpretamos que quiere quitarlo.
-    // Asunción: para "quitar" enviamos null (ajusta si tu API espera undefined o no permitir clearing).
-    const formMin = form.minStudents === undefined ? null : form.minStudents; // estandarizamos null para "sin valor"
+    const formMin = form.minStudents === undefined ? null : form.minStudents;
     const originalMin = original.minStudents === undefined ? null : original.minStudents;
-    if (formMin !== originalMin) payload.minStudents = formMin === null ? undefined : formMin; // decide aquí qué enviar
+    if (formMin !== originalMin) payload.minStudents = formMin === null ? undefined : formMin;
 
     if (form.maxStudents !== original.maxStudents) payload.maxStudents = form.maxStudents;
 
-    console.log('Payload de actualización construido:', payload);
     return payload;
   }
 
   async function handleUpdate(data: EventFormValues) {
-    if (!event) return;
+    if (!event || !handleEdit) return;
     const payload = buildSlotUpdatePayload(event, data);
     if (Object.keys(payload).length === 0) {
       console.log('Sin cambios, no se envía update.');
       throw new Error('No hay cambios para actualizar.');
     }
-    const res = await updateSlot(event.id, payload);
-    onClose(res);
+    await handleEdit(event.id, payload);
+    setIsEditing(false);
   }
 
   if (!event) return null;
@@ -148,7 +152,6 @@ export default function EventDetailsModal({
         {isEditing ? (
           <>
             <h2 className="text-primary mb-3 text-xl font-semibold">Editar Evento</h2>
-            {/* Se esta mandando solo lo editado (o tal vez no) pero el backend al parecer espera todo */}
             <EventForm
               submitLabel="Actualizar"
               onSubmit={handleUpdate}
@@ -226,12 +229,12 @@ export default function EventDetailsModal({
                   <button className="btn" onClick={() => onClose()}>
                     Cerrar
                   </button>
-                  {onEdit && (
+                  {handleEdit && (
                     <button className="btn btn-info" onClick={() => setIsEditing(true)}>
                       Editar
                     </button>
                   )}
-                  {onDelete && (
+                  {handleDelete && (
                     <button className="btn btn-error" onClick={() => handleDelete(event.id)}>
                       Eliminar
                     </button>

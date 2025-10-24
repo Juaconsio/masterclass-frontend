@@ -64,3 +64,15 @@ export type FormValues = {
   description: string;
   color: string;
 };
+
+export interface EventCreatePayload {
+  classId: number | null;
+  professorId: number | null;
+  startTime: string;
+  endTime: string;
+  modality: string;
+  studentsGroup: string;
+  status: string;
+  minStudents?: number;
+  maxStudents: number;
+}
