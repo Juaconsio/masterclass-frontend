@@ -7,6 +7,16 @@ async function fetchCourses(studentId?: number) {
   return res.data;
 }
 
+async function fetchCoursesByCurrentUser() {
+  const res = await httpClient.get('/courses/me');
+  return res.data;
+}
+
+async function fetchStudentCourseById(courseId: number) {
+  const res = await httpClient.get(`/courses/${courseId}`);
+  return res.data;
+}
+
 async function createCourse(payload: any) {
   const res = await httpClient.post('/courses', payload);
   return res.data;
@@ -22,4 +32,11 @@ async function deleteCourse() {
   return res.data;
 }
 
-export { fetchCourses, createCourse, updateCourse, deleteCourse };
+export {
+  fetchCourses,
+  fetchCoursesByCurrentUser,
+  fetchStudentCourseById,
+  createCourse,
+  updateCourse,
+  deleteCourse,
+};
