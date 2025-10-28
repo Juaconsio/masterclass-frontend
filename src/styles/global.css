@@ -12,24 +12,51 @@
 @plugin "daisyui/theme" {
   name: 'light';
   default: true;
-  --color-primary: oklch(0.7049 0.1867 47.6);
+
+  /* === BRAND COLORS === */
+  --color-primary: oklch(0.7049 0.1867 47.6); /* Naranja brillante y energético */
   --color-primary-content: white;
-  --color-secondary: oklch(0.2101 0.0318 264.66);
+
+  --color-secondary: oklch(0.2101 0.0318 264.66); /* Azul oscuro elegante */
   --color-secondary-content: white;
 
-  --color-accent: oklch(0.93 0.03 47.6);
-  --color-accent-content: oklch(0.3729 0.0306 259.73);
+  --color-accent: oklch(0.93 0.03 47.6); /* Amarillo claro, vibrante */
+  --color-accent-content: oklch(0.3729 0.0306 259.73); /* Azul grisáceo para contraste */
 
-  --color-neutral: oklch(0.98 0.01 47.6);
-  --color-base-100: oklch(0.98 0.01 47.6); /* Blanco cálido, muy contrastante con el naranja */
-  --color-base-200: oklch(
-    0.93 0.03 47.6
-  ); /* Gris muy claro, mantiene contraste y suaviza el fondo */
-  --color-base-content: oklch(
-    0.15 0.01 47.6
-  ); /*Gris oscuro, excelente contraste con fondos claros y naranja */
+  /* === BASE & NEUTRALS === */
+  --color-base-100: oklch(0.98 0.01 47.6); /* Blanco cálido */
+  --color-base-200: oklch(0.93 0.03 47.6); /* Gris muy claro */
+  --color-base-300: oklch(0.9 0.03 47.6); /* Gris muy claro */
+  --color-base-content: oklch(0.15 0.01 47.6); /* Texto oscuro, alto contraste */
+
+  --color-neutral: oklch(0.6 0.02 250); /* Gris neutro con leve tinte frío */
   --color-neutral-content: oklch(0.15 0.01 47.6);
+
+  /* === FEEDBACK COLORS === */
+  --color-info: oklch(0.78 0.09 250); /* Azul suave para info */
+  --color-info-content: oklch(0.25 0.04 250);
+
+  --color-success: oklch(0.78 0.15 150); /* Verde brillante para éxito */
+  --color-success-content: white;
+
+  --color-warning: oklch(0.82 0.17 75); /* Amarillo cálido para advertencias */
+  --color-warning-content: oklch(0.25 0.05 75);
+
+  --color-error: oklch(0.65 0.19 25); /* Rojo intenso para errores */
+  --color-error-content: white;
+
+  /* === VARIANTS === */
+  --color-secondary-light: oklch(0.45 0.05 260); /* Azul medio, hover */
+  --color-secondary-dark: oklch(0.15 0.02 260); /* Azul casi negro */
+
+  /* === GENERAL UI === */
+  --rounded-btn: 0.75rem;
+  --animation-btn: 0.25s;
+  --border-btn: 1px;
+  --btn-text-case: capitalize;
+  --focus-ring: 2px solid oklch(0.7049 0.1867 47.6 / 0.5);
 }
+
 @layer base {
   body {
     @apply bg-base-100 text-base-content min-h-screen min-w-sm;

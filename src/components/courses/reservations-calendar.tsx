@@ -139,9 +139,9 @@ export function ReservationsCalendar({
                         {courseTitle}
                       </h4>
                       {classTitle && (
-                        <div className="text-base-content/70 text-xs">Class: {classTitle}</div>
+                        <div className="text-base-content/70 text-xs">Clase: {classTitle}</div>
                       )}
-                      <p className="text-base-content/70 text-xs">Instructor: {instructor}</p>
+                      <p className="text-base-content/70 text-xs">Profesor: {instructor}</p>
                     </div>
                     <span className="badge badge-outline badge-sm">{modality}</span>
                   </div>
@@ -176,7 +176,7 @@ export function ReservationsCalendar({
   };
 
   return (
-    <section className="bg-base-100 rounded-lg border-2 border-black p-6">
+    <section>
       <div className="mb-6">
         <h2 className="text-base-content mb-2 text-2xl font-bold">Mis Reservas</h2>
         <p className="text-base-content/70">Aquí puedes ver y administrar tus sesiones</p>
