@@ -34,6 +34,9 @@ export interface IClass {
   name: string;
   professors: IProfessor[];
   title: string;
+  isActive?: boolean;
+  description?: string;
+  slots?: IEvent[];
   // otros campos del modelo Class
 }
 
