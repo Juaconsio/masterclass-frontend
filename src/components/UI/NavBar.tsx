@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Home, BookOpen, Info, LayoutDashboard, User, LogOut } from 'lucide-react';
 import clsx from 'clsx';
+import { Link, useLocation } from 'react-router';
 
 type NavLink = {
   label: string;
@@ -9,11 +10,7 @@ type NavLink = {
 };
 
 const NavBar: React.FC = () => {
-  const [path, setPath] = useState<string>('');
-
-  useEffect(() => {
-    setPath(window.location.pathname + window.location.hash);
-  }, []);
+  const location = useLocation();
 
   const links: NavLink[] = useMemo(
     () => [
@@ -30,10 +27,9 @@ const NavBar: React.FC = () => {
   );
 
   const isActive = (href: string) => {
+    const path = location.pathname + location.hash;
     if (!path) return false;
-    // Manejo de hash (ej: /#contact)
     if (href.includes('#')) return path.endsWith(href.replace('/', '')) || path === href;
-    // Coincidencia exacta o prefijo (para secciones)
     return path === href;
   };
 
@@ -53,7 +49,7 @@ const NavBar: React.FC = () => {
     <aside className="bg-base-200 sticky top-0 flex max-h-screen w-64 flex-col justify-between border-r border-black">
       {/* Top: Logo + Nav */}
       <div>
-        <a href="/" className="mb-6 inline-flex items-center gap-3 p-4">
+        <Link to="/" className="mb-6 inline-flex items-center gap-3 p-4">
           <img
             src="/images/logo.svg"
             alt="SalvaRamos"
@@ -65,16 +61,16 @@ const NavBar: React.FC = () => {
             }}
           />
           <span className="text-2xl font-bold">Salva Ramos</span>
-        </a>
+        </Link>
 
         <nav aria-label="Menu de navegación" className="space-y-1">
           {links.map((l) => {
             const active = isActive(l.href);
 
             return (
-              <a
+              <Link
                 key={l.href}
-                href={l.href}
+                to={l.href}
                 className={clsx(
                   'relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 transition-colors',
                   active ? 'bg-primary/10 font-semibold' : 'hover:bg-base-content/5'
@@ -87,7 +83,7 @@ const NavBar: React.FC = () => {
                 )}
                 <span className={active ? 'text-primary' : ''}>{l.icon}</span>
                 <span className="text-sm font-medium">{l.label}</span>
-              </a>
+              </Link>
             );
           })}
         </nav>
@@ -117,9 +113,9 @@ const NavBar: React.FC = () => {
             role="menu"
           >
             <li>
-              <a href="/profile" role="menuitem" className="flex items-center gap-2">
+              <Link to="/profile" role="menuitem" className="flex items-center gap-2">
                 <User className="h-4 w-4" /> Ver perfil
-              </a>
+              </Link>
             </li>
             <li>
               <button onClick={handleLogout} role="menuitem" className="flex items-center gap-2">
