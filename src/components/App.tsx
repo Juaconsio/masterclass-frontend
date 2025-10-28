@@ -9,6 +9,7 @@ import SignUpForm from '@components/auth/SignUpForm';
 import NotFound from './UI/NotFound';
 import Home from './home';
 import Courses from './courses';
+import StudentCourseView from './StudentCourseView';
 
 export default function Spa() {
   return (
@@ -24,7 +25,10 @@ export default function Spa() {
           <Route path="/app" element={<AppLayout />}>
             <Route index element={<Home />} />
             <Route path="reservas" element={<CalendarTemplate />} />
-            <Route path="cursos" element={<Courses />} />
+            <Route path="cursos">
+              <Route index element={<Courses />} />
+              <Route path=":courseId" element={<StudentCourseView />} />
+            </Route>
           </Route>
 
           <Route path="*" element={<NotFound />} />

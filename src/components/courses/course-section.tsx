@@ -1,4 +1,5 @@
 import { Clock } from 'lucide-react';
+import { Link } from 'react-router';
 
 // Use courses passed in via props; default to empty array to avoid relying on mock data
 
@@ -13,12 +14,12 @@ export function CoursesSection({ courses: propCourses, loading }: CoursesSection
   return (
     <section>
       <div className="mb-6">
-        <h2 className="text-foreground mb-2 text-2xl font-bold">My Courses</h2>
-        <p className="text-muted-foreground">Continue learning and track your progress</p>
+        <h2 className="text-foreground mb-2 text-2xl font-bold">Mis Cursos</h2>
+        <p className="text-muted-foreground">Continúa aprendiendo y sigue tu progreso</p>
       </div>
-      {loading && <div className="text-muted-foreground">Loading...</div>}
+      {loading && <div className="text-muted-foreground">Cargando...</div>}
       {!loading && data.length === 0 && (
-        <div className="text-muted-foreground">No courses found.</div>
+        <div className="text-muted-foreground">No se encontraron cursos.</div>
       )}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         {data.map((course) => (
@@ -60,12 +61,9 @@ export function CoursesSection({ courses: propCourses, loading }: CoursesSection
                   )}
                 </div>
                 <div className="flex-shrink-0">
-                  <a
-                    href={`/dashboard/course-content/${course.id}`}
-                    className="btn btn-sm btn-primary ml-4"
-                  >
+                  <Link to={`/app/cursos/${course.id}`} className="btn btn-sm btn-primary ml-4">
                     View
-                  </a>
+                  </Link>
                 </div>
               </div>
               <div className="text-muted-foreground flex items-center gap-2 text-sm">

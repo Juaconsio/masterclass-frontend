@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../../hooks/useAuth';
 import { fetchSlots } from '../../client/slots';
 import { httpClient } from '@/client/config';
-import { DashboardHeader } from './dashboardHeader';
 import { CoursesSection } from './course-section';
 import { fetchCourses } from '@client/courses';
 import { fetchReservations } from '@/client/reservations';
@@ -102,9 +100,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      <DashboardHeader />
       <main className="container mx-auto space-y-8 px-4 py-8">
-        Cursos
         <CoursesSection courses={courses} loading={loading} />
         <ReservationsCalendar
           reservationsByDate={reservationsByDate}
