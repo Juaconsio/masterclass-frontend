@@ -94,6 +94,10 @@ class HttpClient {
     return this.axiosInstance.put<T>(url, data, config);
   }
 
+  public patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig) {
+    return this.axiosInstance.patch<T>(url, data, config);
+  }
+
   public delete<T = any>(url: string, config?: AxiosRequestConfig) {
     return this.axiosInstance.delete<T>(url, config);
   }

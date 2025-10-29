@@ -5,8 +5,9 @@ async function fetchReservations() {
   return res.data;
 }
 
-async function createReservation(payload: any) {
-  const res = await httpClient.post('/reservations', payload);
+async function createReservation(slotId: number) {
+  const res = await httpClient.post('/reservations', { slotId });
+
   return res.data;
 }
 

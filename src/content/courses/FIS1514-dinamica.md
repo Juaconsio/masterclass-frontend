@@ -1,5 +1,5 @@
 ---
-id: "FIS1514"
+id: "1"
 acronym: "FIS1512"
 title: "Dínamica"
 department: "Física"

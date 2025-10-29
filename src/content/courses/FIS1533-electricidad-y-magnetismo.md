@@ -1,5 +1,5 @@
 ---
-id: "FIS1533"
+id: "2"
 acronym: "FIS1533"
 title: "Electricidad y Magnetismo"
 department: "Física"
