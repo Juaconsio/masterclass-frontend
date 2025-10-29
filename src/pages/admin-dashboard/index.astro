@@ -1,0 +1,8 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DashboardComponent from '../../components/admin-dashboard/admin-dashboard.tsx';
+---
+<Layout>
+  <link rel="stylesheet" href="/src/styles/dashboard.css" />
+  <DashboardComponent client:load />
+</Layout>
