@@ -24,8 +24,17 @@ const {
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <script src="https://cdn.usal.dev/latest" defer></script>
   </head>
   <body>
+    <script is:inline>
+      window.addEventListener('DOMContentLoaded', () => {
+        window.USAL.config({
+          once: true,
+          threshold: 0.2,
+        });
+      });
+    </script>
     <slot />
   </body>
 </html>
