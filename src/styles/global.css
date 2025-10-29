@@ -5,6 +5,7 @@
 @plugin '@tailwindcss/typography';
 @import 'react-day-picker/style.css';
 @import '@splidejs/react-splide/css';
+@import '@splidejs/react-splide/css/core';
 /* oklch(0.3729 0.0306 259.73) */
 /* oklch(0.7049 0.1867 47.6) */
 /* oklch(0.2101 0.0318 264.66) */
@@ -33,6 +34,18 @@
 @layer base {
   body {
     @apply bg-base-100 text-base-content min-h-screen min-w-sm;
+  }
+
+  section {
+    @apply container mx-auto;
+  }
+
+  .line-clamp-4 {
+    display: -webkit-box;
+    line-clamp: 4;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 }
 
@@ -67,3 +80,5 @@
 @utility btn-navbar {
   @apply btn-outline btn-primary text-secondary-content border-0;
 }
+
+/* Removed reviews-splide CSS in favor of Tailwind utilities and SplideTrack class overrides */

@@ -22,66 +22,103 @@ const contactData = [
 ];
 ---
 
-<section id="contact" class="h-hero justify-center flex flex-col gap-10">
-  <!-- Bento Grid Layout -->
-  <div class="h-4/5 flex flex-wrap lg:grid lg:grid-cols-6 lg:grid-rows-3 gap-6 max-w-6xl mx-auto">
-    <!-- Card 1: Formas de Contacto -->
-    <div class="card card-sm gap-2 bg-white shadow-xl lg:col-span-3 lg:row-span-1">
-      <div class="card-body">
-        <h3 class="card-title text-3xl text-primary">No perdamos el contacto</h3>
-        <span class="text-lg text-base-content/70">
-          ¿Alguna duda? Háblanos a cualquiera de nuestras redes :)
-        </span>
-      </div>
-    </div>
-
+<section id="contact" class="h-hero mb-12">
+  <div class="justify-center flex h-full flex-col gap-10">
+    <!-- Bento Grid Layout -->
     <div
-      class="card bg-white shadow-xl lg:col-span-2 lg:row-span-2 flex flex-col justify-around p-8"
+      class="h-full flex flex-wrap lg:grid lg:h-full lg:grid-cols-6 lg:[grid-template-rows:repeat(3,minmax(0,1fr))] gap-6 max-w-6xl mx-auto"
     >
-      <h3 class="card-title text-primary">Nuestras Redes</h3>
-      {
-        contactData.map((contact) => (
-          <ContactCard
-            href={contact.href}
-            icon={contact.icon}
-            title={contact.title}
-            subtitle={contact.subtitle}
-          />
-        ))
-      }
-    </div>
-
-    <!-- Card 2: QR Code -->
-    <div class="card bg-white shadow-xl lg:col-span-2 lg:row-span-2 lg:row-start-2 lg:col-start-5">
-      <figure>
-        <img
-          src="/images/WA_QRcode.png"
-          alt="WhatsApp QR Code"
-          class="w-full h-full rounded-lg shadow-md object-contain"
-        />
-      </figure>
-      <div class="card-body items-center">
-        <div class="card-title">Escanea el código</div>
-      </div>
-    </div>
-
-    <!-- Card 3: Fotografía del equipo -->
-
-    <div class="bg-base-100 shadow-xl lg:col-span-4 lg:col-start-4 lg:row-start-1">
-      <div class="p-0 h-full">
-        <div class="relative h-full rounded-lg overflow-hidden">
-          <img src="/images/image0.jpeg" alt="Equipo SalvaRamos" class="w-full object-contain" />
-          <div
-            class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
-          >
-          </div>
-          <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
-            <h3 class="text-xl font-bold mb-2">Estamos aquí para ayudarte</h3>
-            <p class="text-white/90 text-sm">
-              Nuestro equipo está listo para resolver tus dudas y ayudarte en lo que necesites.
-            </p>
+      <!-- Card 1: Formas de Contacto -->
+      <div
+        class="card card-sm gap-2 bg-white shadow-xl lg:col-span-3 lg:row-span-1 lg:h-full overflow-hidden"
+      >
+        <div class="p-0 h-full min-h-0" data-usal="fade-r">
+          <div class="relative h-full rounded-lg overflow-hidden">
+            <img
+              src="/images/image0.jpeg"
+              alt="Equipo SalvaRamos"
+              class="h-full w-full object-cover"
+            />
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
+            >
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+              <h3 class="text-xl font-bold mb-2">Contactanos</h3>
+              <p class="text-white/90 text-sm">
+                Por cualquiera de nuestras redes o vía email. Estamos para ayudarte.
+              </p>
+            </div>
           </div>
         </div>
+      </div>
+
+      <div
+        data-usal="fade-r"
+        class="card bg-white shadow-xl lg:col-span-2 lg:row-span-2 lg:h-full min-h-0 flex flex-col gap-6 p-8 overflow-auto"
+      >
+        <h3 class="card-title text-primary">Nuestras Redes</h3>
+        {
+          contactData.map((contact) => (
+            <ContactCard
+              href={contact.href}
+              icon={contact.icon}
+              title={contact.title}
+              subtitle={contact.subtitle}
+            />
+          ))
+        }
+      </div>
+
+      <!-- Card 2: QR Code -->
+      <div
+        data-usal="fade-l"
+        class="card bg-white shadow-xl lg:col-span-2 lg:row-span-2 lg:row-start-2 lg:col-start-5 lg:h-full overflow-hidden min-h-0"
+      >
+        <figure class="min-h-0 h-full">
+          <img
+            src="/images/WA_QRcode.png"
+            alt="WhatsApp QR Code"
+            class="w-full h-full rounded-lg shadow-md object-contain"
+          />
+        </figure>
+        <div class="card-body items-center">
+          <div class="card-title">Escanea el código para chatear ahora</div>
+        </div>
+      </div>
+
+      <!-- Card 3: Fotografía del equipo -->
+
+      <div
+        data-usal="fade-l"
+        class="bg-base-100 shadow-xl lg:col-span-4 lg:col-start-4 lg:row-start-1 lg:h-full overflow-hidden min-h-0"
+      >
+        <div class="p-0 h-full min-h-0">
+          <div class="relative h-full rounded-lg overflow-hidden">
+            <img
+              src="/images/image0.jpeg"
+              alt="Equipo SalvaRamos"
+              class="h-full w-full object-cover"
+            />
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
+            >
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+              <h3 class="text-xl font-bold mb-2">Estamos aquí para ayudarte</h3>
+              <p class="text-white/90 text-sm">
+                Nuestro equipo está listo para resolver tus dudas y ayudarte en lo que necesites.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        data-usal="fade-b"
+        class="bg-base-100 shadow-xl lg:col-span-2 lg:row-span-2 lg:col-start-3 lg:row-start-2 lg:h-full overflow-hidden min-h-0"
+      >
+        <div class="size-full flex justify-center items-center">Aqui va el logo jaja</div>
       </div>
     </div>
   </div>
