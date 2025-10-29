@@ -15,16 +15,17 @@ export default function Carousel() {
   }, []);
 
   const options = {
-    type: 'loop' as const,
+    type: 'loop',
     gap: isMobile ? '0.75rem' : '1rem',
     arrows: false,
     autoplay: true,
     pauseOnHover: false,
     resetProgress: false,
-    perPage: isMobile ? 1 : undefined,
+    perPage: 1,
     perMove: isMobile ? 1 : undefined,
+
     pagination: isMobile,
-    width: isMobile ? '100%' : '22rem',
+    width: isMobile ? '100%' : '100%',
     height: isMobile ? undefined : '26rem',
     fixedHeight: isMobile ? '20rem' : undefined,
   };
