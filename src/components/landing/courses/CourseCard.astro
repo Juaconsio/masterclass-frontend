@@ -12,9 +12,6 @@ const { course, index } = Astro.props;
 const getUsalAnimation = (idx: number | null) => {
   if (idx === null) return 'fade-u';
   switch (idx % 4) {
-    case 0:
-      return 'fade-r delay-[100]';
-    case 1:
       return 'fade-u delay-[200]';
     case 2:
       return 'fade-b delay-[300]';
