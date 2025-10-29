@@ -4,9 +4,25 @@ import type { CollectionEntry } from 'astro:content';
 import { DEPARTMENT_COLORS, LEVEL_COLORS, DEPARTMENT_ICONS } from '../../../types/course';
 interface Props {
   course: CollectionEntry<'courses'>;
+  index: number;
 }
 
-const { course } = Astro.props;
+const { course, index } = Astro.props;
+
+const getUsalAnimation = (idx: number) => {
+  switch (idx % 4) {
+    case 0:
+      return 'fade-r delay-[100]';
+    case 1:
+      return 'fade-u delay-[200]';
+    case 2:
+      return 'fade-b delay-[300]';
+    case 3:
+      return 'fade-l delay-[400]';
+    default:
+      return 'fade-u';
+  }
+};
 ---
 
 <div
@@ -14,6 +30,7 @@ const { course } = Astro.props;
   data-department={course.data.department}
   data-level={course.data.level}
   data-acronym={course.data.acronym}
+  data-usal={getUsalAnimation(index)}
 >
   <a href={`/courses/${course.slug}`}>
     <!-- Course Image -->
