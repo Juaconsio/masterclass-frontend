@@ -2,10 +2,11 @@
 import Navbar from './Navbar.astro';
 import Hero from './Hero.astro';
 import CourseCard from './courses/CourseCard.astro';
-import ReviewCard from './ReviewCard.astro';
+import ReviewsCarousel from './reviews/ReviewsCarousel.tsx';
 import { Icon } from 'astro-icon/components';
 import { getCollection } from 'astro:content';
 import Carousel from '../UI/Carousel.tsx';
+import Stats from './stats.astro';
 import ContactUs from './contactUs/index.astro';
 import Footer from './footer.astro';
 // Get collections
@@ -24,6 +25,19 @@ const reviewsToShow =
   featuredReviewsFiltered.length >= 6
     ? featuredReviewsFiltered.slice(0, 6)
     : allReviews.slice(0, 6);
+
+// Convert reviews to plain objects for React component
+const reviewsData = reviewsToShow.map((review) => ({
+  id: review.data.id,
+  name: review.data.name,
+  profile: review.data.profile,
+  studies: review.data.studies,
+  comment: review.data.comment,
+  course: review.data.course,
+  rating: review.data.rating,
+  image: review.data.image,
+  date: review.data.date,
+}));
 
 const main = [
   {
@@ -47,6 +61,21 @@ const main = [
     desc: 'Compartimos el mismo objetivo y nos apoyamos para lograrlo',
   },
 ];
+
+const getUsalAnimation = (idx: number) => {
+  switch (idx % 4) {
+    case 0:
+      return 'fade-r delay-100';
+    case 1:
+      return 'fade-r delay-300';
+    case 2:
+      return 'fade-r delay-500';
+    case 3:
+      return 'fade-r delay-700';
+    default:
+      return 'fade-u';
+  }
+};
 ---
 
 <div>
@@ -54,6 +83,8 @@ const main = [
 
   <!-- Hero Section -->
   <Hero />
+
+  <Stats />
 
   <!-- Featured Courses Section -->
   <section id="courses" class="h-hero">
@@ -66,7 +97,7 @@ const main = [
       </div>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-        {coursesToShow.map((course) => <CourseCard course={course} />)}
+        {coursesToShow.map((course, index) => <CourseCard course={course} index={index} />)}
       </div>
 
       <div class="text-center">
@@ -76,7 +107,7 @@ const main = [
   </section>
 
   <!-- About Us Section -->
-  <section id="about" class="py-20 h-hero bg-base-300">
+  <section id="about" class="py-20 h-hero">
     <div class="flex flex-col mx-auto px-4 max-w-7xl gap-10">
       <div class="px-4 text-center mb-4 flex gap-4 flex-col justify-center">
         <h2 class="text-4xl md:text-5xl font-bold">
@@ -89,24 +120,22 @@ const main = [
       </div>
 
       <div class="grid lg:grid-cols-2 gap-16 items-center">
-        <div class="flex flex-col justify-center">
-          <div class="space-y-2">
-            <h3 class="text-base-content/50">Somos...</h3>
-            <div class="space-y-6">
-              {
-                main.map((item) => (
-                  <div class="flex items-start gap-4">
-                    <div class="flex justify-center items-center bg-primary text-primary-content rounded-xl p-4">
-                      <Icon name={item.icon} size={32} />
-                    </div>
-                    <div>
-                      <h3 class="text-2xl mb-2">{item.title}</h3>
-                      <p class="text-base-content/50">{item.desc}</p>
-                    </div>
+        <div class="flex flex-col justify-between h-full">
+          <h3 class="text-base-content/50 pb-2">Somos...</h3>
+          <div class="flex flex-col justify-between h-full">
+            {
+              main.map((item, index) => (
+                <div class="flex items-start gap-4" data-usal={getUsalAnimation(index)}>
+                  <div class="flex justify-center items-center bg-primary text-primary-content rounded-xl p-4">
+                    <Icon name={item.icon} size={32} />
                   </div>
-                ))
-              }
-            </div>
+                  <div>
+                    <h3 class="text-2xl mb-2">{item.title}</h3>
+                    <p class="text-base-content/50">{item.desc}</p>
+                  </div>
+                </div>
+              ))
+            }
           </div>
         </div>
 
@@ -118,26 +147,20 @@ const main = [
   </section>
 
   <!-- Reviews Section -->
-  <section id="reviews" class="pt-20">
-    <div class="container mx-auto px-4">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold mb-6">Que te lo cuenten ellas y ellos</h2>
-        <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
-          Conoce la experiencia de quienes ya han confiado en nosotros.
-        </p>
-      </div>
+  <div class="bg-base-200">
+    <section id="reviews" class="pt-20 pb-20">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl font-bold mb-6">Que te lo cuenten ellas y ellos</h2>
+          <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
+            Conoce la experiencia de quienes ya han confiado en nosotros.
+          </p>
+        </div>
 
-      <div class="carousel w-full rounded-box space-x-4 p-4 overflow-x-auto">
-        {
-          reviewsToShow.map((review, index) => (
-            <div class="carousel-item w-80 flex-shrink-0">
-              <ReviewCard review={review} />
-            </div>
-          ))
-        }
+        <ReviewsCarousel reviews={reviewsData} client:load />
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 
   <!-- Contact Section -->
   <ContactUs />
