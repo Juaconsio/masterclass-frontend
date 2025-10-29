@@ -3,16 +3,16 @@
 const year = new Date().getFullYear();
 ---
 
-<footer class="bg-base-200 text-base-content">
+<footer class="bg-neutral-content text-white">
   <div class="container mx-auto px-4 py-12">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
       <!-- Brand / About -->
       <div class="space-y-4">
         <a href="/" class="inline-flex items-center gap-3">
-          <img src="/images/logo.svg" alt="SalvaRamos" class="h-10 w-auto" loading="lazy" />
-          <span class="text-2xl font-bold">SalvaRamos</span>
+          <img src="/images/logo.svg" alt="SalvaRamos Logo" class="h-10 w-auto" loading="lazy" />
+          <span class="text-2xl font-bold text-primary">SalvaRamos</span>
         </a>
-        <p class="text-base-content/70">
+        <p class="text-neutral/80">
           Empoderamos a la próxima generación de ingenieros con cursos claros, prácticos y
           acompañamiento cercano.
         </p>
@@ -33,7 +33,7 @@ const year = new Date().getFullYear();
       <!-- Contacto -->
       <div aria-labelledby="footer-contact-title" class="space-y-4">
         <h3 id="footer-contact-title" class="text-lg font-semibold">Contacto</h3>
-        <ul class="space-y-2 text-base-content/80">
+        <ul class="space-y-2 text-neutral/80">
           <li>
             <a class="link link-hover" href="mailto:contacto@salvaramos.cl">salvaramos@gmail.com</a>
           </li>
@@ -59,13 +59,13 @@ const year = new Date().getFullYear();
       <!-- Boletín (opcional) -->
       <div class="space-y-4">
         <h3 class="text-lg font-semibold">Mantente al día</h3>
-        <p class="text-base-content/70">Recibe novedades de cursos y fechas importantes.</p>
+        <p class="text-neutral/80">Recibe novedades de cursos y fechas importantes.</p>
         <form class="join max-w-sm">
           <input
             type="email"
             required
             placeholder="Tu correo"
-            class="input input-bordered join-item w-full"
+            class="input input-bordered join-item w-full text-neutral-content"
           />
           <button class="btn btn-primary join-item" type="submit">Suscribirme</button>
         </form>
