@@ -57,7 +57,6 @@ export default function EventForm({
       await onSubmit(data);
       reset();
     } catch (error: unknown) {
-      console.log('Error al guardar el evento:', error);
       let message = 'Ocurrió un error al guardar el evento';
       if (error && typeof error === 'object') {
         const e = error as { response?: { data?: { error?: string } }; message?: string };

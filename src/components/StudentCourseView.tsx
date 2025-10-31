@@ -33,7 +33,6 @@ const StudentCourseView: React.FC = () => {
       try {
         const course = await fetchStudentCourseById(Number(courseId));
         setCourse(course);
-        console.log(course);
       } catch (err: any) {
         setError(err.message || 'Error loading course');
       } finally {

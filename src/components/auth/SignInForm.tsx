@@ -18,8 +18,6 @@ export default function SignInForm() {
   const { handleToken } = useSessionContext();
   const navigate = useNavigate();
 
-  // [TODO] Revisar si hay en localhost, validar y redireccionar a app
-
   const {
     register,
     handleSubmit,
@@ -29,7 +27,6 @@ export default function SignInForm() {
 
   const onSubmit = async (data: FormData) => {
     setFeedback('');
-    console.log('Submitting', data);
     try {
       const res = await getToken(data);
       if (res.ok && res.token) {
