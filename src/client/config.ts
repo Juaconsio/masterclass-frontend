@@ -74,6 +74,7 @@ class HttpClient {
           config.headers.Authorization = `Bearer ${token}`;
         }
         this.logRequest(config);
+        this.logRequest(config);
         return config;
       },
       (error) => {
