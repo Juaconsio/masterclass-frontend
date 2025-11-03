@@ -60,7 +60,8 @@
 
 @layer base {
   body {
-    @apply bg-base-100 text-base-content min-h-screen min-w-sm;
+    /* Compatibilidad móvil: evitar ancho mínimo forzado y overflow horizontal */
+    @apply bg-base-100 text-base-content min-h-screen w-full overflow-x-hidden antialiased;
   }
 
   section {

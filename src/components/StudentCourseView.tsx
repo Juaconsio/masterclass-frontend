@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router';
 import { BookOpen, Calendar, CheckCircle, XCircle, Loader2, Clock } from 'lucide-react';
 import { fetchStudentCourseById } from '@client/courses';
 import { createReservation } from '@client/reservations';
+import SuccessModal from './reservations/SucessModal';
 
 import clsx from 'clsx';
 import type { IClass, IProfessor } from '@/interfaces/events/IEvent';
@@ -22,7 +23,9 @@ const StudentCourseView: React.FC = () => {
   const [error, setError] = useState('');
   const [reserveLoading, setReserveLoading] = useState<number | null>(null);
   const [reserveError, setReserveError] = useState<Record<number, string>>({});
-  const [reserveSuccess, setReserveSuccess] = useState('');
+  const [reservation, setReservation] = useState(null);
+  const [paymentReference, setPaymentReference] = useState<string>('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const { courseId } = useParams<{ courseId: string }>();
 
@@ -32,6 +35,7 @@ const StudentCourseView: React.FC = () => {
       setError('');
       try {
         const course = await fetchStudentCourseById(Number(courseId));
+        console.log('Fetched course:', course.classes);
         setCourse(course);
       } catch (err: any) {
         setError(err.message || 'Error loading course');
@@ -45,10 +49,14 @@ const StudentCourseView: React.FC = () => {
   const handleReserve = async (slotId: number) => {
     setReserveLoading(slotId);
     setReserveError({});
-    setReserveSuccess('');
     try {
-      await createReservation(slotId);
-      setReserveSuccess('Reservation successful!');
+      const response = await createReservation(slotId);
+      console.log('Reservation response:', response);
+      if (response) {
+        setReservation(response.reservation);
+        setPaymentReference(response.payment.transactionReference);
+        setShowSuccessModal(true);
+      }
     } catch (err: any) {
       setReserveError({ [slotId]: 'Error reserving slot: ' + err.message });
     } finally {
@@ -59,6 +67,13 @@ const StudentCourseView: React.FC = () => {
   return (
     <div className="bg-base-100 min-h-screen w-full p-6">
       <div className="mx-auto max-w-6xl space-y-6">
+        {showSuccessModal && reservation && (
+          <SuccessModal
+            reservationId={reservation.id}
+            paymentReference={paymentReference}
+            setShowModal={setShowSuccessModal}
+          />
+        )}
         {/* Course Header */}
         {loading && (
           <div className="flex items-center justify-center py-12">
@@ -83,7 +98,9 @@ const StudentCourseView: React.FC = () => {
                 </div>
                 <div className="flex-1">
                   <h1 className="card-title text-primary text-3xl font-bold">{course.title}</h1>
-                  <p className="text-base-content/70 mt-2 text-lg">{course.description}</p>
+                  <p className="text-base-content/70 mt-2 line-clamp-3 text-lg">
+                    {course.description || 'Sin descripción disponible'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -120,18 +137,10 @@ const StudentCourseView: React.FC = () => {
                       <div className="card-body">
                         <h3 className="card-title text-secondary flex items-start justify-between">
                           <span className="line-clamp-2">{cls.title}</span>
-                          <span
-                            className={clsx(
-                              'badge gap-1',
-                              cls.isActive ? 'badge-success' : 'badge-error'
-                            )}
-                          >
-                            {cls.isActive ? (
-                              <CheckCircle className="h-4 w-4" />
-                            ) : (
-                              <XCircle className="h-4 w-4" />
-                            )}
-                            <span>{cls.isActive ? 'Activa' : 'Inactiva'}</span>
+                          <span>
+                            {cls.slots?.some((slot) => slot.reservations?.length > 0)
+                              ? 'Reservado'
+                              : 'Pendiente'}
                           </span>
                         </h3>
                         <p className="text-base-content/70 line-clamp-3 text-sm">
@@ -146,20 +155,62 @@ const StudentCourseView: React.FC = () => {
                         {cls.slots.map((slot) => {
                           const start = new Date(slot.startTime);
                           const end = new Date(slot.endTime);
+                          const reservations = slot.reservations || [];
+                          const confirmedReservations = reservations.filter(
+                            (r) => r.status === 'confirmed'
+                          ).length;
+                          const pendingReservations = reservations.filter(
+                            (r) => r.status === 'pending'
+                          ).length;
+                          const totalReservations = reservations.length;
+                          const availableSpots = (slot.maxStudents || 0) - confirmedReservations;
+                          const isFull = availableSpots <= 0;
+
                           return (
                             <div
                               key={slot.id}
-                              className="bg-base-100 card transition hover:shadow-lg"
+                              className={clsx(
+                                'bg-base-100 card transition hover:shadow-lg',
+                                isFull && 'opacity-60'
+                              )}
                             >
                               <div className="card-body">
-                                <h3 className="text-secondary card-title text-base">
-                                  {start.toLocaleDateString('es', {
-                                    weekday: 'long',
-                                    month: 'long',
-                                    day: 'numeric',
-                                  })}
-                                </h3>
-                                <p className="text-base-content/70">
+                                {/* Header con fecha y badges */}
+                                <div className="flex items-start justify-between gap-2">
+                                  <h3 className="text-secondary card-title flex-1 text-base">
+                                    {start.toLocaleDateString('es', {
+                                      weekday: 'long',
+                                      month: 'long',
+                                      day: 'numeric',
+                                    })}
+                                  </h3>
+                                  <div className="flex flex-col gap-1">
+                                    <span
+                                      className={clsx(
+                                        'badge badge-sm',
+                                        slot.modality === 'remote' ? 'badge-info' : 'badge-success'
+                                      )}
+                                    >
+                                      {slot.modality === 'remote' ? '💻 Online' : '📍 Presencial'}
+                                    </span>
+                                    <span
+                                      className={clsx(
+                                        'badge badge-sm',
+                                        slot.studentsGroup === 'group'
+                                          ? 'badge-secondary'
+                                          : 'badge-accent'
+                                      )}
+                                    >
+                                      {slot.studentsGroup === 'group'
+                                        ? '👥 Grupal'
+                                        : '👤 Individual'}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Horario */}
+                                <p className="text-base-content/70 flex items-center gap-2">
+                                  <Clock className="h-4 w-4" />
                                   {start.toLocaleTimeString('es', {
                                     hour: '2-digit',
                                     minute: '2-digit',
@@ -171,23 +222,86 @@ const StudentCourseView: React.FC = () => {
                                   })}
                                 </p>
 
+                                {/* Ubicación */}
+                                {slot.location && (
+                                  <p className="text-base-content/60 text-sm">📍 {slot.location}</p>
+                                )}
+
+                                <div className="divider my-2"></div>
+
+                                {/* <div className="space-y-2">
+                                  <div className="flex items-center justify-between text-sm">
+                                    <span className="text-base-content/70">Cupos disponibles:</span>
+                                    <span
+                                      className={clsx(
+                                        'font-semibold',
+                                        isFull ? 'text-error' : 'text-success'
+                                      )}
+                                    >
+                                      {availableSpots} / {slot.maxStudents || 0}
+                                    </span>
+                                  </div>
+
+                                  <div className="bg-base-300 h-2 w-full rounded-full">
+                                    <div
+                                      className={clsx(
+                                        'h-2 rounded-full transition-all',
+                                        isFull ? 'bg-error' : 'bg-success'
+                                      )}
+                                      style={{
+                                        width: `${(((slot.maxStudents || 0) - availableSpots) / (slot.maxStudents || 1)) * 100}%`,
+                                      }}
+                                    ></div>
+                                  </div>
+
+                                  {totalReservations > 0 && (
+                                    <div className="flex gap-2 text-xs">
+                                      {confirmedReservations > 0 && (
+                                        <span className="badge badge-success badge-xs gap-1">
+                                          <CheckCircle className="h-3 w-3" />
+                                          {confirmedReservations} confirmada
+                                          {confirmedReservations !== 1 ? 's' : ''}
+                                        </span>
+                                      )}
+                                      {pendingReservations > 0 && (
+                                        <span className="badge badge-warning badge-xs gap-1">
+                                          <Clock className="h-3 w-3" />
+                                          {pendingReservations} pendiente
+                                          {pendingReservations !== 1 ? 's' : ''}
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>  */}
                                 {reserveError[slot.id] && (
-                                  <div className="alert alert-error shadow-lg">
-                                    <XCircle className="h-6 w-6" />
+                                  <div className="alert alert-error py-2 text-xs shadow-lg">
+                                    <XCircle className="h-4 w-4" />
                                     <span>{reserveError[slot.id]}</span>
                                   </div>
                                 )}
 
+                                {/* TODO Un boton para eliminar reservas */}
                                 <div className="card-actions mt-3 justify-end">
                                   <button
-                                    className="btn btn-primary btn-sm"
+                                    className={clsx(
+                                      'btn btn-sm',
+                                      isFull || slot.reservations?.length > 0
+                                        ? 'btn-disabled'
+                                        : 'btn-primary'
+                                    )}
                                     onClick={() => handleReserve(slot.id)}
-                                    disabled={reserveLoading === slot.id}
+                                    disabled={
+                                      reserveLoading === slot.id ||
+                                      isFull ||
+                                      slot.reservations?.length > 0
+                                    }
                                   >
                                     {reserveLoading === slot.id ? (
                                       <span className="flex items-center gap-2">
                                         <Loader2 className="h-4 w-4 animate-spin" /> Reservando...
                                       </span>
+                                    ) : isFull ? (
+                                      'Sin cupos'
                                     ) : (
                                       'Reservar'
                                     )}

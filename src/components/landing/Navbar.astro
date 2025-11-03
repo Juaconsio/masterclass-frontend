@@ -28,13 +28,17 @@ const authLinks = [
   </div>
 
   <!-- Logo/título -->
-  <div class="lg:flex-none">
+  <div class="flex-1 lg:flex-none">
     <a
       href="/"
-      class="btn btn-navbar normal-case text-xl font-bold tracking-wide justify-center lg:justify-start"
+      class="flex justify-center items-center normal-case text-xl font-bold tracking-wide gap-2 hover:bg-transparent hover:border-0 px-2"
     >
-      <Icon name="mdi:school" size={32} class="mr-2" />
-      <span>Salva Ramos</span>
+      <div class="avatar">
+        <div class="w-12 h-24 rounded-full">
+          <img src="/images/logo.png" alt="Salva Ramos Logo" />
+        </div>
+      </div>
+      <span class="hidden sm:inline">Salva Ramos</span>
     </a>
   </div>
 

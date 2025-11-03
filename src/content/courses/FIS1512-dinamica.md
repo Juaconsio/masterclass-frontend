@@ -1,7 +1,7 @@
 ---
-id: "1"
+id: "4"
 acronym: "FIS1512"
-title: "Dínamica"
+title: "Dinámica"
 department: "Física"
 level: "Plan Común"
 description: "Dinamica. Que susto "

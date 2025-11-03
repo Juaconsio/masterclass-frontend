@@ -5,8 +5,7 @@ import clsx from 'clsx';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import phoneSchema from './lib/numberhelper';
-import { useSessionContext } from '../../context/SessionContext';
-import { useAuth } from '../../hooks/useAuth';
+import rutSchema from './lib/rutValidator';
 
 const signUpSchema = z
   .object({
@@ -14,6 +13,8 @@ const signUpSchema = z
     password: z.string().min(6, 'La contraseña debe tener mínimo 6 caracteres.'),
     confirmed_password: z.string().min(6, 'La contraseña debe tener mínimo 6 caracteres.'),
     phone: phoneSchema,
+    rut: rutSchema,
+    name: z.string(),
   })
   .refine((data) => data.password === data.confirmed_password, {
     message: 'Las contraseñas no coinciden.',
@@ -55,6 +56,20 @@ export default function SignUpForm() {
         formulario
       </p>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+        <input
+          type="text"
+          {...register('name')}
+          placeholder="Nombre completo"
+          className={clsx('input input-bordered w-full', { 'input-error': errors.name })}
+        />
+        {errors.name && <span className="text-error text-xs">{errors.name.message}</span>}
+        <input
+          type="text"
+          {...register('rut')}
+          placeholder="RUT"
+          className={clsx('input input-bordered w-full', { 'input-error': errors.rut })}
+        />
+        {errors.rut && <span className="text-error text-xs">{errors.rut.message}</span>}
         <input
           type="email"
           {...register('email')}

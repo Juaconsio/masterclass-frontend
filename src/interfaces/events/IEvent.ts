@@ -1,50 +1,17 @@
-export interface IEvent {
-  id: number; // Prisma usa Int autoincrement
-  classId: number;
-  professorId: number;
-  startTime: string;
-  endTime: string;
-  modality: 'ONLINE' | 'PRESENTIAL' | 'HYBRID' | 'remote' | 'onsite';
-  studentsGroup?: 'group' | 'private';
-  status:
-    | 'CANDIDATE'
-    | 'CONFIRMED'
-    | 'CANCELLED'
-    | 'COMPLETED'
-    | 'candidate'
-    | 'confirmed'
-    | 'cancelled'
-    | 'completed'; // depende de tu enum SlotStatus
-  minStudents?: number;
-  maxStudents: number;
-  reservations: IReservation[];
-  class?: IClass;
-  professor?: IProfessor;
-}
+// Import from centralized models
+import type { ISlot, IClass, IProfessor, IReservation } from '../models';
 
-export interface IReservation {
-  id: number;
-  studentId: number;
-  slotId: number;
-  // ...otros campos de Reservation
-}
+// Re-export for backwards compatibility
+export type { ISlot, IClass, IProfessor, IReservation };
 
-export interface IClass {
-  id: number;
-  name: string;
-  professors: IProfessor[];
-  title: string;
-  isActive?: boolean;
-  description?: string;
-  slots?: IEvent[];
-  // otros campos del modelo Class
-}
+// Legacy alias - IEvent is now just an alias for ISlot
+export interface IEvent extends ISlot {}
 
-export interface IProfessor {
-  id: number;
-  name: string;
-  // otros campos del modelo Professor
-}
+// Keep legacy naming exports for backwards compatibility
+export type Slot = ISlot;
+export type Class = IClass;
+export type Professor = IProfessor;
+export type Reservation = IReservation;
 
 export type EventFormValues = {
   classId: number | null;
