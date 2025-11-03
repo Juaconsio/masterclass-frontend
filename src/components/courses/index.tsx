@@ -25,7 +25,7 @@ const Dashboard: React.FC = () => {
       setLoading(true);
       try {
         // Fetch user courses
-        const courses = await fetchCourses(user?.id);
+        const courses = await fetchCourses();
         setCourses(courses || []);
         const reservationsRes = await fetchReservations().then((dataJson) => dataJson || []);
         const filteredReservations = reservationsRes.filter((r: any) => r.studentId === user?.id);
