@@ -10,83 +10,151 @@ featured: true
 image: "/images/courses/calculus.png"
 ---
 
+## Clase 0 — Repaso Cálculo I
 
-## Descripción del Curso
+- Igualdades trigonométricas
+- Límites e indeterminaciones comunes.
+- Regla de L'Hôpital indeterminaciones
+- Tabla de derivadas
+- Reglas de derivación: producto, cociente, regla de la cadena, etc
+- Tabla de integrales
+- Reglas de integración: sustitución, integración por partes, fracciones parciales, etc
 
-Cálculo I es una materia fundamental para todas las carreras de ingeniería y ciencias. En este curso desarrollarás las habilidades necesarias para entender y aplicar los conceptos de límites, continuidad, derivadas e integrales básicas.
+---
 
-## Contenidos Principales
+## Clase 1 — Integrales Impropias
 
-| hola | a
-| a | s
+- **Integrales impropias tipo I:** intervalos infinitos.
+- Técnicas de resolución integrales tipo I
+- **Integrales impropias tipo II:** integrandos con asíntotas verticales.
+- Técnicas de resolución integrales tipo II
+- **Criterios de convergencia:**
+    - Comparación directa.
+    - Comparación en el límite.
 
-### Módulo 1: Límites y Continuidad
-- Concepto intuitivo y formal de límite
-- Cálculo de límites mediante técnicas algebraicas
-- Límites laterales y límites al infinito
-- Continuidad de funciones
-- Teorema del Valor Intermedio
+---
 
-### Módulo 2: Derivadas
-- Definición de derivada como límite
-- Interpretación geométrica y física
-- Reglas de derivación: potencia, producto, cuociente
-- Regla de la cadena
-- Derivación implícita
-- Derivadas de funciones trigonométricas, exponenciales y logarítmicas
+## Clase 2 — Sucesiones y Convergencia
 
-### Módulo 3: Aplicaciones de las Derivadas
-- Análisis de funciones: crecimiento y decrecimiento
-- Máximos y mínimos relativos y absolutos
-- Problemas de optimización
-- Teorema de Rolle y del Valor Medio
-- Regla de L'Hôpital
-- Análisis de concavidad y puntos de inflexión
+- **Definiciones:** sucesión, límite de sucesión.
+- **Propiedades básicas:** acotamiento, monotonicidad.
+- **Teorema de sucesiones monótonas y acotadas.**
+- **Inducción matemática** en demostraciones de convergencia.
+- Cálculo de límites de sucesiones
 
-### Módulo 4: Introducción a las Integrales
-- Antiderivadas e integrales indefinidas
-- Teorema Fundamental del Cálculo
-- Integrales definidas y su interpretación geométrica
-- Técnicas básicas de integración
+---
 
-## Metodología
+## Clase 3 — Series Numéricas I
 
-### Clases Teóricas
-- Explicación clara de conceptos fundamentales
-- Demostración de teoremas principales
-- Ejemplos resueltos paso a paso
+- **Definición de serie:** sumas parciales, convergencia y divergencia.
+- **Series geométricas:** convergencia y suma.
+- **Criterios básicos:**
+    - Criterio de la integral.
+    - Criterio de la comparación directa.
+    - Criterio de la comparación en el límite.
+- **Series alternantes:**
+    - Criterio de Leibniz.
+    - Estimación del error en series alternantes.
+- **Convergencia absoluta vs. condicional.**
 
-### Clases Prácticas
-- Resolución de ejercicios tipo
-- Aplicaciones en problemas reales
-- Preparación para certámenes y exámenes
+---
 
-### Apoyo Personalizado
-- Sesiones de consulta individuales
-- Revisión de ejercicios específicos
-- Estrategias de estudio personalizadas
+## Clase 4 — Series Numéricas II
 
-## Perfil del Estudiante
+- **Criterios avanzados de convergencia:**
+    - Criterio de la raíz.
+    - Criterio del cociente (o razón).
+- **Series de potencias:**
+    - Definición series de potencia
+    - Cálculo raido de convergencia
+    - Definición intervalo de convergencia
+- **Series de Taylor:**
+    - Desarrollo de funciones elementales: sin(x), cos(x), etc
+    - Resto de Taylor y convergencia de la aproximación.
 
-Este curso está diseñado para:
-- Estudiantes de primer año de ingeniería
-- Alumnos que necesiten reforzar conceptos básicos de cálculo
-- Estudiantes que busquen mejorar sus calificaciones en MAT1610
-- Quienes deseen una base sólida para Cálculo II
+---
 
-## Recursos Incluidos
+## Clase 5 — Vectores y Geometría 3D
 
-- Guías de ejercicios progresivas
-- Formularios y tablas de referencia
-- Acceso a grabaciones de sesiones
-- Material complementario digital
-- Simulacros de certámenes
+- **Vectores en ℝ³:**
+    - Definiciones: vector,  magnitud, sentido, dirección.
+    - Operaciones: suma, producto punto (escalar), producto cruz (vectorial).
+- **Aplicaciones geométricas:**
+    - Rectas en el espacio: formas paramétrica y vectorial.
+    - Planos en el espacio: forma vectorial y escalares
+    - Posiciones relativas: paralelismo, perpendicularidad, intersecciones.
 
-## Evaluación y Seguimiento
+---
 
-- Evaluaciones periódicas de progreso
-- Feedback personalizado continuo
-- Simulacros de certámenes reales
-- Seguimiento de objetivos académicos
+## Clase 6 — Funciones de Varias Variables I
 
-¿Listo para dominar el Cálculo I? ¡Reserva tu primera sesión y comienza a construir bases sólidas en matemáticas!
+- **Definición de función de varias variables.**
+- **Dominio y rango.**
+- **Gráficas y curvas de nivel.**
+- **Superficies cuadráticas clásicas** (paraboloides, elipsoides, hiperboloides).
+- **Límites y continuidad en varias variables:**
+    - Técnicas de cálculo de límites.
+    - Ejemplo con coordenadas polares.
+- Definición derivadas parciales como límites
+
+---
+
+## Clase 7 — Derivadas funciones de varias variables
+
+- **Derivadas parciales**
+- Interpretación geométrica: pendiente direccional.
+- **Derivadas de orden superior.**
+- **Teorema de Clairaut**
+- **Planos tangentes y aproximaciones lineales.**
+- **Diferenciabilidad:** condiciones básicas.
+
+---
+
+## Clase 8 — Regla de la Cadena y vector gradiente
+
+- **Regla de la cadena en varias variables.**
+- **Derivación implícita.**
+- **Derivadas direccionales.**
+- **Gradiente:**
+    - Interpretación como vector normal.
+    - Aplicaciones geométricas (planos y normales).
+
+---
+
+## Clase 9 — Extremos de Funciones
+
+- **Máximos y mínimos locales:**
+    - Criterio de la segunda derivada.
+    - **Matriz Hessiana.**
+- **Extremos absolutos en dominios cerrados y acotados.**
+- **Multiplicadores de Lagrange.**
+- Optimización con y sin restricciones.
+
+---
+
+## Clase 10 — Integrales Dobles
+
+- **Definición de integral doble.**
+- **Integrales iteradas en rectángulos.**
+- **Regiones generales tipo I y II.**
+- **Cambio de variables a coordenadas polares.**
+- **Aplicaciones integrales dobles: cálculo de áreas y volúmenes**
+
+---
+
+## Clase 11 — Integrales Triples I
+
+- **Definición de integral triple.**
+- **Evaluación en regiones simples.**
+- **Coordenadas cilíndricas.**
+- Cálculo de integrales triples con coordenadas cilíndricas
+
+---
+
+## Clase 12 — Integrales triples II y Cambio de Variable integrales múltiples
+
+- **Coordenadas esféricas.**
+- Cálculo de integrales triples con coordenadas esféricas
+- **Aplicaciones integrales triples: cálculo de volúmenes, masa, etc**
+- **Transformaciones en el plano y en el espacio.**
+- **Jacobiano y cambio de variable en integrales múltiples.**
