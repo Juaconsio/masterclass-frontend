@@ -34,12 +34,9 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
         if (token) {
           handleToken(token);
-        } else {
-          navigate('/ingresar', { replace: true });
         }
       } catch (error) {
-        // On any error validating the token, navigate to sign in
-        navigate('/ingresar', { replace: true });
+        // On any error validating the token, remain unauthenticated for public routes
       } finally {
         // Always clear loading state
         setIsLoading(false);
