@@ -11,24 +11,20 @@ export default function NewEventModal({ open, onClose, handleCreate }: NewEventM
   if (!open) return null;
 
   async function submit(data: EventFormValues) {
-    try {
-      const startTime = data.start ? new Date(data.start).toISOString() : '';
-      const endTime = data.end ? new Date(data.end).toISOString() : '';
-      const payload: EventCreatePayload = {
-        classId: data.classId,
-        professorId: data.professorId,
-        startTime,
-        endTime,
-        modality: data.modality,
-        studentsGroup: data.studentsGroup,
-        status: data.status,
-        minStudents: Number(data.minStudents) || 1,
-        maxStudents: Number(data.maxStudents) || 1,
-      };
-      await handleCreate(payload);
-    } catch (error: any) {
-      console.log(error.messages);
-    }
+    const startTime = data.start ? new Date(data.start).toISOString() : '';
+    const endTime = data.end ? new Date(data.end).toISOString() : '';
+    const payload: EventCreatePayload = {
+      classId: data.classId,
+      professorId: data.professorId,
+      startTime,
+      endTime,
+      modality: data.modality,
+      studentsGroup: data.studentsGroup,
+      status: data.status,
+      minStudents: Number(data.minStudents) || 1,
+      maxStudents: Number(data.maxStudents) || 1,
+    };
+    await handleCreate(payload);
   }
 
   if (!open) return null;

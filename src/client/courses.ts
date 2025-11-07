@@ -1,9 +1,7 @@
 import { httpClient } from './config';
-
-async function fetchCourses(studentId?: number) {
-  const res = await httpClient.get(
-    '/courses' + (studentId ? `?studentId=${studentId.toString()}` : '')
-  );
+import buildQuery from './lib/buildQuery';
+async function fetchCourses() {
+  const res = await httpClient.get('courses/me');
   return res.data;
 }
 
@@ -17,6 +15,21 @@ async function fetchStudentCourseById(courseId: number) {
   return res.data;
 }
 
+async function getCourseEnroll(options: {
+  courseId?: number;
+  courseAcronym?: string;
+  slotId?: number;
+}) {
+  const { courseId, courseAcronym, slotId } = options;
+  const query = buildQuery({
+    courseId: courseId || undefined,
+    courseAcronym: courseAcronym || undefined,
+    slotId: slotId || undefined,
+  });
+  const res = await httpClient.get(`/courses/enroll${query ? `?${query}` : ''}`);
+  return res.data;
+}
+
 async function createCourse(payload: any) {
   const res = await httpClient.post('/courses', payload);
   return res.data;
@@ -27,6 +40,10 @@ async function updateCourse(payload: any) {
   return res.data;
 }
 
+async function enrollInCourse(data: { courseId: number; slotId?: number }) {
+  const res = await httpClient.post(`/courses/enroll`, data);
+  return res.data;
+}
 async function deleteCourse() {
   const res = await httpClient.delete('/courses');
   return res.data;
@@ -38,5 +55,7 @@ export {
   fetchStudentCourseById,
   createCourse,
   updateCourse,
+  enrollInCourse,
+  getCourseEnroll,
   deleteCourse,
 };

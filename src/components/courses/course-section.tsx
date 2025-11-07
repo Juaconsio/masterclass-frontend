@@ -13,9 +13,16 @@ export function CoursesSection({ courses: propCourses, loading }: CoursesSection
 
   return (
     <section>
-      <div className="mb-6">
-        <h2 className="text-foreground mb-2 text-2xl font-bold">Mis Cursos</h2>
-        <p className="text-muted-foreground">Continúa aprendiendo y sigue tu progreso</p>
+      <div className="mb-6 flex justify-between">
+        <div>
+          <h2 className="text-foreground mb-2 text-2xl font-bold">Mis Cursos</h2>
+          <p className="text-muted-foreground">Continúa aprendiendo y sigue tu progreso</p>
+        </div>
+        <div>
+          <a href="/courses" className="btn btn-primary btn-soft text-primary hover:underline">
+            Ver todos los cursos aquí
+          </a>
+        </div>
       </div>
       {loading && <div className="text-muted-foreground">Cargando...</div>}
       {!loading && data.length === 0 && (
@@ -57,7 +64,9 @@ export function CoursesSection({ courses: propCourses, loading }: CoursesSection
                     {course.instructor || course.instructors || course.teacher || ''}
                   </p>
                   {course.description && (
-                    <p className="text-muted-foreground mt-1 text-sm">{course.description}</p>
+                    <p className="text-muted-foreground mt-1 line-clamp-3 text-sm">
+                      {course.description}
+                    </p>
                   )}
                 </div>
                 <div className="flex-shrink-0">

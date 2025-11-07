@@ -98,7 +98,6 @@ export default function EventDetailsModal({
     if (!event || !handleEdit) return;
     const payload = buildSlotUpdatePayload(event, data);
     if (Object.keys(payload).length === 0) {
-      console.log('Sin cambios, no se envía update.');
       throw new Error('No hay cambios para actualizar.');
     }
     await handleEdit(event.id, payload);

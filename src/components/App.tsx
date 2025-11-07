@@ -1,28 +1,66 @@
 import CalendarTemplate from './calendar/CalendarTemplate';
-import { SessionProvider } from '../context/SessionContext';
-import { BrowserRouter, Routes, Route } from 'react-router';
+import { SessionProvider, useSessionContext } from '../context/SessionContext';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
 import AuthLayout from '@layouts/authLayout';
 import AppLayout from '@layouts/appLayout';
-
+import AdminLayout from '@layouts/adminLayout';
 import SignInForm from '@components/auth/SignInForm';
 import SignUpForm from '@components/auth/SignUpForm';
+import AdminSignInForm from '@components/auth/AdminSignInForm';
 import NotFound from './UI/NotFound';
+import AccessDenied from './UI/AccessDenied';
 import Home from './home';
 import Courses from './courses';
 import StudentCourseView from './StudentCourseView';
+import Checkout from '@components/checkOut';
+import { AdminDashboard, AdminCourses, AdminStudents, AdminPayments } from '@components/admin';
 
 export default function Spa() {
+  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+    // Lazy import to avoid circulars
+    const { isAuthenticated, isLoading } = useSessionContext();
+    if (isLoading) return null; // Could render a spinner here
+    if (!isAuthenticated) return <Navigate to="/ingresar" replace />;
+    return <>{children}</>;
+  };
+
+  const ProtectedAdminRoute = ({ children }: { children: React.ReactNode }) => {
+    const { isAuthenticated, isLoading, user } = useSessionContext();
+
+    if (isLoading) return null; // Could render a spinner here
+    if (!isAuthenticated) return <Navigate to="/admin/ingresar" replace />;
+
+    // Verificar que el usuario tenga rol de admin
+    // El backend debe incluir role: 'admin' en el JWT token
+    const isAdmin = user?.role === 'admin' || user?.isAdmin === true;
+    if (!isAdmin) {
+      // Mostrar página de acceso denegado
+      return <AccessDenied />;
+    }
+
+    return <>{children}</>;
+  };
+
   return (
     <BrowserRouter>
       <SessionProvider>
         <Routes>
+          {/* Rutas de autenticación */}
           <Route element={<AuthLayout />}>
-            {/* Rutas de autenticación */}
             <Route path="/ingresar" element={<SignInForm />} />
             <Route path="/registrar" element={<SignUpForm />} />
+            <Route path="/admin/ingresar" element={<AdminSignInForm />} />
           </Route>
+
           {/* Rutas protegidas */}
-          <Route path="/app" element={<AppLayout />}>
+          <Route
+            path="/app"
+            element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<Home />} />
             <Route path="reservas" element={<CalendarTemplate />} />
             <Route path="cursos">
@@ -31,6 +69,38 @@ export default function Spa() {
             </Route>
           </Route>
 
+          {/* Checkout público */}
+          <Route path="/checkout" element={<Checkout />} />
+
+          {/* Rutas de administración */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedAdminRoute>
+                <AdminLayout />
+              </ProtectedAdminRoute>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="courses" element={<AdminCourses />} />
+            <Route path="students" element={<AdminStudents />} />
+
+            <Route
+              path="professors"
+              element={<div className="text-2xl">Profesores (En desarrollo)</div>}
+            />
+            <Route
+              path="students"
+              element={<div className="text-2xl">Estudiantes (En desarrollo)</div>}
+            />
+            <Route
+              path="reservations"
+              element={<div className="text-2xl">Reservas (En desarrollo)</div>}
+            />
+            <Route path="payments" element={<AdminPayments />} />
+          </Route>
+
+          {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </SessionProvider>

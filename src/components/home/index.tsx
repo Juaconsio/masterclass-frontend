@@ -1,6 +1,7 @@
 import { useSessionContext } from '../../context/SessionContext';
 import { Link } from 'react-router';
 import Greetings from './Greetings';
+import PendingReservationBanner from '../reservations/PendingReservationBanner';
 import {
   Calendar,
   BookOpen,
@@ -29,6 +30,9 @@ const Home = () => {
       {/* Main Content */}
       <main className="bg-base-100 flex-1 overflow-y-auto">
         <div className="container mx-auto space-y-8 p-6">
+          {/* Pending Reservation Banner */}
+          <PendingReservationBanner />
+
           {/* Header / Greeting */}
           <div className="mb-8">
             <Greetings />
