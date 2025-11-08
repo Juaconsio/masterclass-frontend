@@ -31,7 +31,7 @@ export default function CourseSessionCalendar({ courseAcronym }: CourseSessionCa
     try {
       // Fetch all slots
       const response = await fetch(
-        `${import.meta.env.PUBLIC_BACKEND_API_URL}/courses/${acronym}/slots`
+        `${import.meta.env.PUBLIC_BACKEND_API_URL}courses/${acronym}/slots`
       );
       if (!response.ok) throw new Error('Failed to fetch slots');
       const course = await response.json();
