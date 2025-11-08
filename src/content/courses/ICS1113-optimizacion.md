@@ -5,7 +5,7 @@ title: "Optimización"
 department: "Industrial"
 level: "Major"
 description: "Opti. Que susto "
-basePrice: 15_000
+basePrice: 11_000
 featured: true
 image: "/images/courses/calculus.png"
 class_count: 10
