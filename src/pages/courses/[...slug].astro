@@ -67,7 +67,7 @@ const relatedCourses = allCourses
                 checked
               />
               <div role="tabpanel" class="tab-content pt-6">
-                <CourseSessionCalendar courseId={course.data.id} client:load />
+                <CourseSessionCalendar courseAcronym={course.data.acronym} client:load />
               </div>
 
               <input

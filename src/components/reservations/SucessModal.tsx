@@ -1,20 +1,18 @@
+import type { Payment, Reservation } from '@/interfaces';
+
 type SuccessModalProps = {
-  reservationId: string;
-  paymentReference?: string;
+  reservation: Reservation;
+  payment: Payment;
   setShowModal: (show: boolean) => void;
 };
 
 export default function SuccessModal(props: SuccessModalProps) {
   const bankData = {
-    accountHolder: 'Salvador Ramos SpA',
-    accountNumber: '1234567890',
-    bankName: 'Banco de Chile',
-    accountType: 'Cuenta Corriente',
-    rut: '76.XXX.XXX-X',
-    email: 'pagos@salvaramos.cl',
-    amount: 14990,
-    currency: 'CLP',
-    referenceId: `REF-${Date.now()}`,
+    accountHolder: 'Carlos Sáez',
+    bankName: 'Banco estado',
+    accountType: 'Cuenta RUT',
+    rut: '20461083-5',
+    email: 'carlos.saez.finanzas@gmail.com',
   };
 
   const copyBankDetails = () => {
@@ -24,7 +22,6 @@ export default function SuccessModal(props: SuccessModalProps) {
 ${bankData.accountHolder}
 ${bankData.rut}
 ${bankData.accountType}
-${bankData.accountNumber}
 ${bankData.bankName}
 ${bankData.email}
     `.trim();
@@ -34,7 +31,7 @@ ${bankData.email}
     });
   };
 
-  const { reservationId, paymentReference, setShowModal } = props;
+  const { reservation, payment, setShowModal } = props;
   return (
     <dialog className="modal modal-open">
       <div className="modal-box max-w-2xl">
@@ -55,7 +52,7 @@ ${bankData.email}
             />
           </svg>
           <div>
-            <div className="font-bold">Reserva #{reservationId}</div>
+            <div className="font-bold">Reserva #{reservation.id}</div>
             <div className="text-sm">
               Tu reserva se activará una vez que realices el pago y sea validado por nuestro equipo.
             </div>
@@ -84,15 +81,15 @@ ${bankData.email}
             </div>
             <div>
               <div className="text-base-content/60 text-sm">N° de cuenta</div>
-              <div className="font-mono font-semibold">{bankData.accountNumber}</div>
+              <div className="font-mono font-semibold">{bankData.rut.slice(0, 8)}</div>
             </div>
             <div>
               <div className="text-base-content/60 text-sm">Monto</div>
               <div className="text-primary text-xl font-semibold">
                 {new Intl.NumberFormat('es-CL', {
                   style: 'currency',
-                  currency: bankData.currency,
-                }).format(bankData.amount)}
+                  currency: payment.currency,
+                }).format(payment.amount)}
               </div>
             </div>
           </div>
@@ -101,7 +98,7 @@ ${bankData.email}
 
           <div>
             <div className="text-base-content/60 text-sm">Referencia</div>
-            <div className="font-mono text-lg font-semibold">{paymentReference}</div>
+            <div className="font-mono text-lg font-semibold">{payment.transactionReference}</div>
           </div>
 
           <div>
@@ -126,8 +123,8 @@ ${bankData.email}
           </svg>
           <span className="text-sm">
             <strong>Importante:</strong> Asegúrate de incluir la referencia{' '}
-            <code className="font-bold">{paymentReference}</code> en tu transferencia para que
-            podamos identificarla correctamente.
+            <code className="font-bold">{payment.transactionReference}</code> en tu transferencia
+            para que podamos identificarla correctamente.
           </span>
         </div>
 

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Home, BookOpen, Info, LayoutDashboard, User, LogOut } from 'lucide-react';
+import { Home, BookOpen, User, LogOut } from 'lucide-react';
 import clsx from 'clsx';
 import { Link, useLocation } from 'react-router';
 
@@ -16,12 +16,6 @@ const NavBar: React.FC = () => {
     () => [
       { label: 'Inicio', href: '/app', icon: <Home className="h-4 w-4" /> },
       { label: 'Cursos', href: '/app/cursos', icon: <BookOpen className="h-4 w-4" /> },
-      { label: 'Dashboard', href: '/app/dashboard', icon: <LayoutDashboard className="h-4 w-4" /> },
-      {
-        label: 'Reservas',
-        href: '/app/reservas',
-        icon: <Info className="h-4 w-4" />,
-      },
     ],
     []
   );
@@ -33,8 +27,6 @@ const NavBar: React.FC = () => {
     return path === href;
   };
 
-  // Inicial simple para avatar si no hay imagen
-  const userInitial = 'P'; // P de Perfil
   const handleLogout = () => {
     try {
       localStorage.removeItem('user');
@@ -49,11 +41,11 @@ const NavBar: React.FC = () => {
     <aside className="bg-base-200 sticky top-0 flex max-h-screen w-64 flex-col justify-between border-r border-black">
       {/* Top: Logo + Nav */}
       <div>
-        <Link to="/" className="mb-6 inline-flex items-center gap-3 p-4">
+        <Link to="/" className="mb-3 inline-flex items-center justify-center p-2">
           <img
-            src="/images/logo.svg"
+            src="/images/logo.png"
             alt="SalvaRamos"
-            className="h-10 w-auto"
+            className="h-18 w-auto"
             loading="lazy"
             onError={(e) => {
               const target = e.currentTarget as HTMLImageElement;
@@ -99,7 +91,7 @@ const NavBar: React.FC = () => {
           >
             <div className="avatar placeholder">
               <div className="bg-secondary text-secondary-content w-9 rounded-full">
-                <span className="text-sm font-semibold">{userInitial}</span>
+                <span className="text-sm font-semibold"></span>
               </div>
             </div>
             <div className="flex flex-col text-left leading-tight">
@@ -113,9 +105,15 @@ const NavBar: React.FC = () => {
             role="menu"
           >
             <li>
-              <Link to="/profile" role="menuitem" className="flex items-center gap-2">
+              <button
+                onClick={() =>
+                  alert('Esta funcionalidad estará disponible en futuras actualizaciones.')
+                }
+                role="menuitem"
+                className="flex items-center gap-2"
+              >
                 <User className="h-4 w-4" /> Ver perfil
-              </Link>
+              </button>
             </li>
             <li>
               <button onClick={handleLogout} role="menuitem" className="flex items-center gap-2">
