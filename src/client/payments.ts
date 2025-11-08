@@ -27,7 +27,7 @@ export async function getPaymentPlans(params: QuoteParams): Promise<PaymentPlan[
       id: 'trial',
       name: 'Clase Grupal',
       description: 'Clase regular en grupo',
-      price: 15_000,
+      price: 11_000,
       currency: 'CLP',
       frequency: 'one-time',
       features: ['60 minutos', 'Zoom', 'Material básico'],
