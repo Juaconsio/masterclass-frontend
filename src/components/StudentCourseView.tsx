@@ -24,7 +24,7 @@ const StudentCourseView: React.FC = () => {
   const [reserveLoading, setReserveLoading] = useState<number | null>(null);
   const [reserveError, setReserveError] = useState<Record<number, string>>({});
   const [reservation, setReservation] = useState(null);
-  const [paymentReference, setPaymentReference] = useState<string>('');
+  const [payment, setPayment] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const { courseId } = useParams<{ courseId: string }>();
@@ -54,7 +54,7 @@ const StudentCourseView: React.FC = () => {
       console.log('Reservation response:', response);
       if (response) {
         setReservation(response.reservation);
-        setPaymentReference(response.payment.transactionReference);
+        setPayment(response.payment);
         setShowSuccessModal(true);
       }
     } catch (err: any) {
@@ -67,10 +67,10 @@ const StudentCourseView: React.FC = () => {
   return (
     <div className="bg-base-100 min-h-screen w-full p-6">
       <div className="mx-auto max-w-6xl space-y-6">
-        {showSuccessModal && reservation && (
+        {showSuccessModal && reservation && payment && (
           <SuccessModal
-            reservationId={reservation.id}
-            paymentReference={paymentReference}
+            reservation={reservation}
+            payment={payment}
             setShowModal={setShowSuccessModal}
           />
         )}
