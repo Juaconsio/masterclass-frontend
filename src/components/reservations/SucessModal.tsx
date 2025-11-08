@@ -52,7 +52,7 @@ ${bankData.email}
             />
           </svg>
           <div>
-            <div className="font-bold">Reserva #{reservation.id}</div>
+            <div className="font-bold">Reserva #{reservation?.id}</div>
             <div className="text-sm">
               Tu reserva se activará una vez que realices el pago y sea validado por nuestro equipo.
             </div>
