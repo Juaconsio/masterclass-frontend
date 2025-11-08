@@ -59,7 +59,6 @@ export function ReservationsCalendar({
 
   const handleDateClick = (day: number) => {
     const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    console.debug('[Calendar] clicked date', dateStr);
     setSelectedDate(dateStr);
   };
 
