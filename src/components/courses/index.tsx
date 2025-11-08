@@ -75,7 +75,6 @@ const Dashboard: React.FC = () => {
       reservationsByDate[dateKey].push({ ...r, slot });
     }
   }
-  console.debug('Reservations by date', reservationsByDate);
 
   async function removeReservation(reservationId: number) {
     const token = localStorage.getItem('token');
