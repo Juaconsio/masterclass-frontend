@@ -69,8 +69,6 @@ export default function CourseSessionCalendar({ courseAcronym }: CourseSessionCa
       }
     }
 
-    console.log('Fetching slots for course:', courseAcronym);
-
     fetchSlots();
   }, []);
 
