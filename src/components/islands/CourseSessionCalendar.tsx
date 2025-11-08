@@ -12,12 +12,17 @@ interface Slot {
   maxStudents: number;
 }
 
-interface CourseSessionCalendarProps {
-  courseId: string;
+interface ClassWithSlots {
+  title: string;
+  slots: Slot[];
 }
 
-export default function CourseSessionCalendar({ courseId }: CourseSessionCalendarProps) {
-  const [slots, setSlots] = useState<Slot[]>([]);
+interface CourseSessionCalendarProps {
+  courseAcronym: string;
+}
+
+export default function CourseSessionCalendar({ courseAcronym }: CourseSessionCalendarProps) {
+  const [classesData, setClassesData] = useState<ClassWithSlots[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
@@ -25,10 +30,10 @@ export default function CourseSessionCalendar({ courseId }: CourseSessionCalenda
   useEffect(() => {
     async function fetchSlots() {
       try {
-        const response = await fetch(`/api/courses/${courseId}/next-slots`);
+        const response = await fetch(`/api/courses/${courseAcronym}/next-slots`);
         if (!response.ok) throw new Error('Failed to fetch slots');
         const data = await response.json();
-        setSlots(data.slots);
+        setClassesData(data.slots);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error loading slots');
       } finally {
@@ -37,12 +42,19 @@ export default function CourseSessionCalendar({ courseId }: CourseSessionCalenda
     }
 
     fetchSlots();
-  }, [courseId]);
+  }, [courseAcronym]);
 
   const handleSelectSlot = (slotId: number) => {
-    setSelectedSlot(slotId);
-    window.location.href = `/registrar?course=${courseId}&slot=${slotId}`;
+    window.location.href = `/checkout?courseAcronym=${courseAcronym}&slotId=${slotId}`;
   };
+
+  // Aplanar todos los slots de todas las clases
+  const allSlots = classesData.flatMap((classData) =>
+    classData.slots.map((slot) => ({ ...slot, classTitle: classData.title }))
+  );
+
+  console.log('Classes Data:', classesData);
+  console.log('All Slots:', allSlots);
 
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -99,7 +111,7 @@ export default function CourseSessionCalendar({ courseId }: CourseSessionCalenda
     );
   }
 
-  if (slots.length === 0) {
+  if (allSlots.length === 0) {
     return (
       <div className="card bg-white shadow-xl">
         <div className="card-body">
@@ -125,8 +137,6 @@ export default function CourseSessionCalendar({ courseId }: CourseSessionCalenda
     );
   }
 
-  const displaySlots = slots.slice(0, 3);
-
   return (
     <div className="card bg-white shadow-xl">
       <div className="card-body">
@@ -143,9 +153,10 @@ export default function CourseSessionCalendar({ courseId }: CourseSessionCalenda
         </h3>
 
         <div className="mt-4 space-y-3">
-          {displaySlots.map((slot) => {
+          {allSlots.map((slot) => {
             const start = formatDateTime(slot.startTime);
             const end = formatDateTime(slot.endTime);
+            // TODO: Calcular cupos disponibles
             const availableSpots = slot.maxStudents - slot.minStudents;
 
             return (
@@ -159,6 +170,7 @@ export default function CourseSessionCalendar({ courseId }: CourseSessionCalenda
                 <div className="card-body p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
+                      <p className="text-primary mb-1 text-sm font-semibold">{slot.classTitle}</p>
                       <p className="text-base-content font-medium">{start.date}</p>
                       <p className="text-base-content/70 text-sm">
                         {start.time} - {end.time}
@@ -174,6 +186,11 @@ export default function CourseSessionCalendar({ courseId }: CourseSessionCalenda
                         {availableSpots > 0 ? `${availableSpots} cupos` : 'Lleno'}
                       </div>
                     </div>
+                  </div>
+                  <div className="card-actions mt-4 justify-end">
+                    <button onClick={() => handleSelectSlot(slot.id)} className="btn btn-primary">
+                      Inscribirse en esta sesión
+                    </button>
                   </div>
                 </div>
               </div>

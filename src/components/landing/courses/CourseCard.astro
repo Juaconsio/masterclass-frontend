@@ -4,12 +4,13 @@ import type { CollectionEntry } from 'astro:content';
 import { DEPARTMENT_COLORS, LEVEL_COLORS, DEPARTMENT_ICONS } from '../../../types/course';
 interface Props {
   course: CollectionEntry<'courses'>;
-  index: number;
+  index?: number;
 }
 
 const { course, index } = Astro.props;
 
-const getUsalAnimation = (idx: number) => {
+const getUsalAnimation = (idx: number | null) => {
+  if (idx === null) return 'fade-u';
   switch (idx % 4) {
     case 0:
       return 'fade-r delay-[100]';
@@ -26,130 +27,128 @@ const getUsalAnimation = (idx: number) => {
 ---
 
 <div
-  class="card bg-base-100 shadow-xl hover:shadow-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2 course-card cursor-pointer"
+  class="card bg-base-100 shadow-xl hover:shadow-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2 course-card"
   data-department={course.data.department}
   data-level={course.data.level}
   data-acronym={course.data.acronym}
-  data-usal={getUsalAnimation(index)}
+  data-usal={getUsalAnimation(index || null)}
 >
-  <a href={`/courses/${course.slug}`}>
-    <!-- Course Image -->
+  <!-- Course Image -->
+  {
+    course.data.image ? (
+      <figure class="relative">
+        <img
+          src={course.data.image}
+          alt={course.data.title}
+          class="h-40 w-full object-cover"
+          loading="lazy"
+        />
+        {course.data.featured && (
+          <div class="absolute top-4 right-4">
+            <div class="badge badge-primary badge-lg font-bold shadow-lg">⭐ Destacado</div>
+          </div>
+        )}
+      </figure>
+    ) : (
+      <figure class="bg-gradient-to-br from-primary/20 to-secondary/20 h-48 flex items-center justify-center relative">
+        <div class="text-6xl opacity-50">{DEPARTMENT_ICONS[course.data.department]}</div>
+        {course.data.featured && (
+          <div class="absolute top-4 right-4">
+            <div class="badge badge-primary badge-lg font-bold shadow-lg">⭐ Destacado</div>
+          </div>
+        )}
+      </figure>
+    )
+  }
+
+  <div class="card-body p-6 justify-between">
+    <!-- Course Acronym and Title -->
+    <div class="mb-3">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="badge badge-ghost font-mono font-bold text-sm">
+          {course.data.acronym}
+        </div>
+        <div
+          class={`badge badge-soft ${LEVEL_COLORS[course.data.level]} font-mono font-bold text-sm`}
+        >
+          {course.data.level}
+        </div>
+      </div>
+      <div class="flex items-center justify-between mt-3 gap-2">
+        <h2 class="card-title text-2xl font-bold line-clamp-2">
+          {course.data.title}
+        </h2>
+      </div>
+    </div>
+
+    <!-- Department and Level Badges -->
+    <div class="text-base-content/50">
+      {DEPARTMENT_ICONS[course.data.department]}
+      {course.data.department}
+    </div>
+
+    <!-- Course Description -->
+    <p class="text-base-content/50 text-sm line-clamp-3">
+      {course.data.description}
+    </p>
+
+    <!-- Prerequisites -->
     {
-      course.data.image ? (
-        <figure class="relative">
-          <img
-            src={course.data.image}
-            alt={course.data.title}
-            class="h-40 w-full object-cover"
-            loading="lazy"
-          />
-          {course.data.featured && (
-            <div class="absolute top-4 right-4">
-              <div class="badge badge-primary badge-lg font-bold shadow-lg">⭐ Destacado</div>
+      course.data.prerequisites && course.data.prerequisites.length > 0 && (
+        <div class="mb-4">
+          <div class="collapse collapse-arrow bg-base-200">
+            <input type="checkbox" />
+            <div class="collapse-title text-sm font-medium flex items-center gap-2">
+              <svg
+                class="w-4 h-4 text-warning"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              Prerequisites ({course.data.prerequisites.length})
             </div>
-          )}
-        </figure>
-      ) : (
-        <figure class="bg-gradient-to-br from-primary/20 to-secondary/20 h-48 flex items-center justify-center relative">
-          <div class="text-6xl opacity-50">{DEPARTMENT_ICONS[course.data.department]}</div>
-          {course.data.featured && (
-            <div class="absolute top-4 right-4">
-              <div class="badge badge-primary badge-lg font-bold shadow-lg">⭐ Destacado</div>
+            <div class="collapse-content">
+              <div class="space-y-1 text-xs">
+                {course.data.prerequisites.map((prereq) => (
+                  <div class="flex items-center gap-2">
+                    <svg
+                      class="w-3 h-3 text-error shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    <span>{prereq}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
-        </figure>
+          </div>
+        </div>
       )
     }
 
-    <div class="card-body p-6 justify-between">
-      <!-- Course Acronym and Title -->
-      <div class="mb-3">
-        <div class="flex items-center gap-2 mb-2">
-          <div class="badge badge-ghost font-mono font-bold text-sm">
-            {course.data.acronym}
-          </div>
-          <div
-            class={`badge badge-soft ${LEVEL_COLORS[course.data.level]} font-mono font-bold text-sm`}
-          >
-            {course.data.level}
-          </div>
-        </div>
-        <div class="flex items-center justify-between mt-3 gap-2">
-          <h2 class="card-title text-2xl font-bold line-clamp-2">
-            {course.data.title}
-          </h2>
-        </div>
-      </div>
-
-      <!-- Department and Level Badges -->
-      <div class="text-base-content/50">
-        {DEPARTMENT_ICONS[course.data.department]}
-        {course.data.department}
-      </div>
-
-      <!-- Course Description -->
-      <p class="text-base-content/50 text-sm line-clamp-3">
-        {course.data.description}
-      </p>
-
-      <!-- Prerequisites -->
-      {
-        course.data.prerequisites && course.data.prerequisites.length > 0 && (
-          <div class="mb-4">
-            <div class="collapse collapse-arrow bg-base-200">
-              <input type="checkbox" />
-              <div class="collapse-title text-sm font-medium flex items-center gap-2">
-                <svg
-                  class="w-4 h-4 text-warning"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                Prerequisites ({course.data.prerequisites.length})
-              </div>
-              <div class="collapse-content">
-                <div class="space-y-1 text-xs">
-                  {course.data.prerequisites.map((prereq) => (
-                    <div class="flex items-center gap-2">
-                      <svg
-                        class="w-3 h-3 text-error shrink-0"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                          clip-rule="evenodd"
-                        />
-                      </svg>
-                      <span>{prereq}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      }
-
-      <!-- Card Actions -->
-      <div class="card-actions justify-end pt-4 border-t border-base-300">
-        <a
-          href={'/checkout?courseAcronym=' + course.data.acronym}
-          class="btn btn-primary btn-block hover:btn-primary-focus transition-colors group"
-        >
-          Reservar
-        </a>
-      </div>
+    <!-- Card Actions -->
+    <div class="card-actions justify-end pt-4 border-t border-base-300">
+      <a
+        href={'/courses/' + course.slug}
+        class="btn btn-primary btn-block hover:btn-primary-focus transition-colors group"
+      >
+        Reservar
+      </a>
     </div>
-  </a>
+  </div>
 </div>
 
 <style>

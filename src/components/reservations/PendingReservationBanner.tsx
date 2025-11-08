@@ -3,6 +3,7 @@ import { confirmReservation } from '../../client/confirmReservation';
 import { getCourseEnroll } from '@/client/courses';
 import SuccessModal from '../reservations/SucessModal';
 import type { IEvent } from '@/interfaces/events/IEvent';
+import type { Reservation, Course, Payment } from '@/interfaces';
 
 interface PendingReservation {
   courseId: string | number;
@@ -10,16 +11,17 @@ interface PendingReservation {
   slotId?: string | number;
   planId: string;
   ts: number;
-  course: unknown;
+  course: Course;
   slot?: IEvent;
 }
 
 export default function PendingReservationBanner() {
   const [reservation, setReservation] = useState<PendingReservation | null>(null);
+  const [confirmedReservation, setConfirmedReservation] = useState<Reservation | null>(null);
+
   const [isConfirming, setIsConfirming] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [reservationId, setReservationId] = useState<string>('');
-  const [paymentReference, setPaymentReference] = useState<string>('');
+  const [payment, setPayment] = useState<Payment | null>(null);
   useEffect(() => {
     // Check localStorage for pending reservation
     const getEnrollInfo = async () => {
@@ -42,6 +44,7 @@ export default function PendingReservationBanner() {
     getEnrollInfo();
   }, []);
 
+  console.log('Current reservation state:', reservation);
   const handleConfirm = async () => {
     if (!reservation) return;
 
@@ -52,9 +55,11 @@ export default function PendingReservationBanner() {
         slotId: reservation.slot?.id,
       });
 
+      console.log('Confirm reservation response:', response);
+
       if (response) {
-        setReservationId(response.reservationId);
-        setPaymentReference(response.reservationId);
+        setConfirmedReservation(response.reservation);
+        setPayment(response.payment);
         setShowModal(true);
         // Clear localStorage after successful confirmation
         localStorage.removeItem('checkout.reservation');
@@ -79,57 +84,71 @@ export default function PendingReservationBanner() {
     <>
       {/* Banner for pending reservation */}
       {reservation && !showModal && (
-        <div className="alert alert-primary border-primary mb-4 border-2 shadow-lg">
-          <div className="flex gap-4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              className="h-6 w-6 flex-shrink-0 stroke-current"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-            </svg>
-            <div>
-              <h3 className="font-bold">Tienes una reserva pendiente</h3>
-              <div className="text-sm">
-                Curso: {reservation.course.title} | Plan: {reservation.planId} |{' '}
-                {reservation.slot && (
-                  <>
-                    Slot: {reservation.slot?.startTime} - {reservation.slot?.endTime}
-                  </>
-                )}
+        <div className="card bg-white shadow-xl">
+          <div className="card-body">
+            <h2 className="card-title text-primary">Reserva por confirmar</h2>
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-base-content/60">Curso</span>
+                <span className="font-medium">{reservation.course?.title || '—'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-base-content/60">Clase</span>
+                <span className="font-medium">{reservation.slot?.class?.title ?? '—'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-base-content/60">Día</span>
+                <span className="font-medium">
+                  {new Date(reservation.slot?.startTime || '').toLocaleString('es-CL', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  }) ?? '—'}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-base-content/60">Horario</span>
+                <span className="font-medium">
+                  {new Date(reservation.slot?.startTime || '').toLocaleString('es-CL', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  }) ?? '—'}{' '}
+                  -{' '}
+                  {new Date(reservation.slot?.endTime || '').toLocaleString('es-CL', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  }) ?? '—'}
+                </span>
               </div>
             </div>
-          </div>
-          <div className="flex-none gap-2">
-            <button
-              className="btn btn-sm btn-primary"
-              onClick={handleConfirm}
-              disabled={isConfirming}
-            >
-              {isConfirming ? (
-                <span className="loading loading-spinner loading-sm"></span>
-              ) : (
-                'Confirmar Reserva'
-              )}
-            </button>
-            <button className="btn btn-sm btn-ghost" onClick={handleDismiss}>
-              Descartar
-            </button>
+            <div className="divider" />
+            <div className="card-actions">
+              <button
+                className="btn btn-sm btn-primary"
+                onClick={handleConfirm}
+                disabled={isConfirming}
+              >
+                {isConfirming ? (
+                  <span className="loading loading-spinner loading-sm"></span>
+                ) : (
+                  'Confirmar Reserva'
+                )}
+              </button>
+              <button className="btn btn-sm btn-ghost" onClick={handleDismiss}>
+                Descartar
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* Modal with bank transfer details */}
-      {showModal && (
+      {showModal && confirmedReservation && payment && (
         <SuccessModal
-          reservationId={reservationId}
-          paymentReference={paymentReference}
+          reservation={confirmedReservation}
+          payment={payment}
           setShowModal={setShowModal}
         />
       )}

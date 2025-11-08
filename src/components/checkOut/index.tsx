@@ -113,8 +113,30 @@ export default function CheckoutView(props: CheckoutProps) {
                     <span className="font-medium">{slot?.class.title ?? '—'}</span>
                   </div>
                   <div className="flex justify-between">
+                    <span className="text-base-content/60">Día</span>
+                    <span className="font-medium">
+                      {new Date(slot?.startTime).toLocaleString('es-CL', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      }) ?? '—'}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between">
                     <span className="text-base-content/60">Horario</span>
-                    <span className="font-medium">{slot?.id ?? '—'}</span>
+                    <span className="font-medium">
+                      {new Date(slot?.startTime).toLocaleString('es-CL', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      }) ?? '—'}{' '}
+                      -{' '}
+                      {new Date(slot?.endTime).toLocaleString('es-CL', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      }) ?? '—'}
+                    </span>
                   </div>
                 </div>
                 <div className="divider" />
