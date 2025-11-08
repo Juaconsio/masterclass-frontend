@@ -62,7 +62,6 @@ export default function Spa() {
             }
           >
             <Route index element={<Home />} />
-            <Route path="reservas" element={<CalendarTemplate />} />
             <Route path="cursos">
               <Route index element={<Courses />} />
               <Route path=":courseId" element={<StudentCourseView />} />
@@ -84,7 +83,6 @@ export default function Spa() {
             <Route index element={<AdminDashboard />} />
             <Route path="courses" element={<AdminCourses />} />
             <Route path="students" element={<AdminStudents />} />
-
             <Route
               path="professors"
               element={<div className="text-2xl">Profesores (En desarrollo)</div>}
@@ -93,10 +91,7 @@ export default function Spa() {
               path="students"
               element={<div className="text-2xl">Estudiantes (En desarrollo)</div>}
             />
-            <Route
-              path="reservations"
-              element={<div className="text-2xl">Reservas (En desarrollo)</div>}
-            />
+            <Route path="reservations" element={<CalendarTemplate />} />
             <Route path="payments" element={<AdminPayments />} />
           </Route>
 

@@ -5,7 +5,7 @@ export default function NotFound() {
         <h1 className="mb-4 text-6xl font-bold text-blue-600">404</h1>
         <p className="mb-6 text-xl text-gray-700">¿Te perdiste? Aquí no hay nada 😅</p>
         <a
-          href="/"
+          href="/app"
           className="rounded bg-blue-600 px-6 py-2 text-white transition hover:bg-blue-700"
         >
           Volver al inicio

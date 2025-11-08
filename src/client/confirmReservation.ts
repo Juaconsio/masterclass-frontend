@@ -1,9 +1,10 @@
+import type { Course, Payment, Reservation } from '@/interfaces';
 import { httpClient } from './config';
 
 export interface ConfirmReservationResponse {
-  success: boolean;
-  reservationId: string;
-  message?: string;
+  course: Course;
+  reservation: Reservation;
+  payment: Payment;
 }
 
 export async function confirmReservation(payload: {

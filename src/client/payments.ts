@@ -25,30 +25,12 @@ export async function getPaymentPlans(params: QuoteParams): Promise<PaymentPlan[
   return [
     {
       id: 'trial',
-      name: 'Clase de prueba',
-      description: 'Primera clase con descuento',
-      price: 0,
+      name: 'Clase Grupal',
+      description: 'Clase regular en grupo',
+      price: 11_000,
       currency: 'CLP',
       frequency: 'one-time',
-      features: ['30 minutos', 'Zoom', 'Material básico'],
-    },
-    {
-      id: 'single',
-      name: 'Clase individual',
-      description: 'Pago por una clase',
-      price: 14990,
-      currency: 'CLP',
-      frequency: 'one-time',
-      features: ['1 hora', 'Grabación incluida', 'Soporte por WhatsApp'],
-    },
-    {
-      id: 'pack-4',
-      name: 'Pack 4 clases',
-      description: 'Ahorra 10%',
-      price: 53960,
-      currency: 'CLP',
-      frequency: 'one-time',
-      features: ['4 clases', 'Prioridad de agenda', 'Material premium'],
+      features: ['60 minutos', 'Zoom', 'Material básico'],
     },
   ];
   // }
