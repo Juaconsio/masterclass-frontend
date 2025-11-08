@@ -35,7 +35,6 @@ const StudentCourseView: React.FC = () => {
       setError('');
       try {
         const course = await fetchStudentCourseById(Number(courseId));
-        console.log('Fetched course:', course.classes);
         setCourse(course);
       } catch (err: any) {
         setError(err.message || 'Error loading course');
@@ -51,7 +50,6 @@ const StudentCourseView: React.FC = () => {
     setReserveError({});
     try {
       const response = await createReservation(slotId);
-      console.log('Reservation response:', response);
       if (response) {
         setReservation(response.reservation);
         setPayment(response.payment);

@@ -110,7 +110,6 @@ export default function AdminUsers() {
       label: 'Ver',
       variant: 'secondary',
       onClick: (student) => {
-        console.log('Ver estudiante:', student);
         // TODO: Implementar vista de detalles
       },
     },
@@ -118,7 +117,6 @@ export default function AdminUsers() {
       label: 'Editar',
       variant: 'primary',
       onClick: (student) => {
-        console.log('Editar estudiante:', student);
         // TODO: Implementar edición
       },
     },
