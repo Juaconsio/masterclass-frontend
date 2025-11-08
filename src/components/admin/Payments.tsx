@@ -107,7 +107,6 @@ export default function AdminPayments() {
         label: 'Ver detalles',
         variant: 'primary',
         onClick: (payment) => {
-          console.log('Ver pago:', payment);
           // TODO: Implement view details modal
         },
       },
@@ -115,7 +114,6 @@ export default function AdminPayments() {
         label: 'Descargar',
         variant: 'secondary',
         onClick: (payment) => {
-          console.log('Descargar comprobante:', payment);
           // TODO: Implement download receipt
         },
         icon: (

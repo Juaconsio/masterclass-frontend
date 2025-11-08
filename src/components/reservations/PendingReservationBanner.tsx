@@ -27,7 +27,6 @@ export default function PendingReservationBanner() {
     const getEnrollInfo = async () => {
       try {
         const stored = localStorage.getItem('checkout.reservation');
-        console.log('Stored reservation:', stored);
         if (stored) {
           const data = JSON.parse(stored);
           const options: { courseId?: number; courseAcronym?: string; slotId?: number } = {};
@@ -44,7 +43,6 @@ export default function PendingReservationBanner() {
     getEnrollInfo();
   }, []);
 
-  console.log('Current reservation state:', reservation);
   const handleConfirm = async () => {
     if (!reservation) return;
 
@@ -54,8 +52,6 @@ export default function PendingReservationBanner() {
         courseId: reservation.course.id,
         slotId: reservation.slot?.id,
       });
-
-      console.log('Confirm reservation response:', response);
 
       if (response) {
         setConfirmedReservation(response.reservation);

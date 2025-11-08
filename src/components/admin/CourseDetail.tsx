@@ -83,12 +83,16 @@ export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
     {
       label: 'Ver',
       variant: 'primary',
-      onClick: (classItem) => console.log('Ver clase:', classItem),
+      onClick: (classItem) => {
+        // TODO: Implement view class detail
+      },
     },
     {
       label: 'Editar',
       variant: 'secondary',
-      onClick: (classItem) => console.log('Editar clase:', classItem),
+      onClick: (classItem) => {
+        // TODO: Implement edit class
+      },
     },
   ];
 
@@ -120,12 +124,16 @@ export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
     {
       label: 'Ver perfil',
       variant: 'primary',
-      onClick: (professor) => console.log('Ver profesor:', professor),
+      onClick: (professor) => {
+        // TODO: Implement view professor profile
+      },
     },
     {
       label: 'Remover',
       variant: 'danger',
-      onClick: (professor) => console.log('Remover profesor:', professor),
+      onClick: (professor) => {
+        // TODO: Implement remove professor
+      },
     },
   ];
 
@@ -157,7 +165,9 @@ export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
     {
       label: 'Ver perfil',
       variant: 'primary',
-      onClick: (student) => console.log('Ver estudiante:', student),
+      onClick: (student) => {
+        // TODO: Implement view student profile
+      },
     },
   ];
 

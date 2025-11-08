@@ -88,7 +88,6 @@ export default function AdminCourses() {
         label: 'Editar',
         variant: 'secondary',
         onClick: (course) => {
-          console.log('Editar curso:', course);
           // TODO: Implement edit action
         },
       },
@@ -96,7 +95,6 @@ export default function AdminCourses() {
         label: 'Eliminar',
         variant: 'danger',
         onClick: (course) => {
-          console.log('Eliminar curso:', course);
           // TODO: Implement delete action
         },
       },
