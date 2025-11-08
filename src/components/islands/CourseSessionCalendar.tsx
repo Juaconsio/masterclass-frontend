@@ -53,9 +53,6 @@ export default function CourseSessionCalendar({ courseAcronym }: CourseSessionCa
     classData.slots.map((slot) => ({ ...slot, classTitle: classData.title }))
   );
 
-  console.log('Classes Data:', classesData);
-  console.log('All Slots:', allSlots);
-
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
     return {
