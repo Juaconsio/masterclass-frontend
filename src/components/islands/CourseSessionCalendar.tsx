@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { httpClient } from '@/client/config';
 
 interface Slot {
   id: number;
@@ -30,17 +31,13 @@ export default function CourseSessionCalendar({ courseAcronym }: CourseSessionCa
   const getSlots = async (acronym: string) => {
     try {
       // Fetch all slots
-      const response = await fetch(
-        `${import.meta.env.PUBLIC_BACKEND_API_URL}courses/${acronym}/slots`
-      );
-      if (!response.ok) throw new Error('Failed to fetch slots');
-      const course = await response.json();
-      // Filter slots for this course
+      const response = await httpClient.get(`/courses/${acronym}/slots`);
+      const course = response.data;
       const now = new Date().toISOString();
       const filteredSlots = course.classes.map((cls: any) => {
         const slots = cls.slots
           .flat()
-          .filter((slot: Slot) => slot && slot.startTime >= now) // Filtrar por existencia y fecha futura
+          .filter((slot: Slot) => slot && slot.startTime >= now)
           .sort(
             (a: Slot, b: Slot) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
           );
@@ -63,7 +60,6 @@ export default function CourseSessionCalendar({ courseAcronym }: CourseSessionCa
     async function fetchSlots() {
       try {
         const response = await getSlots(courseAcronym);
-        if (!response.ok) throw new Error('Failed to fetch slots');
         const data = await response.json();
         setClassesData(data.slots);
       } catch (err) {
@@ -73,8 +69,10 @@ export default function CourseSessionCalendar({ courseAcronym }: CourseSessionCa
       }
     }
 
+    console.log('Fetching slots for course:', courseAcronym);
+
     fetchSlots();
-  }, [courseAcronym]);
+  }, []);
 
   const handleSelectSlot = (slotId: number) => {
     window.location.href = `/checkout?courseAcronym=${courseAcronym}&slotId=${slotId}`;
