@@ -81,18 +81,14 @@ export default function Spa() {
             }
           >
             <Route index element={<AdminDashboard />} />
-            <Route path="courses" element={<AdminCourses />} />
-            <Route path="students" element={<AdminStudents />} />
+            <Route path="cursos" element={<AdminCourses />} />
+            <Route path="estudiantes" element={<AdminStudents />} />
             <Route
-              path="professors"
+              path="profesores"
               element={<div className="text-2xl">Profesores (En desarrollo)</div>}
             />
-            <Route
-              path="students"
-              element={<div className="text-2xl">Estudiantes (En desarrollo)</div>}
-            />
-            <Route path="reservations" element={<CalendarTemplate />} />
-            <Route path="payments" element={<AdminPayments />} />
+            <Route path="reservas" element={<CalendarTemplate />} />
+            <Route path="pagos" element={<AdminPayments />} />
           </Route>
 
           {/* 404 */}
