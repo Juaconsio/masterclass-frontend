@@ -72,6 +72,7 @@ const StudentCourseView: React.FC = () => {
             setShowModal={setShowSuccessModal}
           />
         )}
+
         {/* Course Header */}
         {loading && (
           <div className="flex items-center justify-center py-12">
