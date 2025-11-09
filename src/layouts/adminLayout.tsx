@@ -1,5 +1,6 @@
 import { Outlet, Link } from 'react-router';
 import { useSessionContext } from '@/context/SessionContext';
+import { LogOut } from 'lucide-react';
 
 export default function AdminLayout() {
   const { user } = useSessionContext();
@@ -12,7 +13,15 @@ export default function AdminLayout() {
     { path: '/admin/reservations', label: 'Reservas', icon: '📅' },
     { path: '/admin/payments', label: 'Pagos', icon: '💳' },
   ];
-
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+    } catch (e) {
+      // noop
+    }
+    window.location.href = '/';
+  };
   return (
     <div className="drawer lg:drawer-open">
       <input id="admin-drawer" type="checkbox" className="drawer-toggle" />
@@ -124,10 +133,9 @@ export default function AdminLayout() {
               </Link>
             </li>
             <li>
-              <a className="text-error text-sm">
-                <span>🚪</span>
-                Cerrar sesión
-              </a>
+              <button onClick={handleLogout} role="menuitem" className="flex items-center gap-2">
+                <LogOut className="h-4 w-4" /> Cerrar sesión
+              </button>
             </li>
           </ul>
         </aside>
