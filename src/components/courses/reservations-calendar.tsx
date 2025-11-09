@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, CalendarIcon, Clock } from 'lucide-react';
 
-// No mock reservation data — use only the provided reservationsByDate prop
-
 type ReservationsCalendarProps = {
   reservationsByDate?: Record<string, any[]>;
   slots?: any[];
@@ -20,6 +18,11 @@ export function ReservationsCalendar({
   courses: propCourses,
   onDeleteReservation,
 }: ReservationsCalendarProps) {
+  console.log('ReservationsCalendar render');
+  console.log('propReservationsByDate:', propReservationsByDate);
+  console.log('propSlots:', propSlots);
+  console.log('propClasses:', propClasses);
+  console.log('propCourses:', propCourses);
   const [currentDate, setCurrentDate] = useState(() => {
     const now = new Date();
     // start at the first day of the current month
@@ -113,8 +116,7 @@ export function ReservationsCalendar({
               const classData = propClasses?.find((cl: any) => cl.id === slot?.classId) || null;
               const courseTitle = course?.title || reservation.course || 'Untitled course';
               const classTitle = classData?.title || reservation.classTitle || '';
-              const instructor =
-                reservation.instructor || classData?.instructor || course?.instructor || 'TBA';
+              const instructor = slot.professor?.id;
 
               let timeLabel = reservation.time || '';
               if (slot?.startTime) {
