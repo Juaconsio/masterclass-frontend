@@ -24,7 +24,7 @@ type NavLink = {
 
 const USER_ROLE_LABEL = {
   admin: 'Administrador',
-  student: 'Estudiante',
+  user: 'Estudiante',
   professor: 'Profesor',
 };
 
@@ -59,6 +59,7 @@ const NavBar: React.FC = () => {
     }
   }, [isAdmin]);
 
+  console.log('Current links:', user);
   const isActive = (href: string) => {
     const path = location.pathname;
     if (!path) return false;
