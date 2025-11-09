@@ -3,6 +3,7 @@ import { getPayments, updatePayment, type PaymentsFilters } from '@/client/admin
 import type { Payment } from '@/interfaces';
 import { useTableData } from '@/hooks/useTableData';
 import Table, { type TableColumn, type TableAction } from '@/components/UI/Table';
+import { updateReservation } from '@/client/reservations';
 
 export default function AdminPayments() {
   const {
@@ -106,6 +107,7 @@ export default function AdminPayments() {
   const confirmPayment = async (payment: Payment) => {
     setUpdatingPayment(true);
     try {
+      await updateReservation(payment.id, { status: 'confirmed' });
       await updatePayment(payment.id, { status: 'paid' });
       updateFilters({}); // Refresh payments
     } catch (error) {
