@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, useRef, type ReactNode } from 'react';
 import { format } from 'date-fns';
 import {
   Users,
@@ -15,6 +15,7 @@ import type { IEvent } from '@interfaces/events/IEvent';
 import EventForm from './EventForm';
 import type { EventFormValues } from '@interfaces/events/IEvent';
 import { updateSlot, deleteSlot } from '@client/slots';
+import EventFormDrawer, { type EventFormDrawerRef } from './EventFormDrawer';
 
 type EventUpdatePayload = Partial<
   Pick<
@@ -48,6 +49,7 @@ export default function EventDetailsModal({
   if (!open) return null;
 
   const [isEditing, setIsEditing] = useState(false);
+  const drawerRef = useRef<EventFormDrawerRef>(null);
 
   function buildSlotUpdatePayload(original: IEvent, form: EventFormValues) {
     type UpdateSlotPayload = Partial<
@@ -141,29 +143,12 @@ export default function EventDetailsModal({
     STUDENTS_GROUP_CONFIG['PRIVATE'];
   const GroupIcon = groupData.icon;
   const groupLabel = groupData.label;
-
   const start = new Date(event.startTime);
   const end = new Date(event.endTime);
   return (
-    <dialog open className="modal modal-open in-line">
-      <div className="modal-box w-11/12 max-w-3xl">
-        {isEditing ? (
-          <>
-            <h2 className="text-primary mb-3 text-xl font-semibold">Editar Evento</h2>
-            <EventForm
-              submitLabel="Actualizar"
-              onSubmit={handleUpdate}
-              onCancel={() => setIsEditing(false)}
-              initialValues={{
-                ...event,
-                start: event.startTime ? new Date(event.startTime) : undefined,
-                end: event.endTime ? new Date(event.endTime) : undefined,
-                // EventForm expects minStudents to be number | undefined, convert null to undefined
-                minStudents: event.minStudents === null ? undefined : event.minStudents,
-              }}
-            />
-          </>
-        ) : (
+    <>
+      <dialog open className="modal modal-open in-line z-30">
+        <div className="modal-box w-11/12 max-w-3xl">
           <div className="flex gap-4">
             <div className={clsx('w-2 flex-shrink-0 rounded', statusBg)} />
             <div className="flex flex-1 flex-col gap-4">
@@ -230,7 +215,7 @@ export default function EventDetailsModal({
                     Cerrar
                   </button>
                   {handleEdit && (
-                    <button className="btn btn-info" onClick={() => setIsEditing(true)}>
+                    <button className="btn btn-info" onClick={() => drawerRef.current?.open()}>
                       Editar
                     </button>
                   )}
@@ -243,8 +228,21 @@ export default function EventDetailsModal({
               </div>
             </div>
           </div>
-        )}
-      </div>
-    </dialog>
+        </div>
+      </dialog>
+      <EventFormDrawer
+        ref={drawerRef}
+        title="Editar Evento"
+        submitLabel="Actualizar"
+        onSubmit={handleUpdate}
+        initialValues={{
+          ...event,
+          start: event.startTime ? new Date(event.startTime) : undefined,
+          end: event.endTime ? new Date(event.endTime) : undefined,
+          // EventForm expects minStudents to be number | undefined, convert null to undefined
+          minStudents: event.minStudents === null ? undefined : event.minStudents,
+        }}
+      />
+    </>
   );
 }

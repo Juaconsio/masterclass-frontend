@@ -8,17 +8,21 @@ import { CircleX } from 'lucide-react';
 import type { ICourse } from '@/interfaces/models';
 
 interface EventFormProps {
+  formId?: string;
   initialValues?: Partial<EventFormValues>;
-  onSubmit: (values: EventFormValues) => void;
-  submitLabel: string;
-  onCancel: () => void;
+  onSubmit: (values: EventFormValues) => void | Promise<void>;
+  submitLabel?: string;
+  onCancel?: () => void;
+  showActions?: boolean;
 }
 
 export default function EventForm({
+  formId,
   initialValues = {},
   onSubmit,
-  submitLabel,
+  submitLabel = 'Guardar',
   onCancel,
+  showActions = true,
 }: EventFormProps) {
   const [professors, setProfessors] = useState<IProfessor[]>([]);
   const [courses, setCourses] = useState<ICourse[]>([]);
@@ -120,6 +124,7 @@ export default function EventForm({
 
   return (
     <form
+      id={formId}
       onSubmit={handleSubmit(submitHandler)}
       aria-busy={isSubmitting}
       className="grid grid-cols-1 gap-4 md:grid-cols-2"
@@ -360,15 +365,17 @@ export default function EventForm({
         </div>
       )}
 
-      <div className="modal-action grid w-full grid-cols-2 gap-2 md:col-span-2">
-        <button type="button" className="btn w-full" onClick={onCancel} disabled={isSubmitting}>
-          Cancelar
-        </button>
-        <button type="submit" className="btn btn-primary w-full" disabled={isSubmitting}>
-          {isSubmitting && <span className="loading loading-spinner loading-sm" />}
-          <span>{submitLabel}</span>
-        </button>
-      </div>
+      {showActions && (
+        <div className="modal-action grid w-full grid-cols-2 gap-2 md:col-span-2">
+          <button type="button" className="btn w-full" onClick={onCancel} disabled={isSubmitting}>
+            Cancelar
+          </button>
+          <button type="submit" className="btn btn-primary w-full" disabled={isSubmitting}>
+            {isSubmitting && <span className="loading loading-spinner loading-sm" />}
+            <span>{submitLabel}</span>
+          </button>
+        </div>
+      )}
     </form>
   );
 }
