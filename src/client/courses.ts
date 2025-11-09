@@ -1,7 +1,7 @@
 import { httpClient } from './config';
 import buildQuery from './lib/buildQuery';
 async function fetchCourses() {
-  const res = await httpClient.get('courses/me');
+  const res = await httpClient.get('courses');
   return res.data;
 }
 

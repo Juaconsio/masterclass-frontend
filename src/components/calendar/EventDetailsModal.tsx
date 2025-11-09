@@ -144,7 +144,6 @@ export default function EventDetailsModal({
 
   const start = new Date(event.startTime);
   const end = new Date(event.endTime);
-
   return (
     <dialog open className="modal modal-open in-line">
       <div className="modal-box w-11/12 max-w-3xl">
@@ -159,6 +158,8 @@ export default function EventDetailsModal({
                 ...event,
                 start: event.startTime ? new Date(event.startTime) : undefined,
                 end: event.endTime ? new Date(event.endTime) : undefined,
+                // EventForm expects minStudents to be number | undefined, convert null to undefined
+                minStudents: event.minStudents === null ? undefined : event.minStudents,
               }}
             />
           </>

@@ -56,6 +56,7 @@ export interface IClass {
   orderIndex: number;
   basePrice: number;
   course?: ICourse;
+  professors?: IProfessor[];
   slots?: ISlot[];
   materials?: IMaterial[];
 }

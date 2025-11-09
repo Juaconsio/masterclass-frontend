@@ -15,6 +15,7 @@ export type Reservation = IReservation;
 
 export type EventFormValues = {
   classId: number | null;
+  courseId: number | null;
   professorId: number | null;
   start: Date;
   end: Date;
