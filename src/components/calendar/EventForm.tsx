@@ -5,6 +5,7 @@ import type { IEvent, EventFormValues, IProfessor, IClass } from '@interfaces/ev
 import { fetchProfessors } from '@client/professors';
 import { fetchCourses } from '@client/courses';
 import { CircleX } from 'lucide-react';
+import type { ICourse } from '@/interfaces/models';
 
 interface EventFormProps {
   initialValues?: Partial<EventFormValues>;
@@ -20,6 +21,7 @@ export default function EventForm({
   onCancel,
 }: EventFormProps) {
   const [professors, setProfessors] = useState<IProfessor[]>([]);
+  const [courses, setCourses] = useState<ICourse[]>([]);
   const [classes, setClasses] = useState<IClass[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [requestError, setRequestError] = useState<string | null>(null);
@@ -34,6 +36,7 @@ export default function EventForm({
     formState: { errors, isSubmitting },
   } = useForm<EventFormValues>({
     defaultValues: {
+      courseId: initialValues.courseId ?? null,
       classId: initialValues.classId ?? null,
       professorId: initialValues.professorId ?? null,
       start: initialValues.start || new Date(),
@@ -49,6 +52,7 @@ export default function EventForm({
   const didInitRef = useRef(false);
 
   const watchProfessorId = watch('professorId');
+  const watchCourseId = watch('courseId');
   const watchClassId = watch('classId');
 
   const submitHandler = async (data: EventFormValues) => {
@@ -73,8 +77,8 @@ export default function EventForm({
       try {
         setLoadingData(true);
         const [p, c] = await Promise.all([fetchProfessors(), fetchCourses()]);
-        setProfessors(p);
-        setClasses(c);
+        setProfessors(p.data);
+        setCourses(c);
       } finally {
         setLoadingData(false);
       }
@@ -86,7 +90,7 @@ export default function EventForm({
     if (didInitRef.current) return;
     if (!initialValues) return;
     // Solo aplicamos reset si hay al menos profesores y clases cargados o si no hacen falta
-    if (professors.length === 0 && classes.length === 0) return;
+    if (professors.length === 0 && courses.length === 0) return;
     // Aplicamos valores iniciales campo a campo para no resetear estado interno innecesariamente
     if (initialValues.classId !== undefined) setValue('classId', initialValues.classId ?? null);
     if (initialValues.professorId !== undefined)
@@ -99,7 +103,20 @@ export default function EventForm({
     if (initialValues.minStudents !== undefined) setValue('minStudents', initialValues.minStudents);
     if (initialValues.maxStudents !== undefined) setValue('maxStudents', initialValues.maxStudents);
     didInitRef.current = true;
-  }, [initialValues, professors, classes]);
+  }, [initialValues, professors, courses]);
+
+  useEffect(() => {
+    if (watchCourseId) {
+      const selectedCourse = courses.find((course) => course.id === watchCourseId);
+      if (selectedCourse && selectedCourse.classes) {
+        setClasses(selectedCourse.classes);
+      }
+    } else {
+      setClasses([]);
+    }
+  }, [watchCourseId, courses]);
+
+  console.log(professors);
 
   return (
     <form
@@ -108,18 +125,51 @@ export default function EventForm({
       className="grid grid-cols-1 gap-4 md:grid-cols-2"
     >
       {loadingData ? (
-        <>
+        <div className="flex flex-col gap-2">
+          {' '}
           <div className="md:col-span-1">
-            <label className="label">Profesor</label>
+            <label className="label">Cursos</label>
+            <div className="skeleton h-10 w-full" />
+          </div>
+          <div className="md:col-span-1">
+            <label className="label">Profesores</label>
             <div className="skeleton h-10 w-full" />
           </div>
           <div className="md:col-span-1">
             <label className="label">Clases</label>
             <div className="skeleton h-10 w-full" />
           </div>
-        </>
+        </div>
       ) : (
-        <>
+        <div className="flex flex-col gap-2">
+          <div>
+            <label className="label">Cursos</label>
+            <select
+              id="class"
+              className="select select-bordered w-full"
+              value={watchCourseId ?? ''}
+              disabled={loadingData || isSubmitting}
+              onChange={(e) => {
+                const v = e.target.value;
+                setValue('courseId', v === '' ? null : Number(v), { shouldDirty: true });
+                setValue('professorId', null, { shouldDirty: true });
+              }}
+            >
+              <option value="">Seleccione un curso</option>
+              {courses
+                .filter((cls) =>
+                  watchProfessorId == null
+                    ? true
+                    : cls.professors?.some((prof) => prof.id === watchProfessorId)
+                )
+                .map((cls: ICourse) => (
+                  <option key={cls.id} value={cls.id}>
+                    {cls.title}
+                  </option>
+                ))}
+            </select>
+            {errors.classId && <p className="text-error text-sm">{errors.classId.message}</p>}
+          </div>
           <div>
             <label className="label">Profesor</label>
             <select
@@ -131,16 +181,19 @@ export default function EventForm({
                 const v = e.target.value;
                 const num = v === '' ? null : Number(v);
                 setValue('professorId', num, { shouldDirty: true });
-                // Limpiamos classId si cambia profesor
                 setValue('classId', null, { shouldDirty: true });
               }}
             >
               <option value="">Seleccione un profesor</option>
-              {professors.map((prof: IProfessor) => (
-                <option key={prof.id} value={prof.id}>
-                  {prof.name}
-                </option>
-              ))}
+              {professors?.length > 0 ? (
+                professors.map((prof: IProfessor) => (
+                  <option key={prof.id} value={prof.id}>
+                    {prof.name}
+                  </option>
+                ))
+              ) : (
+                <option disabled>No hay profesores disponibles</option>
+              )}
             </select>
             {errors.professorId && (
               <p className="text-error text-sm">{errors.professorId.message}</p>
@@ -160,21 +213,15 @@ export default function EventForm({
               }}
             >
               <option value="">Seleccione una clase</option>
-              {classes
-                .filter((cls) =>
-                  watchProfessorId == null
-                    ? true
-                    : cls.professors.some((prof) => prof.id === watchProfessorId)
-                )
-                .map((cls: IClass) => (
-                  <option key={cls.id} value={cls.id}>
-                    {cls.title}
-                  </option>
-                ))}
+              {classes.map((cls: IClass) => (
+                <option key={cls.id} value={cls.id}>
+                  {cls.title}
+                </option>
+              ))}
             </select>
             {errors.classId && <p className="text-error text-sm">{errors.classId.message}</p>}
           </div>
-        </>
+        </div>
       )}
 
       <div>
