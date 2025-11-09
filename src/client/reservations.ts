@@ -11,13 +11,13 @@ async function createReservation(slotId: number) {
   return res.data;
 }
 
-async function updateReservation(payload: any) {
-  const res = await httpClient.put('/reservations', payload);
+async function updateReservation(reservationId: number, payload: any) {
+  const res = await httpClient.put(`/reservations/${reservationId}`, payload);
   return res.data;
 }
 
-async function deleteReservation() {
-  const res = await httpClient.delete('/reservations');
+async function deleteReservation(reservationId: number) {
+  const res = await httpClient.delete(`/reservations/${reservationId}`);
   return res.data;
 }
 
