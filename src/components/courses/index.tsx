@@ -3,7 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { fetchSlots } from '../../client/slots';
 import { httpClient } from '@/client/config';
 import { CoursesSection } from './course-section';
-import { fetchCourses } from '@client/courses';
+import { fetchCoursesByCurrentUser } from '@client/courses';
 import { fetchReservations } from '@/client/reservations';
 import { ReservationsCalendar } from './reservations-calendar';
 
@@ -25,7 +25,7 @@ const Dashboard: React.FC = () => {
       setLoading(true);
       try {
         // Fetch user courses
-        const courses = await fetchCourses();
+        const courses = await fetchCoursesByCurrentUser();
         setCourses(courses || []);
         const reservationsRes = await fetchReservations().then((dataJson) => dataJson || []);
         const filteredReservations = reservationsRes.filter((r: any) => r.studentId === user?.id);
