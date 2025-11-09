@@ -6,6 +6,9 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import phoneSchema from './lib/numberhelper';
 import rutSchema from './lib/rutValidator';
+import { useEffect } from 'react';
+import { useSessionContext } from '../../context/SessionContext';
+import { useNavigate } from 'react-router';
 
 const signUpSchema = z
   .object({
@@ -24,6 +27,45 @@ const signUpSchema = z
 type FormData = z.infer<typeof signUpSchema>;
 
 export default function SignUpForm() {
+  const { handleToken } = useSessionContext();
+  const navigate = useNavigate();
+  useEffect(() => {
+    const checkToken = async () => {
+      try {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token') || undefined;
+        if (!token) return;
+
+        const jwtModule: any = await import('jwt-decode');
+        const decoded: any =
+          typeof jwtModule === 'function'
+            ? jwtModule(token)
+            : jwtModule.jwtDecode
+              ? jwtModule.jwtDecode(token)
+              : jwtModule.default
+                ? jwtModule.default(token)
+                : undefined;
+
+        if (!decoded) return;
+
+        // verificar expiración si existe el claim exp
+        if (decoded.exp && Date.now() / 1000 > decoded.exp) {
+          localStorage.removeItem('token');
+          sessionStorage.removeItem('token');
+          return;
+        }
+
+        // pasar token al contexto y redirigir según rol
+        handleToken(token);
+        const isAdmin = decoded?.role === 'admin' || decoded?.isAdmin === true;
+        navigate(isAdmin ? '/admin' : '/app');
+      } catch {
+        // no hacer nada si falla la verificación
+      }
+    };
+
+    checkToken();
+  }, []);
+
   const {
     register,
     handleSubmit,
