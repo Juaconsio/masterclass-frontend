@@ -2,10 +2,27 @@ import { useSessionContext } from '../../context/SessionContext';
 import { Link } from 'react-router';
 import Greetings from './Greetings';
 import PendingReservationBanner from '../reservations/PendingReservationBanner';
-import { BookOpen, CreditCard, Users, BookMarked } from 'lucide-react';
+import type { PendingReservationBannerRef } from '../reservations/PendingReservationBanner';
+import { BookOpen, CreditCard, Users, BookMarked, AlertCircle } from 'lucide-react';
+import { useRef, useEffect, useState } from 'react';
 
 function Home() {
   const { isLoading } = useSessionContext();
+  const bannerRef = useRef<PendingReservationBannerRef>(null);
+  const [hasPendingReservation, setHasPendingReservation] = useState(false);
+
+  useEffect(() => {
+    // Check if there's a pending reservation in localStorage
+    const checkPendingReservation = () => {
+      const stored = localStorage.getItem('checkout.reservation');
+      setHasPendingReservation(!!stored);
+    };
+
+    checkPendingReservation();
+    // Optional: listen for storage changes
+    window.addEventListener('storage', checkPendingReservation);
+    return () => window.removeEventListener('storage', checkPendingReservation);
+  }, []);
 
   const ShowSoonDialog = () => {
     alert('¡Próximamente! Esta funcionalidad estará disponible en futuras actualizaciones.');
@@ -25,9 +42,6 @@ function Home() {
       {/* Main Content */}
       <main className="bg-base-100 flex-1 overflow-y-auto">
         <div className="container mx-auto space-y-8 p-6">
-          {/* Pending Reservation Banner */}
-
-          {/* Header / Greeting */}
           <div className="mb-8">
             <Greetings />
             <p className="text-base-content/70 mt-2">
@@ -36,13 +50,26 @@ function Home() {
             </p>
           </div>
 
+          {hasPendingReservation && (
+            <div className="alert alert-info shadow-lg">
+              <AlertCircle className="h-6 w-6" />
+              <div>
+                <h3 className="font-bold">Tienes una reserva pendiente de confirmar</h3>
+                <div className="text-xs">Haz clic para ver los detalles y confirmar tu reserva</div>
+              </div>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={() => bannerRef.current?.openDrawer()}
+              >
+                Ver Detalles
+              </button>
+            </div>
+          )}
+
           {/* Main Features Grid */}
           <div>
             <h2 className="mb-4 text-2xl font-bold">Funcionalidades Principales</h2>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {/* Reservas */}
-              <PendingReservationBanner />
-
               {/* Cursos */}
               <div className="card border bg-black/5 shadow-xl transition-shadow hover:shadow-2xl">
                 <div className="card-body">
@@ -153,24 +180,7 @@ function Home() {
             </div>
           </div>
 
-          {/* Quick Actions */}
-          {/* <div className="bg-base-200 rounded-box p-6">
-            <h3 className="mb-4 text-xl font-semibold">Acciones Rápidas</h3>
-            <div className="flex flex-wrap gap-3">
-              <Link to="reservas/nueva" className="btn btn-primary btn-sm gap-2">
-                <Clock className="h-4 w-4" />
-                Nueva Reserva
-              </Link>
-              <Link to="cursos" className="btn btn-secondary btn-sm gap-2">
-                <BookOpen className="h-4 w-4" />
-                Explorar Cursos
-              </Link>
-              <Link to="pagos" className="btn btn-accent btn-sm gap-2">
-                <DollarSign className="h-4 w-4" />
-                Realizar Pago
-              </Link>
-            </div>
-          </div> */}
+          <PendingReservationBanner ref={bannerRef} />
         </div>
       </main>
     </div>
