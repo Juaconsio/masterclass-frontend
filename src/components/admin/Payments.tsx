@@ -1,5 +1,5 @@
-import { useMemo, useCallback } from 'react';
-import { getPayments, type PaymentsFilters } from '@/client/admin/payments';
+import { useMemo, useCallback, useState } from 'react';
+import { getPayments, updatePayment, type PaymentsFilters } from '@/client/admin/payments';
 import type { Payment } from '@/interfaces';
 import { useTableData } from '@/hooks/useTableData';
 import Table, { type TableColumn, type TableAction } from '@/components/UI/Table';
@@ -24,6 +24,8 @@ export default function AdminPayments() {
       sortOrder: 'desc',
     },
   });
+
+  const [updatingPayment, setUpdatingPayment] = useState(false);
 
   // Format currency
   const formatCurrency = useCallback((amount: number) => {
@@ -100,38 +102,44 @@ export default function AdminPayments() {
     [formatCurrency, formatDate, getStatusBadge]
   );
 
+  // Confirm payment
+  const confirmPayment = async (payment: Payment) => {
+    setUpdatingPayment(true);
+    try {
+      await updatePayment(payment.id, { status: 'paid' });
+      updateFilters({}); // Refresh payments
+    } catch (error) {
+      console.error('Error confirming payment:', error);
+    } finally {
+      setUpdatingPayment(false);
+    }
+  };
+
+  // Cancel payment
+  const cancelPayment = async (payment: Payment) => {
+    setUpdatingPayment(true);
+    try {
+      await updatePayment(payment.id, { status: 'failed' });
+      updateFilters({}); // Refresh payments
+    } catch (error) {
+      console.error('Error canceling payment:', error);
+    } finally {
+      setUpdatingPayment(false);
+    }
+  };
+
   // Table actions definition
   const actions: TableAction<Payment>[] = useMemo(
     () => [
       {
-        label: 'Ver detalles',
+        label: 'Confirmar Pago',
         variant: 'primary',
-        onClick: (payment) => {
-          // TODO: Implement view details modal
-        },
+        onClick: confirmPayment,
       },
       {
-        label: 'Descargar',
+        label: 'Cancelar',
         variant: 'secondary',
-        onClick: (payment) => {
-          // TODO: Implement download receipt
-        },
-        icon: (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            />
-          </svg>
-        ),
+        onClick: cancelPayment,
       },
     ],
     []
@@ -174,8 +182,9 @@ export default function AdminPayments() {
                 updateFilters({
                   status: (e.target.value || undefined) as
                     | 'pending'
-                    | 'completed'
+                    | 'paid'
                     | 'failed'
+                    | 'refunded'
                     | undefined,
                   page: 1,
                 })
