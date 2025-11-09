@@ -1,6 +1,12 @@
 import { Outlet } from 'react-router';
+import { useEffect } from 'react';
+import { pingServer } from '@/client/ping';
 
 export default function AuthLayout() {
+  useEffect(() => {
+    pingServer();
+  }, []);
+
   return (
     <div className="bg-base-200 flex min-h-screen items-center justify-center">
       <div className="flex w-full max-w-4xl flex-col overflow-hidden rounded-xl bg-white shadow-xl md:flex-row">
