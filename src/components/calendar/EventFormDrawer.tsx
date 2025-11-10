@@ -11,19 +11,17 @@ export interface EventFormDrawerRef {
 
 interface EventFormDrawerProps {
   title?: string;
-  initialValues?: Partial<EventFormValues>;
+  initialValues?: EventFormValues;
   onSubmit: (values: EventFormValues) => void | Promise<void>;
   submitLabel?: string;
   onClose?: () => void;
 }
 
 const EventFormDrawer = forwardRef<EventFormDrawerRef, EventFormDrawerProps>(
-  (
-    { title = 'Crear Evento', initialValues = {}, onSubmit, submitLabel = 'Guardar', onClose },
-    ref
-  ) => {
+  ({ title = 'Crear Evento', initialValues, onSubmit, submitLabel = 'Guardar', onClose }, ref) => {
     const drawerRef = useRef<DrawerRef>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [canSubmit, setCanSubmit] = useState(false);
     const formId = useId();
 
     useImperativeHandle(ref, () => ({
@@ -65,7 +63,7 @@ const EventFormDrawer = forwardRef<EventFormDrawerRef, EventFormDrawerProps>(
             },
             variant: 'primary',
             loading: isSubmitting,
-            disabled: isSubmitting,
+            disabled: isSubmitting || !canSubmit,
           },
           {
             label: 'Cancelar',
@@ -82,6 +80,7 @@ const EventFormDrawer = forwardRef<EventFormDrawerRef, EventFormDrawerProps>(
           submitLabel={submitLabel}
           onCancel={handleCancel}
           showActions={false}
+          onDataStateChange={({ ready }) => setCanSubmit(ready)}
         />
       </Drawer>
     );

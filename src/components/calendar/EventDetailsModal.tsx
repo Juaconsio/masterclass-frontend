@@ -252,11 +252,17 @@ export default function EventDetailsModal({
         submitLabel="Actualizar"
         onSubmit={handleUpdate}
         initialValues={{
-          ...event,
-          start: event.startTime ? new Date(event.startTime) : undefined,
-          end: event.endTime ? new Date(event.endTime) : undefined,
-          // EventForm expects minStudents to be number | undefined, convert null to undefined
+          courseId: event.class?.course?.id ?? null,
+          classId: event.classId,
+          professorId: event.professorId,
+          start: event.startTime ? new Date(event.startTime) : new Date(),
+          end: event.endTime ? new Date(event.endTime) : new Date(),
+          modality: event.modality,
+          studentsGroup: event.studentsGroup,
+          status: event.status,
+          location: event.location,
           minStudents: event.minStudents === null ? undefined : event.minStudents,
+          maxStudents: event.maxStudents,
         }}
       />
     </>
