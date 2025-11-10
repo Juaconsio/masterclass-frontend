@@ -48,9 +48,14 @@ export default function SlotDisplay({
           <h4 className="text-sm font-semibold text-gray-900">
             {event.class?.title || `Clase ${event.classId}`}
           </h4>
-          <p className="text-xs text-gray-600">
-            {event.professor?.name || `Profesor ${event.professorId}`}
-          </p>
+          <div className="mt-0.5 flex items-center justify-between">
+            <p className="text-xs text-gray-600">
+              {event.professor?.name || `Profesor ${event.professorId}`}
+            </p>
+            <p className="text-xs text-gray-500">
+              {event.class?.course?.acronym || `Curso ${event.class?.courseId}`}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {isGroup ? (
@@ -85,9 +90,14 @@ export default function SlotDisplay({
             <h3 className="text-lg font-bold text-gray-900">
               {event.class?.title || `Clase ${event.classId}`}
             </h3>
-            <p className="text-sm text-gray-600">
-              {event.professor?.name || `Profesor ${event.professorId}`}
-            </p>
+            <div className="mt-0.5 flex items-center justify-between">
+              <p className="text-xs text-gray-600">
+                {event.professor?.name || `Profesor ${event.professorId}`}
+              </p>
+              <p className="text-xs text-gray-500">
+                {event.class?.course?.acronym || `Curso ${event.class?.courseId}`}
+              </p>
+            </div>
           </div>
           <div className={`h-4 w-4 rounded-full ${statusStyle.split(' ')[0]}`} />
         </div>
@@ -141,36 +151,44 @@ export default function SlotDisplay({
       )}
       onClick={onClick}
     >
-      <div className="flex h-full flex-col p-1.5">
+      <div className="flex h-full flex-col gap-0 px-1 py-0.5">
         {/* Título del curso */}
-        <h3 className="truncate text-xs font-bold text-gray-900">
-          {event.class?.title || `Clase ${event.classId}`}
-        </h3>
+        <div>
+          <h3 className="z-20 truncate text-xs font-bold text-gray-900">
+            {event.class?.title || `Clase ${event.classId}`}
+          </h3>
+        </div>
 
         {/* Profesor */}
-        <p className="truncate text-[10px] text-gray-600">
-          {event.professor?.name || `Profesor ${event.professorId}`}
-        </p>
-
-        {/* Iconos de modalidad y tipo de clase */}
-        <div className="mt-auto flex items-center justify-between gap-1 pt-1">
-          <div className="flex items-center gap-1">
-            {/* Icono de grupo/individual */}
-            {isGroup ? (
-              <Users className="h-3 w-3 text-gray-700" />
-            ) : (
-              <User className="h-3 w-3 text-gray-700" />
-            )}
-
-            {/* Icono de modalidad */}
-            {isRemote ? (
-              <Monitor className="h-3 w-3 text-gray-700" />
-            ) : (
-              <MapPin className="h-3 w-3 text-gray-700" />
-            )}
+        <div className="inline-flex items-end justify-between pt-1">
+          <div className="flex flex-col justify-between truncate">
+            <p className="truncate text-[10px] text-gray-600">
+              {event.professor?.name || `Profesor ${event.professorId}`}
+            </p>
+            <p className="truncate text-[10px] text-gray-500">
+              {event.class?.course?.acronym || `Curso ${event.class?.courseId}`}
+            </p>
           </div>
+          {/* Iconos de modalidad y tipo de clase */}
+          <div className="mt-auto flex items-center justify-between gap-0.5 pt-1">
+            <div className="flex items-center gap-1">
+              {/* Icono de grupo/individual */}
+              {isGroup ? (
+                <Users className="h-3 w-3 text-gray-700" />
+              ) : (
+                <User className="h-3 w-3 text-gray-700" />
+              )}
 
-          <div className={`h-2 w-2 rounded-full ${statusStyle.split(' ')[0]}`} />
+              {/* Icono de modalidad */}
+              {isRemote ? (
+                <Monitor className="h-3 w-3 text-gray-700" />
+              ) : (
+                <MapPin className="h-3 w-3 text-gray-700" />
+              )}
+            </div>
+
+            <div className={`h-2 w-2 rounded-full ${statusStyle.split(' ')[0]}`} />
+          </div>
         </div>
       </div>
     </div>

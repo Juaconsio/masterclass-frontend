@@ -68,6 +68,7 @@ export interface ISlot {
   professorId: number;
   startTime: string; // ISO date string
   endTime: string; // ISO date string
+  orderIndex: number;
   modality: SlotModality;
   studentsGroup: SlotStudentsGroup;
   location?: string | null;
