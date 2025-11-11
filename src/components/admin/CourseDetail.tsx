@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { adminCoursesClient, type AdminCourseDetail } from '../../client/admin/courses';
-import Table, { type TableColumn, type TableAction } from '../UI/Table';
+import { Table, type TableColumn, type TableAction } from '@components/UI';
 
 interface CourseDetailProps {
   courseId: number;

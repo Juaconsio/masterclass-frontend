@@ -1,6 +1,5 @@
 import { Outlet } from 'react-router';
-import NavBar from '@/components/UI/NavBar';
-import { BreadCrumb } from '@components/UI/BreadCrumb';
+import { NavBar, BreadCrumb } from '@components/UI';
 
 export default function AuthLayout() {
   return (

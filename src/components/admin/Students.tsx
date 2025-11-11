@@ -1,8 +1,7 @@
 import { getStudents, deleteStudent, toggleStudentStatus } from '@/client/students';
 import type { Student, StudentFilters } from '@/client/students';
 import type { UserRole } from '@/interfaces/enums';
-import Table from '@/components/UI/Table';
-import type { TableColumn, TableAction } from '@/components/UI/Table';
+import { Table, type TableColumn, type TableAction } from '@components/UI';
 import { useTableData } from '@/hooks/useTableData';
 
 export default function AdminUsers() {

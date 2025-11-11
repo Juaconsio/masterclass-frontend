@@ -21,12 +21,12 @@ export default function Toolbar({
   const end = endOfWeek(currentWeek, { weekStartsOn: 1 });
   const weekRange = `${format(start, 'd MMM', { locale: es })} - ${format(end, 'd MMM', { locale: es })}`;
   return (
-    <div className="card bg-base-200 border shadow-md">
+    <div className="card mb-0">
       <div className="card-body">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Calendar className="text-primary h-6 w-6" />
-            <h2 className="card-title text-2xl font-bold">{weekRange}</h2>
+            <h2 className="card-title text-xl font-bold">{weekRange}</h2>
           </div>
           <div className="flex items-center gap-2">
             <button className="btn btn-primary btn-sm" onClick={openCreateEventModal}>

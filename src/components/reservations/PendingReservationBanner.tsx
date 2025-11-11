@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, forwardRef, useImperativeHandle, useRef } from 'react';
 import { confirmReservation } from '../../client/confirmReservation';
 import { getCourseEnroll } from '@/client/courses';
 import SuccessModal from '../reservations/SucessModal';
+import { Drawer, type DrawerRef } from '@components/UI';
 import type { IEvent } from '@/interfaces/events/IEvent';
 import type { Reservation, Course, Payment } from '@/interfaces';
 
@@ -15,13 +16,19 @@ interface PendingReservation {
   slot?: IEvent;
 }
 
-export default function PendingReservationBanner() {
+export interface PendingReservationBannerRef {
+  openDrawer: () => void;
+  hasReservation: boolean;
+}
+
+const PendingReservationBanner = forwardRef<PendingReservationBannerRef>((props, ref) => {
   const [reservation, setReservation] = useState<PendingReservation | null>(null);
   const [confirmedReservation, setConfirmedReservation] = useState<Reservation | null>(null);
 
   const [isConfirming, setIsConfirming] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [payment, setPayment] = useState<Payment | null>(null);
+  const drawerRef = useRef<DrawerRef>(null);
   useEffect(() => {
     // Check localStorage for pending reservation
     const getEnrollInfo = async () => {
@@ -42,6 +49,11 @@ export default function PendingReservationBanner() {
     };
     getEnrollInfo();
   }, []);
+
+  useImperativeHandle(ref, () => ({
+    openDrawer: () => drawerRef.current?.open(),
+    hasReservation: !!reservation,
+  }));
 
   const handleConfirm = async () => {
     if (!reservation) return;
@@ -72,72 +84,93 @@ export default function PendingReservationBanner() {
   const handleDismiss = () => {
     localStorage.removeItem('checkout.reservation');
     setReservation(null);
+    drawerRef.current?.close();
   };
 
   if (!reservation && !showModal) return null;
 
   return (
     <>
-      {/* Banner for pending reservation */}
+      {/* Drawer for pending reservation */}
       {reservation && !showModal && (
-        <div className="card bg-white shadow-xl">
-          <div className="card-body">
-            <h2 className="card-title text-primary">Reserva por confirmar</h2>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-base-content/60">Curso</span>
-                <span className="font-medium">{reservation.course?.title || '—'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-base-content/60">Clase</span>
-                <span className="font-medium">{reservation.slot?.class?.title ?? '—'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-base-content/60">Día</span>
-                <span className="font-medium">
-                  {new Date(reservation.slot?.startTime || '').toLocaleString('es-CL', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  }) ?? '—'}
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-base-content/60">Horario</span>
-                <span className="font-medium">
-                  {new Date(reservation.slot?.startTime || '').toLocaleString('es-CL', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  }) ?? '—'}{' '}
-                  -{' '}
-                  {new Date(reservation.slot?.endTime || '').toLocaleString('es-CL', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  }) ?? '—'}
-                </span>
+        <Drawer
+          ref={drawerRef}
+          title="Reserva Pendiente"
+          width="md"
+          side="right"
+          actions={[
+            {
+              label: 'Confirmar Reserva',
+              onClick: handleConfirm,
+              variant: 'primary',
+              disabled: isConfirming,
+              loading: isConfirming,
+            },
+            {
+              label: 'Descartar Reserva',
+              onClick: handleDismiss,
+              variant: 'ghost',
+            },
+          ]}
+        >
+          <div className="space-y-4">
+            <div className="bg-base-200 rounded-lg p-4">
+              <h3 className="text-base-content mb-3 font-semibold">Detalles del Curso</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex flex-col gap-1">
+                  <span className="text-base-content/60">Curso</span>
+                  <span className="font-medium">{reservation.course?.title || '—'}</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-base-content/60">Clase</span>
+                  <span className="font-medium">{reservation.slot?.class?.title ?? '—'}</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-base-content/60">Día</span>
+                  <span className="font-medium">
+                    {new Date(reservation.slot?.startTime || '').toLocaleString('es-CL', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    }) ?? '—'}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-base-content/60">Horario</span>
+                  <span className="font-medium">
+                    {new Date(reservation.slot?.startTime || '').toLocaleString('es-CL', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    }) ?? '—'}{' '}
+                    -{' '}
+                    {new Date(reservation.slot?.endTime || '').toLocaleString('es-CL', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    }) ?? '—'}
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="divider" />
-            <div className="card-actions">
-              <button
-                className="btn btn-sm btn-primary"
-                onClick={handleConfirm}
-                disabled={isConfirming}
+
+            <div className="alert alert-warning">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 shrink-0 stroke-current"
+                fill="none"
+                viewBox="0 0 24 24"
               >
-                {isConfirming ? (
-                  <span className="loading loading-spinner loading-sm"></span>
-                ) : (
-                  'Confirmar Reserva'
-                )}
-              </button>
-              <button className="btn btn-sm btn-ghost" onClick={handleDismiss}>
-                Descartar
-              </button>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+              <span className="text-sm">Confirma tu reserva para asegurar tu cupo en la clase</span>
             </div>
           </div>
-        </div>
+        </Drawer>
       )}
 
       {/* Modal with bank transfer details */}
@@ -150,4 +183,8 @@ export default function PendingReservationBanner() {
       )}
     </>
   );
-}
+});
+
+PendingReservationBanner.displayName = 'PendingReservationBanner';
+
+export default PendingReservationBanner;

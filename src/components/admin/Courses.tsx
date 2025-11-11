@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import Table, { type TableColumn, type TableAction } from '../UI/Table';
+import { Table, type TableColumn, type TableAction } from '@components/UI';
 import { adminCoursesClient, type AdminCourse } from '../../client/admin/courses';
 import CourseDetail from './CourseDetail';
 import { useTableData } from '@/hooks/useTableData';

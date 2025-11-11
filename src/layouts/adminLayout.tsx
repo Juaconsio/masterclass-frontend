@@ -1,6 +1,5 @@
 import { Outlet } from 'react-router';
-import { BreadCrumb } from '@components/UI/BreadCrumb';
-import NavBar from '@/components/UI/NavBar';
+import { BreadCrumb, NavBar } from '@components/UI';
 
 export default function AdminLayout() {
   return (

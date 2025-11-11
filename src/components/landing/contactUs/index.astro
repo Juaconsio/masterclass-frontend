@@ -30,7 +30,7 @@ const contactData = [
     >
       <!-- Card 1: Formas de Contacto -->
       <div
-        class="card card-sm gap-2 bg-white shadow-xl lg:col-span-3 lg:row-span-1 lg:h-full overflow-hidden"
+        class="card card-sm gap-2 bg-white shadow-xl lg:col-span-6 lg:row-span-1 lg:h-full overflow-hidden"
       >
         <div class="p-0 h-full min-h-0" data-usal="fade-r">
           <div class="relative h-full rounded-lg overflow-hidden">
@@ -40,12 +40,12 @@ const contactData = [
               class="h-full w-full object-cover"
             />
             <div
-              class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
+              class="absolute z-20 inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"
             >
             </div>
-            <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
-              <h3 class="text-xl font-bold mb-2">Contactanos</h3>
-              <p class="text-white/90 text-sm">
+            <div class="absolute z-30 bottom-0 left-0 right-0 p-6 text-white">
+              <h3 class="text-2xl font-bold mb-2">Contactanos</h3>
+              <p class="text-white">
                 Por cualquiera de nuestras redes o vía email. Estamos para ayudarte.
               </p>
             </div>
@@ -75,7 +75,7 @@ const contactData = [
         data-usal="fade-l"
         class="card bg-white shadow-xl lg:col-span-2 lg:row-span-2 lg:row-start-2 lg:col-start-5 lg:h-full overflow-hidden min-h-0"
       >
-        <figure class="min-h-0 h-full">
+        <figure data-usal="fade-l" class="min-h-0 h-full">
           <img
             src="/images/WA_QRcode.png"
             alt="WhatsApp QR Code"
@@ -87,42 +87,15 @@ const contactData = [
         </div>
       </div>
 
-      <!-- Card 3: Fotografía del equipo -->
-
-      <div
-        data-usal="fade-l"
-        class="bg-base-100 shadow-xl lg:col-span-4 lg:col-start-4 lg:row-start-1 lg:h-full overflow-hidden min-h-0"
-      >
-        <div class="p-0 h-full min-h-0">
-          <div class="relative h-full rounded-lg overflow-hidden">
-            <img
-              src="/images/image0.jpeg"
-              alt="Equipo SalvaRamos"
-              class="h-full w-full object-cover"
-            />
-            <div
-              class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
-            >
-            </div>
-            <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
-              <h3 class="text-xl font-bold mb-2">Estamos aquí para ayudarte</h3>
-              <p class="text-white/90 text-sm">
-                Nuestro equipo está listo para resolver tus dudas y ayudarte en lo que necesites.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div
         data-usal="fade-b"
         class="bg-base-100 shadow-xl lg:col-span-2 lg:row-span-2 lg:col-start-3 lg:row-start-2 lg:h-full overflow-hidden min-h-0"
       >
-        <div class="size-full flex justify-center items-center">
+        <div data-usal="fade-b" class="size-full flex justify-center items-center">
           <img
             src="images/LOGO_FONDO_AZUL.png"
             alt="Logo SalvaRamos"
-            class="size-full object-cover"
+            class="size-full object-cover rounded-lg"
           />
         </div>
       </div>
