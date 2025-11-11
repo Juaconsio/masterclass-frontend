@@ -21,7 +21,7 @@ export default function ReviewsCarousel({ reviews }: ReviewsCarouselProps) {
   const options = {
     type: 'loop' as const,
     gap: '1.5rem',
-    arrows: false,
+    arrows: true,
     autoplay: true,
     interval: 5000,
     pauseOnHover: true,
