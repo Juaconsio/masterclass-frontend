@@ -2,7 +2,7 @@ import { useMemo, useCallback, useState } from 'react';
 import { getPayments, updatePayment, type PaymentsFilters } from '@/client/admin/payments';
 import type { Payment } from '@/interfaces';
 import { useTableData } from '@/hooks/useTableData';
-import Table, { type TableColumn, type TableAction } from '@/components/UI/Table';
+import { Table, type TableColumn, type TableAction } from '@components/UI';
 import { updateReservation } from '@/client/reservations';
 
 export default function AdminPayments() {

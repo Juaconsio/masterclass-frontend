@@ -12,7 +12,6 @@ interface BreadCrumbProps {
   homePath?: string;
 }
 
-// Mapeo centralizado de rutas a labels
 const ROUTE_LABELS: Record<string, string> = {
   // App routes
   app: 'Inicio',
@@ -27,7 +26,6 @@ const ROUTE_LABELS: Record<string, string> = {
   pagos: 'Gestión de Pagos',
 };
 
-// Mapeo de segmentos padre a labels de detalle
 const DETAIL_LABELS: Record<string, string> = {
   cursos: 'Detalles del Curso',
   profesores: 'Detalles del Profesor',

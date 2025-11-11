@@ -1,5 +1,6 @@
 // Import from centralized models
 import type { ISlot, IClass, IProfessor, IReservation } from '../models';
+import type { SlotModality, SlotStatus, SlotStudentsGroup } from '../enums';
 
 // Re-export for backwards compatibility
 export type { ISlot, IClass, IProfessor, IReservation };
@@ -19,9 +20,10 @@ export type EventFormValues = {
   professorId: number | null;
   start: Date;
   end: Date;
-  modality: string;
-  studentsGroup: string;
-  status: string;
+  modality: SlotModality;
+  studentsGroup: SlotStudentsGroup;
+  status: SlotStatus;
+  location?: string | null;
   minStudents?: number;
   maxStudents: number;
 };
@@ -41,9 +43,10 @@ export interface EventCreatePayload {
   professorId: number | null;
   startTime: string;
   endTime: string;
-  modality: string;
-  studentsGroup: string;
-  status: string;
+  modality: SlotModality;
+  studentsGroup: SlotStudentsGroup;
+  status: SlotStatus;
+  location?: string | null;
   minStudents?: number;
   maxStudents: number;
 }
