@@ -78,10 +78,6 @@ export default function EventForm({
 
   const watchProfessorId = watch('professorId');
   const watchCourseId = watch('courseId');
-  const watchClassId = watch('classId');
-
-  // Validación de classId ahora está integrada en el resolver de useForm
-  const classIdRegister = register('classId');
 
   const submitHandler = async (data: EventFormValues) => {
     setRequestError(null);
@@ -101,7 +97,6 @@ export default function EventForm({
   };
 
   const loadData = useCallback(async () => {
-    console.log('📡 Cargando profesores y cursos...');
     try {
       setFetchError(null);
       setLoadingData(true);
@@ -109,20 +104,17 @@ export default function EventForm({
       setProfessors(p.data);
       setCourses(c);
       setClasses(c.find((course: ICourse) => course.id === watchCourseId)?.classes || []);
-      console.log('✅ Datos cargados:', { professors: p.data.length, courses: c.length });
     } catch (err) {
-      console.error('❌ Error al cargar datos', err);
       setFetchError('No se pudieron cargar profesores y cursos. Intenta nuevamente.');
     } finally {
       setLoadingData(false);
     }
-  }, [watchCourseId]);
+  }, []);
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+  }, []);
 
-  // Notificar al contenedor (Drawer) si se puede usar el formulario
   useEffect(() => {
     const ready = !loadingData && !fetchError;
     if (onDataStateChange) {
@@ -131,31 +123,15 @@ export default function EventForm({
   }, [loadingData, fetchError, onDataStateChange]);
 
   useEffect(() => {
-    console.log('🔄 initialValues:', initialValues);
-    console.log('📚 Cursos cargados:', courses.length);
-    console.log('👨‍🏫 Profesores cargados:', professors.length);
-  }, [initialValues, courses, professors]);
-
-  useEffect(() => {
     const selectedCourse = courses.find((c) => c.id === watchCourseId);
     const newClasses = selectedCourse?.classes || [];
     setClasses(newClasses);
-    console.log('📘 Curso seleccionado:', selectedCourse);
-    console.log('📗 Clases disponibles:', newClasses);
   }, [watchCourseId, courses]);
 
   useEffect(() => {
-    console.log('📗 Clases disponibles:', classes);
-  }, [classes]);
-
-  useEffect(() => {
-    // si aún se están cargando datos o ya se inicializó, no hacemos nada
     if (loadingData || didInitRef.current) return;
     if (!initialValues) return;
 
-    console.log('🧩 Inicializando form con valores', initialValues);
-
-    // Usar la función de normalización para asegurar valores completos
     reset(normalizeInitialValues(initialValues));
 
     didInitRef.current = true;
@@ -188,7 +164,6 @@ export default function EventForm({
 
       {!fetchError && (
         <>
-          {/* Información del Evento */}
           <div className="space-y-3">
             <h3 className="text-base-content/60 text-sm font-semibold tracking-wide uppercase">
               Información del Evento
@@ -222,7 +197,6 @@ export default function EventForm({
                       const v = e.target.value;
                       setValue('courseId', v === '' ? null : Number(v), { shouldDirty: true });
                       setValue('professorId', null, { shouldDirty: true });
-                      // Al cambiar el curso, se resetea la clase seleccionada
                       setValue('classId', null, { shouldDirty: true, shouldValidate: true });
                     }}
                   >
@@ -304,7 +278,6 @@ export default function EventForm({
             )}
           </div>
 
-          {/* Fecha y Horario */}
           <div className="space-y-3">
             <h3 className="text-base-content/60 text-sm font-semibold tracking-wide uppercase">
               Fecha y Horario
@@ -517,18 +490,37 @@ export default function EventForm({
                   <label className="label">Mínimo</label>
                   <input
                     type="number"
-                    {...register('minStudents', { min: 1 })}
+                    {...register('minStudents', {
+                      min: { value: 0, message: 'El mínimo no puede ser negativo' },
+                      validate: (value) => {
+                        if (value != null && value < 0) return 'El mínimo no puede ser negativo';
+                        return true;
+                      },
+                    })}
                     placeholder="Mín."
-                    className="input input-bordered w-full"
+                    className={`input input-bordered w-full ${errors.minStudents ? 'input-error' : ''}`}
                     disabled={isSubmitting}
                   />
+                  {errors.minStudents && (
+                    <p className="text-error mt-1 text-sm">{errors.minStudents.message}</p>
+                  )}
                 </div>
 
                 <div>
                   <label className="label">Máximo</label>
                   <input
                     type="number"
-                    {...register('maxStudents', { required: 'Máximo es obligatorio', min: 1 })}
+                    {...register('maxStudents', {
+                      required: 'Máximo es obligatorio',
+                      min: { value: 0, message: 'El máximo no puede ser negativo' },
+                      validate: (value) => {
+                        if (value != null && value < 0) return 'El máximo no puede ser negativo';
+                        const min = watch('minStudents');
+                        if (min != null && value != null && value < min)
+                          return 'El máximo no puede ser menor que el mínimo';
+                        return true;
+                      },
+                    })}
                     placeholder="Máx."
                     className={`input input-bordered w-full ${errors.maxStudents ? 'input-error' : ''}`}
                     disabled={isSubmitting}
