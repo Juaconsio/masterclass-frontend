@@ -57,7 +57,17 @@ const authLinks = [
     </ul>
   </div>
 
-  <a data-navlink href="/ingresar" class="text-lg font-medium hidden lg:block"> Iniciar Sesión </a>
+  <!-- Botón Iniciar Sesión -->
+  <div class="flex-none">
+    <a
+      href="/ingresar"
+      aria-label="Iniciar Sesión"
+      class="btn btn-navbar btn-square lg:btn-ghost lg:btn-wide lg:px-2"
+    >
+      <Icon name="mdi:login" size={24} class="lg:hidden" />
+      <span class="hidden lg:inline text-lg font-medium">Iniciar Sesión</span>
+    </a>
+  </div>
 </nav>
 
 <!-- Drawer 1: Menú principal -->
