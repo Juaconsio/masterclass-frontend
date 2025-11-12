@@ -1,4 +1,5 @@
 import { Splide, SplideSlide, SplideTrack } from '@splidejs/react-splide';
+import { useEffect, useState } from 'react';
 import ReviewCard from './ReviewCard';
 
 interface Review {
@@ -18,11 +19,27 @@ interface ReviewsCarouselProps {
 }
 
 export default function ReviewsCarousel({ reviews }: ReviewsCarouselProps) {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const checkReducedMotion = () => {
+      setPrefersReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    };
+
+    checkReducedMotion();
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    mediaQuery.addEventListener('change', checkReducedMotion);
+
+    return () => {
+      mediaQuery.removeEventListener('change', checkReducedMotion);
+    };
+  }, []);
+
   const options = {
     type: 'loop' as const,
     gap: '1.5rem',
     arrows: true,
-    autoplay: true,
+    autoplay: !prefersReducedMotion,
     interval: 5000,
     pauseOnHover: true,
     resetProgress: false,

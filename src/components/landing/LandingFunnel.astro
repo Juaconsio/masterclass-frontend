@@ -87,21 +87,21 @@ const getUsalAnimation = (idx: number) => {
   <Stats />
 
   <!-- Featured Courses Section -->
-  <section id="courses" class="h-hero">
+  <section id="courses" class="py-12 lg:h-hero">
     <div class="container mx-auto px-4">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold mb-6">Revisa los cursos que enseñamos</h2>
-        <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
+      <div class="text-center mb-12 lg:mb-16">
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 lg:mb-6">Revisa los cursos que enseñamos</h2>
+        <p class="text-lg sm:text-xl text-base-content/70 max-w-3xl mx-auto">
           ¿No encuentras el que buscas? Contáctanos y veremos si podemos crearlo para ti.
         </p>
       </div>
 
-      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-8 lg:mb-12">
         {coursesToShow.map((course, index) => <CourseCard course={course} index={index} />)}
       </div>
 
       <div class="text-center">
-        <a href="/courses" class="btn btn-primary btn-lg"> Ver Todos los Cursos </a>
+        <a href="/courses" class="btn btn-primary btn-md lg:btn-lg"> Ver Todos los Cursos </a>
       </div>
     </div>
   </section>
@@ -148,11 +148,11 @@ const getUsalAnimation = (idx: number) => {
 
   <!-- Reviews Section -->
   <div class="bg-base-200">
-    <section id="reviews" class="pt-20 pb-20">
+    <section id="reviews" class="py-12 lg:pt-20 lg:pb-20">
       <div class="container mx-auto px-4">
-        <div class="text-center mb-16">
-          <h2 class="text-4xl md:text-5xl font-bold mb-6">Que te lo cuenten ellas y ellos</h2>
-          <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
+        <div class="text-center mb-12 lg:mb-16">
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 lg:mb-6">Que te lo cuenten ellas y ellos</h2>
+          <p class="text-lg sm:text-xl text-base-content/70 max-w-3xl mx-auto">
             Conoce la experiencia de quienes ya han confiado en nosotros.
           </p>
         </div>

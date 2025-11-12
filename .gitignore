@@ -24,3 +24,6 @@ pnpm-debug.log*
 .idea/
 
 .vercel
+
+# original unoptimized images (keep optimized versions only)
+public/images/*_original.*

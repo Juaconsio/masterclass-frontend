@@ -27,7 +27,7 @@ const getUsalAnimation = (idx: number | null) => {
 ---
 
 <div
-  class="card bg-base-100 shadow-xl hover:shadow-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2 course-card"
+  class="card bg-base-100 shadow-xl hover:shadow-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2 course-card h-full"
   data-department={course.data.department}
   data-level={course.data.level}
   data-acronym={course.data.acronym}
@@ -42,6 +42,8 @@ const getUsalAnimation = (idx: number | null) => {
           alt={course.data.title}
           class="h-40 w-full object-cover"
           loading="lazy"
+          width="400"
+          height="160"
         />
         {course.data.featured && (
           <div class="absolute top-4 right-4">
@@ -61,34 +63,34 @@ const getUsalAnimation = (idx: number | null) => {
     )
   }
 
-  <div class="card-body p-6 justify-between">
+  <div class="card-body p-4 lg:p-6 justify-between">
     <!-- Course Acronym and Title -->
-    <div class="mb-3">
+    <div class="mb-2 lg:mb-3">
       <div class="flex items-center gap-2 mb-2">
-        <div class="badge badge-ghost font-mono font-bold text-sm">
+        <div class="badge badge-ghost font-mono font-bold text-xs lg:text-sm">
           {course.data.acronym}
         </div>
         <div
-          class={`badge badge-soft ${LEVEL_COLORS[course.data.level]} font-mono font-bold text-sm`}
+          class={`badge badge-soft ${LEVEL_COLORS[course.data.level]} font-mono font-bold text-xs lg:text-sm`}
         >
           {course.data.level}
         </div>
       </div>
-      <div class="flex items-center justify-between mt-3 gap-2">
-        <h2 class="card-title text-2xl font-bold line-clamp-2">
+      <div class="flex items-center justify-between mt-2 lg:mt-3 gap-2">
+        <h2 class="card-title text-xl lg:text-2xl font-bold line-clamp-2">
           {course.data.title}
         </h2>
       </div>
     </div>
 
     <!-- Department and Level Badges -->
-    <div class="text-base-content/50">
+    <div class="text-base-content/50 text-sm lg:text-base">
       {DEPARTMENT_ICONS[course.data.department]}
       {course.data.department}
     </div>
 
     <!-- Course Description -->
-    <p class="text-base-content/50 text-sm line-clamp-3">
+    <p class="text-base-content/50 text-xs lg:text-sm line-clamp-3">
       {course.data.description}
     </p>
 
@@ -140,10 +142,10 @@ const getUsalAnimation = (idx: number | null) => {
     }
 
     <!-- Card Actions -->
-    <div class="card-actions justify-end pt-4 border-t border-base-300">
+    <div class="card-actions justify-end pt-3 lg:pt-4 border-t border-base-300">
       <a
         href={'/courses/' + course.slug}
-        class="btn btn-primary btn-block hover:btn-primary-focus transition-colors group"
+        class="btn btn-primary btn-sm lg:btn-md btn-block hover:btn-primary-focus transition-colors group"
       >
         Reservar
       </a>

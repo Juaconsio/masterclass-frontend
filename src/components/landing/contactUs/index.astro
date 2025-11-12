@@ -22,23 +22,29 @@ const contactData = [
 ];
 ---
 
-<section id="contact" class="h-hero mb-12">
-  <div class="justify-center flex h-full flex-col gap-10">
+<section id="contact" class="py-12 lg:h-hero mb-12">
+  <div class="justify-center flex h-full flex-col gap-10 px-4">
     <!-- Bento Grid Layout -->
     <div
-      class="h-full flex flex-wrap lg:grid lg:h-full lg:grid-cols-6 lg:[grid-template-rows:repeat(3,minmax(0,1fr))] gap-6 max-w-6xl mx-auto"
+      class="h-full flex flex-col lg:grid lg:h-full lg:grid-cols-6 lg:[grid-template-rows:repeat(3,minmax(0,1fr))] gap-4 lg:gap-6 max-w-6xl mx-auto w-full"
     >
       <!-- Card 1: Formas de Contacto -->
       <div
-        class="card card-sm gap-2 bg-white shadow-xl lg:col-span-6 lg:row-span-1 lg:h-full overflow-hidden"
+        class="card card-sm gap-2 bg-white shadow-xl lg:col-span-6 lg:row-span-1 lg:h-full overflow-hidden min-h-[200px] lg:min-h-0"
       >
         <div class="p-0 h-full min-h-0" data-usal="fade-r">
           <div class="relative h-full rounded-lg overflow-hidden">
-            <img
-              src="/images/image0.jpeg"
-              alt="Equipo SalvaRamos"
-              class="h-full w-full object-cover"
-            />
+            <picture>
+              <source srcset="/images/image0.webp" type="image/webp" />
+              <img
+                src="/images/image0.jpeg"
+                alt="Equipo SalvaRamos"
+                class="h-full w-full object-cover"
+                loading="lazy"
+                width="1080"
+                height="575"
+              />
+            </picture>
             <div
               class="absolute z-20 inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"
             >
@@ -55,7 +61,7 @@ const contactData = [
 
       <div
         data-usal="fade-r"
-        class="card bg-white shadow-xl lg:col-span-2 lg:row-span-2 lg:h-full min-h-0 flex flex-col gap-6 p-8 overflow-auto"
+        class="card bg-white shadow-xl lg:col-span-2 lg:row-span-2 lg:h-full min-h-[300px] lg:min-h-0 flex flex-col gap-6 p-6 lg:p-8 overflow-auto"
       >
         <h3 class="card-title text-primary">Nuestras Redes</h3>
         {
@@ -73,13 +79,16 @@ const contactData = [
       <!-- Card 2: QR Code -->
       <div
         data-usal="fade-l"
-        class="card bg-white shadow-xl lg:col-span-2 lg:row-span-2 lg:row-start-2 lg:col-start-5 lg:h-full overflow-hidden min-h-0"
+        class="card bg-white shadow-xl lg:col-span-2 lg:row-span-2 lg:row-start-2 lg:col-start-5 lg:h-full overflow-hidden min-h-[300px] lg:min-h-0"
       >
         <figure data-usal="fade-l" class="min-h-0 h-full">
           <img
             src="/images/WA_QRcode.png"
             alt="WhatsApp QR Code"
             class="w-full h-full rounded-lg shadow-md object-contain"
+            loading="lazy"
+            width="500"
+            height="500"
           />
         </figure>
         <div class="card-body items-center">
@@ -89,14 +98,20 @@ const contactData = [
 
       <div
         data-usal="fade-b"
-        class="bg-base-100 shadow-xl lg:col-span-2 lg:row-span-2 lg:col-start-3 lg:row-start-2 lg:h-full overflow-hidden min-h-0"
+        class="bg-base-100 shadow-xl lg:col-span-2 lg:row-span-2 lg:col-start-3 lg:row-start-2 lg:h-full overflow-hidden min-h-[250px] lg:min-h-0"
       >
         <div data-usal="fade-b" class="size-full flex justify-center items-center">
-          <img
-            src="images/LOGO_FONDO_AZUL.png"
-            alt="Logo SalvaRamos"
-            class="size-full object-cover rounded-lg"
-          />
+          <picture>
+            <source srcset="/images/LOGO_FONDO_AZUL.webp" type="image/webp" />
+            <img
+              src="/images/LOGO_FONDO_AZUL.png"
+              alt="Logo SalvaRamos"
+              class="size-full object-cover rounded-lg"
+              loading="lazy"
+              width="500"
+              height="500"
+            />
+          </picture>
         </div>
       </div>
     </div>

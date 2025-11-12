@@ -87,6 +87,27 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
+  /* Optimize animations for reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Optimize animations with will-change for smooth performance */
+  [data-usal] {
+    will-change: transform, opacity;
+  }
+
+  [data-usal].usal-animate-end {
+    will-change: auto;
+  }
 }
 
 [data-navlink].active {
