@@ -98,7 +98,7 @@ function Home() {
               </div>
 
               {/* Pagos */}
-              <div className="card border bg-green-500/5 shadow-xl transition-shadow hover:shadow-2xl">
+              {/* <div className="card border bg-green-500/5 shadow-xl transition-shadow hover:shadow-2xl">
                 <div className="card-body">
                   <div className="mb-3 flex items-center gap-3">
                     <div className="rounded-lg bg-green-500/10 p-3">
@@ -122,10 +122,10 @@ function Home() {
                     </button>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Profesores */}
-              <div className="card border bg-blue-500/5 shadow-xl transition-shadow hover:shadow-2xl">
+              {/* <div className="card border bg-blue-500/5 shadow-xl transition-shadow hover:shadow-2xl">
                 <div className="card-body">
                   <div className="mb-3 flex items-center gap-3">
                     <div className="bg-info/10 rounded-lg p-3">
@@ -149,10 +149,10 @@ function Home() {
                     </button>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Blog */}
-              <div className="card border bg-yellow-500/5 shadow-xl transition-shadow hover:shadow-2xl">
+              {/* <div className="card border bg-yellow-500/5 shadow-xl transition-shadow hover:shadow-2xl">
                 <div className="card-body">
                   <div className="mb-3 flex items-center gap-3">
                     <div className="bg-warning/10 rounded-lg p-3">
@@ -176,7 +176,7 @@ function Home() {
                     </button>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 

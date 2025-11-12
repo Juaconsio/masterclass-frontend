@@ -84,20 +84,6 @@ export default function AdminCourses() {
           setSelectedCourseId(course.id);
         },
       },
-      {
-        label: 'Editar',
-        variant: 'secondary',
-        onClick: (course) => {
-          // TODO: Implement edit action
-        },
-      },
-      {
-        label: 'Eliminar',
-        variant: 'danger',
-        onClick: (course) => {
-          // TODO: Implement delete action
-        },
-      },
     ],
     [setSelectedCourseId]
   );

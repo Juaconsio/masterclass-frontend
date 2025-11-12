@@ -42,7 +42,7 @@ const NavBar: React.FC = () => {
       return [
         { label: 'Dashboard', href: '/admin', icon: <LayoutDashboard className="h-5 w-5" /> },
         { label: 'Cursos', href: '/admin/cursos', icon: <BookOpen className="h-5 w-5" /> },
-        { label: 'Profesores', href: '/admin/profesores', icon: <User className="h-5 w-5" /> },
+        // { label: 'Profesores', href: '/admin/profesores', icon: <User className="h-5 w-5" /> },
         {
           label: 'Estudiantes',
           href: '/admin/estudiantes',
@@ -147,7 +147,7 @@ const NavBar: React.FC = () => {
 
       {/* Opciones adicionales */}
       <ul className="menu">
-        <li>
+        {/* <li>
           <Link
             to={isAdmin ? '/admin/profile' : '/app/profile'}
             onClick={closeDrawer}
@@ -156,7 +156,7 @@ const NavBar: React.FC = () => {
             <User className="h-4 w-4" />
             Mi Perfil
           </Link>
-        </li>
+        </li> */}
         {isAdmin && (
           <li>
             {isStudentView ? (
