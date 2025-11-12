@@ -37,7 +37,7 @@ const teacherData = [
 >
   <Navbar />
   <!-- Mission & Vision Section -->
-  <div class="my-16 container mx-auto pt-12 px-2 ">
+  <div class="my-12 lg:my-16 container mx-auto pt-12 px-4">
     <div class="relative overflow-hidden rounded-lg shadow-lg">
       <!-- Background image -->
       <div
@@ -51,19 +51,19 @@ const teacherData = [
 
       <!-- Content above overlay -->
       <div
-        class="container mx-auto px-4 py-8 relative z-10 grid lg:grid-cols-2 gap-16 items-center p-12 text-neutral bg-secondary/0"
+        class="container mx-auto px-4 py-8 lg:py-12 relative z-10 grid lg:grid-cols-2 gap-8 lg:gap-16 items-center text-neutral bg-secondary/0"
       >
         <div>
-          <h2 class="text-4xl md:text-3xl font-bold mb-8">Quienes somos</h2>
-          <p class="text-xl text-base-100/70 mb-8 leading-relaxed">
+          <h2 class="text-3xl sm:text-4xl lg:text-3xl font-bold mb-6 lg:mb-8">Quienes somos</h2>
+          <p class="text-lg sm:text-xl text-base-100/70 mb-6 lg:mb-8 leading-relaxed">
             Somos alumnos y ex-alumnos comprometidos a proporcionar las mejores herramientas y
             recursos para que los estudiantes logren sus metas y objetivos sin sacrificar su
             bienestar.
           </p>
         </div>
         <div>
-          <h2 class="text-4xl md:text-3xl font-bold mb-8">Nuestra Misión</h2>
-          <p class="text-xl text-base-100/70 mb-8 leading-relaxed">
+          <h2 class="text-3xl sm:text-4xl lg:text-3xl font-bold mb-6 lg:mb-8">Nuestra Misión</h2>
+          <p class="text-lg sm:text-xl text-base-100/70 mb-6 lg:mb-8 leading-relaxed">
             Nuestra misión es entregar las herramientas más efectivas y actualizadas con las que los
             estudiantes pueden dar vuelta los ramos y alcanzar el éxito.
           </p>
@@ -72,9 +72,9 @@ const teacherData = [
     </div>
   </div>
   { showTimeline &&
-  <div class="text-center h-hero px-2">
-    <h2 class="text-5xl font-bold text-primary mb-8">Nuestro equipo</h2>
-    <div class="container mx-auto flex flex-col justify-center lg:grid lg:grid-cols-3 gap-8">
+  <div class="text-center py-12 lg:h-hero px-4">
+    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary mb-8">Nuestro equipo</h2>
+    <div class="container mx-auto flex flex-col justify-center lg:grid lg:grid-cols-3 gap-6 lg:gap-8">
       {
         teacherData.map((member) => (
           <div class="shadow-xl lg:col-span-1">
@@ -83,11 +83,12 @@ const teacherData = [
                 <img
                   src={member.image}
                   alt={`Imagen de ${member.name}`}
-                  class="w-full h-[30rem]  object-cover"
+                  class="w-full h-[24rem] sm:h-[30rem] object-cover"
+                  loading="lazy"
                 />
                 <div class="absolute z-20 inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-                <div class="absolute z-30 bottom-0 left-0 right-0 p-6 text-white">
-                  <h3 class="text-xl text-left font-bold mb-2">
+                <div class="absolute z-30 bottom-0 left-0 right-0 p-4 lg:p-6 text-white">
+                  <h3 class="text-lg lg:text-xl text-left font-bold mb-2">
                     {member.name}
                     <br />
                     <span class="text-white/80">{member.role}</span>
@@ -103,31 +104,31 @@ const teacherData = [
   </div>
 
   <!-- Our Story Section -->
-  <section class="py-20 bg-base-300 px-2">
+  <section class="py-12 lg:py-20 bg-base-300 px-4">
     <div class="container mx-auto px-4">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold mb-6">Nuestra Historia</h2>
+      <div class="text-center mb-12 lg:mb-16">
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">Nuestra Historia</h2>
       </div>
       <Timeline />
     </div>
   </section>
 
   <!-- Values Section -->
-  <section class="py-20 px-2">
+  <section class="py-12 lg:py-20 px-4">
     <div class="container mx-auto px-4">
-      <div class="text-center mb-16">
-        <h2 class="text-4xl md:text-5xl font-bold mb-6">Nuestros Valores</h2>
-        <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
+      <div class="text-center mb-12 lg:mb-16">
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 lg:mb-6">Nuestros Valores</h2>
+        <p class="text-lg sm:text-xl text-base-content/70 max-w-3xl mx-auto">
           Los principios que guían todo lo que hacemos en SalvaRamos
         </p>
       </div>
 
-      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
         <div class="text-center">
           <div
-            class="bg-secondary p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center"
+            class="bg-secondary p-6 rounded-full w-20 h-20 lg:w-24 lg:h-24 mx-auto mb-4 lg:mb-6 flex items-center justify-center"
           >
-            <svg class="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-10 w-10 lg:h-12 lg:w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -135,8 +136,8 @@ const teacherData = [
                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
-          <h3 class="text-xl font-bold mb-4">Excelencia</h3>
-          <p class="text-base-content/70">
+          <h3 class="text-lg lg:text-xl font-bold mb-3 lg:mb-4">Excelencia</h3>
+          <p class="text-sm lg:text-base text-base-content/70">
             Nos esforzamos por la excelencia en cada curso, asegurando educación de la más alta
             calidad para nuestros estudiantes
           </p>
@@ -144,9 +145,9 @@ const teacherData = [
 
         <div class="text-center">
           <div
-            class="bg-secondary p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center"
+            class="bg-secondary p-6 rounded-full w-20 h-20 lg:w-24 lg:h-24 mx-auto mb-4 lg:mb-6 flex items-center justify-center"
           >
-            <svg class="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-10 w-10 lg:h-12 lg:w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -155,8 +156,8 @@ const teacherData = [
               ></path>
             </svg>
           </div>
-          <h3 class="text-xl font-bold mb-4">Comunidad</h3>
-          <p class="text-base-content/70">
+          <h3 class="text-lg lg:text-xl font-bold mb-3 lg:mb-4">Comunidad</h3>
+          <p class="text-sm lg:text-base text-base-content/70">
             Construyendo una comunidad de apoyo donde los estudiantes pueden crecer juntos y apoyar
             el éxito mutuo
           </p>
@@ -164,9 +165,9 @@ const teacherData = [
 
         <div class="text-center">
           <div
-            class="bg-secondary p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center"
+            class="bg-secondary p-6 rounded-full w-20 h-20 lg:w-24 lg:h-24 mx-auto mb-4 lg:mb-6 flex items-center justify-center"
           >
-            <svg class="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-10 w-10 lg:h-12 lg:w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -175,8 +176,8 @@ const teacherData = [
               ></path>
             </svg>
           </div>
-          <h3 class="text-xl font-bold mb-4">Innovación</h3>
-          <p class="text-base-content/70">
+          <h3 class="text-lg lg:text-xl font-bold mb-3 lg:mb-4">Innovación</h3>
+          <p class="text-sm lg:text-base text-base-content/70">
             Siempre buscando nuevas y mejores formas de enseñar para continuar entregando la mejor
             experiencia de aprendizaje posible.
           </p>
@@ -184,9 +185,9 @@ const teacherData = [
 
         <div class="text-center">
           <div
-            class="bg-secondary p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center"
+            class="bg-secondary p-6 rounded-full w-20 h-20 lg:w-24 lg:h-24 mx-auto mb-4 lg:mb-6 flex items-center justify-center"
           >
-            <svg class="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-10 w-10 lg:h-12 lg:w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -195,8 +196,8 @@ const teacherData = [
               ></path>
             </svg>
           </div>
-          <h3 class="text-xl font-bold mb-4">Pasión</h3>
-          <p class="text-base-content/70">
+          <h3 class="text-lg lg:text-xl font-bold mb-3 lg:mb-4">Pasión</h3>
+          <p class="text-sm lg:text-base text-base-content/70">
             Nuestra genuina pasión por la ingeniería y la educación nos impulsa a ofrecer
             experiencias de aprendizaje excepcionales
           </p>
@@ -206,16 +207,16 @@ const teacherData = [
   </section>
 }
   <!-- CTA Section -->
-  <div class="py-20 bg-primary text-primary-content">
+  <div class="py-12 lg:py-20 bg-primary text-primary-content">
     <div class="container mx-auto px-4 text-center">
-      <h2 class="text-4xl md:text-5xl font-bold mb-8">¿Listo para Comenzar tu Jornada?</h2>
-      <p class="text-xl mb-12 max-w-3xl mx-auto opacity-90">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 lg:mb-8">¿Listo para Comenzar tu Jornada?</h2>
+      <p class="text-lg sm:text-xl mb-8 lg:mb-12 max-w-3xl mx-auto opacity-90">
         Únete a miles de estudiantes que han transformado sus carreras de ingeniería con los cursos
         integrales y la instrucción experta de SalvaRamos
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="/courses" class="btn btn-secondary btn-lg"> Explorar Nuestros Cursos </a>
-        <a href="/#contact" class="btn btn-soft btn-lg"> Habla con nosotros </a>
+        <a href="/courses" class="btn btn-secondary btn-md lg:btn-lg"> Explorar Nuestros Cursos </a>
+        <a href="/#contact" class="btn btn-soft btn-md lg:btn-lg"> Habla con nosotros </a>
       </div>
     </div>
   </div>

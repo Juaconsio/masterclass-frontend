@@ -24,12 +24,12 @@ const sortedCourses = courses.sort((a, b) => {
   <Navbar />
   <!-- Hero Section -->
 
-  <div class="container mx-auto px-4 py-8 mt-16">
+  <div class="container mx-auto px-4 py-6 lg:py-8 mt-16">
     {
       courses.some((course) => course.data.featured) && (
         <div class="mb-4">
-          <div class="alert alert-accent shadow-lg">
-            <svg class="stroke-current shrink-0 w-6 h-6" fill="none" viewBox="0 0 24 24">
+          <div class="alert alert-accent shadow-lg text-sm lg:text-base">
+            <svg class="stroke-current shrink-0 w-5 h-5 lg:w-6 lg:h-6" fill="none" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -54,25 +54,25 @@ const sortedCourses = courses.sort((a, b) => {
     <div class="course-grid-container">
       <div
         id="course-grid"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6"
       >
         {sortedCourses.map((course) => <CourseCard course={course} />)}
       </div>
 
       <!-- Empty state -->
       <div id="empty-state" class="hidden text-center py-12">
-        <div class="text-6xl mb-4">📚</div>
-        <h3 class="text-2xl font-bold text-base-content mb-2">No se encontraron cursos</h3>
-        <p class="text-base-content/70 mb-6">Intenta ajustar los filtros para ver más cursos.</p>
-        <button id="clear-filters" class="btn btn-primary"> Limpiar Filtros </button>
+        <div class="text-5xl lg:text-6xl mb-4">📚</div>
+        <h3 class="text-xl lg:text-2xl font-bold text-base-content mb-2">No se encontraron cursos</h3>
+        <p class="text-base-content/70 mb-4 lg:mb-6 text-sm lg:text-base">Intenta ajustar los filtros para ver más cursos.</p>
+        <button id="clear-filters" class="btn btn-primary btn-sm lg:btn-md"> Limpiar Filtros </button>
       </div>
     </div>
 
-    <div role="alert" class="alert my-8 shadow-lg">
-      <Icon name="mdi:message-alert" size={32} class="text-secondary" />
+    <div role="alert" class="alert my-6 lg:my-8 shadow-lg text-sm lg:text-base">
+      <Icon name="mdi:message-alert" size={24} class="text-secondary lg:w-8 lg:h-8" />
       <span> ¿No encuentras el curso que necesitas?</span>
       <div>
-        <button class="btn btn-sm btn-secondary">Avisanos</button>
+        <button class="btn btn-xs lg:btn-sm btn-secondary">Avisanos</button>
       </div>
     </div>
   </div>
@@ -109,6 +109,13 @@ const sortedCourses = courses.sort((a, b) => {
     }
     .course-card:nth-child(4) {
       animation-delay: 0.4s;
+    }
+
+    /* Respect prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+      .course-card {
+        animation: none;
+      }
     }
   </style>
 </Layout>

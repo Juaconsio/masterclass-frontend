@@ -4,24 +4,27 @@ const year = new Date().getFullYear();
 ---
 
 <footer class="bg-neutral-content text-white">
-  <div class="container mx-auto px-4 py-12">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+  <div class="container mx-auto px-4 py-8 lg:py-12">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
       <!-- Brand / About -->
-      <div class="space-y-4">
-        <a href="/" class="inline-flex items-center gap-3">
-          <img src="/images/logo.svg" alt="SalvaRamos Logo" class="h-10 w-auto" loading="lazy" />
-          <span class="text-2xl font-bold text-primary">SalvaRamos</span>
+      <div class="space-y-3 lg:space-y-4">
+        <a href="/" class="inline-flex items-center gap-2 lg:gap-3">
+          <picture>
+            <source srcset="/images/logo.webp" type="image/webp" />
+            <img src="/images/logo.svg" alt="SalvaRamos Logo" class="h-8 lg:h-10 w-auto" loading="lazy" width="40" height="40" />
+          </picture>
+          <span class="text-xl lg:text-2xl font-bold text-primary">SalvaRamos</span>
         </a>
-        <p class="text-neutral/80">
+        <p class="text-neutral/80 text-sm lg:text-base">
           Empoderamos a la próxima generación de ingenieros con cursos claros, prácticos y
           acompañamiento cercano.
         </p>
       </div>
 
       <!-- Navegación -->
-      <nav aria-labelledby="footer-nav-title" class="space-y-4">
-        <h3 id="footer-nav-title" class="text-lg font-semibold">Navegación</h3>
-        <ul class="space-y-2">
+      <nav aria-labelledby="footer-nav-title" class="space-y-3 lg:space-y-4">
+        <h3 id="footer-nav-title" class="text-base lg:text-lg font-semibold">Navegación</h3>
+        <ul class="space-y-1 lg:space-y-2 text-sm lg:text-base">
           <li><a class="link link-hover" href="/">Inicio</a></li>
           <li><a class="link link-hover" href="/about">Sobre nosotros</a></li>
           <li><a class="link link-hover" href="/courses">Cursos</a></li>
@@ -31,9 +34,9 @@ const year = new Date().getFullYear();
       </nav>
 
       <!-- Contacto -->
-      <div aria-labelledby="footer-contact-title" class="space-y-4">
-        <h3 id="footer-contact-title" class="text-lg font-semibold">Contacto</h3>
-        <ul class="space-y-2 text-neutral/80">
+      <div aria-labelledby="footer-contact-title" class="space-y-3 lg:space-y-4">
+        <h3 id="footer-contact-title" class="text-base lg:text-lg font-semibold">Contacto</h3>
+        <ul class="space-y-1 lg:space-y-2 text-neutral/80 text-sm lg:text-base">
           <li>
             <a class="link link-hover" href="mailto:contacto@salvaramos.cl">salvaramos@gmail.com</a>
           </li>
@@ -57,29 +60,29 @@ const year = new Date().getFullYear();
       </div>
 
       <!-- Boletín (opcional) -->
-      <div class="space-y-4">
-        <h3 class="text-lg font-semibold">Mantente al día</h3>
-        <p class="text-neutral/80">Recibe novedades de cursos y fechas importantes.</p>
-        <form class="join max-w-sm">
+      <div class="space-y-3 lg:space-y-4">
+        <h3 class="text-base lg:text-lg font-semibold">Mantente al día</h3>
+        <p class="text-neutral/80 text-sm lg:text-base">Recibe novedades de cursos y fechas importantes.</p>
+        <form class="join max-w-sm flex-col sm:flex-row">
           <input
             type="email"
             required
             placeholder="Tu correo"
-            class="input input-bordered join-item w-full text-neutral-content"
+            class="input input-sm lg:input-md input-bordered join-item w-full text-neutral-content"
           />
-          <button class="btn btn-primary join-item" type="submit">Suscribirme</button>
+          <button class="btn btn-sm lg:btn-md btn-primary join-item mt-2 sm:mt-0" type="submit">Suscribirme</button>
         </form>
       </div>
     </div>
 
-    <div class="divider my-8"></div>
+    <div class="divider my-6 lg:my-8"></div>
 
     <!-- Legal / Credits -->
-    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-      <p class="text-sm text-base-content/60">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 lg:gap-4">
+      <p class="text-xs lg:text-sm text-base-content/60">
         © {year} SalvaRamos. Todos los derechos reservados.
       </p>
-      <!-- <p class="text-sm text-base-content/60">
+      <!-- <p class="text-xs lg:text-sm text-base-content/60">
         Powered by <a
           href="https://conejodev.com"
           class="link link-hover font-medium"
