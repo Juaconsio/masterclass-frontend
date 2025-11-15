@@ -1,8 +1,12 @@
 import Navbar from '../landing/Navbar';
 import Footer from '../landing/Footer';
+import CourseCard from '../landing/courses/CourseCard';
+import { getCourses } from '@/lib/content';
 import { Icon } from '@/lib/icons';
 
 export default function CoursesPage() {
+  const courses = getCourses();
+
   return (
     <div>
       <Navbar />
@@ -20,33 +24,34 @@ export default function CoursesPage() {
               </p>
             </div>
 
-            {/* Placeholder for courses - will be populated from backend API */}
-            <div className="bg-base-200 p-12 rounded-lg text-center">
-              <Icon name="mdi:book" size={64} className="mx-auto mb-4 text-primary" />
-              <h3 className="text-2xl font-bold mb-4">Cursos Disponibles</h3>
-              <p className="text-base-content/70 mb-6 max-w-2xl mx-auto">
-                Los cursos se cargarán desde el backend. Para ver los cursos disponibles, 
-                inicia sesión en la plataforma.
-              </p>
-              <div className="flex gap-4 justify-center flex-wrap">
-                <a href="/ingresar" className="btn btn-primary">
-                  Iniciar Sesión
-                </a>
-                <a href="/#contact" className="btn btn-outline">
-                  Contactar
-                </a>
+            {courses.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+                {courses.map((course, index) => (
+                  <CourseCard key={course.id} course={course} index={index} />
+                ))}
               </div>
-            </div>
+            ) : (
+              <div className="bg-base-200 p-12 rounded-lg text-center">
+                <Icon name="mdi:book" size={64} className="mx-auto mb-4 text-primary" />
+                <h3 className="text-2xl font-bold mb-4">Próximamente</h3>
+                <p className="text-base-content/70 mb-6 max-w-2xl mx-auto">
+                  Estamos preparando nuevos cursos para ti. Revisa pronto para ver las novedades.
+                </p>
+              </div>
+            )}
 
             <div className="mt-12 bg-primary/10 p-8 rounded-lg">
               <div className="flex items-start gap-4">
                 <Icon name="mdi:message-alert" size={32} className="text-primary shrink-0" />
                 <div>
                   <h3 className="text-xl font-bold mb-2">¿No encuentras tu curso?</h3>
-                  <p className="text-base-content/70">
+                  <p className="text-base-content/70 mb-4">
                     Contáctanos y veremos si podemos crearlo para ti. Estamos siempre expandiendo 
                     nuestra oferta de cursos según las necesidades de nuestros estudiantes.
                   </p>
+                  <a href="/#contact" className="btn btn-primary">
+                    Contactar
+                  </a>
                 </div>
               </div>
             </div>
