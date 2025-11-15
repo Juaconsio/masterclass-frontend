@@ -8,6 +8,9 @@ dist/
 src/content_backup/
 src/pages_backup/
 
+# generated data files (created from markdown at build time)
+src/data/*.json
+
 # dependencies
 node_modules/
 
