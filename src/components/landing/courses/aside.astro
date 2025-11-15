@@ -4,26 +4,26 @@ import type { Course } from '../../../content/config';
 const { course } = Astro.props as { course: Course };
 ---
 
-<div class="flex md:flex-col flex-row gap-6">
-  <div class="card w-xs md:w-full bg-primary text-primary-content shadow-xl">
-    <div class="card-body text-center">
-      <span class="text-xs inline-block">Agenda desde</span>
-      <h3 class="card-title justify-center text-2xl">
-        <div class="text-4xl font-bold mb-4">
+<div class="flex flex-col sm:flex-row md:flex-col gap-4 sm:gap-6">
+  <div class="card w-full sm:flex-1 md:w-full bg-primary text-primary-content shadow-xl">
+    <div class="card-body text-center p-4 sm:p-6">
+      <span class="text-xs sm:text-sm inline-block">Agenda desde</span>
+      <h3 class="card-title justify-center text-xl sm:text-2xl">
+        <div class="text-3xl sm:text-4xl font-bold mb-3 sm:mb-4">
           ${course.basePrice.toLocaleString('es-CL')} CLP
         </div>
       </h3>
 
-      <div class="text-sm opacity-90 mb-6">
+      <div class="text-xs sm:text-sm opacity-90 mb-4 sm:mb-6">
         * El precio puede variar según la modalidad y duración de las sesiones
       </div>
     </div>
   </div>
 
-  <div class="card bg-base-100 shadow-xl w-2xs h-fit md:w-full">
-    <div class="card-body">
-      <h3 class="card-title text-info">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <div class="card bg-base-100 shadow-xl w-full sm:flex-1 md:w-full h-fit">
+    <div class="card-body p-4 sm:p-6">
+      <h3 class="card-title text-info text-base sm:text-lg">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -33,12 +33,17 @@ const { course } = Astro.props as { course: Course };
         </svg>
         ¿Tienes Dudas?
       </h3>
-      <p class="text-sm text-base-content/70 mb-4">
+      <p class="text-xs sm:text-sm text-base-content/70 mb-3 sm:mb-4">
         Nuestros coordinadores académicos pueden ayudarte a elegir el tutor ideal para este curso.
       </p>
       <div class="card-actions">
-        <button class="btn btn-info btn-outline btn-sm btn-block">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button class="btn btn-info btn-outline btn-xs sm:btn-sm btn-block">
+          <svg
+            class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
