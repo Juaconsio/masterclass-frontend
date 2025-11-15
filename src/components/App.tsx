@@ -13,6 +13,8 @@ import Courses from './courses';
 import StudentCourseView from './StudentCourseView';
 import Checkout from '@components/checkOut';
 import { AdminDashboard, AdminCourses, AdminStudents, AdminPayments } from '@components/admin';
+import LandingPage from './landing/LandingPage';
+import { USALProvider } from '@usal/react';
 
 export default function Spa() {
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -43,13 +45,17 @@ export default function Spa() {
   return (
     <BrowserRouter>
       <SessionProvider>
-        <Routes>
-          {/* Rutas de autenticación */}
-          <Route element={<AuthLayout />}>
-            <Route path="/ingresar" element={<SignInForm />} />
-            <Route path="/registrar" element={<SignUpForm />} />
-            <Route path="/admin/ingresar" element={<AdminSignInForm />} />
-          </Route>
+        <USALProvider config={{ once: true }}>
+          <Routes>
+            {/* Landing page */}
+            <Route path="/" element={<LandingPage />} />
+
+            {/* Rutas de autenticación */}
+            <Route element={<AuthLayout />}>
+              <Route path="/ingresar" element={<SignInForm />} />
+              <Route path="/registrar" element={<SignUpForm />} />
+              <Route path="/admin/ingresar" element={<AdminSignInForm />} />
+            </Route>
 
           {/* Rutas protegidas */}
           <Route
@@ -90,9 +96,10 @@ export default function Spa() {
             <Route path="pagos" element={<AdminPayments />} />
           </Route>
 
-          {/* 404 */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </USALProvider>
       </SessionProvider>
     </BrowserRouter>
   );

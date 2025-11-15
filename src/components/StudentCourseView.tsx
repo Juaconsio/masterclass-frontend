@@ -137,7 +137,7 @@ const StudentCourseView: React.FC = () => {
                         <h3 className="card-title text-secondary flex items-start justify-between">
                           <span className="line-clamp-2">{cls.title}</span>
                           <span>
-                            {cls.slots?.some((slot) => slot.reservations?.length > 0)
+                            {cls.slots?.some((slot) => (slot.reservations?.length ?? 0) > 0)
                               ? 'Reservado'
                               : 'Pendiente'}
                           </span>
@@ -284,7 +284,7 @@ const StudentCourseView: React.FC = () => {
                                   <button
                                     className={clsx(
                                       'btn btn-sm',
-                                      isFull || slot.reservations?.length > 0
+                                      isFull || (slot.reservations?.length ?? 0) > 0
                                         ? 'btn-disabled'
                                         : 'btn-primary'
                                     )}
@@ -292,7 +292,7 @@ const StudentCourseView: React.FC = () => {
                                     disabled={
                                       reserveLoading === slot.id ||
                                       isFull ||
-                                      slot.reservations?.length > 0
+                                      (slot.reservations?.length ?? 0) > 0
                                     }
                                   >
                                     {reserveLoading === slot.id ? (

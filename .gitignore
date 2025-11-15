@@ -4,6 +4,10 @@ dist/
 # generated types
 .astro/
 
+# backup directories (migration from Astro)
+src/content_backup/
+src/pages_backup/
+
 # dependencies
 node_modules/
 
