@@ -21,39 +21,41 @@ export default function ReviewCard({ review }: ReviewCardProps) {
   };
 
   return (
-    <div className="card flex h-[400px] flex-col bg-white shadow-xl">
-      <div className="card-body flex flex-col">
+    <div className="card flex h-full min-h-[320px] flex-col bg-white shadow-xl sm:min-h-[360px] md:h-[400px]">
+      <div className="card-body flex flex-col p-4 sm:p-5 md:p-6">
         {/* Review Text */}
-        <p className="text-base-content/80 mb-6 line-clamp-4 flex-grow text-lg leading-relaxed">
+        <p className="text-base-content/80 mb-4 line-clamp-4 flex-grow text-sm leading-relaxed sm:mb-6 sm:text-base md:text-lg">
           "{review.comment}"
         </p>
 
         {/* Course Badge */}
-        <div className="mb-4">
-          <div className="badge badge-accent badge-sm">{review.course}</div>
+        <div className="mb-3 sm:mb-4">
+          <div className="badge badge-accent badge-xs sm:badge-sm text-xs">{review.course}</div>
         </div>
 
         {/* Reviewer Info */}
-        <div className="mt-auto flex items-center gap-3">
-          <div className="avatar avatar-placeholder">
+        <div className="mt-auto flex items-center gap-2 sm:gap-3">
+          <div className="avatar avatar-placeholder shrink-0">
             {review.image ? (
-              <div className="h-12 w-12 rounded-full">
+              <div className="h-10 w-10 rounded-full sm:h-12 sm:w-12">
                 <img src={review.image} alt={review.name} />
               </div>
             ) : (
-              <div className="bg-primary text-primary-content flex h-12 w-12 items-center justify-center rounded-full">
-                <span className="text-lg font-bold">{getInitials(review.name)}</span>
+              <div className="bg-primary text-primary-content flex h-10 w-10 items-center justify-center rounded-full sm:h-12 sm:w-12">
+                <span className="text-base font-bold sm:text-lg">{getInitials(review.name)}</span>
               </div>
             )}
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h4 className="font-semibold">{review.name}</h4>
-              {review.date && <span className="text-base-content/60 text-xs">• {review.date}</span>}
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+              <h4 className="truncate text-sm font-semibold sm:text-base">{review.name}</h4>
+              {review.date && (
+                <span className="text-base-content/60 shrink-0 text-xs">• {review.date}</span>
+              )}
             </div>
-            <p className="text-base-content/70 text-sm">
+            <p className="text-base-content/70 truncate text-xs sm:text-sm">
               {review.profile}
-              {review.studies && <span> • {review.studies}</span>}
+              {review.studies && <span className="hidden sm:inline"> • {review.studies}</span>}
             </p>
           </div>
         </div>
