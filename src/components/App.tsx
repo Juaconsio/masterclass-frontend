@@ -14,6 +14,8 @@ import StudentCourseView from './StudentCourseView';
 import Checkout from '@components/checkOut';
 import { AdminDashboard, AdminCourses, AdminStudents, AdminPayments } from '@components/admin';
 import LandingPage from './landing/LandingPage';
+import AboutPage from './pages/AboutPage';
+import CoursesPage from './pages/CoursesPage';
 import { USALProvider } from '@usal/react';
 
 export default function Spa() {
@@ -47,8 +49,10 @@ export default function Spa() {
       <SessionProvider>
         <USALProvider config={{ once: true }}>
           <Routes>
-            {/* Landing page */}
+            {/* Landing pages */}
             <Route path="/" element={<LandingPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/courses" element={<CoursesPage />} />
 
             {/* Rutas de autenticación */}
             <Route element={<AuthLayout />}>

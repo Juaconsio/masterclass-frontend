@@ -88,6 +88,10 @@
   height: 4.5rem;
 }
 
+@utility pt-navbar {
+  padding-top: 4.5rem;
+}
+
 @utility h-hero {
   min-height: max(24rem, calc(var(--app-dvh) - 4rem)); /* Nunca menos de 24rem */
   margin-top: 4rem;
