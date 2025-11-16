@@ -24,11 +24,11 @@ const relatedCourses = allCourses
 ---
 
 <Layout title={`${course.data.acronym} - ${course.data.title}`}>
-  <main class="min-h-screen bg-base-100 flex flex-col">
+  <div>
     <NavBar />
-    <div class="flex-grow pt-16 flex flex-col">
+    <section class="h-hero h-fit flex flex-col">
       <!-- Breadcrumbs -->
-      <div class="breadcrumbs text-sm container mx-auto px-4 pt-4">
+      <div class="breadcrumbs text-sm">
         <ul>
           <li><a href="/" class="link link-hover">Inicio</a></li>
           <li><a href="/courses" class="link link-hover">Cursos</a></li>
@@ -44,7 +44,7 @@ const relatedCourses = allCourses
         </ul>
       </div>
 
-      <div class="order-2 mx-auto min-h-screen h-full flex gap-10">
+      <div class="order-2 h-full flex gap-10">
         <div class="flex flex-col md:basis-7/10 overflow-y-auto mx-10">
           <div class="basis-4/10">
             <Header course={course.data} />
@@ -162,8 +162,8 @@ const relatedCourses = allCourses
           <Aside course={course.data} />
         </div>
       </div>
-    </div>
-  </main>
+    </section>
+  </div>
 </Layout>
 
 <style>

@@ -19,10 +19,9 @@ function Home() {
     };
 
     checkPendingReservation();
-    // Optional: listen for storage changes
     window.addEventListener('storage', checkPendingReservation);
     return () => window.removeEventListener('storage', checkPendingReservation);
-  }, []);
+  }, [localStorage]);
 
   const ShowSoonDialog = () => {
     alert('¡Próximamente! Esta funcionalidad estará disponible en futuras actualizaciones.');

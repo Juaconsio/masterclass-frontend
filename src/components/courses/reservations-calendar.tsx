@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, CalendarIcon, Clock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CalendarIcon } from 'lucide-react';
+import { SlotInfo } from '../slots';
+import type { IEvent } from '@/interfaces/events/IEvent';
 
 type ReservationsCalendarProps = {
   reservationsByDate?: Record<string, any[]>;
@@ -115,65 +117,49 @@ export function ReservationsCalendar({
             {selectedReservations?.map((reservation: any) => {
               const slot =
                 reservation.slot || propSlots?.find((s: any) => s.id === reservation.slotId);
-              const course =
-                propCourses?.find((c: any) => c.id === slot?.classId || c.id === slot?.courseId) ||
-                propCourses?.find((c: any) => c.id === reservation.courseId) ||
-                null;
-              const classData = propClasses?.find((cl: any) => cl.id === slot?.classId) || null;
-              const courseTitle = course?.title || reservation.course || 'Untitled course';
-              const classTitle = classData?.title || reservation.classTitle || '';
-              const instructor = slot.professor?.id;
 
-              let timeLabel = reservation.time || '';
-              if (slot?.startTime) {
-                try {
-                  const start = new Date(slot.startTime);
-                  const end = slot.endTime ? new Date(slot.endTime) : null;
-                  timeLabel = `${start.toLocaleDateString()} ${start.toLocaleTimeString()}${end ? ' - ' + end.toLocaleTimeString() : ''}`;
-                } catch (e) {
-                  // keep reservation.time
-                }
-              }
+              if (!slot) return null;
 
-              const modality = slot?.modality || reservation.modality || reservation.type || '—';
-              const status = slot?.status || reservation.status || 'scheduled';
+              // Construir el evento con la estructura IEvent
+              const event: IEvent = {
+                ...slot,
+                id: slot.id,
+                classId: slot.classId,
+                professorId: slot.professorId,
+                startTime: slot.startTime,
+                endTime: slot.endTime,
+                modality: slot.modality || 'onsite',
+                studentsGroup: slot.studentsGroup || 'group',
+                status: slot.status || reservation.status || 'scheduled',
+                location: slot.location,
+                maxStudents: slot.maxStudents,
+                minStudents: slot.minStudents,
+                reservations: slot.reservations || [],
+                class: slot.class || propClasses?.find((cl: any) => cl.id === slot.classId),
+                professor: slot.professor,
+              };
 
               return (
-                <div key={reservation.id} className="card border bg-white p-3 shadow-sm">
-                  <div className="mb-2 flex items-start justify-between">
-                    <div className="flex-1">
-                      <h4 className="text-base-content mb-0.5 text-sm font-semibold">
-                        {courseTitle}
-                      </h4>
-                      {classTitle && (
-                        <div className="text-base-content/70 text-xs">Clase: {classTitle}</div>
+                <SlotInfo
+                  key={reservation.id}
+                  event={event}
+                  variant="detailed"
+                  action={
+                    <div className="flex gap-2">
+                      {event.class && (
+                        <a href={`#`} className="btn btn-primary btn-sm">
+                          Ver clase
+                        </a>
                       )}
-                      <p className="text-base-content/70 text-xs">Profesor: {instructor}</p>
-                    </div>
-                    <span className="badge badge-outline badge-sm">{modality}</span>
-                  </div>
-                  <div className="text-base-content/70 mb-1 flex items-center gap-2 text-xs">
-                    <Clock className="h-4 w-4" />
-                    <span>{timeLabel}</span>
-                  </div>
-                  <div className="text-base-content/70 text-xs">Status: {status}</div>
-                  <div className="mt-2 flex gap-1">
-                    {classData && (
-                      <a
-                        href={`/dashboard/session/${classData.id}`}
-                        className="btn btn-sm btn-primary"
+                      <button
+                        className="btn btn-error btn-sm"
+                        onClick={() => onDeleteReservation?.(reservation.id)}
                       >
-                        Go to class
-                      </a>
-                    )}
-                    <button
-                      className="btn btn-sm btn-error"
-                      onClick={() => onDeleteReservation?.(reservation.id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
+                        Eliminar
+                      </button>
+                    </div>
+                  }
+                />
               );
             })}
           </div>

@@ -1,21 +1,13 @@
 import { useState, useEffect } from 'react';
-import { httpClient } from '@/client/config';
-
-interface Slot {
-  id: number;
-  classId: number;
-  professorId: number;
-  startTime: string;
-  endTime: string;
-  modality: string;
-  status: string;
-  minStudents: number;
-  maxStudents: number;
-}
+import { getSlotsByCourseAcronym } from '@/client/courses';
+import { SlotInfo } from '@components/slots';
+import type { IEvent } from '@interfaces/events/IEvent';
+import type { SlotModality, SlotStatus } from '@interfaces/enums';
+import type { ISlot } from '@interfaces/models';
 
 interface ClassWithSlots {
   title: string;
-  slots: Slot[];
+  slots: ISlot[];
 }
 
 interface CourseSessionCalendarProps {
@@ -26,42 +18,13 @@ export default function CourseSessionCalendar({ courseAcronym }: CourseSessionCa
   const [classesData, setClassesData] = useState<ClassWithSlots[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
-
-  const getSlots = async (acronym: string) => {
-    try {
-      // Fetch all slots
-      const response = await httpClient.get(`/courses/${acronym}/slots`);
-      const course = response.data;
-      const now = new Date().toISOString();
-      const filteredSlots = course.classes.map((cls: any) => {
-        const slots = cls.slots
-          .flat()
-          .filter((slot: Slot) => slot && slot.startTime >= now)
-          .sort(
-            (a: Slot, b: Slot) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
-          );
-        return { title: cls.title, slots };
-      });
-
-      return new Response(JSON.stringify({ slots: filteredSlots }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    } catch (error) {
-      return new Response(JSON.stringify({ error: 'Failed to fetch sessions' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-  };
+  const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
     async function fetchSlots() {
       try {
-        const response = await getSlots(courseAcronym);
-        const data = await response.json();
-        setClassesData(data.slots);
+        const data = await getSlotsByCourseAcronym(courseAcronym);
+        setClassesData(data.classes);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error loading slots');
       } finally {
@@ -70,32 +33,14 @@ export default function CourseSessionCalendar({ courseAcronym }: CourseSessionCa
     }
 
     fetchSlots();
-  }, []);
+  }, [courseAcronym]);
 
   const handleSelectSlot = (slotId: number) => {
     window.location.href = `/checkout?courseAcronym=${courseAcronym}&slotId=${slotId}`;
   };
 
-  // Aplanar todos los slots de todas las clases
-  const allSlots = classesData.flatMap((classData) =>
-    classData.slots.map((slot) => ({ ...slot, classTitle: classData.title }))
-  );
-
-  const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return {
-      date: date.toLocaleDateString('es-CL', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }),
-      time: date.toLocaleTimeString('es-CL', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
-    };
-  };
+  // Filtrar solo las clases que tienen slots
+  const classesWithSlots = classesData.filter((classData) => classData.slots.length > 0);
 
   if (loading) {
     return (
@@ -136,7 +81,7 @@ export default function CourseSessionCalendar({ courseAcronym }: CourseSessionCa
     );
   }
 
-  if (allSlots.length === 0) {
+  if (classesWithSlots.length === 0) {
     return (
       <div className="card bg-white shadow-xl">
         <div className="card-body">
@@ -177,59 +122,74 @@ export default function CourseSessionCalendar({ courseAcronym }: CourseSessionCa
           Próximas Sesiones
         </h3>
 
-        <div className="mt-4 space-y-3">
-          {allSlots.map((slot) => {
-            const start = formatDateTime(slot.startTime);
-            const end = formatDateTime(slot.endTime);
-            // TODO: Calcular cupos disponibles
-            const availableSpots = slot.maxStudents - slot.minStudents;
-
-            return (
-              <div
-                key={slot.id}
-                className={`card bg-base-200 hover:bg-base-300 cursor-pointer transition-colors ${
-                  selectedSlot === slot.id ? 'ring-primary ring-2' : ''
-                }`}
-                onClick={() => setSelectedSlot(slot.id)}
-              >
-                <div className="card-body p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <p className="text-primary mb-1 text-sm font-semibold">{slot.classTitle}</p>
-                      <p className="text-base-content font-medium">{start.date}</p>
-                      <p className="text-base-content/70 text-sm">
-                        {start.time} - {end.time}
-                      </p>
-                      <p className="text-base-content/70 mt-1 text-sm">
-                        Modalidad: {slot.modality}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <div
-                        className={`badge ${availableSpots > 5 ? 'badge-success' : availableSpots > 0 ? 'badge-warning' : 'badge-error'}`}
-                      >
-                        {availableSpots > 0 ? `${availableSpots} cupos` : 'Lleno'}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="card-actions mt-4 justify-end">
-                    <button onClick={() => handleSelectSlot(slot.id)} className="btn btn-primary">
-                      Inscribirse en esta sesión
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+        {/* Tabs de DaisyUI */}
+        <div role="tablist" className="tabs tabs-boxed mt-2">
+          {classesWithSlots.map((classData, index) => (
+            <button
+              key={index}
+              role="tab"
+              className={`tab ${activeTab === index ? 'tab-active' : ''}`}
+              onClick={() => setActiveTab(index)}
+            >
+              {classData.title}
+            </button>
+          ))}
         </div>
 
-        {selectedSlot && (
-          <div className="card-actions mt-4 justify-end">
-            <button onClick={() => handleSelectSlot(selectedSlot)} className="btn btn-primary">
-              Inscribirse en esta sesión
-            </button>
-          </div>
-        )}
+        {/* Contenido de los tabs */}
+        <div className="mt-4">
+          {classesWithSlots.map((classData, index) => (
+            <div key={index} className={`space-y-3 ${activeTab === index ? '' : 'hidden'}`}>
+              {classData.slots.map((slot) => {
+                // Convertir slot a IEvent para SlotInfo
+                const event: IEvent = {
+                  id: slot.id,
+                  classId: slot.classId,
+                  professorId: slot.professorId,
+                  professor: slot.professor,
+                  startTime: slot.startTime,
+                  endTime: slot.endTime,
+                  modality: slot.modality as SlotModality,
+                  status: slot.status as SlotStatus,
+                  studentsGroup: 'group' as const,
+                  minStudents: slot.minStudents,
+                  maxStudents: slot.maxStudents,
+                  class: {
+                    id: slot.classId,
+                    title: classData.title,
+                    courseId: 0,
+                    description: '',
+                    orderIndex: 0,
+                    basePrice: 0,
+                  },
+                  reservations: [],
+                };
+
+                return (
+                  <div key={slot.id} className="relative">
+                    <SlotInfo
+                      event={event}
+                      variant="detailed"
+                      action={
+                        <div className="mt-2 flex justify-end">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectSlot(slot.id);
+                            }}
+                            className="btn btn-primary btn-sm"
+                          >
+                            Inscribirse en esta sesión
+                          </button>
+                        </div>
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
