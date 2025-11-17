@@ -64,27 +64,6 @@ export default function CalendarTemplate() {
     setSelectedEvent(updatedEvent);
   }
 
-  async function handleDelete(id: number) {
-    // optimistic remove
-    const previous = events;
-    setEvents((evs) => evs.filter((e) => e.id !== id));
-    setShowEventDetailsModal(false);
-    setSelectedEvent(null);
-    try {
-      await deleteSlot(id);
-    } catch (err) {
-      console.error('Failed to delete slot', err);
-      // revert by refetching slots
-      try {
-        const res = await fetchSlots();
-        setEvents(res || []);
-      } catch (e) {
-        // if refetch fails, restore previous state as last resort
-        setEvents(previous);
-      }
-    }
-  }
-
   async function handleCreate(newEventPayload?: EventCreatePayload) {
     const createdEvent = await createSlot(newEventPayload);
     setShowNewEventModal(false);
@@ -125,7 +104,6 @@ export default function CalendarTemplate() {
           open={showEventDetailsModal}
           onClose={() => setShowEventDetailsModal(false)}
           handleEdit={handleEdit}
-          handleDelete={handleDelete}
         />
 
         <NewEventModal
