@@ -81,7 +81,9 @@ export default function SignUpForm() {
     try {
       const { ok } = await registerUser(data);
       if (ok) {
-        window.location.href = '/ingresar';
+        // After successful registration, redirect to a page that tells the user
+        // to check their email for a confirmation link.
+        window.location.href = '/check-email';
       } else {
         setFeedback('  incorrectas o error de servidor.');
       }
