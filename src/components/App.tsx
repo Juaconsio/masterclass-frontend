@@ -11,6 +11,7 @@ import { NotFound, AccessDenied } from '@components/UI';
 import Home from './home';
 import Courses from './courses';
 import StudentCourseView from './StudentCourseView';
+import Reservations from './reservations';
 import Checkout from '@components/checkOut';
 import { AdminDashboard, AdminCourses, AdminStudents, AdminPayments } from '@components/admin';
 
@@ -61,6 +62,7 @@ export default function Spa() {
             }
           >
             <Route index element={<Home />} />
+            <Route path="reservas" element={<Reservations />} />
             <Route path="cursos">
               <Route index element={<Courses />} />
               <Route path=":courseId" element={<StudentCourseView />} />

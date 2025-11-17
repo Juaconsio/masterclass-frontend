@@ -55,6 +55,7 @@ const NavBar: React.FC = () => {
       return [
         { label: 'Inicio', href: '/app', icon: <Home className="h-5 w-5" /> },
         { label: 'Cursos', href: '/app/cursos', icon: <BookOpen className="h-5 w-5" /> },
+        { label: 'Reservas', href: '/app/reservas', icon: <Calendar className="h-5 w-5" /> },
       ];
     }
   }, [isAdmin]);

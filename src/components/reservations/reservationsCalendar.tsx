@@ -3,28 +3,22 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, CalendarIcon } from 'lucide-react';
 import { SlotInfo } from '../slots';
-import type { IEvent } from '@/interfaces/events/IEvent';
+import type { IEvent, IReservation } from '@/interfaces';
 
 type ReservationsCalendarProps = {
-  reservationsByDate?: Record<string, any[]>;
-  slots?: any[];
-  classes?: any[];
-  courses?: any[];
+  reservations: IReservation[];
   onDeleteReservation?: (id: number) => void | Promise<void>;
+  deletingId?: number | null;
 };
 
 export function ReservationsCalendar({
-  reservationsByDate: propReservationsByDate,
-  slots: propSlots,
-  classes: propClasses,
-  courses: propCourses,
+  reservations,
   onDeleteReservation,
+  deletingId,
 }: ReservationsCalendarProps) {
   console.log('ReservationsCalendar render');
-  console.log('propReservationsByDate:', propReservationsByDate);
-  console.log('propSlots:', propSlots);
-  console.log('propClasses:', propClasses);
-  console.log('propCourses:', propCourses);
+  console.log('reservations:', reservations);
+
   const [currentDate, setCurrentDate] = useState(() => {
     const now = new Date();
     // start at the first day of the current month
@@ -73,12 +67,23 @@ export function ReservationsCalendar({
     setSelectedDate(dateStr);
   };
 
-  const reservationsMap: Record<string, any[]> =
-    (propReservationsByDate as Record<string, any[]>) || {};
+  const reservationsByDate: Record<string, any[]> = {};
+  for (const r of reservations) {
+    const start = r.slot?.startTime ? new Date(r.slot.startTime) : null;
+    const dateKey = start
+      ? `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(
+          start.getDate()
+        ).padStart(2, '0')}`
+      : null;
+    if (dateKey) {
+      reservationsByDate[dateKey] = reservationsByDate[dateKey] || [];
+      reservationsByDate[dateKey].push(r);
+    }
+  }
 
   const hasReservation = (day: number) => {
     const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return reservationsMap[dateStr];
+    return reservationsByDate[dateStr];
   };
 
   const isSelectedDay = (day: number) => {
@@ -86,7 +91,7 @@ export function ReservationsCalendar({
     return selectedDate === dateStr;
   };
 
-  const selectedReservations: any[] = selectedDate ? reservationsMap[selectedDate] || [] : [];
+  const selectedReservations: any[] = selectedDate ? reservationsByDate[selectedDate] || [] : [];
 
   const renderReservationDetails = () => {
     if (!selectedDate) return null;
@@ -115,8 +120,7 @@ export function ReservationsCalendar({
             )}
 
             {selectedReservations?.map((reservation: any) => {
-              const slot =
-                reservation.slot || propSlots?.find((s: any) => s.id === reservation.slotId);
+              const slot = reservation.slot;
 
               if (!slot) return null;
 
@@ -135,9 +139,11 @@ export function ReservationsCalendar({
                 maxStudents: slot.maxStudents,
                 minStudents: slot.minStudents,
                 reservations: slot.reservations || [],
-                class: slot.class || propClasses?.find((cl: any) => cl.id === slot.classId),
+                class: slot.class,
                 professor: slot.professor,
               };
+
+              const isDeleting = deletingId === reservation.id;
 
               return (
                 <SlotInfo
@@ -154,8 +160,16 @@ export function ReservationsCalendar({
                       <button
                         className="btn btn-error btn-sm"
                         onClick={() => onDeleteReservation?.(reservation.id)}
+                        disabled={isDeleting}
                       >
-                        Eliminar
+                        {isDeleting ? (
+                          <>
+                            <span className="loading loading-spinner loading-xs"></span>
+                            Eliminando...
+                          </>
+                        ) : (
+                          'Eliminar'
+                        )}
                       </button>
                     </div>
                   }
