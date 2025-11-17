@@ -6,35 +6,47 @@ const { course } = Astro.props as { course: Course };
 ---
 
 <section class="hero rounded-lg">
-  <div class="hero-content justify-start w-full">
+  <div
+    class="hero-content justify-start w-full flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 p-4 sm:p-6"
+  >
     {
       course.image && (
-        <div class="avatar ">
-          <div class="w-32 rounded-xl ring ring-primary ring-offset-base-100 ring-offset-2">
+        <div class="avatar shrink-0">
+          <div class="w-20 sm:w-24 md:w-32 rounded-xl ring ring-primary ring-offset-base-100 ring-offset-2">
             <img src={course.image} alt={course.title} />
           </div>
         </div>
       )
     }
-    <div class="flex flex-col gap-1 max-w-4xl text-left">
-      <div class="flex flex-wrap justify-start gap-3">
-        <div class="badge badge-ghost badge-lg font-mono font-bold text-lg mb-2">
+    <div class="flex flex-col gap-2 sm:gap-3 max-w-4xl text-left w-full">
+      <div class="flex flex-wrap justify-start gap-2 sm:gap-3">
+        <div
+          class="badge badge-ghost badge-md sm:badge-lg font-mono font-bold text-sm sm:text-base md:text-lg"
+        >
           {course.acronym}
         </div>
 
-        <div class={`badge ${LEVEL_COLORS[course.level]} badge-lg text-base px-4 py-3`}>
+        <div
+          class={`badge ${LEVEL_COLORS[course.level]} badge-md sm:badge-lg text-xs sm:text-sm md:text-base px-3 sm:px-4 py-2 sm:py-3`}
+        >
           {course.level}
         </div>
-        <div class={`badge ${DEPARTMENT_COLORS[course.department]} badge-lg text-base px-4 py-3`}>
+        <div
+          class={`badge ${DEPARTMENT_COLORS[course.department]} badge-md sm:badge-lg text-xs sm:text-sm md:text-base px-3 sm:px-4 py-2 sm:py-3`}
+        >
           {DEPARTMENT_ICONS[course.department]}
-          {course.department}
+          <span class="ml-1">{course.department}</span>
         </div>
-        {course.featured && <div class="badge badge-warning badge-lg ml-2">⭐ Curso Destacado</div>}
+        {
+          course.featured && (
+            <div class="badge badge-warning badge-md sm:badge-lg">⭐ Curso Destacado</div>
+          )
+        }
       </div>
 
-      <h1 class="text-4xl md:text-5xl font-bold">{course.title}</h1>
+      <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">{course.title}</h1>
 
-      <p class="text-xl text-base-content/50 max-w-2xl px-2">
+      <p class="text-base sm:text-lg md:text-xl text-base-content/50 max-w-2xl px-0 sm:px-2">
         {course.description}
       </p>
     </div>

@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import Greetings from './Greetings';
 import PendingReservationBanner from '../reservations/PendingReservationBanner';
 import type { PendingReservationBannerRef } from '../reservations/PendingReservationBanner';
-import { BookOpen, CreditCard, Users, BookMarked, AlertCircle } from 'lucide-react';
+import { BookOpen, Calendar, Users, BookMarked, AlertCircle } from 'lucide-react';
 import { useRef, useEffect, useState } from 'react';
 
 function Home() {
@@ -19,10 +19,9 @@ function Home() {
     };
 
     checkPendingReservation();
-    // Optional: listen for storage changes
     window.addEventListener('storage', checkPendingReservation);
     return () => window.removeEventListener('storage', checkPendingReservation);
-  }, []);
+  }, [localStorage]);
 
   const ShowSoonDialog = () => {
     alert('¡Próximamente! Esta funcionalidad estará disponible en futuras actualizaciones.');
@@ -86,12 +85,38 @@ function Home() {
                   <div className="divider my-2"></div>
                   <ul className="text-base-content/60 mb-3 space-y-1 text-xs">
                     <li>• Catálogo completo de cursos</li>
-                    <li>• Materiales descargables</li>
-                    <li>• Seguimiento de progreso</li>
+                    {/* <li>• Materiales descargables</li> */}
+                    {/* <li>• Seguimiento de progreso</li> */}
                   </ul>
                   <div className="card-actions justify-end">
                     <Link to="cursos" className="btn btn-secondary btn-sm">
                       Ver Cursos
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* Reservas */}
+              <div className="card border bg-green-500/5 shadow-xl transition-shadow hover:shadow-2xl">
+                <div className="card-body">
+                  <div className="mb-3 flex items-center gap-3">
+                    <div className="bg-secondary/10 rounded-lg p-3">
+                      <Calendar className="text-secondary h-6 w-6" />
+                    </div>
+                    <h2 className="card-title">Reservas</h2>
+                  </div>
+                  <p className="text-base-content/70 text-sm">
+                    Revisa y gestiona tus reservas de clases. Asiste a las sesiones que necesitas
+                    para avanzar en tu aprendizaje.
+                  </p>
+                  <div className="divider my-2"></div>
+                  <ul className="text-base-content/60 mb-3 space-y-1 text-xs">
+                    <li>• Calendario de reservas</li>
+                    <li>• Gestion de pagos</li>
+                  </ul>
+                  <div className="card-actions justify-end">
+                    <Link to="reservas" className="btn btn-secondary btn-sm">
+                      Ver Reservas
                     </Link>
                   </div>
                 </div>

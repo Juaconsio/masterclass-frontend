@@ -4,6 +4,7 @@ export { useAuth } from './useAuth';
 export { useIsMobile } from './useIsMobile';
 export { useTableData } from './useTableData';
 export { useLocalFilter } from './useLocalFilter';
+export { useConfirmAction } from './useConfirmAction';
 
 // Re-export types
 export type { TableFilters, UseTableDataOptions, UseTableDataReturn } from './useTableData';

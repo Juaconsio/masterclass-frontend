@@ -1,28 +1,24 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, CalendarIcon, Clock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CalendarIcon } from 'lucide-react';
+import { SlotInfo } from '../slots';
+import type { IEvent, IReservation } from '@/interfaces';
 
 type ReservationsCalendarProps = {
-  reservationsByDate?: Record<string, any[]>;
-  slots?: any[];
-  classes?: any[];
-  courses?: any[];
+  reservations: IReservation[];
   onDeleteReservation?: (id: number) => void | Promise<void>;
+  deletingId?: number | null;
 };
 
 export function ReservationsCalendar({
-  reservationsByDate: propReservationsByDate,
-  slots: propSlots,
-  classes: propClasses,
-  courses: propCourses,
+  reservations,
   onDeleteReservation,
+  deletingId,
 }: ReservationsCalendarProps) {
   console.log('ReservationsCalendar render');
-  console.log('propReservationsByDate:', propReservationsByDate);
-  console.log('propSlots:', propSlots);
-  console.log('propClasses:', propClasses);
-  console.log('propCourses:', propCourses);
+  console.log('reservations:', reservations);
+
   const [currentDate, setCurrentDate] = useState(() => {
     const now = new Date();
     // start at the first day of the current month
@@ -71,12 +67,23 @@ export function ReservationsCalendar({
     setSelectedDate(dateStr);
   };
 
-  const reservationsMap: Record<string, any[]> =
-    (propReservationsByDate as Record<string, any[]>) || {};
+  const reservationsByDate: Record<string, any[]> = {};
+  for (const r of reservations) {
+    const start = r.slot?.startTime ? new Date(r.slot.startTime) : null;
+    const dateKey = start
+      ? `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(
+          start.getDate()
+        ).padStart(2, '0')}`
+      : null;
+    if (dateKey) {
+      reservationsByDate[dateKey] = reservationsByDate[dateKey] || [];
+      reservationsByDate[dateKey].push(r);
+    }
+  }
 
   const hasReservation = (day: number) => {
     const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return reservationsMap[dateStr];
+    return reservationsByDate[dateStr];
   };
 
   const isSelectedDay = (day: number) => {
@@ -84,7 +91,7 @@ export function ReservationsCalendar({
     return selectedDate === dateStr;
   };
 
-  const selectedReservations: any[] = selectedDate ? reservationsMap[selectedDate] || [] : [];
+  const selectedReservations: any[] = selectedDate ? reservationsByDate[selectedDate] || [] : [];
 
   const renderReservationDetails = () => {
     if (!selectedDate) return null;
@@ -113,67 +120,60 @@ export function ReservationsCalendar({
             )}
 
             {selectedReservations?.map((reservation: any) => {
-              const slot =
-                reservation.slot || propSlots?.find((s: any) => s.id === reservation.slotId);
-              const course =
-                propCourses?.find((c: any) => c.id === slot?.classId || c.id === slot?.courseId) ||
-                propCourses?.find((c: any) => c.id === reservation.courseId) ||
-                null;
-              const classData = propClasses?.find((cl: any) => cl.id === slot?.classId) || null;
-              const courseTitle = course?.title || reservation.course || 'Untitled course';
-              const classTitle = classData?.title || reservation.classTitle || '';
-              const instructor = slot.professor?.id;
+              const slot = reservation.slot;
 
-              let timeLabel = reservation.time || '';
-              if (slot?.startTime) {
-                try {
-                  const start = new Date(slot.startTime);
-                  const end = slot.endTime ? new Date(slot.endTime) : null;
-                  timeLabel = `${start.toLocaleDateString()} ${start.toLocaleTimeString()}${end ? ' - ' + end.toLocaleTimeString() : ''}`;
-                } catch (e) {
-                  // keep reservation.time
-                }
-              }
+              if (!slot) return null;
 
-              const modality = slot?.modality || reservation.modality || reservation.type || '—';
-              const status = slot?.status || reservation.status || 'scheduled';
+              // Construir el evento con la estructura IEvent
+              const event: IEvent = {
+                ...slot,
+                id: slot.id,
+                classId: slot.classId,
+                professorId: slot.professorId,
+                startTime: slot.startTime,
+                endTime: slot.endTime,
+                modality: slot.modality || 'onsite',
+                studentsGroup: slot.studentsGroup || 'group',
+                status: slot.status || reservation.status || 'scheduled',
+                location: slot.location,
+                maxStudents: slot.maxStudents,
+                minStudents: slot.minStudents,
+                reservations: slot.reservations || [],
+                class: slot.class,
+                professor: slot.professor,
+              };
+
+              const isDeleting = deletingId === reservation.id;
 
               return (
-                <div key={reservation.id} className="card border bg-white p-3 shadow-sm">
-                  <div className="mb-2 flex items-start justify-between">
-                    <div className="flex-1">
-                      <h4 className="text-base-content mb-0.5 text-sm font-semibold">
-                        {courseTitle}
-                      </h4>
-                      {classTitle && (
-                        <div className="text-base-content/70 text-xs">Clase: {classTitle}</div>
+                <SlotInfo
+                  key={reservation.id}
+                  event={event}
+                  variant="detailed"
+                  action={
+                    <div className="flex gap-2">
+                      {event.class && (
+                        <a href={`#`} className="btn btn-primary btn-sm">
+                          Ver clase
+                        </a>
                       )}
-                      <p className="text-base-content/70 text-xs">Profesor: {instructor}</p>
-                    </div>
-                    <span className="badge badge-outline badge-sm">{modality}</span>
-                  </div>
-                  <div className="text-base-content/70 mb-1 flex items-center gap-2 text-xs">
-                    <Clock className="h-4 w-4" />
-                    <span>{timeLabel}</span>
-                  </div>
-                  <div className="text-base-content/70 text-xs">Status: {status}</div>
-                  <div className="mt-2 flex gap-1">
-                    {classData && (
-                      <a
-                        href={`/dashboard/session/${classData.id}`}
-                        className="btn btn-sm btn-primary"
+                      <button
+                        className="btn btn-error btn-sm"
+                        onClick={() => onDeleteReservation?.(reservation.id)}
+                        disabled={isDeleting}
                       >
-                        Go to class
-                      </a>
-                    )}
-                    <button
-                      className="btn btn-sm btn-error"
-                      onClick={() => onDeleteReservation?.(reservation.id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
+                        {isDeleting ? (
+                          <>
+                            <span className="loading loading-spinner loading-xs"></span>
+                            Eliminando...
+                          </>
+                        ) : (
+                          'Eliminar'
+                        )}
+                      </button>
+                    </div>
+                  }
+                />
               );
             })}
           </div>

@@ -44,6 +44,12 @@ async function enrollInCourse(data: { courseId: number; slotId?: number }) {
   const res = await httpClient.post(`/courses/enroll`, data);
   return res.data;
 }
+
+async function getSlotsByCourseAcronym(acronym: string) {
+  const res = await httpClient.get(`/courses/${acronym}/slots`);
+  return res.data;
+}
+
 async function deleteCourse() {
   const res = await httpClient.delete('/courses');
   return res.data;
@@ -56,6 +62,7 @@ export {
   createCourse,
   updateCourse,
   enrollInCourse,
+  getSlotsByCourseAcronym,
   getCourseEnroll,
   deleteCourse,
 };

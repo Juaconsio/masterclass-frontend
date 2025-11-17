@@ -32,7 +32,6 @@ class HttpClient {
       `%c[HTTP] ${config.method?.toUpperCase()} ${config.url}`,
       'color: #2196F3; font-weight: bold;'
     );
-    console.log('Headers:', config.headers);
     if (config.data) console.log('Body:', config.data);
     if (config.params) console.log('Params:', config.params);
     console.groupEnd();
@@ -74,10 +73,19 @@ class HttpClient {
           config.headers.Authorization = `Bearer ${token}`;
         }
         this.logRequest(config);
-        this.logRequest(config);
         return config;
       },
       (error) => {
+        return Promise.reject(error);
+      }
+    );
+    this.axiosInstance.interceptors.response.use(
+      (response) => {
+        this.logResponse(response);
+        return response;
+      },
+      (error) => {
+        this.logError(error);
         return Promise.reject(error);
       }
     );
