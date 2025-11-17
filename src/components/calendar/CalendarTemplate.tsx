@@ -8,6 +8,7 @@ import NewEventModal from './NewEventModal';
 import type { EventCreatePayload, IEvent } from '@interfaces/events/IEvent';
 import { useSessionContext } from '../../context/SessionContext';
 import { useNavigate } from 'react-router';
+import { useConfirmAction } from '@/hooks';
 
 export default function CalendarTemplate() {
   const { user } = useSessionContext();
@@ -17,6 +18,7 @@ export default function CalendarTemplate() {
       // navigate('/app');
     }
   }, [user]);
+  const { showConfirmation, ConfirmationModal } = useConfirmAction();
 
   const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null);
   const [events, setEvents] = useState<IEvent[]>([]);
@@ -72,6 +74,21 @@ export default function CalendarTemplate() {
     }
   }
 
+  async function handleDelete(id: number) {
+    showConfirmation({
+      title: 'Eliminar slot',
+      message: 'Esta acción no se puede deshacer. ¿Estás seguro de que deseas eliminar este slot?',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      isDangerous: true,
+      onConfirm: async () => {
+        await deleteSlot(id);
+        setEvents(events.filter((event) => event.id !== id));
+        setShowEventDetailsModal(false);
+      },
+    });
+  }
+
   function handleClickOnEventSlot(event: IEvent) {
     setSelectedEvent(event);
     setShowEventDetailsModal(true);
@@ -104,6 +121,7 @@ export default function CalendarTemplate() {
           open={showEventDetailsModal}
           onClose={() => setShowEventDetailsModal(false)}
           handleEdit={handleEdit}
+          handleDelete={handleDelete}
         />
 
         <NewEventModal
@@ -112,6 +130,8 @@ export default function CalendarTemplate() {
           onClose={() => setShowNewEventModal(false)}
         />
       </div>
+
+      <ConfirmationModal />
     </>
   );
 }

@@ -4,6 +4,7 @@
 export { default as AccessDenied } from './AccessDenied';
 export { BreadCrumb } from './BreadCrumb';
 export { default as Carousel } from './Carousel';
+export { ConfirmActionModal } from './ConfirmActionModal';
 export { default as DateTimeInput } from './DateTimeInput';
 export { default as Drawer } from './Drawer';
 export type { DrawerRef } from './Drawer';

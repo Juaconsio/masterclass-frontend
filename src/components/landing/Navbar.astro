@@ -18,12 +18,16 @@ const authLinks = [
 
 <!-- Navbar principal -->
 <nav
-  class="navbar h-navbar px-4 md:px-12 fixed top-0 bg-primary/80 backdrop-blur border-b border-base-300 z-50 flex justify-between"
+  class="navbar h-navbar px-3 sm:px-4 md:px-8 lg:px-12 fixed top-0 bg-primary/80 backdrop-blur border-b border-base-300 z-50 flex justify-between"
 >
   <!-- Mobile: Botón menú principal (izquierda) -->
   <div class="flex-none lg:hidden">
-    <label for="main-drawer" aria-label="open main menu" class="btn btn-navbar btn-square">
-      <Icon name="mdi:menu" size={32} />
+    <label
+      for="main-drawer"
+      aria-label="open main menu"
+      class="btn btn-navbar btn-square btn-sm sm:btn-md"
+    >
+      <Icon name="mdi:menu" size={28} class="sm:w-8 sm:h-8" />
     </label>
   </div>
 
@@ -31,10 +35,10 @@ const authLinks = [
   <div class="flex-1 lg:flex-none">
     <a
       href="/"
-      class="flex justify-center items-center normal-case text-xl font-bold tracking-wide gap-2 hover:bg-transparent hover:border-0 px-2"
+      class="flex justify-center items-center normal-case text-lg sm:text-xl font-bold tracking-wide gap-1 sm:gap-2 hover:bg-transparent hover:border-0 px-1 sm:px-2"
     >
       <div class="avatar">
-        <div class="w-12 h-24 rounded-full">
+        <div class="w-10 h-20 sm:w-12 sm:h-24 rounded-full">
           <img src="/images/logo.png" alt="Salva Ramos Logo" />
         </div>
       </div>
@@ -62,9 +66,9 @@ const authLinks = [
     <a
       href="/ingresar"
       aria-label="Iniciar Sesión"
-      class="btn btn-navbar btn-square lg:btn-ghost lg:btn-wide lg:px-2"
+      class="btn btn-navbar btn-square btn-sm sm:btn-md lg:btn-ghost lg:btn-wide lg:px-2"
     >
-      <Icon name="mdi:login" size={24} class="lg:hidden" />
+      <Icon name="mdi:login" size={20} class="sm:w-6 sm:h-6 lg:hidden" />
       <span class="hidden lg:inline text-lg font-medium">Iniciar Sesión</span>
     </a>
   </div>
@@ -76,15 +80,19 @@ const authLinks = [
   <div class="drawer-content"></div>
   <div class="drawer-side">
     <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-    <ul class="menu bg-base-200 min-h-full w-80 p-4">
-      <li class="menu-title">
-        <span>Navegación</span>
+    <ul class="menu bg-base-200 min-h-full w-72 sm:w-80 p-4 sm:p-6">
+      <li class="menu-title mb-2">
+        <span class="text-base sm:text-lg">Navegación</span>
       </li>
       {
         links.map((link) => (
           <li>
-            <a data-navlink href={link.href} class="text-lg font-medium flex justify-between">
-              <Icon name={link.icon} size={24} />
+            <a
+              data-navlink
+              href={link.href}
+              class="text-base sm:text-lg font-medium flex justify-between py-3 sm:py-4"
+            >
+              <Icon name={link.icon} size={24} class="sm:w-6 sm:h-6" />
               <span>{link.label}</span>
             </a>
           </li>

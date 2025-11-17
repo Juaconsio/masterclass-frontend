@@ -1,7 +1,7 @@
 import { startOfWeek, addDays, format, getDay, isToday, isSameDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import clsx from 'clsx';
-import SlotDisplay, { STATUS_STYLES } from '../slots/SlotsDisplay';
+import { SlotThumbnail } from '../slots';
 import type { IEvent } from '@interfaces/events/IEvent';
 
 interface CalendarGridProps {
@@ -104,15 +104,10 @@ export default function CalendarWeeklyGrid({
               const width = 100 / e.totalCols;
               const left = e.col * width;
 
-              const statusStyle = STATUS_STYLES[e.status] || STATUS_STYLES.CANDIDATE;
-
               return (
                 <div
                   key={e.id}
-                  className={clsx(
-                    'absolute cursor-pointer transition-all duration-150 hover:brightness-110',
-                    statusStyle
-                  )}
+                  className="absolute cursor-pointer transition-all duration-150 hover:brightness-110"
                   style={{
                     top: `${top}px`,
                     height: `${height}px`,
@@ -121,7 +116,7 @@ export default function CalendarWeeklyGrid({
                     padding: '2px',
                   }}
                 >
-                  <SlotDisplay event={e} onClick={() => onEventClick(e)} className="h-full" />
+                  <SlotThumbnail event={e} onClick={() => onEventClick(e)} className="h-full" />
                 </div>
               );
             })}
