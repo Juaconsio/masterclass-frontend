@@ -14,6 +14,7 @@ interface EventFormProps {
   submitLabel?: string;
   onCancel?: () => void;
   showActions?: boolean;
+  mode?: 'create' | 'edit';
   onDataStateChange?: (state: { loading: boolean; error: string | null; ready: boolean }) => void;
 }
 
@@ -46,6 +47,7 @@ export default function EventForm({
   submitLabel = 'Guardar',
   onCancel,
   showActions = true,
+  mode,
   onDataStateChange,
 }: EventFormProps) {
   const [professors, setProfessors] = useState<IProfessor[]>([]);
@@ -54,6 +56,8 @@ export default function EventForm({
   const [loadingData, setLoadingData] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
+
+  const isEditMode = mode === 'edit' || (mode === undefined && initialValues?.courseId != null);
 
   // Normalizar initialValues para asegurar que no haya undefined
   const normalizedValues = normalizeInitialValues(initialValues);
@@ -188,31 +192,37 @@ export default function EventForm({
               <div className="space-y-3">
                 <div>
                   <label className="label">Cursos</label>
-                  <select
-                    id="course"
-                    className="select select-bordered w-full"
-                    value={watchCourseId ?? ''}
-                    disabled={loadingData || isSubmitting}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      setValue('courseId', v === '' ? null : Number(v), { shouldDirty: true });
-                      setValue('professorId', null, { shouldDirty: true });
-                      setValue('classId', null, { shouldDirty: true, shouldValidate: true });
-                    }}
-                  >
-                    <option value="">Seleccione un curso</option>
-                    {courses
-                      .filter((cls) =>
-                        watchProfessorId == null
-                          ? true
-                          : cls.professors?.some((prof) => prof.id === watchProfessorId)
-                      )
-                      .map((cls: ICourse) => (
-                        <option key={cls.id} value={cls.id}>
-                          {cls.title}
-                        </option>
-                      ))}
-                  </select>
+                  {isEditMode ? (
+                    <p className="input input-bordered flex w-full items-center">
+                      {courses.find((c) => c.id === watchCourseId)?.title || 'No seleccionado'}
+                    </p>
+                  ) : (
+                    <select
+                      id="course"
+                      className="select select-bordered w-full"
+                      value={watchCourseId ?? ''}
+                      disabled={loadingData || isSubmitting}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setValue('courseId', v === '' ? null : Number(v), { shouldDirty: true });
+                        setValue('professorId', null, { shouldDirty: true });
+                        setValue('classId', null, { shouldDirty: true, shouldValidate: true });
+                      }}
+                    >
+                      <option value="">Seleccione un curso</option>
+                      {courses
+                        .filter((cls) =>
+                          watchProfessorId == null
+                            ? true
+                            : cls.professors?.some((prof) => prof.id === watchProfessorId)
+                        )
+                        .map((cls: ICourse) => (
+                          <option key={cls.id} value={cls.id}>
+                            {cls.title}
+                          </option>
+                        ))}
+                    </select>
+                  )}
                   {errors.courseId && (
                     <p className="text-error text-sm">{errors.courseId.message}</p>
                   )}
@@ -250,29 +260,35 @@ export default function EventForm({
 
                 <div>
                   <label className="label">Clases</label>
-                  <Controller
-                    name="classId"
-                    control={control}
-                    render={({ field }) => (
-                      <select
-                        id="class"
-                        className="select select-bordered w-full"
-                        value={field.value ?? ''}
-                        disabled={loadingData || isSubmitting}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          field.onChange(v === '' ? null : Number(v));
-                        }}
-                      >
-                        <option value="">Seleccione una clase</option>
-                        {classes.map((cls: IClass) => (
-                          <option key={cls.id} value={cls.id}>
-                            {cls.title}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                  />
+                  {isEditMode ? (
+                    <p className="input input-bordered flex w-full items-center">
+                      {classes.find((c) => c.id === watch('classId'))?.title || 'No seleccionado'}
+                    </p>
+                  ) : (
+                    <Controller
+                      name="classId"
+                      control={control}
+                      render={({ field }) => (
+                        <select
+                          id="class"
+                          className="select select-bordered w-full"
+                          value={field.value ?? ''}
+                          disabled={loadingData || isSubmitting}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            field.onChange(v === '' ? null : Number(v));
+                          }}
+                        >
+                          <option value="">Seleccione una clase</option>
+                          {classes.map((cls: IClass) => (
+                            <option key={cls.id} value={cls.id}>
+                              {cls.title}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    />
+                  )}
                 </div>
               </div>
             )}
