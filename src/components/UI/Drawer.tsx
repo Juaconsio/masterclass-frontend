@@ -48,7 +48,7 @@ const Drawer = forwardRef<DrawerRef, DrawerProps>(
     ref
   ) => {
     const [isOpen, setIsOpen] = useState(false);
-    const drawerId = `drawer-${Math.random().toString(36).substr(2, 9)}`;
+    const drawerId = `drawer-${Math.random().toString(36).slice(2, 9)}`;
 
     useImperativeHandle(ref, () => ({
       open: () => setIsOpen(true),
