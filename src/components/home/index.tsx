@@ -19,9 +19,16 @@ function Home() {
     };
 
     checkPendingReservation();
+
+    // Listen for custom event (same tab) and storage event (other tabs)
+    window.addEventListener('reservationChanged', checkPendingReservation);
     window.addEventListener('storage', checkPendingReservation);
-    return () => window.removeEventListener('storage', checkPendingReservation);
-  }, [localStorage]);
+
+    return () => {
+      window.removeEventListener('reservationChanged', checkPendingReservation);
+      window.removeEventListener('storage', checkPendingReservation);
+    };
+  }, []);
 
   const ShowSoonDialog = () => {
     alert('¡Próximamente! Esta funcionalidad estará disponible en futuras actualizaciones.');
