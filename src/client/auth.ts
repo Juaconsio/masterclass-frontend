@@ -1,7 +1,6 @@
 import { httpClient } from './config';
 import { jwtDecode } from 'jwt-decode';
 
-// phone no esta entrando como string
 async function registerUser(payload: any) {
   try {
     const res = await httpClient.post('auth/register', payload);
@@ -42,7 +41,10 @@ async function getToken(payload: any): Promise<{ ok: boolean; token?: string; me
     localStorage.setItem('token', res.data.token);
     return { ok: true, token: res.data.token };
   } catch (error: any) {
-    return { ok: false, message: error.response?.data?.message || 'Error desconocido' };
+    return {
+      ok: false,
+      message: error.response?.data?.message,
+    };
   }
 }
 
