@@ -1,19 +1,20 @@
 import { useEffect, useState, forwardRef, useImperativeHandle, useRef } from 'react';
-import { confirmReservation } from '../../client/confirmReservation';
-import { getCourseEnroll } from '@/client/courses';
+import { createReservation, getReservationEnroll } from '@/client/reservations';
 import SuccessModal from '../reservations/SucessModal';
 import { Drawer, type DrawerRef } from '@components/UI';
 import type { IEvent } from '@/interfaces/events/IEvent';
-import type { Reservation, Course, Payment } from '@/interfaces';
+import type { IReservation, ICourse, IPayment, IPricingPlan } from '@/interfaces';
+import { TriangleAlert } from 'lucide-react';
 
 interface PendingReservation {
   courseId: string | number;
   classId?: string | number;
   slotId?: string | number;
-  planId: string;
+  pricingPlanId: string;
   ts: number;
-  course: Course;
+  course: ICourse;
   slot?: IEvent;
+  pricingPlan: IPricingPlan;
 }
 
 export interface PendingReservationBannerRef {
@@ -23,31 +24,36 @@ export interface PendingReservationBannerRef {
 
 const PendingReservationBanner = forwardRef<PendingReservationBannerRef>((props, ref) => {
   const [reservation, setReservation] = useState<PendingReservation | null>(null);
-  const [confirmedReservation, setConfirmedReservation] = useState<Reservation | null>(null);
+  const [confirmedReservation, setConfirmedReservation] = useState<IReservation | null>(null);
 
   const [isConfirming, setIsConfirming] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [payment, setPayment] = useState<Payment | null>(null);
+  const [payment, setPayment] = useState<IPayment | null>(null);
   const drawerRef = useRef<DrawerRef>(null);
-  useEffect(() => {
-    // Check localStorage for pending reservation
-    const getEnrollInfo = async () => {
-      try {
-        const stored = localStorage.getItem('checkout.reservation');
-        if (stored) {
-          const data = JSON.parse(stored);
-          const options: { courseId?: number; courseAcronym?: string; slotId?: number } = {};
-          if (data.slotId) options['slotId'] = Number(data.slotId);
-          if (data.courseAcronym) options['courseAcronym'] = data.courseAcronym;
-          if (data.courseId) options['courseId'] = Number(data.courseId);
-          const courseData = await getCourseEnroll(options);
-          setReservation({ ...data, ...courseData });
-        }
-      } catch (e) {
-        console.error('Error reading reservation from localStorage', e);
+
+  const getLocalStorageEnrollInfo = async () => {
+    try {
+      const stored = localStorage.getItem('checkout.reservation');
+      if (stored) {
+        const data = JSON.parse(stored);
+        console.log('Loaded reservation from localStorage:', data);
+        const options = {
+          courseId: Number(data.courseId),
+          slotId: Number(data.slotId),
+          pricingPlanId: data.pricingPlanId,
+        };
+        const courseData = await getReservationEnroll(options);
+        setReservation({ ...data, ...courseData });
+      } else {
+        setReservation(null);
       }
-    };
-    getEnrollInfo();
+    } catch (e) {
+      console.error('Error reading reservation from localStorage', e);
+    }
+  };
+
+  useEffect(() => {
+    getLocalStorageEnrollInfo();
   }, []);
 
   useImperativeHandle(ref, () => ({
@@ -60,18 +66,20 @@ const PendingReservationBanner = forwardRef<PendingReservationBannerRef>((props,
 
     setIsConfirming(true);
     try {
-      const response = await confirmReservation({
+      const response = await createReservation({
         courseId: reservation.course.id,
         slotId: reservation.slot?.id,
+        pricingPlanId: reservation.pricingPlan.id,
       });
 
       if (response) {
         setConfirmedReservation(response.reservation);
         setPayment(response.payment);
         setShowModal(true);
-        // Clear localStorage after successful confirmation
         localStorage.removeItem('checkout.reservation');
+        window.dispatchEvent(new Event('reservationChanged'));
         setReservation(null);
+        drawerRef.current?.close();
       }
     } catch (error) {
       console.error('Error confirming reservation', error);
@@ -83,20 +91,24 @@ const PendingReservationBanner = forwardRef<PendingReservationBannerRef>((props,
 
   const handleDismiss = () => {
     localStorage.removeItem('checkout.reservation');
+    window.dispatchEvent(new Event('reservationChanged'));
     setReservation(null);
     drawerRef.current?.close();
+  };
+
+  const SuccessModalOnClose = () => {
+    setShowModal(false);
   };
 
   if (!reservation && !showModal) return null;
 
   return (
     <>
-      {/* Drawer for pending reservation */}
       {reservation && !showModal && (
         <Drawer
           ref={drawerRef}
           title="Reserva Pendiente"
-          width="md"
+          width="xl"
           side="right"
           actions={[
             {
@@ -107,66 +119,125 @@ const PendingReservationBanner = forwardRef<PendingReservationBannerRef>((props,
               loading: isConfirming,
             },
             {
-              label: 'Descartar Reserva',
+              label: 'Cancelar',
               onClick: handleDismiss,
               variant: 'ghost',
             },
           ]}
         >
-          <div className="space-y-4">
+          <div className="flex h-full flex-col gap-4">
+            {/* Fila 1: Curso y Clase */}
             <div className="bg-base-200 rounded-lg p-4">
-              <h3 className="text-base-content mb-3 font-semibold">Detalles del Curso</h3>
-              <div className="space-y-3 text-sm">
+              <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
                 <div className="flex flex-col gap-1">
                   <span className="text-base-content/60">Curso</span>
-                  <span className="font-medium">{reservation.course?.title || '—'}</span>
+                  <span className="font-medium">
+                    {reservation.course?.acronym} - {reservation.course?.title || '—'}
+                  </span>
                 </div>
                 <div className="flex flex-col gap-1">
                   <span className="text-base-content/60">Clase</span>
                   <span className="font-medium">{reservation.slot?.class?.title ?? '—'}</span>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-base-content/60">Día</span>
-                  <span className="font-medium">
-                    {new Date(reservation.slot?.startTime || '').toLocaleString('es-CL', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    }) ?? '—'}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-base-content/60">Horario</span>
-                  <span className="font-medium">
-                    {new Date(reservation.slot?.startTime || '').toLocaleString('es-CL', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    }) ?? '—'}{' '}
-                    -{' '}
-                    {new Date(reservation.slot?.endTime || '').toLocaleString('es-CL', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    }) ?? '—'}
-                  </span>
-                </div>
               </div>
             </div>
 
+            {/* Fila 2: Grid de 2 columnas - Slot Info y Pricing Plan */}
+            <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-2">
+              {/* Columna 1: Información del Slot */}
+              <div className="bg-base-200 rounded-lg p-4">
+                <div className="space-y-3 text-sm">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-base-content/60">Fecha</span>
+                    <span className="font-medium">
+                      {reservation.slot?.startTime
+                        ? new Date(reservation.slot.startTime).toLocaleString('es-CL', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })
+                        : '—'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-base-content/60">Horario</span>
+                    <span className="font-medium">
+                      {reservation.slot?.startTime &&
+                        new Date(reservation.slot.startTime).toLocaleString('es-CL', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}{' '}
+                      -{' '}
+                      {reservation.slot?.endTime &&
+                        new Date(reservation.slot.endTime).toLocaleString('es-CL', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      {reservation.slot?.startTime && reservation.slot?.endTime && (
+                        <span className="text-base-content/60 ml-2">
+                          (
+                          {Math.round(
+                            (new Date(reservation.slot.endTime).getTime() -
+                              new Date(reservation.slot.startTime).getTime()) /
+                              (1000 * 60)
+                          )}{' '}
+                          min)
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-base-content/60">Modalidad</span>
+                    <span className="font-medium capitalize">
+                      {reservation.slot?.modality === 'remote' ? 'Remota (Online)' : 'Presencial'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-base-content/60">Tipo</span>
+                    <span className="font-medium">
+                      {reservation.slot?.studentsGroup === 'private'
+                        ? 'Clase Privada (1 a 1)'
+                        : 'Clase Grupal'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Columna 2: Plan y Precio */}
+              <div className="flex flex-col">
+                {reservation.pricingPlan && (
+                  <div className="bg-primary/10 border-primary/20 flex-1 rounded-lg border-2 p-4">
+                    <div className="flex flex-col justify-between gap-2 text-sm">
+                      <div className="flex flex-col gap-2">
+                        <span className="text-base font-medium">
+                          {reservation.pricingPlan.name || 'Plan sin nombre'}
+                        </span>
+                        {reservation.pricingPlan.description && (
+                          <p className="text-base-content/70 text-xs">
+                            {reservation.pricingPlan.description}
+                          </p>
+                        )}
+                        <div className="divider my-2"></div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-base-content/60 mb-1 text-xs">Total a pagar</div>
+                        <div className="text-primary text-3xl font-bold">
+                          {new Intl.NumberFormat('es-CL', {
+                            style: 'currency',
+                            currency: 'CLP',
+                          }).format(reservation.pricingPlan.price || 0)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Alert en la parte inferior */}
             <div className="alert alert-warning">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 shrink-0 stroke-current"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
+              <TriangleAlert />
               <span className="text-sm">Confirma tu reserva para asegurar tu cupo en la clase</span>
             </div>
           </div>
@@ -178,7 +249,7 @@ const PendingReservationBanner = forwardRef<PendingReservationBannerRef>((props,
         <SuccessModal
           reservation={confirmedReservation}
           payment={payment}
-          setShowModal={setShowModal}
+          onClose={SuccessModalOnClose}
         />
       )}
     </>
