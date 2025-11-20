@@ -80,7 +80,6 @@ export default function EventForm({
     defaultValues: normalizedValues,
     mode: 'onSubmit',
     reValidateMode: 'onChange',
-    // Sin validación custom de classId
   });
 
   const didInitRef = useRef(false);

@@ -9,17 +9,19 @@ interface CalendarGridProps {
   events: IEvent[];
   onEventClick: (event: IEvent) => void;
   loading?: boolean;
+  openCreateEventModal: (initialDate?: Date) => void;
 }
 
 const HOURS = Array.from({ length: 17 }, (_, i) => i + 8);
-const ROW_HEIGHT = 60; // px per slot
-const HEADER_HEIGHT = 40; // Approximate header height
+const ROW_HEIGHT = 60;
+const HEADER_HEIGHT = 40;
 
 export default function CalendarWeeklyGrid({
   currentWeek,
   events,
   loading,
   onEventClick,
+  openCreateEventModal,
 }: CalendarGridProps) {
   const days = Array.from({ length: 7 }).map((_, i) => addDays(currentWeek, i));
   const minHour = HOURS[0];
@@ -88,9 +90,22 @@ export default function CalendarWeeklyGrid({
             {/* Slots de tiempo */}
             {HOURS.map((h) => {
               if (loading) {
-                return <div key={`skeleton-${h}`} className="skeleton m-2 h-[60px]"></div>;
+                return (
+                  <div key={`skeleton-${h}`} className={`skeleton m-2 h-[${ROW_HEIGHT}px]`}></div>
+                );
               }
-              return <div key={h} className="h-[60px] border-b border-black/20" />;
+
+              // Crear fecha exacta del bloque: día + hora
+              const blockDate = new Date(day);
+              blockDate.setHours(h, 0, 0, 0);
+
+              return (
+                <div
+                  key={h}
+                  className={`h-[${ROW_HEIGHT}px] hover:bg-base-300 cursor-pointer border-b border-black/20 hover:border-2 hover:border-black/60 hover:shadow-lg hover:shadow-black/10`}
+                  onClick={() => openCreateEventModal(blockDate)}
+                />
+              );
             })}
 
             {/* Render eventos con posicionamiento absoluto */}
