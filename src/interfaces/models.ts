@@ -1,3 +1,4 @@
+import { Link } from 'react-router';
 import type {
   SlotModality,
   SlotStudentsGroup,
@@ -74,6 +75,7 @@ export interface ISlot {
   status: SlotStatus;
   minStudents?: number | null;
   maxStudents: number;
+  link?: string;
   class: IClass;
   professor?: IProfessor;
   reservations?: IReservation[];

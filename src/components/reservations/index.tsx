@@ -4,6 +4,8 @@ import { httpClient } from '@/client/config';
 import { fetchReservations, deleteReservation } from '@/client/reservations';
 import { ReservationsCalendar } from './reservationsCalendar';
 import type { Reservation } from '@/interfaces/events/IEvent';
+
+export { default as ReservationCard } from './ReservationCard';
 const Reservations: React.FC = () => {
   const { user } = useAuth();
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -53,15 +55,11 @@ const Reservations: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen">
-      <main className="container mx-auto space-y-8 px-4 py-8">
-        <ReservationsCalendar
-          reservations={reservations}
-          onDeleteReservation={removeReservation}
-          deletingId={deletingId}
-        />
-      </main>
-    </div>
+    <ReservationsCalendar
+      reservations={reservations}
+      onDeleteReservation={removeReservation}
+      deletingId={deletingId}
+    />
   );
 };
 

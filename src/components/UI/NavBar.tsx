@@ -60,7 +60,6 @@ const NavBar: React.FC = () => {
     }
   }, [isAdmin]);
 
-  console.log('Current links:', user);
   const isActive = (href: string) => {
     const path = location.pathname;
     if (!path) return false;

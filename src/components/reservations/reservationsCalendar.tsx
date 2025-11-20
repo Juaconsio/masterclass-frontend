@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, CalendarIcon } from 'lucide-react';
-import { SlotInfo } from '../slots';
+import { ReservationCard } from './';
 import type { IEvent, IReservation } from '@/interfaces';
 
 type ReservationsCalendarProps = {
@@ -112,7 +112,7 @@ export function ReservationsCalendar({
             {selectedReservations?.length !== 1 ? 's' : ''} este día.
           </p>
 
-          <div className="max-h-[40vh] space-y-3 overflow-y-auto">
+          <div className="max-h-full space-y-3 overflow-y-auto">
             {(!selectedReservations || selectedReservations.length === 0) && (
               <div className="text-base-content/70 p-4 text-center">
                 No se encontraron reservas para este día.
@@ -120,40 +120,21 @@ export function ReservationsCalendar({
             )}
 
             {selectedReservations?.map((reservation: any) => {
-              const slot = reservation.slot;
-
-              if (!slot) return null;
-
-              // Construir el evento con la estructura IEvent
-              const event: IEvent = {
-                ...slot,
-                id: slot.id,
-                classId: slot.classId,
-                professorId: slot.professorId,
-                startTime: slot.startTime,
-                endTime: slot.endTime,
-                modality: slot.modality || 'onsite',
-                studentsGroup: slot.studentsGroup || 'group',
-                status: slot.status || reservation.status || 'scheduled',
-                location: slot.location,
-                maxStudents: slot.maxStudents,
-                minStudents: slot.minStudents,
-                reservations: slot.reservations || [],
-                class: slot.class,
-                professor: slot.professor,
-              };
-
               const isDeleting = deletingId === reservation.id;
 
               return (
-                <SlotInfo
+                <ReservationCard
                   key={reservation.id}
-                  event={event}
-                  variant="detailed"
+                  reservation={reservation}
                   action={
                     <div className="flex gap-2">
-                      {event.class && (
-                        <a href={`#`} className="btn btn-primary btn-sm">
+                      {reservation.status === 'confirmed' && reservation.slot?.link && (
+                        <a
+                          href={`https://meet.jit.si/${reservation.slot.link}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-primary btn-sm"
+                        >
                           Ver clase
                         </a>
                       )}
