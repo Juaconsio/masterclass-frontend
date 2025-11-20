@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useState, useEffect } from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import type { ReactNode } from 'react';
 
 export interface DrawerRef {

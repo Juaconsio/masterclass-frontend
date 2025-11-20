@@ -118,7 +118,7 @@ export default function EventDetailsModal({
 
   const STUDENTS_GROUP_CONFIG: Record<string, { icon: typeof Users; label: string }> = {
     group: { icon: Users, label: 'Grupal' },
-    private: { icon: User, label: 'Individual' },
+    private: { icon: User, label: 'Particular' },
   };
 
   const statusData = STATUS_CLASS[String(event.status).toLowerCase()] || STATUS_CLASS['candidate'];

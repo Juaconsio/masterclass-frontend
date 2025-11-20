@@ -197,7 +197,7 @@ const PendingReservationBanner = forwardRef<PendingReservationBannerRef>((props,
                     <span className="text-base-content/60">Tipo</span>
                     <span className="font-medium">
                       {reservation.slot?.studentsGroup === 'private'
-                        ? 'Clase Privada (1 a 1)'
+                        ? 'Clase Particular (1 a 1)'
                         : 'Clase Grupal'}
                     </span>
                   </div>

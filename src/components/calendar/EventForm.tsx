@@ -478,7 +478,7 @@ export default function EventForm({
                 >
                   <option value="">Selecciona una opción</option>
                   <option value="group">Grupal</option>
-                  <option value="private">Privada</option>
+                  <option value="private">Particular</option>
                 </select>
                 {errors.studentsGroup && (
                   <p className="text-error text-sm">{errors.studentsGroup.message}</p>

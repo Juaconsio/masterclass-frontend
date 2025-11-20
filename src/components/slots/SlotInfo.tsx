@@ -109,7 +109,7 @@ const ModalityIcons = ({
         ) : (
           <>
             <User className={iconSize} />
-            {showLabels && <span>Individual</span>}
+            {showLabels && <span>Particular</span>}
           </>
         )}
       </div>
