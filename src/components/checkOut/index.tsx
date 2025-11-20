@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { PaymentPlan } from '../../client/payments';
-import { getPaymentPlans } from '../../client/payments';
 import { getCourseEnroll } from '../../client/courses';
+import type { IPricingPlan, ISlot, ICourse } from '../../interfaces/models';
 
 type CheckoutProps = {
   courseId?: string | number;
@@ -26,22 +25,15 @@ export default function CheckoutView(props: CheckoutProps) {
   const courseAcronym = props.courseAcronym ?? qp.courseAcronym;
   const slotId = props.slotId ?? qp.slotId;
 
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [plans, setPlans] = useState<PaymentPlan[]>([]);
-  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
-  const [course, setCourse] = useState<any | null>(null);
-  const [slot, setSlot] = useState<any | null>(null);
-
+  const [pricingPlans, setPricingPlans] = useState<IPricingPlan[]>([]);
+  const [selectedPricingPlanId, setSelectedPricingPlanId] = useState<string | null>(null);
+  const [course, setCourse] = useState<ICourse | null>(null);
+  const [slot, setSlot] = useState<ISlot | null>(null);
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
-        setLoading(true);
-        const res = await getPaymentPlans({ courseId: String(courseId || courseAcronym), slotId });
-        if (!mounted) return;
-        setPlans(res);
-        if (res[0]) setSelectedPlanId(res[0].id);
         // Fetch course display name if possible
         if (courseId || courseAcronym) {
           try {
@@ -50,14 +42,13 @@ export default function CheckoutView(props: CheckoutProps) {
             if (courseAcronym) options.courseAcronym = courseAcronym;
             if (slotId) options.slotId = Number(slotId);
             const res = await getCourseEnroll(options);
-            if (res?.course) setCourse(res.course);
-            if (res?.slot) setSlot(res.slot);
+            setCourse(res.course);
+            setSlot(res.slot);
+            setPricingPlans(res.pricingPlans);
           } catch {}
         }
       } catch (e: any) {
         setError(e?.message ?? 'No se pudo cargar los planes');
-      } finally {
-        if (mounted) setLoading(false);
       }
     })();
     return () => {
@@ -66,21 +57,88 @@ export default function CheckoutView(props: CheckoutProps) {
   }, [courseId, slotId]);
 
   const handleReserve = () => {
-    if (!selectedPlanId) return;
+    if (!selectedPricingPlanId) return;
     const payload = {
-      courseId,
-      courseAcronym,
+      courseId: course?.id || courseId,
       slotId,
-      planId: selectedPlanId,
+      pricingPlanId: selectedPricingPlanId,
       // Optionally attach extra info in the future
       ts: Date.now(),
     };
     try {
       localStorage.setItem('checkout.reservation', JSON.stringify(payload));
+      window.dispatchEvent(new Event('reservationChanged'));
     } catch {}
     // Send to sign up
     window.location.href = '/registrar';
   };
+
+  if (!slot || !course || !pricingPlans) {
+    return (
+      <main className="bg-base-100 min-h-screen">
+        <div className="container mx-auto px-4 py-6">
+          {/* Header Skeleton */}
+          <div className="mb-6 flex items-center justify-between">
+            <div className="space-y-2">
+              <div className="skeleton h-10 w-64"></div>
+              <div className="skeleton h-5 w-96"></div>
+            </div>
+            <div className="skeleton h-8 w-24"></div>
+          </div>
+
+          {/* Grid Skeleton */}
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Summary Skeleton */}
+            <section className="lg:col-span-1">
+              <div className="card bg-white shadow-xl">
+                <div className="card-body">
+                  <div className="skeleton mb-4 h-7 w-24"></div>
+                  <div className="space-y-3">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="flex justify-between">
+                        <div className="skeleton h-4 w-20"></div>
+                        <div className="skeleton h-4 w-32"></div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="divider" />
+                  <div className="skeleton h-16 w-full"></div>
+                </div>
+              </div>
+            </section>
+
+            {/* Plans Skeleton */}
+            <section className="lg:col-span-2">
+              <div className="card h-full bg-white shadow-xl">
+                <div className="card-body">
+                  <div className="skeleton mb-4 h-7 w-32"></div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="card border-base-300 bg-base-100 border shadow-sm">
+                        <div className="card-body gap-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 space-y-2">
+                              <div className="skeleton h-6 w-32"></div>
+                              <div className="skeleton h-4 w-48"></div>
+                            </div>
+                            <div className="skeleton h-5 w-5 rounded-full"></div>
+                          </div>
+                          <div className="skeleton h-8 w-32"></div>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="mt-2 flex justify-end md:col-span-2">
+                      <div className="skeleton h-12 w-32"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="bg-base-100 min-h-screen">
@@ -93,7 +151,9 @@ export default function CheckoutView(props: CheckoutProps) {
               Confirma tu plan y continúa con el registro para finalizar la reserva.
             </p>
           </div>
-          <div className="badge badge-primary badge-lg">Checkout</div>
+          <button className="btn btn-soft btn-primary" onClick={() => window.history.back()}>
+            Volver
+          </button>
         </div>
 
         {/* Grid */}
@@ -115,7 +175,7 @@ export default function CheckoutView(props: CheckoutProps) {
                   <div className="flex justify-between">
                     <span className="text-base-content/60">Día</span>
                     <span className="font-medium">
-                      {new Date(slot?.startTime).toLocaleString('es-CL', {
+                      {new Date(slot.startTime).toLocaleString('es-CL', {
                         weekday: 'long',
                         year: 'numeric',
                         month: 'long',
@@ -127,12 +187,12 @@ export default function CheckoutView(props: CheckoutProps) {
                   <div className="flex justify-between">
                     <span className="text-base-content/60">Horario</span>
                     <span className="font-medium">
-                      {new Date(slot?.startTime).toLocaleString('es-CL', {
+                      {new Date(slot.startTime).toLocaleString('es-CL', {
                         hour: '2-digit',
                         minute: '2-digit',
                       }) ?? '—'}{' '}
                       -{' '}
-                      {new Date(slot?.endTime).toLocaleString('es-CL', {
+                      {new Date(slot.endTime).toLocaleString('es-CL', {
                         hour: '2-digit',
                         minute: '2-digit',
                       }) ?? '—'}
@@ -152,13 +212,12 @@ export default function CheckoutView(props: CheckoutProps) {
             <div className="card h-full bg-white shadow-xl">
               <div className="card-body">
                 <h2 className="card-title">Elige tu plan</h2>
-                {loading && <div className="loading loading-spinner loading-lg" />}
                 {error && (
                   <div className="alert alert-error">
                     <span>{error}</span>
                   </div>
                 )}
-                {!loading && !error && (
+                {!error && (
                   <form
                     className="grid gap-4 md:grid-cols-2"
                     onSubmit={(e) => {
@@ -166,10 +225,10 @@ export default function CheckoutView(props: CheckoutProps) {
                       handleReserve();
                     }}
                   >
-                    {plans.map((p) => (
+                    {pricingPlans.map((p) => (
                       <label
                         key={p.id}
-                        className={`card bg-base-100 border ${selectedPlanId === p.id ? 'border-primary ring-primary/30 ring-2' : 'border-base-300'} cursor-pointer shadow-sm transition hover:shadow-md`}
+                        className={`card bg-base-100 border ${selectedPricingPlanId === p.id ? 'border-primary ring-primary/30 ring-2' : 'border-base-300'} cursor-pointer shadow-sm transition hover:shadow-md`}
                       >
                         <div className="card-body gap-3">
                           <div className="flex items-start justify-between">
@@ -183,23 +242,16 @@ export default function CheckoutView(props: CheckoutProps) {
                               type="radio"
                               name="plan"
                               className="radio radio-primary"
-                              checked={selectedPlanId === p.id}
-                              onChange={() => setSelectedPlanId(p.id)}
+                              checked={selectedPricingPlanId === p.id}
+                              onChange={() => setSelectedPricingPlanId(p.id)}
                             />
                           </div>
                           <div className="text-2xl font-bold">
                             {new Intl.NumberFormat('es-CL', {
                               style: 'currency',
-                              currency: p.currency || 'CLP',
+                              currency: 'CLP',
                             }).format(p.price)}
                           </div>
-                          {p.features?.length ? (
-                            <ul className="text-base-content/70 list-disc space-y-1 pl-5 text-sm">
-                              {p.features.map((f, i) => (
-                                <li key={i}>{f}</li>
-                              ))}
-                            </ul>
-                          ) : null}
                         </div>
                       </label>
                     ))}

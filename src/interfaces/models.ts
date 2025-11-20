@@ -74,7 +74,7 @@ export interface ISlot {
   status: SlotStatus;
   minStudents?: number | null;
   maxStudents: number;
-  class?: IClass;
+  class: IClass;
   professor?: IProfessor;
   reservations?: IReservation[];
 }
@@ -122,4 +122,12 @@ export interface IAdmin {
   email: string;
   rut: string;
   createdAt: string; // ISO date string
+}
+
+export interface IPricingPlan {
+  id: string;
+  name: string;
+  description?: string | null;
+  price: number;
+  isActive: boolean;
 }

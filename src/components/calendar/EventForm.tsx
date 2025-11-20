@@ -18,19 +18,24 @@ interface EventFormProps {
   onDataStateChange?: (state: { loading: boolean; error: string | null; ready: boolean }) => void;
 }
 
-/**
- * Normaliza los valores iniciales para asegurar que todos los campos requeridos
- * tengan valores válidos (nunca undefined)
- */
 function normalizeInitialValues(values?: Partial<EventFormValues>): EventFormValues {
   const now = new Date();
+  const startDate = values?.start instanceof Date ? values.start : now;
+
+  let endDate: Date;
+  if (values?.end instanceof Date) {
+    endDate = values.end;
+  } else {
+    endDate = new Date(startDate);
+    endDate.setHours(startDate.getHours() + 1, startDate.getMinutes() + 15);
+  }
 
   return {
     courseId: values?.courseId ?? null,
     classId: values?.classId ?? null,
     professorId: values?.professorId ?? null,
-    start: values?.start instanceof Date ? values.start : now,
-    end: values?.end instanceof Date ? values.end : now,
+    start: startDate,
+    end: endDate,
     modality: values?.modality || 'remote',
     studentsGroup: values?.studentsGroup || 'private',
     status: values?.status || 'candidate',
@@ -388,6 +393,10 @@ export default function EventForm({
                           const newDate = new Date(current);
                           newDate.setHours(hours, minutes);
                           field.onChange(newDate);
+
+                          const newEnd = new Date(newDate);
+                          newEnd.setHours(hours + 1, minutes + 15);
+                          setValue('end', newEnd);
                         }}
                       />
                     )}
@@ -473,12 +482,18 @@ export default function EventForm({
                   onChange={async (e) => {
                     const handler = register('studentsGroup').onChange;
                     if (handler) handler(e);
+
+                    if (e.target.value === 'private') {
+                      setValue('minStudents', 1);
+                      setValue('maxStudents', 1);
+                    }
+
                     await trigger('classId');
                   }}
                 >
                   <option value="">Selecciona una opción</option>
                   <option value="group">Grupal</option>
-                  <option value="private">Privada</option>
+                  <option value="private">Particular</option>
                 </select>
                 {errors.studentsGroup && (
                   <p className="text-error text-sm">{errors.studentsGroup.message}</p>
@@ -501,51 +516,53 @@ export default function EventForm({
                 {errors.status && <p className="text-error text-sm">{errors.status.message}</p>}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="label">Mínimo</label>
-                  <input
-                    type="number"
-                    {...register('minStudents', {
-                      min: { value: 0, message: 'El mínimo no puede ser negativo' },
-                      validate: (value) => {
-                        if (value != null && value < 0) return 'El mínimo no puede ser negativo';
-                        return true;
-                      },
-                    })}
-                    placeholder="Mín."
-                    className={`input input-bordered w-full ${errors.minStudents ? 'input-error' : ''}`}
-                    disabled={isSubmitting}
-                  />
-                  {errors.minStudents && (
-                    <p className="text-error mt-1 text-sm">{errors.minStudents.message}</p>
-                  )}
-                </div>
+              {watch('studentsGroup') === 'group' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="label">Mínimo</label>
+                    <input
+                      type="number"
+                      {...register('minStudents', {
+                        min: { value: 0, message: 'El mínimo no puede ser negativo' },
+                        validate: (value) => {
+                          if (value != null && value < 0) return 'El mínimo no puede ser negativo';
+                          return true;
+                        },
+                      })}
+                      placeholder="Mín."
+                      className={`input input-bordered w-full ${errors.minStudents ? 'input-error' : ''}`}
+                      disabled={isSubmitting}
+                    />
+                    {errors.minStudents && (
+                      <p className="text-error mt-1 text-sm">{errors.minStudents.message}</p>
+                    )}
+                  </div>
 
-                <div>
-                  <label className="label">Máximo</label>
-                  <input
-                    type="number"
-                    {...register('maxStudents', {
-                      required: 'Máximo es obligatorio',
-                      min: { value: 0, message: 'El máximo no puede ser negativo' },
-                      validate: (value) => {
-                        if (value != null && value < 0) return 'El máximo no puede ser negativo';
-                        const min = watch('minStudents');
-                        if (min != null && value != null && value < min)
-                          return 'El máximo no puede ser menor que el mínimo';
-                        return true;
-                      },
-                    })}
-                    placeholder="Máx."
-                    className={`input input-bordered w-full ${errors.maxStudents ? 'input-error' : ''}`}
-                    disabled={isSubmitting}
-                  />
-                  {errors.maxStudents && (
-                    <p className="text-error mt-1 text-sm">{errors.maxStudents.message}</p>
-                  )}
+                  <div>
+                    <label className="label">Máximo</label>
+                    <input
+                      type="number"
+                      {...register('maxStudents', {
+                        required: 'Máximo es obligatorio',
+                        min: { value: 0, message: 'El máximo no puede ser negativo' },
+                        validate: (value) => {
+                          if (value != null && value < 0) return 'El máximo no puede ser negativo';
+                          const min = watch('minStudents');
+                          if (min != null && value != null && value < min)
+                            return 'El máximo no puede ser menor que el mínimo';
+                          return true;
+                        },
+                      })}
+                      placeholder="Máx."
+                      className={`input input-bordered w-full ${errors.maxStudents ? 'input-error' : ''}`}
+                      disabled={isSubmitting}
+                    />
+                    {errors.maxStudents && (
+                      <p className="text-error mt-1 text-sm">{errors.maxStudents.message}</p>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </>

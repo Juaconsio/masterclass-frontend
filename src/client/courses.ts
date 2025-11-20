@@ -1,5 +1,7 @@
+import type { IReservation, ICourse, ISlot, IPricingPlan } from '@/interfaces';
 import { httpClient } from './config';
 import buildQuery from './lib/buildQuery';
+
 async function fetchCourses() {
   const res = await httpClient.get('courses');
   return res.data;
@@ -19,7 +21,12 @@ async function getCourseEnroll(options: {
   courseId?: number;
   courseAcronym?: string;
   slotId?: number;
-}) {
+}): Promise<{
+  course: ICourse;
+  slot: ISlot;
+  reservation: IReservation;
+  pricingPlans: IPricingPlan[];
+}> {
   const { courseId, courseAcronym, slotId } = options;
   const query = buildQuery({
     courseId: courseId || undefined,

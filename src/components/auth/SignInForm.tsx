@@ -9,9 +9,11 @@ interface FormData {
   password: string;
 }
 
-const ERROR_RESPONSE = {
+const ERROR_RESPONSE: Record<string, string> = {
   'Incorrect email.': 'El correo no está registrado.',
   'Incorrect password.': 'La contraseña es incorrecta.',
+  'Please confirm your email address. A confirmation link was (re)sent to your email.':
+    'Por favor confirma tu correo electrónico. Se ha enviado un enlace de confirmación a tu email.',
 };
 
 export default function SignInForm() {
@@ -81,9 +83,8 @@ export default function SignInForm() {
           navigate('/app');
         }
       } else {
-        const errorMessage =
-          ERROR_RESPONSE[res.message as keyof typeof ERROR_RESPONSE] || 'Error desconocido';
-        setFeedback(errorMessage);
+        // Usar el mensaje mapeado si existe, sino usar el mensaje del servidor directamente
+        setFeedback(ERROR_RESPONSE[res.message || ''] || res.message || 'Error desconocido');
       }
     } catch (error: any) {
       setFeedback('Error de red o servidor.' + error.message);

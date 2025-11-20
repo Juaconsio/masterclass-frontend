@@ -1,9 +1,9 @@
-import type { Payment, Reservation } from '@/interfaces';
+import type { IPayment, IReservation } from '@/interfaces';
 
 type SuccessModalProps = {
-  reservation: Reservation;
-  payment: Payment;
-  setShowModal: (show: boolean) => void;
+  reservation: IReservation;
+  payment: IPayment;
+  onClose: () => void;
 };
 
 export default function SuccessModal(props: SuccessModalProps) {
@@ -31,7 +31,7 @@ ${bankData.email}
     });
   };
 
-  const { reservation, payment, setShowModal } = props;
+  const { reservation, payment, onClose } = props;
   return (
     <dialog className="modal modal-open">
       <div className="modal-box max-w-2xl">
@@ -146,13 +146,13 @@ ${bankData.email}
             </svg>
             Copiar Datos
           </button>
-          <button className="btn" onClick={() => setShowModal(false)}>
+          <button className="btn" onClick={onClose}>
             Cerrar
           </button>
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button onClick={() => setShowModal(false)}>close</button>
+        <button onClick={onClose}>Cerrar</button>
       </form>
     </dialog>
   );
