@@ -153,7 +153,12 @@ export function ReservationsCalendar({
                   action={
                     <div className="flex gap-2">
                       {event.class && (
-                        <a href={`#`} className="btn btn-primary btn-sm">
+                        <a
+                          href={`https://meet.jit.si/${event.link}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-primary btn-sm"
+                        >
                           Ver clase
                         </a>
                       )}
