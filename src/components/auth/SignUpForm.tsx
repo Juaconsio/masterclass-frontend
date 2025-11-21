@@ -81,16 +81,14 @@ export default function SignUpForm() {
   const onSubmit = async (data: FormData) => {
     setFeedback('');
     try {
-      const { ok } = await registerUser(data);
-      if (ok) {
-        // After successful registration, redirect to a page that tells the user
-        // to check their email for a confirmation link.
-        window.location.href = '/check-email';
+      await registerUser(data);
+      window.location.href = '/check-email';
+    } catch (error) {
+      if (error instanceof Error) {
+        setFeedback(error.message);
       } else {
-        setFeedback('  incorrectas o error de servidor.');
+        setFeedback('Error de red o servidor.');
       }
-    } catch {
-      setFeedback('Error de red o servidor.');
     }
   };
 
