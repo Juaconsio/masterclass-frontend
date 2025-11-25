@@ -67,6 +67,7 @@ export default function Spa() {
               <Route index element={<Courses />} />
               <Route path=":courseId" element={<StudentCourseView />} />
             </Route>
+            <Route path="perfil" element={<Profile />} />
           </Route>
 
           {/* Checkout público */}

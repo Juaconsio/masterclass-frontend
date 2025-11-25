@@ -147,16 +147,12 @@ const NavBar: React.FC = () => {
 
       {/* Opciones adicionales */}
       <ul className="menu">
-        {/* <li>
-          <Link
-            to={isAdmin ? '/admin/profile' : '/app/profile'}
-            onClick={closeDrawer}
-            className="text-sm"
-          >
+        <li>
+          <Link to="/app/perfil" onClick={closeDrawer} className="text-sm">
             <User className="h-4 w-4" />
             Mi Perfil
           </Link>
-        </li> */}
+        </li>
         {isAdmin && (
           <li>
             {isStudentView ? (

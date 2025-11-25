@@ -72,4 +72,16 @@ async function getAdminToken(
   }
 }
 
-export { registerUser, getToken, getAdminToken, validateToken };
+async function updatePassword(payload: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<void> {
+  try {
+    await httpClient.patch('auth/change-password', payload);
+  } catch (error: any) {
+    console.error('Error updating password:', error);
+    throw new Error(error.response?.data?.message || 'Error al actualizar contraseña');
+  }
+}
+
+export { registerUser, getToken, getAdminToken, validateToken, updatePassword };
