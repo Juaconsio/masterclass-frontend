@@ -16,7 +16,6 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const isAuthenticated = !!user;
-  const navigate = useNavigate();
 
   const handleToken = (token: string) => {
     setUser(jwtDecode(token));

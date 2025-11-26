@@ -8,4 +8,4 @@ export type MaterialType = 'guide' | 'slides' | 'exercises' | 'solutions' | 'rec
 export type AccessPolicy = 'pre_class' | 'post_class' | 'no_show_restricted';
 
 // User role (not in Prisma but useful for frontend)
-export type UserRole = 'student' | 'professor' | 'admin';
+export type UserRole = 'user' | 'professor' | 'admin';

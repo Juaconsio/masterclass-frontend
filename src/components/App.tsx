@@ -14,6 +14,7 @@ import StudentCourseView from './StudentCourseView';
 import Reservations from './reservations';
 import Checkout from '@components/checkOut';
 import { AdminDashboard, AdminCourses, AdminStudents, AdminPayments } from '@components/admin';
+import Profile from '@/components/profile/Profile';
 
 export default function Spa() {
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -21,6 +22,21 @@ export default function Spa() {
     const { isAuthenticated, isLoading } = useSessionContext();
     if (isLoading) return null; // Could render a spinner here
     if (!isAuthenticated) return <Navigate to="/ingresar" replace />;
+    return <>{children}</>;
+  };
+
+  const ProtectedProfessorRoute = ({ children }: { children: React.ReactNode }) => {
+    const { isAuthenticated, isLoading, user } = useSessionContext();
+
+    if (isLoading) return null; // Could render a spinner here
+    if (!isAuthenticated) return <Navigate to="/ingresar" replace />;
+
+    // Verificar que el usuario tenga rol de profesor
+    const isProfessor = user?.role === 'professor' || user?.role === 'profesor';
+    if (!isProfessor) {
+      return <AccessDenied />;
+    }
+
     return <>{children}</>;
   };
 
@@ -72,6 +88,21 @@ export default function Spa() {
 
           {/* Checkout público */}
           <Route path="/checkout" element={<Checkout />} />
+
+          {/* Rutas de profesores */}
+          <Route
+            path="/profesor"
+            element={
+              <ProtectedProfessorRoute>
+                <AppLayout />
+              </ProtectedProfessorRoute>
+            }
+          >
+            <Route
+              index
+              element={<div className="p-8 text-2xl">Dashboard de Profesor (En desarrollo)</div>}
+            />
+          </Route>
 
           {/* Rutas de administración */}
           <Route

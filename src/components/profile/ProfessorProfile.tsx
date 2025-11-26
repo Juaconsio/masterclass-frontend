@@ -1,10 +1,10 @@
 import BaseProfile, { type ProfileConfig } from './BaseProfile';
-import { getMe, updateMe } from '@/client/students';
+import { getMyProfessorProfile, updateMyProfessorProfile } from '@/client/professors';
 
-const studentProfileConfig: ProfileConfig = {
-  title: 'Mi Perfil',
-  fetchProfile: getMe,
-  updateProfile: updateMe,
+const professorProfileConfig: ProfileConfig = {
+  title: 'Mi Perfil de Profesor',
+  fetchProfile: getMyProfessorProfile,
+  updateProfile: updateMyProfessorProfile,
   fields: [
     {
       name: 'name',
@@ -30,9 +30,17 @@ const studentProfileConfig: ProfileConfig = {
       format: 'phone',
       helpText: 'Formato chileno',
     },
+    {
+      name: 'bio',
+      label: 'Biografía',
+      type: 'textarea',
+      placeholder: 'Describe tu experiencia y especialidades...',
+      optional: true,
+      rows: 5,
+    },
   ],
 };
 
-export default function StudentProfile() {
-  return <BaseProfile config={studentProfileConfig} />;
+export default function ProfessorProfile() {
+  return <BaseProfile config={professorProfileConfig} />;
 }

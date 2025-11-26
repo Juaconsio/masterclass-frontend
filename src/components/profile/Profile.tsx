@@ -1,4 +1,4 @@
-import { useSessionContext } from './../..//context/SessionContext';
+import { useSessionContext } from '../../context/SessionContext';
 import AdminProfile from './AdminProfile';
 import ProfessorProfile from './ProfessorProfile';
 import StudentProfile from './StudentProfile';

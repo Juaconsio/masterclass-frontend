@@ -1,5 +1,6 @@
 import { httpClient } from './config';
 import { jwtDecode } from 'jwt-decode';
+import type { UserRole } from '../interfaces/enums';
 
 async function registerUser(payload: any) {
   try {
@@ -31,7 +32,11 @@ async function validateToken() {
   }
 }
 
-async function getToken(payload: any): Promise<{ ok: boolean; token?: string; message?: string }> {
+async function getToken(payload: {
+  email: string;
+  password: string;
+  accountType: UserRole;
+}): Promise<{ ok: boolean; token?: string; message?: string }> {
   const tokenValidation = await validateToken();
   if (tokenValidation) return { ok: true, token: tokenValidation };
   try {
@@ -48,30 +53,6 @@ async function getToken(payload: any): Promise<{ ok: boolean; token?: string; me
   }
 }
 
-async function getAdminToken(
-  payload: any
-): Promise<{ ok: boolean; token?: string; message?: string }> {
-  const tokenValidation = await validateToken();
-  if (tokenValidation) {
-    // Verificar que el token existente sea de admin
-    const decoded: any = jwtDecode(tokenValidation);
-    if (decoded.role === 'admin' || decoded.isAdmin === true) {
-      return { ok: true, token: tokenValidation };
-    }
-  }
-
-  try {
-    const res = await httpClient.post('admin/login', payload);
-    const userData = JSON.stringify(jwtDecode(res.data.token));
-    localStorage.setItem('user', userData);
-    localStorage.setItem('token', res.data.token);
-    return { ok: true, token: res.data.token };
-  } catch (error: any) {
-    console.error('Error obteniendo token de admin:', error.response?.data?.message);
-    return { ok: false, message: error.response?.data?.message || 'Error desconocido' };
-  }
-}
-
 async function updatePassword(payload: {
   currentPassword: string;
   newPassword: string;
@@ -84,4 +65,4 @@ async function updatePassword(payload: {
   }
 }
 
-export { registerUser, getToken, getAdminToken, validateToken, updatePassword };
+export { registerUser, getToken, validateToken, updatePassword };

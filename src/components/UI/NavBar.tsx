@@ -35,6 +35,7 @@ const NavBar: React.FC = () => {
 
   // Determinar si el usuario es admin
   const isAdmin = user?.role === 'admin' || user?.isAdmin;
+  const isProfessor = user?.role === 'professor';
   const isStudentView = location.pathname.startsWith('/app');
   // Links según el rol
   const links: NavLink[] = useMemo(() => {
@@ -51,6 +52,16 @@ const NavBar: React.FC = () => {
         { label: 'Reservas', href: '/admin/reservas', icon: <Calendar className="h-5 w-5" /> },
         { label: 'Pagos', href: '/admin/pagos', icon: <CreditCard className="h-5 w-5" /> },
       ];
+    } else if (isProfessor) {
+      return [
+        { label: 'Dashboard', href: '/profesor', icon: <LayoutDashboard className="h-5 w-5" /> },
+        { label: 'Mis Clases', href: '/profesor/clases', icon: <BookOpen className="h-5 w-5" /> },
+        {
+          label: 'Calendario',
+          href: '/profesor/calendario',
+          icon: <Calendar className="h-5 w-5" />,
+        },
+      ];
     } else {
       return [
         { label: 'Inicio', href: '/app', icon: <Home className="h-5 w-5" /> },
@@ -58,7 +69,7 @@ const NavBar: React.FC = () => {
         { label: 'Reservas', href: '/app/reservas', icon: <Calendar className="h-5 w-5" /> },
       ];
     }
-  }, [isAdmin]);
+  }, [isAdmin, isProfessor]);
 
   const isActive = (href: string) => {
     const path = location.pathname;
