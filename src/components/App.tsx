@@ -6,7 +6,6 @@ import AppLayout from '@layouts/appLayout';
 import AdminLayout from '@layouts/adminLayout';
 import SignInForm from '@components/auth/SignInForm';
 import SignUpForm from '@components/auth/SignUpForm';
-import AdminSignInForm from '@components/auth/AdminSignInForm';
 import { NotFound, AccessDenied } from '@components/UI';
 import Home from './home';
 import Courses from './courses';
@@ -65,7 +64,6 @@ export default function Spa() {
           <Route element={<AuthLayout />}>
             <Route path="/ingresar" element={<SignInForm />} />
             <Route path="/registrar" element={<SignUpForm />} />
-            <Route path="/admin/ingresar" element={<AdminSignInForm />} />
           </Route>
 
           {/* Rutas protegidas */}
