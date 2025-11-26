@@ -26,7 +26,7 @@ async function deleteProfessor() {
  */
 export async function getMyProfessorProfile(): Promise<IProfessor> {
   try {
-    const response = await httpClient.get<IProfessor>('professors/me/profile');
+    const response = await httpClient.get<IProfessor>('professors/me');
     return response.data;
   } catch (error: any) {
     console.error('Error fetching professor profile:', error);
@@ -44,7 +44,7 @@ export async function updateMyProfessorProfile(payload: {
   bio?: string | null;
 }): Promise<IProfessor> {
   try {
-    const response = await httpClient.patch<IProfessor>('professors/me/profile', payload);
+    const response = await httpClient.put<IProfessor>('professors/me', payload);
     return response.data;
   } catch (error: any) {
     console.error('Error updating professor profile:', error);

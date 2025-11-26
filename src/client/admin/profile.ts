@@ -1,12 +1,9 @@
 import { httpClient } from '../config';
 import type { IAdmin } from '@/interfaces/models';
 
-/**
- * Obtener perfil del administrador autenticado
- */
 export async function getMyAdminProfile(): Promise<IAdmin> {
   try {
-    const response = await httpClient.get<IAdmin>('admin/me/profile');
+    const response = await httpClient.get<IAdmin>('admin/me');
     return response.data;
   } catch (error: any) {
     console.error('Error fetching admin profile:', error);
@@ -14,9 +11,6 @@ export async function getMyAdminProfile(): Promise<IAdmin> {
   }
 }
 
-/**
- * Actualizar perfil del administrador autenticado
- */
 export async function updateMyAdminProfile(payload: {
   name?: string;
   email?: string;
@@ -30,9 +24,6 @@ export async function updateMyAdminProfile(payload: {
   }
 }
 
-/**
- * Actualizar contraseña del administrador autenticado
- */
 export async function updateMyAdminPassword(payload: {
   currentPassword: string;
   newPassword: string;
