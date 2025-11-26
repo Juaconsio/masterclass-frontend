@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { getToken } from '@client/auth';
+import { useTokenRedirect } from '@client/useTokenRedirect';
 import { useForm } from 'react-hook-form';
 import { useSessionContext } from '../../context/SessionContext';
 import clsx from 'clsx';
 import { useLocation, useNavigate } from 'react-router';
 import type { UserRole } from '@/interfaces/enums';
-import { ShieldCheck, UserStar } from 'lucide-react';
 
 interface FormData {
   email: string;
@@ -42,43 +42,7 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
   }, [location]);
   const [userRole, setUserRole] = useState<UserRole>(initialUserRole || inferredRoleFromPath);
 
-  // TODO: REFAcTOREAR ESTO A UN HOOK con el hook en client
-  useEffect(() => {
-    const checkToken = async () => {
-      try {
-        const token = localStorage.getItem('token') || sessionStorage.getItem('token') || undefined;
-        if (!token) return;
-
-        const jwtModule: any = await import('jwt-decode');
-        const decoded: any =
-          typeof jwtModule === 'function'
-            ? jwtModule(token)
-            : jwtModule.jwtDecode
-              ? jwtModule.jwtDecode(token)
-              : jwtModule.default
-                ? jwtModule.default(token)
-                : undefined;
-
-        if (!decoded) return;
-
-        // verificar expiración si existe el claim exp
-        if (decoded.exp && Date.now() / 1000 > decoded.exp) {
-          localStorage.removeItem('token');
-          sessionStorage.removeItem('token');
-          return;
-        }
-
-        // pasar token al contexto y redirigir según rol
-        handleToken(token);
-        const isAdmin = decoded?.role === 'admin' || decoded?.isAdmin === true;
-        navigate(isAdmin ? '/admin' : '/app');
-      } catch {
-        // no hacer nada si falla la verificación
-      }
-    };
-
-    checkToken();
-  }, []);
+  useTokenRedirect({ onTokenValid: handleToken });
 
   const onSubmit = async (data: FormData) => {
     setFeedback('');
