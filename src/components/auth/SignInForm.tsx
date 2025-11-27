@@ -5,7 +5,6 @@ import { useSessionContext } from '../../context/SessionContext';
 import clsx from 'clsx';
 import { useLocation, useNavigate } from 'react-router';
 import type { UserRole } from '@/interfaces/enums';
-import { ShieldCheck, UserStar } from 'lucide-react';
 
 interface FormData {
   email: string;
@@ -22,6 +21,24 @@ const ERROR_RESPONSE: Record<string, string> = {
 interface SignInFormProps {
   initialUserRole?: UserRole;
 }
+
+const roleTexts: Record<UserRole, { title: string; subtitle: string; helper?: string }> = {
+  user: {
+    title: 'Iniciar sesión',
+    subtitle: 'Bienvenido de vuelta. Ingresa tus credenciales para continuar.',
+    helper: 'Selecciona rol si deseas acceder como profesor o admin.',
+  },
+  professor: {
+    title: 'Panel Profesor',
+    subtitle: 'Acceso para profesores',
+    helper: 'Ingresa tus credenciales de profesor.',
+  },
+  admin: {
+    title: 'Panel Admin',
+    subtitle: 'Acceso exclusivo para administradores',
+    helper: 'Solo cuentas autorizadas pueden acceder.',
+  },
+};
 
 export default function SignInForm({ initialUserRole }: SignInFormProps) {
   const { handleToken } = useSessionContext();
@@ -109,70 +126,12 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h2 className="text-primary mb-1 text-3xl font-bold">
-            {userRole === 'admin'
-              ? 'Panel Admin'
-              : userRole === 'professor'
-                ? 'Panel Profesor'
-                : 'Iniciar sesión'}
-          </h2>
-          <p className="text-base-content">
-            {userRole === 'admin'
-              ? 'Acceso exclusivo para administradores'
-              : userRole === 'professor'
-                ? 'Acceso para profesores'
-                : 'Bienvenido de vuelta. Ingresa tus credenciales para continuar.'}
-          </p>
-        </div>
-        <div className="join">
-          <button
-            type="button"
-            className={clsx('btn join-item', userRole === 'user' ? 'btn-primary' : 'btn-ghost')}
-            onClick={() => setUserRole('user')}
-          >
-            Usuario
-          </button>
-          <button
-            type="button"
-            className={clsx(
-              'btn join-item',
-              userRole === 'professor' ? 'btn-secondary' : 'btn-ghost'
-            )}
-            onClick={() => setUserRole('professor')}
-          >
-            Profesor
-          </button>
-          <button
-            type="button"
-            className={clsx('btn join-item', userRole === 'admin' ? 'btn-accent' : 'btn-ghost')}
-            onClick={() => setUserRole('admin')}
-          >
-            Admin
-          </button>
+        <div className="min-w-[16rem] md:min-w-[22rem] lg:min-w-[26rem]">
+          <h2 className="text-primary mb-1 text-3xl font-bold">{roleTexts[userRole].title}</h2>
+          <p className="text-base-content">{roleTexts[userRole].subtitle}</p>
         </div>
       </div>
 
-      {userRole === 'admin' && (
-        <div className="alert alert-warning mb-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 shrink-0 stroke-current"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
-          <span className="text-sm">
-            Solo usuarios con permisos de administrador pueden acceder.
-          </span>
-        </div>
-      )}
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
         <input
           type="email"
@@ -196,7 +155,7 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
         <div className="text-error mt-2 h-fit min-h-[1.5em] text-sm"> {feedback}</div>
       </form>
       <div className="mt-6 space-y-2 text-center">
-        <div>
+        <div className="min-w-[16rem] md:min-w-[22rem] lg:min-w-[26rem]">
           {userRole === 'admin' ? (
             <a href="/ingresar" className="link link-primary text-sm">
               ← Volver al inicio de sesión normal
@@ -210,10 +169,40 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
             </>
           )}
         </div>
-        <div className="text-xs opacity-60">
-          {userRole === 'user' && 'Selecciona rol si deseas acceder como profesor o admin.'}
-          {userRole === 'professor' && 'Ingresa tus credenciales de profesor.'}
-          {userRole === 'admin' && 'Solo cuentas autorizadas pueden acceder.'}
+        <div className="min-w-[16rem] text-xs opacity-60 md:min-w-[22rem] lg:min-w-[26rem]">
+          {roleTexts[userRole].helper}
+        </div>
+        <div className="join my-2">
+          <button
+            type="button"
+            className={clsx(
+              'btn join-item',
+              userRole === 'user' ? 'btn-primary btn-soft' : 'btn-ghost'
+            )}
+            onClick={() => setUserRole('user')}
+          >
+            Estudiante
+          </button>
+          <button
+            type="button"
+            className={clsx(
+              'btn join-item',
+              userRole === 'professor' ? 'btn-secondary btn-soft' : 'btn-ghost'
+            )}
+            onClick={() => setUserRole('professor')}
+          >
+            Profesor
+          </button>
+          <button
+            type="button"
+            className={clsx(
+              'btn join-item',
+              userRole === 'admin' ? 'btn-accent btn-soft' : 'btn-ghost'
+            )}
+            onClick={() => setUserRole('admin')}
+          >
+            Admin
+          </button>
         </div>
       </div>
     </>

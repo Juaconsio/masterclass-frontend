@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { registerUser } from '@client/auth';
 import { useForm, Controller } from 'react-hook-form';
 import clsx from 'clsx';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import phoneSchema from './lib/numberhelper';
-import rutSchema from './lib/rutValidator';
-import { formatPhoneInput, formatRutInput } from './lib/formatters';
+import { phoneSchema, rutSchema } from '@/lib/schemas';
+import { formatPhoneInput } from '@/lib/formatPhone';
+import { formatRutInput } from '@/lib/rut';
 import { useEffect } from 'react';
 import { useSessionContext } from '../../context/SessionContext';
 import { useNavigate } from 'react-router';

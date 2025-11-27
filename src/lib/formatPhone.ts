@@ -78,3 +78,19 @@ export function cleanPhone(phone: string): string {
 
   return `+${digits}`;
 }
+
+/**
+ * Validates a Chilean mobile phone number.
+ * Accepts inputs with or without country code and formatting.
+ * Rules: 9-digit national number starting with 9 (mobile).
+ * @param phone - Raw or formatted phone string
+ * @returns True if valid, false otherwise
+ */
+export function validatePhone(phone: string | null | undefined): boolean {
+  if (!phone) return false;
+  const digits = phone.replace(/\D/g, '');
+  let national = digits;
+  if (digits.startsWith('56')) national = digits.slice(2);
+  if (national.length !== 9) return false;
+  return national[0] === '9';
+}
