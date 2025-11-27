@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { formatPhone, formatPhoneInput } from '@/lib/formatPhone';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { formatPhone, formatPhoneInput, cleanPhone } from '@/lib/formatPhone';
+import { formatRut, formatRutInput, normalizeRut } from '@/lib/rut';
+import { rutSchema, phoneSchema } from '@/lib/schemas';
 import { updatePassword } from '@/client/auth';
 
 type FeedbackType = {
@@ -17,9 +21,8 @@ type ProfileField = {
   optional?: boolean;
   rows?: number;
   maxLength?: number;
-  format?: 'phone';
+  format?: 'phone' | 'rut';
   helpText?: string;
-  readOnly?: boolean;
 };
 
 type ProfileConfig = {
@@ -56,7 +59,9 @@ function ProfileView({
             <p className="text-lg whitespace-pre-wrap">
               {field.format === 'phone'
                 ? formatPhone(data[field.name]) || 'No especificado'
-                : data[field.name] || 'No especificado'}
+                : field.format === 'rut'
+                  ? formatRut(data[field.name]) || 'No especificado'
+                  : data[field.name] || 'No especificado'}
             </p>
           </div>
         ))}
@@ -75,9 +80,33 @@ function ProfileEditForm({
   data: Record<string, any>;
   config: ProfileConfig;
   onCancel: () => void;
-  onSuccess: () => void;
+  onSuccess: (updated: Record<string, any>) => void;
   setFeedback: (feedback: FeedbackType) => void;
 }) {
+  // Build Zod schema dynamically from config
+  const zodShape: Record<string, z.ZodTypeAny> = {};
+  for (const field of config.fields) {
+    const makeOptional = (schema: z.ZodTypeAny) =>
+      z.preprocess((v) => (v === '' ? undefined : v), schema.optional());
+
+    let base: z.ZodTypeAny;
+    if (field.format === 'rut') {
+      base = field.required ? rutSchema : makeOptional(rutSchema);
+    } else if (field.format === 'phone') {
+      base = field.required ? phoneSchema : makeOptional(phoneSchema);
+    } else if (field.type === 'email') {
+      const email = z.email('Email inválido');
+      base = field.required ? email : makeOptional(email);
+    } else {
+      const str = z.string();
+      base = field.required ? str.min(1, `${field.label} es requerido`) : str.optional();
+    }
+
+    zodShape[field.name] = base;
+  }
+
+  const schema = z.object(zodShape);
+
   const {
     register,
     handleSubmit,
@@ -86,6 +115,9 @@ function ProfileEditForm({
     formState: { errors, isSubmitting },
     setError,
   } = useForm<any>({
+    resolver: zodResolver(schema as any),
+    mode: 'onChange',
+    reValidateMode: 'onChange',
     defaultValues: config.fields.reduce(
       (acc, field) => ({
         ...acc,
@@ -98,32 +130,26 @@ function ProfileEditForm({
   const watchedFields = watch();
 
   const onSubmit = async (formData: any) => {
-    for (const field of config.fields) {
-      if (field.required && !formData[field.name]?.trim()) {
-        setError(field.name, { message: `${field.label} es requerido` });
-        return;
-      }
-
-      if (field.type === 'email' && formData[field.name]) {
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData[field.name])) {
-          setError(field.name, { message: 'Email inválido' });
-          return;
-        }
-      }
-    }
-
     try {
       const payload = config.fields.reduce(
-        (acc, field) => ({
-          ...acc,
-          [field.name]: formData[field.name] || null,
-        }),
-        {}
+        (acc, field) => {
+          let value = formData[field.name];
+          if (field.format === 'rut' && value) {
+            value = normalizeRut(value);
+          }
+          if (field.format === 'phone' && value) {
+            value = cleanPhone(value);
+          }
+          return {
+            ...acc,
+            [field.name]: value || null,
+          };
+        },
+        {} as Record<string, any>
       );
-
-      await config.updateProfile(payload);
+      const updated = await config.updateProfile(payload);
       setFeedback({ message: 'Perfil actualizado correctamente', type: 'success' });
-      onSuccess();
+      onSuccess(updated || payload);
     } catch (error: any) {
       setFeedback({
         message: error.message || 'No se pudo actualizar el perfil',
@@ -140,29 +166,6 @@ function ProfileEditForm({
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {config.fields.map((field) => {
-          if (field.readOnly) {
-            return (
-              <div key={field.name} className="alert alert-info">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  className="h-6 w-6 shrink-0 stroke-current"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  ></path>
-                </svg>
-                <span>
-                  {field.label} no puede ser modificado. Contacta al administrador del sistema.
-                </span>
-              </div>
-            );
-          }
-
           const isTextarea = field.type === 'textarea';
           const inputClass = isTextarea ? 'textarea' : 'input';
           const errorClass = errors[field.name]
@@ -196,7 +199,19 @@ function ProfileEditForm({
                   value={watchedFields[field.name] || ''}
                   onChange={(e) => {
                     const formatted = formatPhoneInput(e.target.value);
-                    setValue(field.name, formatted);
+                    setValue(field.name, formatted, { shouldValidate: true, shouldTouch: true });
+                  }}
+                />
+              ) : field.format === 'rut' ? (
+                <input
+                  type={field.type}
+                  className={`${inputClass} ${inputClass}-bordered w-full ${errorClass}`}
+                  placeholder={field.placeholder}
+                  maxLength={field.maxLength || 12}
+                  value={watchedFields[field.name] || ''}
+                  onChange={(e) => {
+                    const formatted = formatRutInput(e.target.value);
+                    setValue(field.name, formatted, { shouldValidate: true, shouldTouch: true });
                   }}
                 />
               ) : (
@@ -410,9 +425,16 @@ export default function BaseProfile({ config }: { config: ProfileConfig }) {
     fetchProfile();
   }, []);
 
-  const handleProfileSuccess = () => {
+  const handleProfileSuccess = (updated: Record<string, any>) => {
+    const nextData = config.fields.reduce(
+      (acc, field) => ({
+        ...acc,
+        [field.name]: updated[field.name] ?? profileData?.[field.name] ?? '',
+      }),
+      {} as Record<string, any>
+    );
+    setProfileData(nextData);
     setIsEditingProfile(false);
-    fetchProfile();
   };
 
   const handlePasswordSuccess = () => {

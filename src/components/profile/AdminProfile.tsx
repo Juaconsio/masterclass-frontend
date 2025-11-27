@@ -24,7 +24,10 @@ const adminProfileConfig: ProfileConfig = {
       name: 'rut',
       label: 'RUT',
       type: 'text',
-      readOnly: true,
+      placeholder: '12.345.678-9',
+      required: true,
+      format: 'rut',
+      helpText: 'Formato chileno con puntos y guion',
     },
   ],
 };

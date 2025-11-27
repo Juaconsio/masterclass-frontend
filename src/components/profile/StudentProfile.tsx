@@ -21,6 +21,15 @@ const studentProfileConfig: ProfileConfig = {
       required: true,
     },
     {
+      name: 'rut',
+      label: 'RUT',
+      type: 'text',
+      placeholder: '12.345.678-9',
+      required: true,
+      format: 'rut',
+      helpText: 'Formato chileno con puntos y guion',
+    },
+    {
       name: 'phone',
       label: 'Teléfono',
       type: 'tel',

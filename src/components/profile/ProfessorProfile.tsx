@@ -21,16 +21,6 @@ const professorProfileConfig: ProfileConfig = {
       required: true,
     },
     {
-      name: 'phone',
-      label: 'Teléfono',
-      type: 'tel',
-      placeholder: '+56 9 1234 5678',
-      optional: true,
-      maxLength: 17,
-      format: 'phone',
-      helpText: 'Formato chileno',
-    },
-    {
       name: 'bio',
       label: 'Biografía',
       type: 'textarea',
