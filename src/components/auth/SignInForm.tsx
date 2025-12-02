@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getToken } from '@client/auth';
 import { useForm } from 'react-hook-form';
 import { useSessionContext } from '../../context/SessionContext';
 import clsx from 'clsx';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
+import type { UserRole } from '@/interfaces/enums';
+
 interface FormData {
   email: string;
   password: string;
@@ -16,9 +18,32 @@ const ERROR_RESPONSE: Record<string, string> = {
     'Por favor confirma tu correo electrónico. Se ha enviado un enlace de confirmación a tu email.',
 };
 
-export default function SignInForm() {
+interface SignInFormProps {
+  initialUserRole?: UserRole;
+}
+
+const roleTexts: Record<UserRole, { title: string; subtitle: string; helper?: string }> = {
+  user: {
+    title: 'Iniciar sesión',
+    subtitle: 'Bienvenido de vuelta. Ingresa tus credenciales para continuar.',
+    helper: 'Selecciona rol si deseas acceder como profesor o admin.',
+  },
+  professor: {
+    title: 'Panel Profesor',
+    subtitle: 'Acceso para profesores',
+    helper: 'Ingresa tus credenciales de profesor.',
+  },
+  admin: {
+    title: 'Panel Admin',
+    subtitle: 'Acceso exclusivo para administradores',
+    helper: 'Solo cuentas autorizadas pueden acceder.',
+  },
+};
+
+export default function SignInForm({ initialUserRole }: SignInFormProps) {
   const { handleToken } = useSessionContext();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     register,
@@ -26,6 +51,13 @@ export default function SignInForm() {
     formState: { errors, isSubmitting },
   } = useForm<FormData>();
   const [feedback, setFeedback] = useState('');
+  const inferredRoleFromPath: UserRole = useMemo(() => {
+    const path = location?.pathname || '';
+    if (path.includes('/admin')) return 'admin';
+    if (path.includes('/profesor') || path.includes('/professor')) return 'professor';
+    return 'user';
+  }, [location]);
+  const [userRole, setUserRole] = useState<UserRole>(initialUserRole || inferredRoleFromPath);
 
   // TODO: REFAcTOREAR ESTO A UN HOOK con el hook en client
   useEffect(() => {
@@ -68,7 +100,11 @@ export default function SignInForm() {
   const onSubmit = async (data: FormData) => {
     setFeedback('');
     try {
-      const res = await getToken(data);
+      const res = await getToken({
+        email: data.email,
+        password: data.password,
+        accountType: userRole,
+      });
       if (res.ok && res.token) {
         handleToken(res.token);
 
@@ -77,11 +113,7 @@ export default function SignInForm() {
         const isAdmin = decoded?.role === 'admin' || decoded?.isAdmin === true;
 
         // Redirigir según el rol
-        if (isAdmin) {
-          navigate('/admin');
-        } else {
-          navigate('/app');
-        }
+        navigate(isAdmin ? '/admin' : '/app');
       } else {
         // Usar el mensaje mapeado si existe, sino usar el mensaje del servidor directamente
         setFeedback(ERROR_RESPONSE[res.message || ''] || res.message || 'Error desconocido');
@@ -93,10 +125,13 @@ export default function SignInForm() {
 
   return (
     <>
-      <h2 className="text-primary mb-2 text-3xl font-bold">Iniciar sesión</h2>
-      <p className="text-base-content mb-6">
-        Bienvenido de vuelta. Ingresa tus credenciales para continuar.
-      </p>
+      <div className="mb-4 flex items-center justify-between">
+        <div className="min-w-[16rem] md:min-w-[22rem] lg:min-w-[26rem]">
+          <h2 className="text-primary mb-1 text-3xl font-bold">{roleTexts[userRole].title}</h2>
+          <p className="text-base-content">{roleTexts[userRole].subtitle}</p>
+        </div>
+      </div>
+
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
         <input
           type="email"
@@ -115,38 +150,60 @@ export default function SignInForm() {
         />
         {errors.password && <span className="text-error text-xs">{errors.password.message}</span>}
         <button type="submit" className="btn btn-primary w-full" disabled={isSubmitting}>
-          {isSubmitting ? 'Entrando...' : 'Entrar'}
+          {isSubmitting ? 'Verificando credenciales...' : 'Ingresar'}
         </button>
         <div className="text-error mt-2 h-fit min-h-[1.5em] text-sm"> {feedback}</div>
       </form>
       <div className="mt-6 space-y-2 text-center">
-        <div>
-          <span>¿No tienes cuenta?</span>
-          <a href="/registrar" className="link link-primary ml-2">
-            Regístrate
-          </a>
+        <div className="min-w-[16rem] md:min-w-[22rem] lg:min-w-[26rem]">
+          {userRole === 'admin' ? (
+            <a href="/ingresar" className="link link-primary text-sm">
+              ← Volver al inicio de sesión normal
+            </a>
+          ) : (
+            <>
+              <span>¿No tienes cuenta?</span>
+              <a href="/registrar" className="link link-primary ml-2">
+                Regístrate
+              </a>
+            </>
+          )}
         </div>
-        <div className="divider text-xs">O</div>
-        <a
-          href="/admin/ingresar"
-          className="link link-secondary flex items-center justify-center gap-2 text-sm"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+        <div className="min-w-[16rem] text-xs opacity-60 md:min-w-[22rem] lg:min-w-[26rem]">
+          {roleTexts[userRole].helper}
+        </div>
+        <div className="join my-2">
+          <button
+            type="button"
+            className={clsx(
+              'btn join-item',
+              userRole === 'user' ? 'btn-primary btn-soft' : 'btn-ghost'
+            )}
+            onClick={() => setUserRole('user')}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-            />
-          </svg>
-          Acceder como administrador
-        </a>
+            Estudiante
+          </button>
+          <button
+            type="button"
+            className={clsx(
+              'btn join-item',
+              userRole === 'professor' ? 'btn-secondary btn-soft' : 'btn-ghost'
+            )}
+            onClick={() => setUserRole('professor')}
+          >
+            Profesor
+          </button>
+          <button
+            type="button"
+            className={clsx(
+              'btn join-item',
+              userRole === 'admin' ? 'btn-accent btn-soft' : 'btn-ghost'
+            )}
+            onClick={() => setUserRole('admin')}
+          >
+            Admin
+          </button>
+        </div>
       </div>
     </>
   );

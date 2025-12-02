@@ -15,12 +15,13 @@ export default function CalendarTemplate() {
   const navigate = useNavigate();
   useEffect(() => {
     if (!['admin', 'teacher'].includes(user?.role || '')) {
-      // navigate('/app');
+      navigate('/app');
     }
   }, [user]);
   const { showConfirmation, ConfirmationModal } = useConfirmAction();
 
   const [selectedEvent, setSelectedEvent] = useState<IEvent | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [events, setEvents] = useState<IEvent[]>([]);
   const [showNewEventModal, setShowNewEventModal] = useState(false);
   const [showEventDetailsModal, setShowEventDetailsModal] = useState(false);
@@ -38,8 +39,9 @@ export default function CalendarTemplate() {
         const res = await fetchSlots();
         setEvents(res);
       } catch (err) {
-        console.error('Error fetching bookings', err);
-        setRequestError('Error fetching bookings');
+        setRequestError(
+          'Error fetching bookings' + (err instanceof Error ? `: ${err.message}` : '')
+        );
       } finally {
         setLoading(false);
       }
@@ -72,6 +74,11 @@ export default function CalendarTemplate() {
     if (createdEvent) {
       setEvents([...events, createdEvent]);
     }
+  }
+
+  function openCreateEventModal(date: Date) {
+    setSelectedDate(date);
+    setShowNewEventModal(true);
   }
 
   async function handleDelete(id: number) {
@@ -108,13 +115,14 @@ export default function CalendarTemplate() {
           onPrev={goPrevWeek}
           onNext={goNextWeek}
           onToday={goToday}
-          openCreateEventModal={() => setShowNewEventModal(true)}
+          openCreateEventModal={() => openCreateEventModal(new Date())}
         />
         <CalendarGrid
           currentWeek={currentWeek}
           events={events}
           loading={loading}
           onEventClick={handleClickOnEventSlot}
+          openCreateEventModal={(initialDate) => openCreateEventModal(initialDate ?? new Date())}
         />
         <EventDetailsModal
           event={selectedEvent}
@@ -128,6 +136,7 @@ export default function CalendarTemplate() {
           open={showNewEventModal}
           handleCreate={handleCreate}
           onClose={() => setShowNewEventModal(false)}
+          initialDate={selectedDate ?? null}
         />
       </div>
 

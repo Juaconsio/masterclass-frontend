@@ -1,5 +1,5 @@
-import { getStudents, deleteStudent, toggleStudentStatus } from '@/client/students';
-import type { Student, StudentFilters } from '@/client/students';
+import { getStudents, deleteStudent, toggleStudentStatus } from '@/client/admin/students';
+import type { Student, StudentFilters } from '@/client/admin/students';
 import type { UserRole } from '@/interfaces/enums';
 import { Table, type TableColumn, type TableAction } from '@components/UI';
 import { useTableData } from '@/hooks/useTableData';

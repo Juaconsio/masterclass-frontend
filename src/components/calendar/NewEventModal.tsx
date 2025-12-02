@@ -5,9 +5,15 @@ interface NewEventModalProps {
   open: boolean;
   onClose: (res?: IEvent) => void;
   handleCreate: (data: EventCreatePayload) => Promise<void>;
+  initialDate?: Date | null;
 }
 
-export default function NewEventModal({ open, onClose, handleCreate }: NewEventModalProps) {
+export default function NewEventModal({
+  open,
+  onClose,
+  handleCreate,
+  initialDate,
+}: NewEventModalProps) {
   if (!open) return null;
 
   async function submit(data: EventFormValues) {
@@ -27,13 +33,23 @@ export default function NewEventModal({ open, onClose, handleCreate }: NewEventM
     await handleCreate(payload);
   }
 
+  const initialValues: Partial<EventFormValues> = {
+    start: initialDate || undefined,
+  };
+
   if (!open) return null;
 
   return (
     <dialog open className="modal modal-open in-line">
       <div className="modal-box w-11/12 max-w-3xl">
         <h3 className="mb-4 text-lg font-bold">Crear Nuevo Evento</h3>
-        <EventForm submitLabel="Crear" onSubmit={submit} onCancel={onClose} />
+        <EventForm
+          submitLabel="Crear"
+          onSubmit={submit}
+          onCancel={onClose}
+          initialValues={initialValues}
+          mode="create"
+        />
       </div>
     </dialog>
   );

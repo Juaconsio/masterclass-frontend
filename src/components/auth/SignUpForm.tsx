@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { registerUser } from '@client/auth';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import clsx from 'clsx';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import phoneSchema from './lib/numberhelper';
-import rutSchema from './lib/rutValidator';
+import { phoneSchema, rutSchema } from '@/lib/schemas';
+import { formatPhoneInput } from '@/lib/formatPhone';
+import { formatRutInput } from '@/lib/rut';
 import { useEffect } from 'react';
 import { useSessionContext } from '../../context/SessionContext';
 import { useNavigate } from 'react-router';
@@ -68,6 +69,7 @@ export default function SignUpForm() {
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
@@ -79,16 +81,14 @@ export default function SignUpForm() {
   const onSubmit = async (data: FormData) => {
     setFeedback('');
     try {
-      const { ok } = await registerUser(data);
-      if (ok) {
-        // After successful registration, redirect to a page that tells the user
-        // to check their email for a confirmation link.
-        window.location.href = '/check-email';
+      await registerUser(data);
+      window.location.href = '/check-email';
+    } catch (error) {
+      if (error instanceof Error) {
+        setFeedback(error.message);
       } else {
-        setFeedback('  incorrectas o error de servidor.');
+        setFeedback('Error de red o servidor.');
       }
-    } catch {
-      setFeedback('Error de red o servidor.');
     }
   };
 
@@ -107,11 +107,22 @@ export default function SignUpForm() {
           className={clsx('input input-bordered w-full', { 'input-error': errors.name })}
         />
         {errors.name && <span className="text-error text-xs">{errors.name.message}</span>}
-        <input
-          type="text"
-          {...register('rut')}
-          placeholder="RUT"
-          className={clsx('input input-bordered w-full', { 'input-error': errors.rut })}
+        <Controller
+          control={control}
+          name="rut"
+          render={({ field }) => (
+            <input
+              type="text"
+              {...field}
+              value={field.value || ''}
+              onChange={(e) => {
+                const formatted = formatRutInput(e.target.value);
+                field.onChange(formatted);
+              }}
+              placeholder="RUT (ej: 12.345.678-9)"
+              className={clsx('input input-bordered w-full', { 'input-error': errors.rut })}
+            />
+          )}
         />
         {errors.rut && <span className="text-error text-xs">{errors.rut.message}</span>}
         <input
@@ -139,12 +150,23 @@ export default function SignUpForm() {
         {errors.confirmed_password && (
           <span className="text-error text-xs">{errors.confirmed_password.message}</span>
         )}
-        <input
-          type="string"
-          {...register('phone')}
-          placeholder="Ingresa tu número telefonico"
-          className={clsx('input input-bordered w-full', { 'input-error': errors.password })}
-          autoComplete="tel"
+        <Controller
+          control={control}
+          name="phone"
+          render={({ field }) => (
+            <input
+              type="tel"
+              {...field}
+              value={field.value || ''}
+              onChange={(e) => {
+                const formatted = formatPhoneInput(e.target.value);
+                field.onChange(formatted);
+              }}
+              placeholder="Teléfono (+569XXXXXXXX)"
+              className={clsx('input input-bordered w-full', { 'input-error': errors.phone })}
+              autoComplete="tel"
+            />
+          )}
         />
         {errors.phone && <span className="text-error text-xs">{errors.phone.message}</span>}
         <button type="submit" className="btn btn-primary w-full" disabled={isSubmitting}>

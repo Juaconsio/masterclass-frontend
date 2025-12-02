@@ -138,3 +138,46 @@ pnpm preview  # Preview production build
 - **Loading states**: Always show loading UI when `isLoading` from SessionContext or useTableData
 - **Form validation**: Use `react-hook-form` with controlled inputs, validate with `zod`
 - **Accessibility**: Use semantic HTML and DaisyUI's built-in ARIA attributes
+
+## Code Style Guidelines
+
+### Comments and Documentation
+
+- **Remove inline comments**: Code should be self-explanatory through clear naming and structure
+- **Use JSDoc for functions**: Document public APIs and utilities with JSDoc in English
+- **JSDoc format**:
+  ```typescript
+  /**
+   * Brief description of what the function does
+   * @param paramName - Parameter description
+   * @returns Description of return value
+   */
+  ```
+- **Language**: All JSDoc and code comments must be in English
+- **When to comment**: Only add comments for complex business logic or non-obvious algorithms
+
+### Function Exports
+
+- **Prefer named exports** over default exports for utilities and client functions
+- **Use `export async function`** pattern for API client methods
+- **Default exports** only for React components
+- **Pattern**:
+
+  ```typescript
+  // ✅ Good - Named exports for utilities
+  export async function getStudents(filters) { ... }
+  export function formatPhone(phone) { ... }
+
+  // ✅ Good - Default export for components
+  export default function StudentProfile() { ... }
+
+  // ❌ Avoid - Exporting object of functions
+  export default { getStudents, updateStudent };
+  ```
+
+### Helpers and Utilities
+
+- **Location**: Place in `src/lib/` directory
+- **Naming**: Use descriptive camelCase names (e.g., `formatPhone.ts`, `validateEmail.ts`)
+- **Single responsibility**: One helper file per domain/concern
+- **Export pattern**: Named exports for each utility function
