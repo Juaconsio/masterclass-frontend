@@ -125,13 +125,44 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
-        <div className="min-w-[16rem] md:min-w-[22rem] lg:min-w-[26rem]">
-          <h2 className="text-primary mb-1 text-3xl font-bold">{roleTexts[userRole].title}</h2>
-          <p className="text-base-content">{roleTexts[userRole].subtitle}</p>
-        </div>
+      <div className="mb-4">
+        <h2 className="text-primary mb-1 text-3xl font-bold">{roleTexts[userRole].title}</h2>
+        <p className="text-base-content">{roleTexts[userRole].subtitle}</p>
       </div>
+      <div className="text-xs opacity-60">{roleTexts[userRole].helper}</div>
 
+      <div className="join my-2">
+        <button
+          type="button"
+          className={clsx(
+            'btn join-item',
+            userRole === 'user' ? 'btn-primary btn-soft' : 'btn-ghost'
+          )}
+          onClick={() => setUserRole('user')}
+        >
+          Estudiante
+        </button>
+        <button
+          type="button"
+          className={clsx(
+            'btn join-item',
+            userRole === 'professor' ? 'btn-secondary btn-soft' : 'btn-ghost'
+          )}
+          onClick={() => setUserRole('professor')}
+        >
+          Profesor
+        </button>
+        <button
+          type="button"
+          className={clsx(
+            'btn join-item',
+            userRole === 'admin' ? 'btn-accent btn-soft' : 'btn-ghost'
+          )}
+          onClick={() => setUserRole('admin')}
+        >
+          Admin
+        </button>
+      </div>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
         <input
           type="email"
@@ -149,18 +180,18 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
           autoComplete="current-password"
         />
         {errors.password && <span className="text-error text-xs">{errors.password.message}</span>}
+        <div className="flex justify-end">
+          <a href="/reiniciar-contraseña" className="link link-primary text-sm">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
         <button type="submit" className="btn btn-primary w-full" disabled={isSubmitting}>
           {isSubmitting ? 'Verificando credenciales...' : 'Ingresar'}
         </button>
-        <div className="text-error mt-2 h-fit min-h-[1.5em] text-sm"> {feedback}</div>
       </form>
       <div className="mt-6 space-y-2 text-center">
         <div className="min-w-[16rem] md:min-w-[22rem] lg:min-w-[26rem]">
-          {userRole === 'admin' ? (
-            <a href="/ingresar" className="link link-primary text-sm">
-              ← Volver al inicio de sesión normal
-            </a>
-          ) : (
+          {userRole === 'user' && (
             <>
               <span>¿No tienes cuenta?</span>
               <a href="/registrar" className="link link-primary ml-2">
@@ -169,41 +200,7 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
             </>
           )}
         </div>
-        <div className="min-w-[16rem] text-xs opacity-60 md:min-w-[22rem] lg:min-w-[26rem]">
-          {roleTexts[userRole].helper}
-        </div>
-        <div className="join my-2">
-          <button
-            type="button"
-            className={clsx(
-              'btn join-item',
-              userRole === 'user' ? 'btn-primary btn-soft' : 'btn-ghost'
-            )}
-            onClick={() => setUserRole('user')}
-          >
-            Estudiante
-          </button>
-          <button
-            type="button"
-            className={clsx(
-              'btn join-item',
-              userRole === 'professor' ? 'btn-secondary btn-soft' : 'btn-ghost'
-            )}
-            onClick={() => setUserRole('professor')}
-          >
-            Profesor
-          </button>
-          <button
-            type="button"
-            className={clsx(
-              'btn join-item',
-              userRole === 'admin' ? 'btn-accent btn-soft' : 'btn-ghost'
-            )}
-            onClick={() => setUserRole('admin')}
-          >
-            Admin
-          </button>
-        </div>
+        <div className="text-error mt-2 h-fit min-h-[1.5em] text-sm">{feedback}</div>
       </div>
     </>
   );

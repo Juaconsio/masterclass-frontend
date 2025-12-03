@@ -5,10 +5,9 @@ import type { UserRole } from '../interfaces/enums';
 async function registerUser(payload: any) {
   try {
     const res = await httpClient.post('auth/register', payload);
-    if (res.status == 201) return { ok: true };
-    throw new Error('Error en el registro' + res.data?.message);
-  } catch (error) {
-    return { ok: false };
+    if (res.status === 201) return { ok: true };
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Error al registrar usuario');
   }
 }
 
@@ -60,9 +59,18 @@ async function updatePassword(payload: {
   try {
     await httpClient.patch('auth/change-password', payload);
   } catch (error: any) {
-    console.error('Error updating password:', error);
     throw new Error(error.response?.data?.message || 'Error al actualizar contraseña');
   }
 }
 
-export { registerUser, getToken, validateToken, updatePassword };
+async function requestPasswordReset(email: string): Promise<void> {
+  try {
+    await httpClient.post('auth/request-password-reset', { email });
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || 'Error al solicitar restablecimiento de contraseña'
+    );
+  }
+}
+
+export { registerUser, getToken, validateToken, updatePassword, requestPasswordReset };
