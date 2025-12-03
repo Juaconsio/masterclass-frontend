@@ -25,6 +25,10 @@ const signUpSchema = z
     path: ['confirmed_password'],
   });
 
+const ErrorResponse: Record<string, string> = {
+  'Email already registered': 'El correo electrónico ya está registrado.',
+};
+
 type FormData = z.infer<typeof signUpSchema>;
 
 export default function SignUpForm() {
@@ -85,7 +89,7 @@ export default function SignUpForm() {
       window.location.href = '/check-email';
     } catch (error) {
       if (error instanceof Error) {
-        setFeedback(error.message);
+        setFeedback(ErrorResponse[error.message] || error.message);
       } else {
         setFeedback('Error de red o servidor.');
       }
@@ -94,11 +98,13 @@ export default function SignUpForm() {
 
   return (
     <>
-      <h2 className="text-primary mb-2 text-3xl font-bold">Crea tu cuenta</h2>
-      <p className="text-base-content mb-6">
-        Registrate y sé parte de la comunidad. La oportunidad de aprobar esta luego de este
-        formulario
-      </p>
+      <div className="mb-6">
+        <h2 className="text-primary mb-2 text-3xl font-bold">Crea tu cuenta</h2>
+        <p className="text-base-content">
+          Registrate y sé parte de la comunidad. La oportunidad de aprobar esta luego de este
+          formulario
+        </p>
+      </div>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
         <input
           type="text"
