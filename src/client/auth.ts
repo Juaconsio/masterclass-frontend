@@ -73,4 +73,23 @@ async function requestPasswordReset(email: string): Promise<void> {
   }
 }
 
-export { registerUser, getToken, validateToken, updatePassword, requestPasswordReset };
+async function resetPassword(payload: {
+  token: string;
+  newPassword: string;
+  accountType: UserRole;
+}): Promise<void> {
+  try {
+    await httpClient.post('auth/reset-password', payload);
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Error al restablecer contraseña');
+  }
+}
+
+export {
+  registerUser,
+  getToken,
+  validateToken,
+  updatePassword,
+  requestPasswordReset,
+  resetPassword,
+};

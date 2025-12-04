@@ -15,6 +15,7 @@ import Checkout from '@components/checkOut';
 import { AdminDashboard, AdminCourses, AdminStudents, AdminPayments } from '@components/admin';
 import Profile from '@/components/profile/Profile';
 import ForgotPassword from './auth/forgotPassword';
+import ResetPassword from './auth/resetPassword';
 
 export default function Spa() {
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -66,6 +67,7 @@ export default function Spa() {
             <Route path="/ingresar" element={<SignInForm />} />
             <Route path="/registrar" element={<SignUpForm />} />
             <Route path="/reiniciar-contraseña" element={<ForgotPassword />} />
+            <Route path="/restablecer-contraseña" element={<ResetPassword />} />
           </Route>
 
           {/* Rutas protegidas */}
