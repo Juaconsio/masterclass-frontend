@@ -134,10 +134,7 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
       <div className="join my-2">
         <button
           type="button"
-          className={clsx(
-            'btn join-item',
-            userRole === 'user' ? 'btn-primary btn-soft' : 'btn-ghost'
-          )}
+          className={clsx('btn join-item', userRole === 'user' ? 'btn-secondary' : 'btn-ghost')}
           onClick={() => setUserRole('user')}
         >
           Estudiante
@@ -146,7 +143,7 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
           type="button"
           className={clsx(
             'btn join-item',
-            userRole === 'professor' ? 'btn-secondary btn-soft' : 'btn-ghost'
+            userRole === 'professor' ? 'btn-secondary' : 'btn-ghost'
           )}
           onClick={() => setUserRole('professor')}
         >
@@ -154,10 +151,7 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
         </button>
         <button
           type="button"
-          className={clsx(
-            'btn join-item',
-            userRole === 'admin' ? 'btn-accent btn-soft' : 'btn-ghost'
-          )}
+          className={clsx('btn join-item', userRole === 'admin' ? 'btn-secondary' : 'btn-ghost')}
           onClick={() => setUserRole('admin')}
         >
           Admin
@@ -181,11 +175,11 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
         />
         {errors.password && <span className="text-error text-xs">{errors.password.message}</span>}
         <div className="flex justify-end">
-          <a href="/reiniciar-contraseña" className="link link-primary text-sm">
+          <a href="/reiniciar-contraseña" className="link link-info link-hover text-sm">
             ¿Olvidaste tu contraseña?
           </a>
         </div>
-        <button type="submit" className="btn btn-primary w-full" disabled={isSubmitting}>
+        <button type="submit" className="btn btn-secondary w-full" disabled={isSubmitting}>
           {isSubmitting ? 'Verificando credenciales...' : 'Ingresar'}
         </button>
       </form>
@@ -194,7 +188,7 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
           {userRole === 'user' && (
             <>
               <span>¿No tienes cuenta?</span>
-              <a href="/registrar" className="link link-primary ml-2">
+              <a href="/registrar" className="link link-info link-hover ml-2">
                 Regístrate
               </a>
             </>
