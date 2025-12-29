@@ -1,18 +1,15 @@
 import { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
 import { adminCoursesClient, type AdminCourseDetail } from '../../client/admin/courses';
 import { Table, type TableColumn, type TableAction } from '@components/UI';
 
-interface CourseDetailProps {
-  courseId: number;
-  onBack: () => void;
-}
-
-export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
+export default function CourseDetail() {
   const [course, setCourse] = useState<AdminCourseDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'classes' | 'professors' | 'students'>(
     'overview'
   );
+  const courseId = Number(useParams<{ courseId: string }>().courseId);
 
   useEffect(() => {
     loadCourse();
@@ -20,6 +17,7 @@ export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
 
   const loadCourse = async () => {
     try {
+      console.log('Loading course with ID:', courseId);
       setLoading(true);
       const data = await adminCoursesClient.getById(courseId);
       setCourse(data);
@@ -42,9 +40,6 @@ export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
         <p className="text-error mb-4 text-lg">No se pudo cargar el curso</p>
-        <button className="btn btn-primary" onClick={onBack}>
-          Volver
-        </button>
       </div>
     );
   }
@@ -176,9 +171,6 @@ export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button className="btn btn-ghost btn-sm" onClick={onBack}>
-            ← Volver
-          </button>
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold">{course.title}</h1>

@@ -12,7 +12,13 @@ import Courses from './courses';
 import StudentCourseView from './StudentCourseView';
 import Reservations from './reservations';
 import Checkout from '@components/checkOut';
-import { AdminDashboard, AdminCourses, AdminStudents, AdminPayments } from '@components/admin';
+import {
+  AdminDashboard,
+  AdminCourses,
+  AdminStudents,
+  AdminPayments,
+  AdminCourseDetail,
+} from '@components/admin';
 import Profile from '@/components/profile/Profile';
 import ForgotPassword from './auth/forgotPassword';
 import ResetPassword from './auth/resetPassword';
@@ -116,7 +122,10 @@ export default function Spa() {
             }
           >
             <Route index element={<AdminDashboard />} />
-            <Route path="cursos" element={<AdminCourses />} />
+            <Route path="cursos">
+              <Route index element={<AdminCourses />} />
+              <Route path=":courseId" element={<AdminCourseDetail />} />
+            </Route>
             <Route path="estudiantes" element={<AdminStudents />} />
             <Route
               path="profesores"
