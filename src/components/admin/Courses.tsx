@@ -1,13 +1,12 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Table, type TableColumn, type TableAction } from '@components/UI';
 import { adminCoursesClient, type AdminCourse } from '../../client/admin/courses';
-import CourseDetail from './CourseDetail';
 import { useTableData } from '@/hooks/useTableData';
 import { useLocalFilter } from '@/hooks/useLocalFilter';
+import { useNavigate } from 'react-router';
 
 export default function AdminCourses() {
-  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
-
+  const navigate = useNavigate();
   const { data: courses, loading } = useTableData<AdminCourse>({
     fetchFn: adminCoursesClient.getAll,
   });
@@ -81,17 +80,12 @@ export default function AdminCourses() {
         label: 'Ver',
         variant: 'primary',
         onClick: (course) => {
-          setSelectedCourseId(course.id);
+          navigate(`/admin/cursos/${course.id}`);
         },
       },
     ],
-    [setSelectedCourseId]
+    [navigate]
   );
-
-  // If a course is selected, show detail view
-  if (selectedCourseId) {
-    return <CourseDetail courseId={selectedCourseId} onBack={() => setSelectedCourseId(null)} />;
-  }
 
   return (
     <div className="space-y-6">
