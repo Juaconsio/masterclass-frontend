@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { adminCoursesClient, type AdminCourseDetail } from '../../client/admin/courses';
 import { Table, type TableColumn, type TableAction } from '@components/UI';
+import { FileInput } from '@components/content';
 
 export default function CourseDetail() {
   const [course, setCourse] = useState<AdminCourseDetail | null>(null);
@@ -21,11 +22,17 @@ export default function CourseDetail() {
       setLoading(true);
       const data = await adminCoursesClient.getById(courseId);
       setCourse(data);
+      console.log('Loaded course data:', data);
     } catch (error) {
       console.error('Error loading course:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFileSelect = (file: File) => {
+    console.log('Selected file:', file);
+    // Implement file upload logic here
   };
 
   if (loading) {
@@ -67,11 +74,6 @@ export default function CourseDetail() {
       label: 'Materiales',
       formatter: (value) => <span className="badge badge-secondary">{value?.length || 0}</span>,
     },
-    {
-      key: 'createdAt',
-      label: 'Creado',
-      formatter: (value) => new Date(value).toLocaleDateString('es-ES'),
-    },
   ];
 
   const classActions: TableAction<(typeof course.classes)[0]>[] = [
@@ -79,15 +81,23 @@ export default function CourseDetail() {
       label: 'Ver',
       variant: 'primary',
       onClick: (classItem) => {
-        // TODO: Implement view class detail
+        console.log('Ver clase:', classItem);
       },
     },
     {
-      label: 'Editar',
-      variant: 'secondary',
-      onClick: (classItem) => {
-        // TODO: Implement edit class
-      },
+      // Opción 1: Usar render function (más simple)
+      render: (classItem) => (
+        <FileInput
+          acceptedFileTypes={['image/*', 'application/pdf']}
+          onFileSelect={(file) => {
+            console.log('Archivo seleccionado para clase:', classItem.title, file);
+            handleFileSelect(file);
+          }}
+          maxSizeMB={5}
+          buttonText="Subir Material"
+          modalTitle={`Subir material para ${classItem.title}`}
+        />
+      ),
     },
   ];
 
@@ -234,7 +244,7 @@ export default function CourseDetail() {
         </div>
 
         <div className="stat bg-base-200 rounded-lg shadow">
-          <div className="stat-figure text-accent">
+          <div className="stat-figure text-primary">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -250,7 +260,7 @@ export default function CourseDetail() {
             </svg>
           </div>
           <div className="stat-title">Estudiantes</div>
-          <div className="stat-value text-accent">{course._count.students}</div>
+          <div className="stat-value text-primary">{course._count.students}</div>
         </div>
       </div>
 
@@ -318,8 +328,13 @@ export default function CourseDetail() {
             <div>
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-xl font-semibold">Clases del Curso</h3>
-                <button className="btn btn-primary btn-sm gap-2">
-                  <span>➕</span>
+                <button
+                  className="btn btn-primary btn-sm gap-2"
+                  onClick={() => {
+                    alert('Agregar clase');
+                  }}
+                >
+                  <span>+</span>
                   Nueva Clase
                 </button>
               </div>
