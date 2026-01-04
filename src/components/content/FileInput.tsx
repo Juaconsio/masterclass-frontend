@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import type { DragEvent } from 'react';
 import { Paperclip, CloudUpload, XCircle } from 'lucide-react';
 import clsx from 'clsx';
 
 interface FileInputProps {
   acceptedFileTypes: string[];
-  onFileSelect: (file: File) => void;
+  onFileUpload: (file: File) => Promise<void>;
   maxSizeMB?: number;
   buttonText?: string;
   modalTitle?: string;
@@ -14,14 +14,14 @@ interface FileInputProps {
 /**
  * File upload component with drag and drop functionality and modal interface
  * @param acceptedFileTypes - Array of accepted MIME types (e.g., ['image/*', 'application/pdf'])
- * @param onFileSelect - Callback function when a file is selected
+ * @param onFileUpload - Callback function when a file is selected
  * @param maxSizeMB - Maximum file size in megabytes (default: 10MB)
  * @param buttonText - Text for the trigger button (default: "Upload File")
  * @param modalTitle - Title for the modal (default: "Upload File")
  */
 export default function FileInput({
   acceptedFileTypes,
-  onFileSelect,
+  onFileUpload,
   maxSizeMB = 10,
   buttonText = 'Upload File',
   modalTitle = 'Upload File',
@@ -30,6 +30,8 @@ export default function FileInput({
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDialogElement>(null);
   const dragCounterRef = useRef(0);
@@ -47,6 +49,8 @@ export default function FileInput({
     setIsOpen(false);
     setError(null);
     setSelectedFile(null);
+    setIsLoading(false);
+    setLoadingMessage('');
     dragCounterRef.current = 0;
     setIsDragging(false);
     modalRef.current?.close();
@@ -75,11 +79,19 @@ export default function FileInput({
     return true;
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && validateFile(file)) {
+    if (!file) return;
+
+    setIsLoading(true);
+    setLoadingMessage('Cargando archivo...');
+
+    if (validateFile(file)) {
       setSelectedFile(file);
     }
+
+    setIsLoading(false);
+    setLoadingMessage('');
   };
 
   const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
@@ -105,22 +117,41 @@ export default function FileInput({
     e.stopPropagation();
   };
 
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     dragCounterRef.current = 0;
     setIsDragging(false);
 
     const file = e.dataTransfer.files?.[0];
-    if (file && validateFile(file)) {
+    if (!file) return;
+
+    setIsLoading(true);
+    setLoadingMessage('Cargando archivo...');
+
+    if (validateFile(file)) {
       setSelectedFile(file);
     }
+
+    setIsLoading(false);
+    setLoadingMessage('');
   };
 
-  const handleUpload = () => {
-    if (selectedFile) {
-      onFileSelect(selectedFile);
+  const handleUpload = async () => {
+    if (!selectedFile) return;
+
+    try {
+      setIsLoading(true);
+      setLoadingMessage('Subiendo archivo...');
+      setError(null);
+
+      await onFileUpload(selectedFile);
       closeModal();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al subir el archivo');
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage('');
     }
   };
 
@@ -136,7 +167,17 @@ export default function FileInput({
       </button>
 
       <dialog ref={modalRef} className="modal">
-        <div className="modal-box max-w-2xl">
+        <div className="modal-box relative max-w-2xl">
+          {/* Loading Overlay */}
+          {isLoading && (
+            <div className="bg-base-100/80 absolute inset-0 z-50 flex size-full flex-col items-center justify-center rounded-lg backdrop-blur-sm">
+              <div className="flex flex-col items-center">
+                <span className="loading loading-spinner loading-lg text-primary" />
+                <p className="mt-4 border text-sm font-medium">{loadingMessage}</p>
+              </div>
+            </div>
+          )}
+
           <h3 className="mb-4 text-lg font-bold">{modalTitle}</h3>
 
           <div
@@ -191,16 +232,28 @@ export default function FileInput({
           )}
 
           <div className="modal-action">
-            <button type="button" onClick={closeModal} className="btn btn-ghost">
+            <button
+              type="button"
+              onClick={closeModal}
+              className="btn btn-ghost"
+              disabled={isLoading}
+            >
               Cancelar
             </button>
             <button
               type="button"
               onClick={handleUpload}
-              disabled={!selectedFile}
+              disabled={!selectedFile || isLoading}
               className="btn btn-primary"
             >
-              Subir
+              {isLoading ? (
+                <>
+                  <span className="loading loading-spinner loading-sm"></span>
+                  Subiendo...
+                </>
+              ) : (
+                'Subir'
+              )}
             </button>
           </div>
         </div>

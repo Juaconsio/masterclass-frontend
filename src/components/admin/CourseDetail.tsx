@@ -3,6 +3,7 @@ import { useParams } from 'react-router';
 import { adminCoursesClient, type AdminCourseDetail } from '../../client/admin/courses';
 import { Table, type TableColumn, type TableAction } from '@components/UI';
 import { FileInput } from '@components/content';
+import { makeUploadUrl, uploadFileToBucket } from '@/client/admin/material';
 
 export default function CourseDetail() {
   const [course, setCourse] = useState<AdminCourseDetail | null>(null);
@@ -30,9 +31,18 @@ export default function CourseDetail() {
     }
   };
 
-  const handleFileSelect = (file: File) => {
-    console.log('Selected file:', file);
-    // Implement file upload logic here
+  const handleFileUpload = async (file: File, courseAcronym: string, classId: number) => {
+    try {
+      const { uploadUrl, key, fileName } = await makeUploadUrl({
+        courseAcronym,
+        classIndex: classId,
+        contentType: file.type,
+        ext: file.name.split('.').pop() || '',
+      });
+      await uploadFileToBucket(uploadUrl, file);
+    } catch (error) {
+      console.error('Error uploading file to bucket:', error);
+    }
   };
 
   if (loading) {
@@ -85,13 +95,11 @@ export default function CourseDetail() {
       },
     },
     {
-      // Opción 1: Usar render function (más simple)
       render: (classItem) => (
         <FileInput
           acceptedFileTypes={['image/*', 'application/pdf']}
-          onFileSelect={(file) => {
-            console.log('Archivo seleccionado para clase:', classItem.title, file);
-            handleFileSelect(file);
+          onFileUpload={async (file) => {
+            await handleFileUpload(file, course.acronym, classItem.id);
           }}
           maxSizeMB={5}
           buttonText="Subir Material"

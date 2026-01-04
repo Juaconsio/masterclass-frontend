@@ -19,7 +19,6 @@ export interface TableAction<T> {
   variant?: 'primary' | 'secondary' | 'danger' | 'success';
   show?: (row: T) => boolean;
   className?: string;
-  component?: React.ComponentType<{ row: T }>;
   render?: (row: T) => React.ReactNode;
 }
 
@@ -203,12 +202,6 @@ export default function Table<T extends Record<string, any>>({
                             // Custom render function
                             if (action.render) {
                               return <div key={actionIndex}>{action.render(row)}</div>;
-                            }
-
-                            // Custom component with row prop
-                            if (action.component) {
-                              const Component = action.component;
-                              return <Component key={actionIndex} row={row} />;
                             }
 
                             // Default button
