@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 import { adminCoursesClient, type AdminCourseDetail } from '../../client/admin/courses';
 import { Table, type TableColumn, type TableAction } from '@components/UI';
 import { FileInput } from '@components/content';
-import { makeUploadUrl, uploadFileToBucket } from '@/client/admin/material';
+import { makeUploadUrl, uploadFileToBucket, confirmUpload } from '@/client/admin/material';
 
 export default function CourseDetail() {
   const [course, setCourse] = useState<AdminCourseDetail | null>(null);
@@ -19,11 +19,9 @@ export default function CourseDetail() {
 
   const loadCourse = async () => {
     try {
-      console.log('Loading course with ID:', courseId);
       setLoading(true);
       const data = await adminCoursesClient.getById(courseId);
       setCourse(data);
-      console.log('Loaded course data:', data);
     } catch (error) {
       console.error('Error loading course:', error);
     } finally {
@@ -33,13 +31,14 @@ export default function CourseDetail() {
 
   const handleFileUpload = async (file: File, courseAcronym: string, classId: number) => {
     try {
-      const { uploadUrl, key, fileName } = await makeUploadUrl({
+      const { uploadUrl, key, mimeType } = await makeUploadUrl({
         courseAcronym,
         classIndex: classId,
         contentType: file.type,
         ext: file.name.split('.').pop() || '',
       });
       await uploadFileToBucket(uploadUrl, file);
+      await confirmUpload(classId.toString(), file.name, key, mimeType);
     } catch (error) {
       console.error('Error uploading file to bucket:', error);
     }
