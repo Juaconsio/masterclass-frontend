@@ -11,7 +11,7 @@ export interface makeUploadUrlPayload {
 export interface UploadUrlResponse {
   uploadUrl: string;
   key: string;
-  fileName: string;
+  mimeType: string;
 }
 
 export async function makeUploadUrl({
@@ -34,5 +34,19 @@ export async function uploadFileToBucket(uploadUrl: string, file: File): Promise
     headers: {
       'Content-Type': file.type,
     },
+  });
+}
+
+export async function confirmUpload(
+  classId: string,
+  filename: string,
+  key: string,
+  mimeType: string
+): Promise<void> {
+  await httpClient.post('/admin/materials/confirm-upload', {
+    classId,
+    filename,
+    key,
+    mimeType,
   });
 }
