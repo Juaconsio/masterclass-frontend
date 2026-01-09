@@ -1,6 +1,7 @@
 ---
 import { Icon } from 'astro-icon/components';
-
+import { Image } from 'astro:assets';
+import Logo from '/src/assets/logo.webp';
 const links = [
   { href: '/', label: 'Inicio', icon: 'mdi:home' },
   { href: '/about', label: 'Nosotros', icon: 'mdi:information' },
@@ -8,17 +9,11 @@ const links = [
   // { href: '#how-it-works', label: 'Reservas', icon: 'mdi:calendar' },
   { href: '/#contact', label: 'Contacto', icon: 'mdi:contact-mail' },
 ];
-
-const authLinks = [
-  { href: '/ingresar', label: 'Iniciar Sesión', icon: 'mdi:sign-in-variant' },
-  { href: '/registrar', label: 'Registrarse', icon: 'mdi:account-plus' },
-  { href: '/recuperar', label: 'Recuperar Contraseña', icon: 'mdi:lock-reset' },
-];
 ---
 
 <!-- Navbar principal -->
 <nav
-  class="navbar h-navbar px-3 sm:px-4 md:px-8 lg:px-12 fixed top-0 bg-primary/80 backdrop-blur border-b border-base-300 z-50 flex justify-between"
+  class="navbar h-navbar px-3 sm:px-4 md:px-8 lg:px-12 fixed top-0 bg-secondary backdrop-blur border-b border-base-300 z-50 flex justify-between"
 >
   <!-- Mobile: Botón menú principal (izquierda) -->
   <div class="flex-none lg:hidden">
@@ -39,20 +34,20 @@ const authLinks = [
     >
       <div class="avatar">
         <div class="w-10 h-20 sm:w-12 sm:h-24 rounded-full">
-          <img src="/images/logo.png" alt="Salva Ramos Logo" />
+          <Image src={Logo} alt="Salva Ramos Logo" />
         </div>
       </div>
-      <span class="hidden sm:inline">Salva Ramos</span>
+      <span class="hidden sm:inline text-white">Salva Ramos</span>
     </a>
   </div>
 
   <!-- Desktop: Menú de navegación (centro) -->
   <div class="hidden lg:flex lg:flex-1 lg:justify-center">
-    <ul class="menu menu-horizontal">
+    <ul class="menu menu-horizontal gap-1">
       {
         links.map((link) => (
           <li>
-            <a data-navlink href={link.href} class="text-lg font-medium">
+            <a data-navlink href={link.href} class="text-lg font-medium text-secondary-content ">
               {link.label}
             </a>
           </li>
@@ -66,7 +61,7 @@ const authLinks = [
     <a
       href="/ingresar"
       aria-label="Iniciar Sesión"
-      class="btn btn-navbar btn-square btn-sm sm:btn-md lg:btn-ghost lg:btn-wide lg:px-2"
+      class="btn btn-square btn-primary btn-sm sm:btn-md btn-outline lg:btn-wide lg:px-2"
     >
       <Icon name="mdi:login" size={20} class="sm:w-6 sm:h-6 lg:hidden" />
       <span class="hidden lg:inline text-lg font-medium">Iniciar Sesión</span>

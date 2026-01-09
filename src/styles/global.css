@@ -25,14 +25,13 @@
   --color-accent-content: oklch(0.3729 0.0306 259.73); /* Azul grisáceo para contraste */
 
   /* === BASE & NEUTRALS === */
-  --color-base-100: oklch(0.98 0.01 47.6); /* Blanco cálido */
-  --color-base-200: oklch(0.93 0.03 47.6); /* Gris muy claro */
-  --color-base-300: oklch(0.9 0.03 47.6); /* Gris muy claro */
-  --color-base-content: oklch(0.15 0.01 47.6); /* Texto oscuro, alto contraste */
+  --color-base-100: oklch(0.985 0.003 255); /* Blanco frío */
+  --color-base-200: oklch(0.94 0.01 255); /* Gris azulado muy claro */
+  --color-base-300: oklch(0.88 0.015 255); /* Gris azulado claro */
+  --color-base-content: oklch(0.22 0.02 255); /* Texto gris azul oscuro */
 
-  --color-neutral: oklch(0.6 0.02 250); /* Gris neutro con leve tinte frío */
-  --color-neutral-content: oklch(0.15 0.01 47.6);
-
+  --color-neutral: oklch(0.6 0.02 255); /* Gris frío equilibrado */
+  --color-neutral-content: oklch(0.2 0.015 255);
   /* === FEEDBACK COLORS === */
   --color-info: oklch(0.78 0.09 250); /* Azul suave para info */
   --color-info-content: oklch(0.25 0.04 250);
@@ -77,11 +76,11 @@
 }
 
 [data-navlink].active {
-  @apply text-primary-content bg-primary/20 rounded-lg font-bold;
+  @apply bg-base-100/20 rounded-lg font-bold;
 }
 
 [data-navlink]:not(.active) {
-  @apply text-base-content hover:text-primary-content;
+  @apply hover:bg-base-100/20;
 }
 
 @utility h-navbar {
@@ -100,10 +99,6 @@
     min-height: calc(var(--app-dvh) - 4rem);
     padding-bottom: 0;
   }
-}
-
-@utility btn-navbar {
-  @apply btn-outline btn-primary text-secondary-content border-0;
 }
 
 :root {
