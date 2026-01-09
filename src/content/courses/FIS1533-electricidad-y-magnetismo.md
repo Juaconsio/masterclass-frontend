@@ -167,14 +167,6 @@ Este curso aborda uno de los pilares de la física universitaria: cómo se compo
 - Revisión de ejercicios específicos
 - Estrategias de estudio personalizadas
 
-## Perfil del Estudiante
-
-Este curso está diseñado para:
-- Estudiantes de primer año de ingeniería
-- Alumnos que necesiten reforzar conceptos básicos de cálculo
-- Estudiantes que busquen mejorar sus calificaciones en MAT1610
-- Quienes deseen una base sólida para Cálculo II
-
 ## Recursos Incluidos
 
 - Guías de ejercicios progresivas
@@ -190,4 +182,3 @@ Este curso está diseñado para:
 - Simulacros de certámenes reales
 - Seguimiento de objetivos académicos
 
-¿Listo para dominar el Cálculo I? ¡Reserva tu primera sesión y comienza a construir bases sólidas en matemáticas!
