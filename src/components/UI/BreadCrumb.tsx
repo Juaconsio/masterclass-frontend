@@ -69,7 +69,7 @@ export function BreadCrumb({ homePath = '/app' }: BreadCrumbProps) {
   }, [location.pathname]);
 
   if (breadcrumbItems.length === 0) {
-    return null;
+    return <div className="p-4" />;
   }
 
   return (
