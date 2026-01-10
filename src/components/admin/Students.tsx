@@ -45,37 +45,10 @@ export default function AdminUsers() {
     }
   };
 
-  const getRoleBadgeColor = (role: UserRole) => {
-    switch (role) {
-      case 'admin':
-        return 'badge-error';
-      case 'professor':
-        return 'badge-primary';
-      case 'student':
-        return 'badge-info';
-      default:
-        return 'badge-ghost';
-    }
-  };
-
-  const getRoleLabel = (role: UserRole) => {
-    switch (role) {
-      case 'admin':
-        return 'Admin';
-      case 'professor':
-        return 'Profesor';
-      case 'student':
-        return 'Estudiante';
-      default:
-        return role;
-    }
-  };
-
-  // Definir columnas de la tabla
   const columns: TableColumn<Student>[] = [
     {
       key: 'name',
-      label: 'Usuario',
+      label: 'Estudiante',
       sortable: true,
       formatter: (_, student) => (
         <div className="flex items-center gap-3">
@@ -105,44 +78,44 @@ export default function AdminUsers() {
 
   // Definir acciones de la tabla
   const actions: TableAction<Student>[] = [
-    {
-      label: 'Ver',
-      variant: 'secondary',
-      onClick: (student) => {
-        // TODO: Implementar vista de detalles
-      },
-    },
-    {
-      label: 'Editar',
-      variant: 'primary',
-      onClick: (student) => {
-        // TODO: Implementar edición
-      },
-    },
-    {
-      label: 'Estado',
-      variant: 'secondary',
-      onClick: (student) => handleToggleStatus(student.id, student.isActive),
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fillRule="evenodd"
-            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-            clipRule="evenodd"
-          />
-        </svg>
-      ),
-    },
-    {
-      label: 'Eliminar',
-      variant: 'danger',
-      onClick: (student) => handleDelete(student.id),
-    },
+    // {
+    //   label: 'Ver',
+    //   variant: 'secondary',
+    //   onClick: (student) => {
+    //     // TODO: Implementar vista de detalles
+    //   },
+    // },
+    // {
+    //   label: 'Editar',
+    //   variant: 'primary',
+    //   onClick: (student) => {
+    //     // TODO: Implementar edición
+    //   },
+    // },
+    // {
+    //   label: 'Estado',
+    //   variant: 'secondary',
+    //   onClick: (student) => handleToggleStatus(student.id, student.isActive),
+    //   icon: (
+    //     <svg
+    //       xmlns="http://www.w3.org/2000/svg"
+    //       className="h-4 w-4"
+    //       viewBox="0 0 20 20"
+    //       fill="currentColor"
+    //     >
+    //       <path
+    //         fillRule="evenodd"
+    //         d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+    //         clipRule="evenodd"
+    //       />
+    //     </svg>
+    //   ),
+    // },
+    // {
+    //   label: 'Eliminar',
+    //   variant: 'danger',
+    //   onClick: (student) => handleDelete(student.id),
+    // },
   ];
 
   return (
@@ -154,10 +127,6 @@ export default function AdminUsers() {
             Administra todos los estudiantes del sistema ({total} total)
           </p>
         </div>
-        <button className="btn btn-primary gap-2">
-          <span>➕</span>
-          Nuevo Estudiante
-        </button>
       </div>
 
       {/* Tabla */}

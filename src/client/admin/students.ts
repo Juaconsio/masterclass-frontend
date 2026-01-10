@@ -67,7 +67,7 @@ export interface StudentsResponse {
 export async function getStudents(filters?: StudentFilters): Promise<StudentsResponse> {
   try {
     const params = buildQueryString(filters);
-    const response = await httpClient.get<StudentsResponse>(`students${params}`);
+    const response = await httpClient.get<StudentsResponse>(`admin/students${params}`);
     return response.data;
   } catch (error: any) {
     console.error('Error fetching students:', error);
@@ -80,7 +80,7 @@ export async function getStudents(filters?: StudentFilters): Promise<StudentsRes
  */
 export async function getStudentById(id: number): Promise<Student> {
   try {
-    const response = await httpClient.get<Student>(`students/${id}`);
+    const response = await httpClient.get<Student>(`admin/students/${id}`);
     return response.data;
   } catch (error: any) {
     console.error(`Error fetching student ${id}:`, error);
@@ -93,7 +93,7 @@ export async function getStudentById(id: number): Promise<Student> {
  */
 export async function createStudent(payload: CreateStudentPayload): Promise<Student> {
   try {
-    const response = await httpClient.post<Student>('students', payload);
+    const response = await httpClient.post<Student>('admin/students', payload);
     return response.data;
   } catch (error: any) {
     console.error('Error creating student:', error);
@@ -106,7 +106,7 @@ export async function createStudent(payload: CreateStudentPayload): Promise<Stud
  */
 export async function updateStudent(id: number, payload: UpdateStudentPayload): Promise<Student> {
   try {
-    const response = await httpClient.patch<Student>(`students/${id}`, payload);
+    const response = await httpClient.patch<Student>(`admin/students/${id}`, payload);
     return response.data;
   } catch (error: any) {
     console.error(`Error updating student ${id}:`, error);
@@ -152,7 +152,7 @@ export async function updateMyPassword(payload: {
  */
 export async function deleteStudent(id: number): Promise<void> {
   try {
-    await httpClient.delete(`students/${id}`);
+    await httpClient.delete(`admin/students/${id}`);
   } catch (error: any) {
     console.error(`Error deleting student ${id}:`, error);
     throw new Error(error.response?.data?.message || 'Error al eliminar usuario');
@@ -164,7 +164,7 @@ export async function deleteStudent(id: number): Promise<void> {
  */
 export async function toggleStudentStatus(id: number, isActive: boolean): Promise<Student> {
   try {
-    const response = await httpClient.patch<Student>(`students/${id}/status`, { isActive });
+    const response = await httpClient.patch<Student>(`admin/students/${id}/status`, { isActive });
     return response.data;
   } catch (error: any) {
     console.error(`Error toggling student status ${id}:`, error);
@@ -179,7 +179,7 @@ export async function toggleStudentStatus(id: number, isActive: boolean): Promis
  */
 export async function bulkDeleteStudents(ids: number[]): Promise<void> {
   try {
-    await httpClient.post('students/bulk-delete', { ids });
+    await httpClient.post('admin/students/bulk-delete', { ids });
   } catch (error: any) {
     console.error('Error bulk deleting students:', error);
     throw new Error(error.response?.data?.message || 'Error al eliminar usuarios');
@@ -191,7 +191,7 @@ export async function bulkDeleteStudents(ids: number[]): Promise<void> {
  */
 export async function bulkUpdateStudentStatus(ids: number[], isActive: boolean): Promise<void> {
   try {
-    await httpClient.post('students/bulk-status', { ids, isActive });
+    await httpClient.post('admin/students/bulk-status', { ids, isActive });
   } catch (error: any) {
     console.error('Error bulk updating student status:', error);
     throw new Error(error.response?.data?.message || 'Error al actualizar estado de usuarios');
@@ -212,7 +212,7 @@ export async function getStudentStats(): Promise<{
   inactive: number;
 }> {
   try {
-    const response = await httpClient.get('students/stats');
+    const response = await httpClient.get('admin/students/stats');
     return response.data;
   } catch (error: any) {
     console.error('Error fetching student stats:', error);
