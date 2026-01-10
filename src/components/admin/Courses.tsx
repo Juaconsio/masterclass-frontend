@@ -94,10 +94,6 @@ export default function AdminCourses() {
           <h1 className="text-3xl font-bold">Gestión de Cursos</h1>
           <p className="text-base-content/60 mt-2">Administra todos los cursos del sistema</p>
         </div>
-        <button className="btn btn-primary gap-2">
-          <span>➕</span>
-          Nuevo Curso
-        </button>
       </div>
 
       {/* Filtros y búsqueda */}
