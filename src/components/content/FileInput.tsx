@@ -67,11 +67,16 @@ export default function FileInput({
         const mainType = type.split('/')[0];
         return file.type.startsWith(mainType + '/');
       }
+      if (type.startsWith('.')) {
+        return file.name.toLowerCase().endsWith(type.toLowerCase());
+      }
       return file.type === type;
     });
 
     if (!isValidType) {
-      setError(`File type not accepted. Accepted types: ${acceptedFileTypes.join(', ')}`);
+      setError(
+        `Este tipo de archivos no se permiten. Tipos aceptados: ${acceptedFileTypes.join(', ')}`
+      );
       return false;
     }
 

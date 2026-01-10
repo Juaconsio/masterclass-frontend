@@ -2,8 +2,7 @@ import { httpClient } from '../config';
 import axios from 'axios';
 
 export interface makeUploadUrlPayload {
-  courseAcronym: string;
-  classIndex: number;
+  classId: number;
   contentType: string;
   ext: string;
 }
@@ -11,18 +10,16 @@ export interface makeUploadUrlPayload {
 export interface UploadUrlResponse {
   uploadUrl: string;
   key: string;
-  mimeType: string;
+  contentType: string;
 }
 
 export async function makeUploadUrl({
-  courseAcronym,
-  classIndex,
+  classId,
   contentType,
   ext,
 }: makeUploadUrlPayload): Promise<UploadUrlResponse> {
   const { data } = await httpClient.post<UploadUrlResponse>('/admin/materials/upload-url', {
-    courseAcronym,
-    classIndex,
+    classId,
     contentType,
     ext,
   });
@@ -41,12 +38,12 @@ export async function confirmUpload(
   classId: string,
   filename: string,
   key: string,
-  mimeType: string
+  contentType: string
 ): Promise<void> {
   await httpClient.post('/admin/materials/confirm-upload', {
     classId,
     filename,
     key,
-    mimeType,
+    contentType,
   });
 }

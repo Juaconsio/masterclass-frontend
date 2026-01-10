@@ -29,18 +29,18 @@ export default function CourseDetail() {
     }
   };
 
-  const handleFileUpload = async (file: File, courseAcronym: string, classId: number) => {
+  const handleFileUpload = async (file: File, classId: number) => {
     try {
-      const { uploadUrl, key, mimeType } = await makeUploadUrl({
-        courseAcronym,
-        classIndex: classId,
-        contentType: file.type,
+      const { uploadUrl, key, contentType } = await makeUploadUrl({
+        classId: classId,
+        contentType: file.type || 'application/x-text',
         ext: file.name.split('.').pop() || '',
       });
       await uploadFileToBucket(uploadUrl, file);
-      await confirmUpload(classId.toString(), file.name, key, mimeType);
+      await confirmUpload(classId.toString(), file.name, key, contentType);
     } catch (error) {
       console.error('Error uploading file to bucket:', error);
+      throw error;
     }
   };
 
@@ -96,9 +96,9 @@ export default function CourseDetail() {
     {
       render: (classItem) => (
         <FileInput
-          acceptedFileTypes={['image/*', 'application/pdf']}
+          acceptedFileTypes={['image/*', 'application/pdf', '.tex', 'text/*']}
           onFileUpload={async (file) => {
-            await handleFileUpload(file, course.acronym, classItem.id);
+            await handleFileUpload(file, classItem.id);
           }}
           maxSizeMB={5}
           buttonText="Subir Material"
