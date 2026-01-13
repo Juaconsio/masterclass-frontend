@@ -3,6 +3,7 @@ import axios from 'axios';
 
 export interface makeUploadUrlPayload {
   classId: number;
+  filename: string;
   contentType: string;
   ext: string;
 }
@@ -13,16 +14,8 @@ export interface UploadUrlResponse {
   contentType: string;
 }
 
-export async function makeUploadUrl({
-  classId,
-  contentType,
-  ext,
-}: makeUploadUrlPayload): Promise<UploadUrlResponse> {
-  const { data } = await httpClient.post<UploadUrlResponse>('/admin/materials/upload-url', {
-    classId,
-    contentType,
-    ext,
-  });
+export async function makeUploadUrl(payload: makeUploadUrlPayload): Promise<UploadUrlResponse> {
+  const { data } = await httpClient.post<UploadUrlResponse>('/admin/materials/upload-url', payload);
   return data;
 }
 
