@@ -2,10 +2,11 @@ import React, { useState, useRef } from 'react';
 import type { DragEvent } from 'react';
 import { Paperclip, CloudUpload, XCircle } from 'lucide-react';
 import clsx from 'clsx';
+import { MATERIAL_LABELS } from './MaterialLabels';
 
 interface FileInputProps {
   acceptedFileTypes: string[];
-  onFileUpload: (file: File) => Promise<void>;
+  onFileUpload: (file: File, type: string) => Promise<void>;
   maxSizeMB?: number;
   buttonText?: string;
   modalTitle?: string;
@@ -30,6 +31,7 @@ export default function FileInput({
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedType, setSelectedType] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -37,6 +39,11 @@ export default function FileInput({
   const dragCounterRef = useRef(0);
 
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
+
+  const materialTypes = Object.entries(MATERIAL_LABELS).map(([value, label]) => ({
+    value,
+    label,
+  }));
 
   const openModal = () => {
     setIsOpen(true);
@@ -49,6 +56,7 @@ export default function FileInput({
     setIsOpen(false);
     setError(null);
     setSelectedFile(null);
+    setSelectedType(null);
     setIsLoading(false);
     setLoadingMessage('');
     dragCounterRef.current = 0;
@@ -150,7 +158,7 @@ export default function FileInput({
       setLoadingMessage('Subiendo archivo...');
       setError(null);
 
-      await onFileUpload(selectedFile);
+      await onFileUpload(selectedFile, selectedType!);
       closeModal();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al subir el archivo');
@@ -184,6 +192,29 @@ export default function FileInput({
           )}
 
           <h3 className="mb-4 text-lg font-bold">{modalTitle}</h3>
+
+          {/* Material Type Select */}
+          <div className="fieldset mb-4">
+            <label className="label" htmlFor="material-type">
+              <span className="label-text font-semibold">Tipo de Material</span>
+            </label>
+            <select
+              value={selectedType || ''}
+              id="material-type"
+              className="select select-primary w-full"
+              onChange={(e) => setSelectedType(e.target.value)}
+              disabled={isLoading}
+            >
+              <option value="" disabled>
+                Escoge el tipo de material
+              </option>
+              {materialTypes.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div
             onDragEnter={handleDragEnter}
@@ -248,7 +279,7 @@ export default function FileInput({
             <button
               type="button"
               onClick={handleUpload}
-              disabled={!selectedFile || isLoading}
+              disabled={!selectedFile || !selectedType || isLoading}
               className="btn btn-primary"
             >
               {isLoading ? (
