@@ -93,14 +93,7 @@ export default function Spa() {
               <Route path=":courseId">
                 <Route index element={<StudentCourseView />} />
                 <Route path="clases/:classId">
-                  <Route
-                    index
-                    element={
-                      <div className="p-8 text-2xl">
-                        <ClassMaterial />
-                      </div>
-                    }
-                  />
+                  <Route index element={<ClassMaterial />} />
                 </Route>
               </Route>
             </Route>

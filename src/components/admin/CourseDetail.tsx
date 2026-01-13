@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { adminCoursesClient, type AdminCourseDetail } from '../../client/admin/courses';
 import { Table, type TableColumn, type TableAction } from '@components/UI';
-import { FileInput } from '@components/content';
+import { FileInput, MATERIAL_ICONS, MATERIAL_LABELS } from '@components/content';
 import { makeUploadUrl, uploadFileToBucket, confirmUpload } from '@/client/admin/material';
+import clsx from 'clsx';
+import { Check } from 'lucide-react';
 
 export default function CourseDetail() {
   const [course, setCourse] = useState<AdminCourseDetail | null>(null);
@@ -29,15 +31,16 @@ export default function CourseDetail() {
     }
   };
 
-  const handleFileUpload = async (file: File, classId: number) => {
+  const handleFileUpload = async (file: File, classId: number, filename: string) => {
     try {
       const { uploadUrl, key, contentType } = await makeUploadUrl({
         classId: classId,
+        filename: filename,
         contentType: file.type || 'application/x-text',
         ext: file.name.split('.').pop() || '',
       });
       await uploadFileToBucket(uploadUrl, file);
-      await confirmUpload(classId.toString(), file.name, key, contentType);
+      await confirmUpload(classId.toString(), filename, key, contentType);
     } catch (error) {
       console.error('Error uploading file to bucket:', error);
       throw error;
@@ -69,11 +72,6 @@ export default function CourseDetail() {
       formatter: (value) => <div className="font-semibold">{value}</div>,
     },
     {
-      key: 'description',
-      label: 'Descripción',
-      formatter: (value) => <div className="max-w-md truncate">{value || 'Sin descripción'}</div>,
-    },
-    {
       key: 'slots',
       label: 'Slots',
       formatter: (value) => <span className="badge badge-info">{value?.length || 0}</span>,
@@ -81,7 +79,32 @@ export default function CourseDetail() {
     {
       key: 'materials',
       label: 'Materiales',
-      formatter: (value) => <span className="badge badge-secondary">{value?.length || 0}</span>,
+      formatter: (value) => {
+        const materials = value || [];
+        const materialFilenames = materials.map((m: any) => m.filename);
+        const allTypes = Object.keys(MATERIAL_LABELS);
+
+        return (
+          <div className="flex flex-col gap-1">
+            {allTypes.map((type) => {
+              const exists = materialFilenames.includes(type);
+              return (
+                <span
+                  key={type}
+                  className={clsx(
+                    'flex items-center gap-1',
+                    exists ? 'text-green-700/80' : 'text-base-content/40'
+                  )}
+                >
+                  {MATERIAL_ICONS[type]}
+                  {MATERIAL_LABELS[type]}
+                  {exists && <Check className="inline-block h-4 w-4" />}
+                </span>
+              );
+            })}
+          </div>
+        );
+      },
     },
   ];
 
@@ -96,9 +119,9 @@ export default function CourseDetail() {
     {
       render: (classItem) => (
         <FileInput
-          acceptedFileTypes={['image/*', 'application/pdf', '.tex', 'text/*']}
-          onFileUpload={async (file) => {
-            await handleFileUpload(file, classItem.id);
+          acceptedFileTypes={['image/*', 'application/pdf']}
+          onFileUpload={async (file, filename) => {
+            await handleFileUpload(file, classItem.id, filename);
           }}
           maxSizeMB={5}
           buttonText="Subir Material"
