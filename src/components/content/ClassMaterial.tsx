@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
 import { getClassMaterials, type CourseMaterial } from '@client/materials';
 import axios from 'axios';
+import { MATERIAL_LABELS, type MaterialByType, MATERIAL_ICONS } from './MaterialLabels';
+import PDFViewer from './PDFViewer';
 
 export default function ClassMaterial() {
   const { courseId, classId } = useParams<{ courseId: string; classId: string }>();
@@ -9,9 +11,8 @@ export default function ClassMaterial() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
-  const [materials, setMaterials] = useState<CourseMaterial[]>([]);
-  const [pdfUrls, setPdfUrls] = useState<Record<string, string>>({});
-  const [selectedMaterialId, setSelectedMaterialId] = useState<number | null>(null);
+  const [materialsByType, setMaterialsByType] = useState<MaterialByType[]>([]);
+  const [selectedType, setSelectedType] = useState<string>('contenido');
 
   useEffect(() => {
     async function loadMaterial() {
@@ -24,24 +25,14 @@ export default function ClassMaterial() {
 
       try {
         const materialsData = await getClassMaterials(classId);
-        if (materialsData.length === 0) {
-          setErrorMessage('No hay material disponible para esta clase.');
-          return;
-        }
-        setMaterials(materialsData);
-        setSelectedMaterialId(materialsData[0].id);
 
-        // Cargar todos los PDFs
-        const urls: Record<string, string> = {};
-        for (const material of materialsData) {
-          const response = await axios.get(material.downloadUrl, {
-            responseType: 'blob',
-          });
-          const blob = new Blob([response.data], { type: 'application/pdf' });
-          const url = URL.createObjectURL(blob);
-          urls[material.id] = url;
-        }
-        setPdfUrls(urls);
+        setMaterialsByType(
+          materialsData.map((mat: CourseMaterial) => ({
+            type: mat.filename,
+            pdfUrl: mat.downloadUrl,
+            filename: mat.filename,
+          }))
+        );
       } catch (error) {
         console.error('Error loading material:', error);
         setErrorMessage('Error al cargar el material');
@@ -51,15 +42,7 @@ export default function ClassMaterial() {
     }
 
     loadMaterial();
-  }, [courseId, classId, navigate]);
-
-  useEffect(() => {
-    return () => {
-      Object.values(pdfUrls).forEach((url) => {
-        URL.revokeObjectURL(url);
-      });
-    };
-  }, [pdfUrls]);
+  }, []);
 
   if (isLoading) {
     return (
@@ -90,49 +73,41 @@ export default function ClassMaterial() {
   }
 
   return (
-    <div className="bg-base-200 flex min-h-screen flex-col">
-      <header className="bg-base-100 z-50 shadow-md">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-primary text-2xl font-bold">Material de Clase</h1>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto flex flex-1 flex-col px-4 py-4">
-        <div className="bg-base-100 flex w-full flex-1 flex-col shadow-xl">
-          {materials.length > 0 && Object.keys(pdfUrls).length > 0 && (
+    <div className="flex min-h-screen flex-col">
+      <div className="px-4 py-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-primary text-2xl font-bold">Material de Clase</h1>
+          {materialsByType.length > 0 && (
             <>
-              {materials.length > 1 && (
-                <div role="tablist" className="tabs tabs-bordered px-4 pt-4">
-                  {materials.map((material) => (
+              <div role="tablist" className="tabs tabs-border px-4 pt-4">
+                {materialsByType.map((material) => (
+                  <label className="tab">
                     <input
-                      key={material.id}
+                      key={material.type}
                       type="radio"
                       name="material_tabs"
                       role="tab"
-                      className="tab"
-                      aria-label={material.filename}
-                      checked={selectedMaterialId === material.id}
-                      onChange={() => setSelectedMaterialId(material.id)}
+                      aria-label={MATERIAL_LABELS[material.type]}
+                      checked={selectedType === material.type}
+                      onChange={() => setSelectedType(material.type)}
                     />
-                  ))}
-                </div>
-              )}
-
-              <div className="flex flex-1 flex-col p-4">
-                {selectedMaterialId !== null && (
-                  <iframe
-                    src={pdfUrls[selectedMaterialId!]}
-                    className="h-full w-full flex-1"
-                    title="Material de Clase"
-                  />
-                )}
+                    {MATERIAL_ICONS[material.type]}
+                  </label>
+                ))}
               </div>
             </>
           )}
         </div>
-      </main>
+      </div>
+
+      <div className="flex flex-1 flex-col">
+        {materialsByType.find((m) => m.type === selectedType) && (
+          <PDFViewer
+            pdfUrl={materialsByType.find((m) => m.type === selectedType)!.pdfUrl}
+            title={MATERIAL_LABELS[selectedType]}
+          />
+        )}
+      </div>
     </div>
   );
 }
