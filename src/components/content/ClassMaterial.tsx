@@ -92,6 +92,7 @@ export default function ClassMaterial() {
                       onChange={() => setSelectedType(material.type)}
                     />
                     {MATERIAL_ICONS[material.type]}
+                    {MATERIAL_LABELS[material.type]}
                   </label>
                 ))}
               </div>
