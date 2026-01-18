@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
 import { adminCoursesClient, type AdminCourseDetail } from '../../client/admin/courses';
 import { Table, type TableColumn, type TableAction } from '@components/UI';
+import { FileInput, MATERIAL_ICONS, MATERIAL_LABELS } from '@components/content';
+import { makeUploadUrl, uploadFileToBucket, confirmUpload } from '@/client/admin/material';
+import clsx from 'clsx';
+import { Check } from 'lucide-react';
 
-interface CourseDetailProps {
-  courseId: number;
-  onBack: () => void;
-}
-
-export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
+export default function CourseDetail() {
   const [course, setCourse] = useState<AdminCourseDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'classes' | 'professors' | 'students'>(
     'overview'
   );
+  const courseId = Number(useParams<{ courseId: string }>().courseId);
 
   useEffect(() => {
     loadCourse();
@@ -30,6 +31,22 @@ export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
     }
   };
 
+  const handleFileUpload = async (file: File, classId: number, filename: string) => {
+    try {
+      const { uploadUrl, key, contentType } = await makeUploadUrl({
+        classId: classId,
+        filename: filename,
+        contentType: file.type || 'application/x-text',
+        ext: file.name.split('.').pop() || '',
+      });
+      await uploadFileToBucket(uploadUrl, file);
+      await confirmUpload(classId.toString(), filename, key, contentType);
+    } catch (error) {
+      console.error('Error uploading file to bucket:', error);
+      throw error;
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -42,9 +59,6 @@ export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
         <p className="text-error mb-4 text-lg">No se pudo cargar el curso</p>
-        <button className="btn btn-primary" onClick={onBack}>
-          Volver
-        </button>
       </div>
     );
   }
@@ -58,11 +72,6 @@ export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
       formatter: (value) => <div className="font-semibold">{value}</div>,
     },
     {
-      key: 'description',
-      label: 'Descripción',
-      formatter: (value) => <div className="max-w-md truncate">{value || 'Sin descripción'}</div>,
-    },
-    {
       key: 'slots',
       label: 'Slots',
       formatter: (value) => <span className="badge badge-info">{value?.length || 0}</span>,
@@ -70,12 +79,32 @@ export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
     {
       key: 'materials',
       label: 'Materiales',
-      formatter: (value) => <span className="badge badge-secondary">{value?.length || 0}</span>,
-    },
-    {
-      key: 'createdAt',
-      label: 'Creado',
-      formatter: (value) => new Date(value).toLocaleDateString('es-ES'),
+      formatter: (value) => {
+        const materials = value || [];
+        const materialFilenames = materials.map((m: any) => m.filename);
+        const allTypes = Object.keys(MATERIAL_LABELS);
+
+        return (
+          <div className="flex flex-col gap-1">
+            {allTypes.map((type) => {
+              const exists = materialFilenames.includes(type);
+              return (
+                <span
+                  key={type}
+                  className={clsx(
+                    'flex items-center gap-1',
+                    exists ? 'text-green-700/80' : 'text-base-content/40'
+                  )}
+                >
+                  {MATERIAL_ICONS[type]}
+                  {MATERIAL_LABELS[type]}
+                  {exists && <Check className="inline-block h-4 w-4" />}
+                </span>
+              );
+            })}
+          </div>
+        );
+      },
     },
   ];
 
@@ -84,15 +113,21 @@ export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
       label: 'Ver',
       variant: 'primary',
       onClick: (classItem) => {
-        // TODO: Implement view class detail
+        console.log('Ver clase:', classItem);
       },
     },
     {
-      label: 'Editar',
-      variant: 'secondary',
-      onClick: (classItem) => {
-        // TODO: Implement edit class
-      },
+      render: (classItem) => (
+        <FileInput
+          acceptedFileTypes={['image/*', 'application/pdf']}
+          onFileUpload={async (file, filename) => {
+            await handleFileUpload(file, classItem.id, filename);
+          }}
+          maxSizeMB={5}
+          buttonText="Subir Material"
+          modalTitle={`Subir material para ${classItem.title}`}
+        />
+      ),
     },
   ];
 
@@ -176,9 +211,6 @@ export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button className="btn btn-ghost btn-sm" onClick={onBack}>
-            ← Volver
-          </button>
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold">{course.title}</h1>
@@ -242,7 +274,7 @@ export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
         </div>
 
         <div className="stat bg-base-200 rounded-lg shadow">
-          <div className="stat-figure text-accent">
+          <div className="stat-figure text-primary">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -258,7 +290,7 @@ export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
             </svg>
           </div>
           <div className="stat-title">Estudiantes</div>
-          <div className="stat-value text-accent">{course._count.students}</div>
+          <div className="stat-value text-primary">{course._count.students}</div>
         </div>
       </div>
 
@@ -326,8 +358,13 @@ export default function CourseDetail({ courseId, onBack }: CourseDetailProps) {
             <div>
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-xl font-semibold">Clases del Curso</h3>
-                <button className="btn btn-primary btn-sm gap-2">
-                  <span>➕</span>
+                <button
+                  className="btn btn-primary btn-sm gap-2"
+                  onClick={() => {
+                    alert('Agregar clase');
+                  }}
+                >
+                  <span>+</span>
                   Nueva Clase
                 </button>
               </div>

@@ -1,10 +1,10 @@
 import { Clock } from 'lucide-react';
 import { Link } from 'react-router';
-
+import { type ICourse } from '@interfaces/models';
 // Use courses passed in via props; default to empty array to avoid relying on mock data
 
 type CoursesSectionProps = {
-  courses?: any[];
+  courses?: ICourse[];
   loading?: boolean;
 };
 
@@ -19,7 +19,7 @@ export function CoursesSection({ courses: propCourses, loading }: CoursesSection
           <p className="text-muted-foreground">Continúa aprendiendo y sigue tu progreso</p>
         </div>
         <div>
-          <a href="/courses" className="btn btn-primary btn-soft text-primary hover:underline">
+          <a href="/courses" className="btn btn-primary hover:underline">
             Ver todos los cursos aquí
           </a>
         </div>
@@ -71,7 +71,7 @@ export function CoursesSection({ courses: propCourses, loading }: CoursesSection
                 </div>
                 <div className="flex-shrink-0">
                   <Link to={`/app/cursos/${course.id}`} className="btn btn-sm btn-primary ml-4">
-                    View
+                    Ver
                   </Link>
                 </div>
               </div>

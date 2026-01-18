@@ -13,12 +13,13 @@ export interface TableColumn<T> {
 }
 
 export interface TableAction<T> {
-  label: string;
+  label?: string;
   icon?: React.ReactNode;
-  onClick: (row: T) => void;
+  onClick?: (row: T) => void;
   variant?: 'primary' | 'secondary' | 'danger' | 'success';
   show?: (row: T) => boolean;
   className?: string;
+  render?: (row: T) => React.ReactNode;
 }
 
 export interface TablePagination {
@@ -197,21 +198,29 @@ export default function Table<T extends Record<string, any>>({
                       <div className="flex justify-end gap-1">
                         {actions
                           .filter((action) => (action.show ? action.show(row) : true))
-                          .map((action, actionIndex) => (
-                            <button
-                              key={actionIndex}
-                              className={`btn btn-xs ${getActionVariantClass(
-                                action.variant
-                              )} ${action.className || ''}`}
-                              onClick={() => action.onClick(row)}
-                              title={action.label}
-                            >
-                              {action.icon && (
-                                <span className="flex items-center">{action.icon}</span>
-                              )}
-                              {!action.icon && action.label}
-                            </button>
-                          ))}
+                          .map((action, actionIndex) => {
+                            // Custom render function
+                            if (action.render) {
+                              return <div key={actionIndex}>{action.render(row)}</div>;
+                            }
+
+                            // Default button
+                            return (
+                              <button
+                                key={actionIndex}
+                                className={`btn btn-xs ${getActionVariantClass(
+                                  action.variant
+                                )} ${action.className || ''}`}
+                                onClick={() => action.onClick?.(row)}
+                                title={action.label}
+                              >
+                                {action.icon && (
+                                  <span className="flex items-center">{action.icon}</span>
+                                )}
+                                {!action.icon && action.label}
+                              </button>
+                            );
+                          })}
                       </div>
                     </td>
                   )}

@@ -8,14 +8,21 @@ import SignInForm from '@components/auth/SignInForm';
 import SignUpForm from '@components/auth/SignUpForm';
 import { NotFound, AccessDenied } from '@components/UI';
 import Home from './home';
-import Courses from './courses';
+import { StudentCourses } from './courses';
 import StudentCourseView from './StudentCourseView';
 import Reservations from './reservations';
 import Checkout from '@components/checkOut';
-import { AdminDashboard, AdminCourses, AdminStudents, AdminPayments } from '@components/admin';
+import {
+  AdminDashboard,
+  AdminCourses,
+  AdminStudents,
+  AdminPayments,
+  AdminCourseDetail,
+} from '@components/admin';
 import Profile from '@/components/profile/Profile';
 import ForgotPassword from './auth/forgotPassword';
 import ResetPassword from './auth/resetPassword';
+import ClassMaterial from '@components/content/ClassMaterial';
 
 export default function Spa() {
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -82,8 +89,13 @@ export default function Spa() {
             <Route index element={<Home />} />
             <Route path="reservas" element={<Reservations />} />
             <Route path="cursos">
-              <Route index element={<Courses />} />
-              <Route path=":courseId" element={<StudentCourseView />} />
+              <Route index element={<StudentCourses />} />
+              <Route path=":courseId">
+                <Route index element={<StudentCourseView />} />
+                <Route path="clases/:classId">
+                  <Route index element={<ClassMaterial />} />
+                </Route>
+              </Route>
             </Route>
             <Route path="perfil" element={<Profile />} />
           </Route>
@@ -116,7 +128,10 @@ export default function Spa() {
             }
           >
             <Route index element={<AdminDashboard />} />
-            <Route path="cursos" element={<AdminCourses />} />
+            <Route path="cursos">
+              <Route index element={<AdminCourses />} />
+              <Route path=":courseId" element={<AdminCourseDetail />} />
+            </Route>
             <Route path="estudiantes" element={<AdminStudents />} />
             <Route
               path="profesores"

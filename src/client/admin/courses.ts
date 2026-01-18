@@ -1,5 +1,5 @@
 import { httpClient } from '../config';
-import type { Payment, Filters, TableResponse } from '@/interfaces';
+import type { IPayment, TableResponse } from '@/interfaces';
 
 export interface AdminCourse {
   id: number;
@@ -32,7 +32,7 @@ export interface Reservation {
   slotId: number;
   status: string;
   createdAt: string;
-  payment: Payment | null;
+  payment: IPayment | null;
   student: Student;
 }
 

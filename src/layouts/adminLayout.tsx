@@ -7,7 +7,7 @@ export default function AdminLayout() {
       <NavBar />
       <div className="flex-1">
         <BreadCrumb homePath="/admin" />
-        <div className="px-4 lg:px-6">
+        <div className="px-4 pb-4 lg:px-6 lg:pb-6">
           <Outlet />
         </div>
       </div>
