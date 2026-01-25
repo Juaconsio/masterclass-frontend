@@ -18,6 +18,8 @@ import {
   AdminStudents,
   AdminPayments,
   AdminCourseDetail,
+  AdminProfessors,
+  AdminProfessorDetail,
 } from '@components/admin';
 import Profile from '@/components/profile/Profile';
 import ForgotPassword from './auth/forgotPassword';
@@ -133,10 +135,10 @@ export default function Spa() {
               <Route path=":courseId" element={<AdminCourseDetail />} />
             </Route>
             <Route path="estudiantes" element={<AdminStudents />} />
-            <Route
-              path="profesores"
-              element={<div className="text-2xl">Profesores (En desarrollo)</div>}
-            />
+            <Route path="profesores">
+              <Route index element={<AdminProfessors />} />
+              <Route path=":professorId" element={<AdminProfessorDetail />} />
+            </Route>
             <Route path="reservas" element={<CalendarTemplate />} />
             <Route path="pagos" element={<AdminPayments />} />
           </Route>

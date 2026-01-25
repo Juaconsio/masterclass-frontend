@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import { adminCoursesClient, type AdminCourseDetail } from '../../client/admin/courses';
+import { adminProfessorsClient } from '@/client/admin/professors';
 import {
   Table,
   type TableColumn,
@@ -14,7 +15,8 @@ import { fetchProfessors } from '@/client/professors';
 import type { IProfessor } from '@/interfaces/models';
 import { makeUploadUrl, uploadFileToBucket, confirmUpload } from '@/client/admin/material';
 import clsx from 'clsx';
-import { Check, Pencil } from 'lucide-react';
+import { Check, Pencil, UserPlus, UserMinus } from 'lucide-react';
+import { useConfirmAction } from '@/hooks/useConfirmAction';
 
 export default function CourseDetail() {
   const [course, setCourse] = useState<AdminCourseDetail | null>(null);
@@ -23,8 +25,10 @@ export default function CourseDetail() {
     'overview'
   );
   const courseId = Number(useParams<{ courseId: string }>().courseId);
+  const navigate = useNavigate();
   const drawerRef = useRef<DrawerRef>(null);
   const classDrawerRef = useRef<DrawerRef>(null);
+  const professorDrawerRef = useRef<DrawerRef>(null);
   const [professors, setProfessors] = useState<IProfessor[]>([]);
   const [loadingProfessors, setLoadingProfessors] = useState(false);
   const [formData, setFormData] = useState({
@@ -38,8 +42,10 @@ export default function CourseDetail() {
     description: '',
     objectives: '',
   });
+  const [selectedProfessorId, setSelectedProfessorId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submittingClass, setSubmittingClass] = useState(false);
+  const { showConfirmation, ConfirmationModal } = useConfirmAction();
 
   useEffect(() => {
     loadCourse();
@@ -150,7 +156,44 @@ export default function CourseDetail() {
       setSubmittingClass(false);
     }
   };
+  const handleOpenAssociateProfessor = () => {
+    setSelectedProfessorId(null);
+    professorDrawerRef.current?.open();
+  };
 
+  const handleAssociateProfessor = async () => {
+    if (!selectedProfessorId) return;
+
+    try {
+      setSubmitting(true);
+      await adminProfessorsClient.associateCourse(selectedProfessorId, courseId);
+      professorDrawerRef.current?.close();
+      await loadCourse();
+    } catch (error) {
+      console.error('Error associating professor:', error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDissociateProfessor = async (professorId: number) => {
+    showConfirmation({
+      title: '¿Desasociar profesor?',
+      message:
+        'Esta acción removerá al profesor del curso. Si tiene slots asignados, deberás eliminarlos manualmente.',
+      confirmText: 'Desasociar',
+      cancelText: 'Cancelar',
+      isDangerous: true,
+      onConfirm: async () => {
+        try {
+          await adminProfessorsClient.dissociateCourse(professorId, courseId);
+          await loadCourse();
+        } catch (error) {
+          console.error('Error dissociating professor:', error);
+        }
+      },
+    });
+  };
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -247,31 +290,21 @@ export default function CourseDetail() {
       key: 'email',
       label: 'Email',
     },
-    {
-      key: 'isActive',
-      label: 'Estado',
-      formatter: (value) =>
-        value ? (
-          <div className="badge badge-success">Activo</div>
-        ) : (
-          <div className="badge badge-error">Inactivo</div>
-        ),
-    },
   ];
 
   const professorActions: TableAction<(typeof course.professors)[0]>[] = [
     {
-      label: 'Ver perfil',
+      label: 'Ver Perfil',
       variant: 'primary',
       onClick: (professor) => {
-        // TODO: Implement view professor profile
+        navigate(`/admin/profesores/${professor.id}`);
       },
     },
     {
-      label: 'Remover',
+      label: 'Desasociar',
       variant: 'danger',
       onClick: (professor) => {
-        // TODO: Implement remove professor
+        handleDissociateProfessor(professor.id);
       },
     },
   ];
@@ -480,9 +513,12 @@ export default function CourseDetail() {
             <div>
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-xl font-semibold">Profesores del Curso</h3>
-                <button className="btn btn-primary btn-sm gap-2">
-                  <span>➕</span>
-                  Agregar Profesor
+                <button
+                  className="btn btn-primary btn-sm gap-2"
+                  onClick={handleOpenAssociateProfessor}
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Asociar Profesor
                 </button>
               </div>
               <Table
@@ -708,6 +744,69 @@ export default function CourseDetail() {
           </div>
         </form>
       </Drawer>
+
+      <Drawer
+        ref={professorDrawerRef}
+        title="Asociar Profesor al Curso"
+        width="lg"
+        actions={[
+          {
+            label: 'Cancelar',
+            variant: 'ghost',
+            onClick: () => professorDrawerRef.current?.close(),
+          },
+          {
+            label: 'Asociar Profesor',
+            variant: 'primary',
+            onClick: handleAssociateProfessor,
+            loading: submitting,
+            disabled: !selectedProfessorId,
+          },
+        ]}
+      >
+        <div className="space-y-4">
+          <p className="text-base-content/80">
+            Selecciona un profesor para asociarlo al curso <strong>{course?.title}</strong>
+          </p>
+
+          {loadingProfessors ? (
+            <div className="flex justify-center py-4">
+              <span className="loading loading-spinner loading-md" />
+            </div>
+          ) : (
+            <div className="border-base-300 max-h-96 space-y-2 overflow-y-auto rounded-lg border p-3">
+              {professors.length === 0 ? (
+                <p className="text-base-content/60 py-4 text-center text-sm">
+                  No hay profesores disponibles
+                </p>
+              ) : (
+                professors
+                  .filter((prof) => !course?.professors.some((cp) => cp.id === prof.id))
+                  .map((professor) => (
+                    <label
+                      key={professor.id}
+                      className="hover:bg-base-200 border-base-300 flex cursor-pointer items-center gap-3 rounded border p-3"
+                    >
+                      <input
+                        type="radio"
+                        name="professor"
+                        className="radio radio-primary"
+                        checked={selectedProfessorId === professor.id}
+                        onChange={() => setSelectedProfessorId(professor.id)}
+                      />
+                      <div className="flex-1">
+                        <p className="font-medium">{professor.name}</p>
+                        <p className="text-base-content/60 text-sm">{professor.email}</p>
+                      </div>
+                    </label>
+                  ))
+              )}
+            </div>
+          )}
+        </div>
+      </Drawer>
+
+      <ConfirmationModal />
     </div>
   );
 }
