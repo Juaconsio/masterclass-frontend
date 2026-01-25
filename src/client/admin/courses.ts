@@ -90,4 +90,27 @@ export const adminCoursesClient = {
     const response = await httpClient.get<AdminCourseDetail>(`/admin/courses/${id}`);
     return response.data;
   },
+
+  async create(payload: {
+    title: string;
+    description: string;
+    acronym: string;
+    professorIds: number[];
+  }): Promise<AdminCourse> {
+    const response = await httpClient.post<AdminCourse>('/admin/courses', payload);
+    return response.data;
+  },
+
+  async update(
+    id: number,
+    payload: {
+      title: string;
+      description: string;
+      acronym: string;
+      professorIds: number[];
+    }
+  ): Promise<AdminCourse> {
+    const response = await httpClient.put<AdminCourse>(`/admin/courses/${id}`, payload);
+    return response.data;
+  },
 };
