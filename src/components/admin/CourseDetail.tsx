@@ -1,11 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router';
 import { adminCoursesClient, type AdminCourseDetail } from '../../client/admin/courses';
-import { Table, type TableColumn, type TableAction } from '@components/UI';
+import {
+  Table,
+  type TableColumn,
+  type TableAction,
+  PageHeader,
+  Drawer,
+  type DrawerRef,
+} from '@components/UI';
 import { FileInput, MATERIAL_ICONS, MATERIAL_LABELS } from '@components/content';
+import { fetchProfessors } from '@/client/professors';
+import type { IProfessor } from '@/interfaces/models';
 import { makeUploadUrl, uploadFileToBucket, confirmUpload } from '@/client/admin/material';
 import clsx from 'clsx';
-import { Check } from 'lucide-react';
+import { Check, Pencil } from 'lucide-react';
 
 export default function CourseDetail() {
   const [course, setCourse] = useState<AdminCourseDetail | null>(null);
@@ -14,10 +23,42 @@ export default function CourseDetail() {
     'overview'
   );
   const courseId = Number(useParams<{ courseId: string }>().courseId);
+  const drawerRef = useRef<DrawerRef>(null);
+  const classDrawerRef = useRef<DrawerRef>(null);
+  const [professors, setProfessors] = useState<IProfessor[]>([]);
+  const [loadingProfessors, setLoadingProfessors] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    acronym: '',
+    professorIds: [] as number[],
+  });
+  const [classFormData, setClassFormData] = useState({
+    title: '',
+    description: '',
+    objectives: '',
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [submittingClass, setSubmittingClass] = useState(false);
 
   useEffect(() => {
     loadCourse();
+    loadProfessors();
   }, [courseId]);
+
+  const loadProfessors = async () => {
+    try {
+      setLoadingProfessors(true);
+      const response = await fetchProfessors();
+      const data = Array.isArray(response) ? response : response.data || [];
+      setProfessors(data);
+    } catch (error) {
+      console.error('Error loading professors:', error);
+      setProfessors([]);
+    } finally {
+      setLoadingProfessors(false);
+    }
+  };
 
   const loadCourse = async () => {
     try {
@@ -44,6 +85,69 @@ export default function CourseDetail() {
     } catch (error) {
       console.error('Error uploading file to bucket:', error);
       throw error;
+    }
+  };
+
+  const handleOpenEdit = () => {
+    if (course) {
+      setFormData({
+        title: course.title,
+        description: course.description || '',
+        acronym: course.acronym,
+        professorIds: course.professors.map((p) => p.id),
+      });
+      drawerRef.current?.open();
+    }
+  };
+
+  const handleProfessorToggle = (professorId: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      professorIds: prev.professorIds.includes(professorId)
+        ? prev.professorIds.filter((id) => id !== professorId)
+        : [...prev.professorIds, professorId],
+    }));
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setSubmitting(true);
+      await adminCoursesClient.update(courseId, formData);
+      drawerRef.current?.close();
+      await loadCourse();
+    } catch (error) {
+      console.error('Error updating course:', error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleOpenNewClass = () => {
+    setClassFormData({
+      title: '',
+      description: '',
+      objectives: '',
+    });
+    classDrawerRef.current?.open();
+  };
+
+  const handleSubmitClass = async () => {
+    if (!course) return;
+
+    try {
+      setSubmittingClass(true);
+      const orderIndex = course.classes.length + 1;
+      await adminCoursesClient.createClass({
+        ...classFormData,
+        courseId,
+        orderIndex,
+      });
+      classDrawerRef.current?.close();
+      await loadCourse();
+    } catch (error) {
+      console.error('Error creating class:', error);
+    } finally {
+      setSubmittingClass(false);
     }
   };
 
@@ -209,27 +313,26 @@ export default function CourseDetail() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold">{course.title}</h1>
-              {course.isActive ? (
-                <div className="badge badge-success gap-2">Activo</div>
-              ) : (
-                <div className="badge badge-error gap-2">Inactivo</div>
-              )}
-            </div>
-            <p className="text-base-content/60 mt-2">
-              <span className="badge badge-ghost mr-2">{course.acronym}</span>
-            </p>
-          </div>
-        </div>
-        <button className="btn btn-primary gap-2">
-          <span>✏️</span>
-          Editar Curso
-        </button>
-      </div>
+      <PageHeader
+        title={course.title}
+        primaryBadge={{
+          text: course.isActive ? 'Activo' : 'Inactivo',
+          variant: course.isActive ? 'success' : 'error',
+        }}
+        secondaryBadges={[
+          {
+            text: course.acronym,
+            variant: 'ghost',
+          },
+        ]}
+        actions={[
+          {
+            label: 'Editar Curso',
+            icon: <Pencil className="inline-block h-4 w-4" />,
+            onClick: handleOpenEdit,
+          },
+        ]}
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -358,12 +461,7 @@ export default function CourseDetail() {
             <div>
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-xl font-semibold">Clases del Curso</h3>
-                <button
-                  className="btn btn-primary btn-sm gap-2"
-                  onClick={() => {
-                    alert('Agregar clase');
-                  }}
-                >
+                <button className="btn btn-primary btn-sm gap-2" onClick={handleOpenNewClass}>
                   <span>+</span>
                   Nueva Clase
                 </button>
@@ -417,6 +515,199 @@ export default function CourseDetail() {
           )}
         </div>
       </div>
+
+      {/* Drawer para editar curso */}
+      <Drawer
+        ref={drawerRef}
+        title="Editar Curso"
+        width="lg"
+        actions={[
+          {
+            label: 'Cancelar',
+            variant: 'ghost',
+            onClick: () => drawerRef.current?.close(),
+          },
+          {
+            label: 'Guardar Cambios',
+            variant: 'primary',
+            onClick: handleSubmit,
+            loading: submitting,
+            disabled: !formData.title || !formData.acronym,
+          },
+        ]}
+      >
+        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          {/* Título */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-semibold">Título *</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Ej: Cálculo Diferencial e Integral"
+              className="input input-bordered w-full"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              required
+            />
+          </div>
+
+          {/* Acrónimo */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-semibold">Acrónimo *</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Ej: MAT101"
+              className="input input-bordered w-full"
+              value={formData.acronym}
+              onChange={(e) => setFormData({ ...formData, acronym: e.target.value })}
+              required
+            />
+          </div>
+
+          {/* Descripción */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-semibold">Descripción</span>
+            </label>
+            <textarea
+              placeholder="Descripción del curso..."
+              className="textarea textarea-bordered h-24 w-full"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            />
+          </div>
+
+          {/* Asignación de Profesores */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-semibold">Asignar Profesores</span>
+            </label>
+            {loadingProfessors ? (
+              <div className="flex justify-center py-4">
+                <span className="loading loading-spinner loading-md" />
+              </div>
+            ) : (
+              <div className="border-base-300 max-h-64 space-y-2 overflow-y-auto rounded-lg border p-3">
+                {professors.length === 0 ? (
+                  <p className="text-base-content/60 py-4 text-center text-sm">
+                    No hay profesores disponibles
+                  </p>
+                ) : (
+                  professors.map((professor) => (
+                    <label
+                      key={professor.id}
+                      className="hover:bg-base-200 flex cursor-pointer items-center gap-3 rounded p-2"
+                    >
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-primary"
+                        checked={formData.professorIds.includes(professor.id)}
+                        onChange={() => handleProfessorToggle(professor.id)}
+                      />
+                      <div className="flex-1">
+                        <p className="font-medium">{professor.name}</p>
+                        <p className="text-base-content/60 text-sm">{professor.email}</p>
+                      </div>
+                    </label>
+                  ))
+                )}
+              </div>
+            )}
+            {formData.professorIds.length > 0 && (
+              <p className="text-base-content/60 mt-2 text-sm">
+                {formData.professorIds.length} profesor(es) seleccionado(s)
+              </p>
+            )}
+          </div>
+        </form>
+      </Drawer>
+
+      {/* Drawer para crear nueva clase */}
+      <Drawer
+        ref={classDrawerRef}
+        title="Crear Nueva Clase"
+        width="lg"
+        actions={[
+          {
+            label: 'Cancelar',
+            variant: 'ghost',
+            onClick: () => classDrawerRef.current?.close(),
+          },
+          {
+            label: 'Crear Clase',
+            variant: 'primary',
+            onClick: handleSubmitClass,
+            loading: submittingClass,
+            disabled: !classFormData.title,
+          },
+        ]}
+      >
+        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          {/* Título */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-semibold">Título *</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Ej: Introducción a Límites"
+              className="input input-bordered w-full"
+              value={classFormData.title}
+              onChange={(e) => setClassFormData({ ...classFormData, title: e.target.value })}
+              required
+            />
+          </div>
+
+          {/* Descripción */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-semibold">Descripción</span>
+            </label>
+            <textarea
+              placeholder="Descripción de la clase..."
+              className="textarea textarea-bordered h-24 w-full"
+              value={classFormData.description}
+              onChange={(e) => setClassFormData({ ...classFormData, description: e.target.value })}
+            />
+          </div>
+
+          {/* Objetivos */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-semibold">Objetivos</span>
+            </label>
+            <textarea
+              placeholder="Objetivos de aprendizaje de la clase..."
+              className="textarea textarea-bordered h-24 w-full"
+              value={classFormData.objectives}
+              onChange={(e) => setClassFormData({ ...classFormData, objectives: e.target.value })}
+            />
+          </div>
+
+          {/* Info del índice */}
+          <div className="alert alert-info">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              className="h-6 w-6 shrink-0 stroke-current"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>
+              Esta será la clase #{course?.classes.length ? course.classes.length + 1 : 1} del curso
+            </span>
+          </div>
+        </form>
+      </Drawer>
     </div>
   );
 }

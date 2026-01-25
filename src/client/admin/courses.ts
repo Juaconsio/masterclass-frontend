@@ -75,17 +75,11 @@ export interface AdminCourseDetail extends AdminCourse {
 }
 
 export const adminCoursesClient = {
-  /**
-   * Get all courses with counts (admin view)
-   */
   async getAll(): Promise<TableResponse<AdminCourse>> {
     const response = await httpClient.get('/admin/courses');
     return response.data;
   },
 
-  /**
-   * Get a single course with full details (admin view)
-   */
   async getById(id: number): Promise<AdminCourseDetail> {
     const response = await httpClient.get<AdminCourseDetail>(`/admin/courses/${id}`);
     return response.data;
@@ -111,6 +105,17 @@ export const adminCoursesClient = {
     }
   ): Promise<AdminCourse> {
     const response = await httpClient.put<AdminCourse>(`/admin/courses/${id}`, payload);
+    return response.data;
+  },
+
+  async createClass(payload: {
+    title: string;
+    description: string;
+    objectives: string;
+    courseId: number;
+    orderIndex: number;
+  }): Promise<Class> {
+    const response = await httpClient.post<Class>('/admin/classes', payload);
     return response.data;
   },
 };
