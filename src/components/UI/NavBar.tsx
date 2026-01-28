@@ -43,7 +43,7 @@ const NavBar: React.FC = () => {
       return [
         { label: 'Dashboard', href: '/admin', icon: <LayoutDashboard className="h-5 w-5" /> },
         { label: 'Cursos', href: '/admin/cursos', icon: <BookOpen className="h-5 w-5" /> },
-        // { label: 'Profesores', href: '/admin/profesores', icon: <User className="h-5 w-5" /> },
+        { label: 'Profesores', href: '/admin/profesores', icon: <User className="h-5 w-5" /> },
         {
           label: 'Estudiantes',
           href: '/admin/estudiantes',

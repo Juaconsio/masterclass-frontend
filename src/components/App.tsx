@@ -16,6 +16,7 @@ import {
   AdminDashboard,
   AdminCourses,
   AdminStudents,
+  AdminProfessors,
   AdminPayments,
   AdminCourseDetail,
 } from '@components/admin';
@@ -133,10 +134,7 @@ export default function Spa() {
               <Route path=":courseId" element={<AdminCourseDetail />} />
             </Route>
             <Route path="estudiantes" element={<AdminStudents />} />
-            <Route
-              path="profesores"
-              element={<div className="text-2xl">Profesores (En desarrollo)</div>}
-            />
+            <Route path="profesores" element={<AdminProfessors />} />
             <Route path="reservas" element={<CalendarTemplate />} />
             <Route path="pagos" element={<AdminPayments />} />
           </Route>
