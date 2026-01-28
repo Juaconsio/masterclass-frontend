@@ -33,7 +33,7 @@ export default function Spa() {
 
     if (isLoading) return null;
     if (!isAuthenticated) return <Navigate to="/ingresar" replace />;
-    if (user?.role !== 'student') {
+    if (user?.role !== 'user') {
       if (user?.role === 'professor') {
         return <Navigate to="/profesor" replace />;
       } else if (user?.role === 'admin') {
