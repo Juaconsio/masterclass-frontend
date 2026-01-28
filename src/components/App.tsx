@@ -28,10 +28,19 @@ import ClassMaterial from '@components/content/ClassMaterial';
 
 export default function Spa() {
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-    // Lazy import to avoid circulars
-    const { isAuthenticated, isLoading } = useSessionContext();
-    if (isLoading) return null; // Could render a spinner here
+    const { isAuthenticated, isLoading, user } = useSessionContext();
+
+    if (isLoading) return null;
     if (!isAuthenticated) return <Navigate to="/ingresar" replace />;
+    if (user?.role !== 'student') {
+      if (user?.role === 'professor') {
+        return <Navigate to="/profesor" replace />;
+      } else if (user?.role === 'admin') {
+        return <Navigate to="/admin" replace />;
+      } else {
+        return <AccessDenied />;
+      }
+    }
     return <>{children}</>;
   };
 
@@ -41,8 +50,7 @@ export default function Spa() {
     if (isLoading) return null; // Could render a spinner here
     if (!isAuthenticated) return <Navigate to="/ingresar" replace />;
 
-    // Verificar que el usuario tenga rol de profesor
-    const isProfessor = user?.role === 'professor' || user?.role === 'profesor';
+    const isProfessor = user?.role === 'professor';
     if (!isProfessor) {
       return <AccessDenied />;
     }
@@ -56,9 +64,8 @@ export default function Spa() {
     if (isLoading) return null; // Could render a spinner here
     if (!isAuthenticated) return <Navigate to="/admin/ingresar" replace />;
 
-    // Verificar que el usuario tenga rol de admin
-    // El backend debe incluir role: 'admin' en el JWT token
-    const isAdmin = user?.role === 'admin' || user?.isAdmin === true;
+
+    const isAdmin = user?.role === 'admin';
     if (!isAdmin) {
       // Mostrar página de acceso denegado
       return <AccessDenied />;
