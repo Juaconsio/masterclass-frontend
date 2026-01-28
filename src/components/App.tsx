@@ -21,6 +21,7 @@ import {
   AdminProfessors,
   AdminProfessorDetail,
 } from '@components/admin';
+import { ProfessorDashboard, ProfessorCourses } from '@components/professor';
 import Profile from '@/components/profile/Profile';
 import ForgotPassword from './auth/forgotPassword';
 import ResetPassword from './auth/resetPassword';
@@ -63,7 +64,6 @@ export default function Spa() {
 
     if (isLoading) return null; // Could render a spinner here
     if (!isAuthenticated) return <Navigate to="/admin/ingresar" replace />;
-
 
     const isAdmin = user?.role === 'admin';
     if (!isAdmin) {
@@ -121,10 +121,12 @@ export default function Spa() {
               </ProtectedProfessorRoute>
             }
           >
-            <Route
-              index
-              element={<div className="p-8 text-2xl">Dashboard de Profesor (En desarrollo)</div>}
-            />
+            <Route index element={<ProfessorDashboard />} />
+            <Route path="cursos">
+              <Route index element={<ProfessorCourses />} />
+            </Route>
+            <Route path="horarios" element={<CalendarTemplate />} />
+            <Route path="perfil" element={<Profile />} />
           </Route>
 
           {/* Rutas de administración */}
