@@ -198,6 +198,20 @@ export async function bulkUpdateStudentStatus(ids: number[], isActive: boolean):
   }
 }
 
+// ==================== PROMOTE ====================
+
+/**
+ * Promover estudiante a profesor
+ */
+export async function promoteStudent(studentId: number): Promise<void> {
+  try {
+    await httpClient.post(`admin/students/promote/${studentId}`);
+  } catch (error: any) {
+    console.error(`Error promoting student ${studentId}:`, error);
+    throw new Error(error.response?.data?.message || 'Error al promover estudiante');
+  }
+}
+
 // ==================== STATISTICS ====================
 
 /**
@@ -232,4 +246,5 @@ export default {
   bulkDeleteStudents,
   bulkUpdateStudentStatus,
   getStudentStats,
+  promoteStudent,
 };
