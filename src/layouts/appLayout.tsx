@@ -7,7 +7,9 @@ export default function AuthLayout() {
       <NavBar />
       <div className="flex-1">
         <BreadCrumb homePath="/app" />
-        <Outlet />
+        <div className="px-4 pb-4 lg:px-6 lg:pb-6">
+          <Outlet />
+        </div>
       </div>
     </main>
   );

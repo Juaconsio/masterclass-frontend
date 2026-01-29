@@ -33,32 +33,12 @@ async function getCourseEnroll(options: {
     courseAcronym: courseAcronym || undefined,
     slotId: slotId || undefined,
   });
-  const res = await httpClient.get(`/courses/enroll${query ? `?${query}` : ''}`);
-  return res.data;
-}
-
-async function createCourse(payload: any) {
-  const res = await httpClient.post('/courses', payload);
-  return res.data;
-}
-
-async function updateCourse(payload: any) {
-  const res = await httpClient.put('/courses', payload);
-  return res.data;
-}
-
-async function enrollInCourse(data: { courseId: number; slotId?: number }) {
-  const res = await httpClient.post(`/courses/enroll`, data);
+  const res = await httpClient.get(`/public/courses/enroll${query ? `?${query}` : ''}`);
   return res.data;
 }
 
 async function getSlotsByCourseAcronym(acronym: string) {
-  const res = await httpClient.get(`/courses/${acronym}/slots`);
-  return res.data;
-}
-
-async function deleteCourse() {
-  const res = await httpClient.delete('/courses');
+  const res = await httpClient.get(`/public/courses/${acronym}/slots`);
   return res.data;
 }
 
@@ -66,10 +46,6 @@ export {
   fetchCourses,
   fetchCoursesByCurrentUser,
   fetchStudentCourseById,
-  createCourse,
-  updateCourse,
-  enrollInCourse,
   getSlotsByCourseAcronym,
   getCourseEnroll,
-  deleteCourse,
 };

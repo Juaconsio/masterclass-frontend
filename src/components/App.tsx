@@ -18,7 +18,10 @@ import {
   AdminStudents,
   AdminPayments,
   AdminCourseDetail,
+  AdminProfessors,
+  AdminProfessorDetail,
 } from '@components/admin';
+import { ProfessorDashboard, ProfessorCourses } from '@components/professor';
 import Profile from '@/components/profile/Profile';
 import ForgotPassword from './auth/forgotPassword';
 import ResetPassword from './auth/resetPassword';
@@ -26,10 +29,19 @@ import ClassMaterial from '@components/content/ClassMaterial';
 
 export default function Spa() {
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-    // Lazy import to avoid circulars
-    const { isAuthenticated, isLoading } = useSessionContext();
-    if (isLoading) return null; // Could render a spinner here
+    const { isAuthenticated, isLoading, user } = useSessionContext();
+
+    if (isLoading) return null;
     if (!isAuthenticated) return <Navigate to="/ingresar" replace />;
+    if (user?.role !== 'user') {
+      if (user?.role === 'professor') {
+        return <Navigate to="/profesor" replace />;
+      } else if (user?.role === 'admin') {
+        return <Navigate to="/admin" replace />;
+      } else {
+        return <AccessDenied />;
+      }
+    }
     return <>{children}</>;
   };
 
@@ -39,8 +51,7 @@ export default function Spa() {
     if (isLoading) return null; // Could render a spinner here
     if (!isAuthenticated) return <Navigate to="/ingresar" replace />;
 
-    // Verificar que el usuario tenga rol de profesor
-    const isProfessor = user?.role === 'professor' || user?.role === 'profesor';
+    const isProfessor = user?.role === 'professor';
     if (!isProfessor) {
       return <AccessDenied />;
     }
@@ -54,9 +65,7 @@ export default function Spa() {
     if (isLoading) return null; // Could render a spinner here
     if (!isAuthenticated) return <Navigate to="/admin/ingresar" replace />;
 
-    // Verificar que el usuario tenga rol de admin
-    // El backend debe incluir role: 'admin' en el JWT token
-    const isAdmin = user?.role === 'admin' || user?.isAdmin === true;
+    const isAdmin = user?.role === 'admin';
     if (!isAdmin) {
       // Mostrar página de acceso denegado
       return <AccessDenied />;
@@ -112,10 +121,12 @@ export default function Spa() {
               </ProtectedProfessorRoute>
             }
           >
-            <Route
-              index
-              element={<div className="p-8 text-2xl">Dashboard de Profesor (En desarrollo)</div>}
-            />
+            <Route index element={<ProfessorDashboard />} />
+            <Route path="cursos">
+              <Route index element={<ProfessorCourses />} />
+            </Route>
+            <Route path="horarios" element={<CalendarTemplate />} />
+            <Route path="perfil" element={<Profile />} />
           </Route>
 
           {/* Rutas de administración */}
@@ -133,10 +144,11 @@ export default function Spa() {
               <Route path=":courseId" element={<AdminCourseDetail />} />
             </Route>
             <Route path="estudiantes" element={<AdminStudents />} />
-            <Route
-              path="profesores"
-              element={<div className="text-2xl">Profesores (En desarrollo)</div>}
-            />
+            <Route path="profesores">
+              <Route index element={<AdminProfessors />} />
+              <Route path=":professorId" element={<AdminProfessorDetail />} />
+            </Route>
+
             <Route path="reservas" element={<CalendarTemplate />} />
             <Route path="pagos" element={<AdminPayments />} />
           </Route>

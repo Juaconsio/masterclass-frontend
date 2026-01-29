@@ -62,7 +62,8 @@ export default function SignUpForm() {
         // pasar token al contexto y redirigir según rol
         handleToken(token);
         const isAdmin = decoded?.role === 'admin' || decoded?.isAdmin === true;
-        navigate(isAdmin ? '/admin' : '/app');
+        const isProfessor = decoded?.role === 'professor' || decoded?.isProfessor === true;
+        navigate(isAdmin ? '/admin' : isProfessor ? '/professor' : '/app');
       } catch {
         // no hacer nada si falla la verificación
       }

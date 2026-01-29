@@ -198,6 +198,36 @@ export async function bulkUpdateStudentStatus(ids: number[], isActive: boolean):
   }
 }
 
+// ==================== PROFESSORS ====================
+
+/**
+ * Obtener lista de profesores con filtros opcionales
+ */
+export async function getProfessors(filters?: StudentFilters): Promise<StudentsResponse> {
+  try {
+    const params = buildQueryString(filters);
+    const response = await httpClient.get<StudentsResponse>(`admin/professors${params}`);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error fetching professors:', error);
+    throw new Error(error.response?.data?.message || 'Error al obtener profesores');
+  }
+}
+
+// ==================== PROMOTE ====================
+
+/**
+ * Promover estudiante a profesor
+ */
+export async function promoteStudent(studentId: number): Promise<void> {
+  try {
+    await httpClient.post(`admin/students/promote/${studentId}`);
+  } catch (error: any) {
+    console.error(`Error promoting student ${studentId}:`, error);
+    throw new Error(error.response?.data?.message || 'Error al promover estudiante');
+  }
+}
+
 // ==================== STATISTICS ====================
 
 /**
@@ -232,4 +262,5 @@ export default {
   bulkDeleteStudents,
   bulkUpdateStudentStatus,
   getStudentStats,
+  promoteStudent,
 };

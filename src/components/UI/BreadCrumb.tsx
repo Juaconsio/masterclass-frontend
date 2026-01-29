@@ -24,6 +24,9 @@ const ROUTE_LABELS: Record<string, string> = {
   profesores: 'Gestión de Profesores',
   estudiantes: 'Gestión de Estudiantes',
   pagos: 'Gestión de Pagos',
+
+  // Professor routes
+  profesor: 'Dashboard Profesor',
 };
 
 const DETAIL_LABELS: Record<string, string> = {
@@ -42,7 +45,8 @@ export function BreadCrumb({ homePath = '/app' }: BreadCrumbProps) {
     const segments = path.split('/').filter(Boolean);
     const items: BreadCrumbItem[] = [];
 
-    const startIndex = segments[0] === 'admin' || segments[0] === 'app' ? 1 : 0;
+    const startIndex =
+      segments[0] === 'admin' || segments[0] === 'app' || segments[0] === 'profesor' ? 1 : 0;
 
     for (let i = startIndex; i < segments.length; i++) {
       const segment = segments[i];

@@ -3,6 +3,8 @@ import Drawer from '@components/UI/Drawer';
 import EventForm from './EventForm';
 import type { DrawerRef } from '@components/UI/Drawer';
 import type { EventFormValues } from '@interfaces/events/IEvent';
+import type { ICourse } from '@/interfaces/models';
+import type { IProfessor as IProfessorModel } from '@/interfaces/models';
 
 export interface EventFormDrawerRef {
   open: () => void;
@@ -18,7 +20,16 @@ interface EventFormDrawerProps {
 }
 
 const EventFormDrawer = forwardRef<EventFormDrawerRef, EventFormDrawerProps>(
-  ({ title = 'Crear Evento', initialValues, onSubmit, submitLabel = 'Guardar', onClose }, ref) => {
+  (
+    {
+      title = 'Crear Evento',
+      initialValues,
+      onSubmit,
+      submitLabel = 'Guardar',
+      onClose
+    },
+    ref
+  ) => {
     const drawerRef = useRef<DrawerRef>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [canSubmit, setCanSubmit] = useState(false);
