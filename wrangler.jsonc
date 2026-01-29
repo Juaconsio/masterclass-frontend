@@ -1,6 +1,6 @@
 {
   "main": "dist/_worker.js/index.js",
-  "name": "salvaramos-app",
+  "name": "masterclass-frontend",
   "compatibility_date": "2026-01-29", // Update to the day you deploy
   "compatibility_flags": [
     "nodejs_compat",
