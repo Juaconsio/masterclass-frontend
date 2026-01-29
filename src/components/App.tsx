@@ -16,7 +16,6 @@ import {
   AdminDashboard,
   AdminCourses,
   AdminStudents,
-  AdminProfessors,
   AdminPayments,
   AdminCourseDetail,
   AdminProfessors,
