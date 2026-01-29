@@ -55,10 +55,10 @@ const NavBar: React.FC = () => {
     } else if (isProfessor) {
       return [
         { label: 'Dashboard', href: '/profesor', icon: <LayoutDashboard className="h-5 w-5" /> },
-        { label: 'Mis Clases', href: '/profesor/clases', icon: <BookOpen className="h-5 w-5" /> },
+        { label: 'Mis Cursos', href: '/profesor/cursos', icon: <BookOpen className="h-5 w-5" /> },
         {
-          label: 'Calendario',
-          href: '/profesor/calendario',
+          label: 'Mis Horarios',
+          href: '/profesor/horarios',
           icon: <Calendar className="h-5 w-5" />,
         },
       ];
@@ -75,7 +75,7 @@ const NavBar: React.FC = () => {
     const path = location.pathname;
     if (!path) return false;
     // Exact match para home, starts with para otros
-    if (href === '/app' || href === '/admin') {
+    if (href === '/app' || href === '/admin' || href === '/profesor') {
       return path === href;
     }
     return path.startsWith(href);
@@ -164,21 +164,6 @@ const NavBar: React.FC = () => {
             Mi Perfil
           </Link>
         </li>
-        {isAdmin && (
-          <li>
-            {isStudentView ? (
-              <Link to="/admin" onClick={closeDrawer} className="text-sm">
-                <ShieldCheck className="h-4 w-4" />
-                Ir al panel de administración
-              </Link>
-            ) : (
-              <Link to="/app" onClick={closeDrawer} className="text-sm">
-                <GraduationCap className="h-4 w-4" />
-                Ver como estudiante
-              </Link>
-            )}
-          </li>
-        )}
         <li>
           <button onClick={handleLogout} className="text-error text-sm">
             <LogOut className="h-4 w-4" />

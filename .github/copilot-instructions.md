@@ -143,8 +143,9 @@ pnpm preview  # Preview production build
 
 ### Comments and Documentation
 
-- **Remove inline comments**: Code should be self-explanatory through clear naming and structure
-- **Use JSDoc for functions**: Document public APIs and utilities with JSDoc in English
+- **Avoid inline comments**: Code should be self-explanatory through clear naming and structure
+- **No explanatory comments**: Don't add comments explaining what code does (e.g., `// Initialize state`, `// Call API`)
+- **Use JSDoc only for complex functions**: Document complex business logic, non-obvious algorithms, or public APIs
 - **JSDoc format**:
   ```typescript
   /**
@@ -153,8 +154,17 @@ pnpm preview  # Preview production build
    * @returns Description of return value
    */
   ```
-- **Language**: All JSDoc and code comments must be in English
-- **When to comment**: Only add comments for complex business logic or non-obvious algorithms
+- **Language**: All JSDoc must be in English
+- **When JSDoc is required**:
+  - Complex algorithms or business logic
+  - Public API functions in client modules
+  - Utility functions with non-obvious behavior
+  - Functions with multiple parameters or complex return types
+- **When JSDoc is NOT needed**:
+  - Self-explanatory functions with clear names
+  - Simple CRUD operations
+  - React component functions
+  - One-liner utility functions
 
 ### Function Exports
 

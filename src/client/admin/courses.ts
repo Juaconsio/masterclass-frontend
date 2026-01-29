@@ -74,9 +74,26 @@ export interface AdminCourseDetail extends AdminCourse {
   };
 }
 
+export type IPlainCourse = {
+  id: number;
+  title: string;
+  classes: Pick<Class, 'id' | 'title'>[];
+  professors: Pick<Professor, 'id' | 'name'>[];
+};
+
 export const adminCoursesClient = {
   async getAll(): Promise<TableResponse<AdminCourse>> {
     const response = await httpClient.get('/admin/courses');
+    return response.data;
+  },
+
+  async getAllPlain(): Promise<IPlainCourse[]> {
+    const response = await httpClient.get<IPlainCourse[]>('/admin/courses/plain');
+    return response.data;
+  },
+
+  async getAllWithClasses(): Promise<AdminCourseDetail[]> {
+    const response = await httpClient.get<AdminCourseDetail[]>('/admin/courses/with-classes/all');
     return response.data;
   },
 

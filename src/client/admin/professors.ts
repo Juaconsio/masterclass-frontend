@@ -82,6 +82,11 @@ export const adminProfessorsClient = {
     return response.data;
   },
 
+  async getAllPlain(): Promise<AdminProfessor[]> {
+    const response = await httpClient.get('/admin/professors/plain');
+    return response.data;
+  },
+
   async getById(id: number): Promise<AdminProfessorDetail> {
     const response = await httpClient.get<AdminProfessorDetail>(`/admin/professors/${id}`);
     return response.data;
@@ -136,3 +141,9 @@ export const adminProfessorsClient = {
     await httpClient.delete(endpoint);
   },
 };
+
+// TO CHECK: Revisar funcionalidad después
+export async function fetchProfessors() {
+  const res = await httpClient.get('/professors');
+  return res.data;
+}

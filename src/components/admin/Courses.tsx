@@ -11,7 +11,7 @@ import { adminCoursesClient, type AdminCourse } from '../../client/admin/courses
 import { useTableData } from '@/hooks/useTableData';
 import { useLocalFilter } from '@/hooks/useLocalFilter';
 import { useNavigate } from 'react-router';
-import { fetchProfessors } from '@/client/professors';
+import { fetchProfessors } from '@/client/admin/professors';
 import type { IProfessor } from '@/interfaces/models';
 
 export default function AdminCourses() {

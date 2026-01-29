@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -95,11 +95,13 @@ export default function EventDetailsModal({
 
   async function handleUpdate(data: EventFormValues) {
     if (!event || !handleEdit) return;
+
     const payload = buildSlotUpdatePayload(event, data);
     if (Object.keys(payload).length === 0) {
       throw new Error('No hay cambios para actualizar.');
     }
     await handleEdit(event.id, payload);
+    drawerRef.current?.close();
   }
 
   if (!event) return null;

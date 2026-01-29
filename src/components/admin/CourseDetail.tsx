@@ -11,7 +11,7 @@ import {
   type DrawerRef,
 } from '@components/UI';
 import { FileInput, MATERIAL_ICONS, MATERIAL_LABELS } from '@components/content';
-import { fetchProfessors } from '@/client/professors';
+import { fetchProfessors } from '@/client/admin/professors';
 import type { IProfessor } from '@/interfaces/models';
 import { makeUploadUrl, uploadFileToBucket, confirmUpload } from '@/client/admin/material';
 import clsx from 'clsx';
