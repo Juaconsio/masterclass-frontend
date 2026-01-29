@@ -1,4 +1,4 @@
-import { getStudents, deleteStudent, toggleStudentStatus } from '@/client/admin/students';
+import { getStudents, deleteStudent, toggleStudentStatus, promoteStudent } from '@/client/admin/students';
 import type { Student, StudentFilters } from '@/client/admin/students';
 import type { UserRole } from '@/interfaces/enums';
 import { Table, type TableColumn, type TableAction } from '@components/UI';
@@ -45,6 +45,17 @@ export default function AdminUsers() {
     }
   };
 
+  const handlePromote = async (id: number) => {
+    if (!confirm('¿Estás seguro de promover este estudiante a profesor?')) return;
+
+    try {
+      await promoteStudent(id);
+      loadUsers();
+    } catch (error) {
+      alert('Error al promover estudiante');
+    }
+  };
+
   const columns: TableColumn<Student>[] = [
     {
       key: 'name',
@@ -78,44 +89,21 @@ export default function AdminUsers() {
 
   // Definir acciones de la tabla
   const actions: TableAction<Student>[] = [
-    // {
-    //   label: 'Ver',
-    //   variant: 'secondary',
-    //   onClick: (student) => {
-    //     // TODO: Implementar vista de detalles
-    //   },
-    // },
-    // {
-    //   label: 'Editar',
-    //   variant: 'primary',
-    //   onClick: (student) => {
-    //     // TODO: Implementar edición
-    //   },
-    // },
-    // {
-    //   label: 'Estado',
-    //   variant: 'secondary',
-    //   onClick: (student) => handleToggleStatus(student.id, student.isActive),
-    //   icon: (
-    //     <svg
-    //       xmlns="http://www.w3.org/2000/svg"
-    //       className="h-4 w-4"
-    //       viewBox="0 0 20 20"
-    //       fill="currentColor"
-    //     >
-    //       <path
-    //         fillRule="evenodd"
-    //         d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-    //         clipRule="evenodd"
-    //       />
-    //     </svg>
-    //   ),
-    // },
-    // {
-    //   label: 'Eliminar',
-    //   variant: 'danger',
-    //   onClick: (student) => handleDelete(student.id),
-    // },
+    {
+      label: 'Promover a Profesor',
+      variant: 'primary',
+      onClick: (student) => handlePromote(student.id),
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.615 1.738 4.346a1 1 0 01-.51 1.307 6.174 6.174 0 01-5.885 0 1 1 0 01-.51-1.307l1.738-4.346-1.785-.893V7a1 1 0 01-2 0V5.667l-1.785.893 1.738 4.346a1 1 0 01-.51 1.307 6.174 6.174 0 01-5.885 0 1 1 0 01-.51-1.307l1.738-4.346-1.233-.616a1 1 0 01.894-1.79l1.599.8L9 4.323V3a1 1 0 011-1z" />
+        </svg>
+      ),
+    },
   ];
 
   return (
