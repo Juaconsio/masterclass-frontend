@@ -2,10 +2,10 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import DateTimeInput from '@components/UI/DateTimeInput';
 import type { EventFormValues, IProfessor, IClass } from '@interfaces/events/IEvent';
-import { fetchProfessors } from '@client/professors';
-import { fetchCourses } from '@client/courses';
+import { adminCoursesClient, type IPlainCourse } from '@/client/admin/courses';
+import { professorCoursesClient } from '@/client/professor/courses';
 import { CircleX } from 'lucide-react';
-import type { ICourse } from '@/interfaces/models';
+import { useSessionContext } from '../../context/SessionContext';
 
 interface EventFormProps {
   formId?: string;
@@ -55,12 +55,18 @@ export default function EventForm({
   mode,
   onDataStateChange,
 }: EventFormProps) {
-  const [professors, setProfessors] = useState<IProfessor[]>([]);
-  const [courses, setCourses] = useState<ICourse[]>([]);
-  const [classes, setClasses] = useState<IClass[]>([]);
+  const [professors, setProfessors] = useState<Pick<IProfessor, 'id' | 'name'>[]>([]);
+  const [courses, setCourses] = useState<IPlainCourse[]>([]);
+  const [classes, setClasses] = useState<Pick<IPlainCourse['classes'][number], 'id' | 'title'>[]>(
+    []
+  );
   const [loadingData, setLoadingData] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
+  const { user } = useSessionContext();
+
+  const isProfessor = user?.role === 'professor';
+  const client = isProfessor ? professorCoursesClient : adminCoursesClient;
 
   const isEditMode = mode === 'edit' || (mode === undefined && initialValues?.courseId != null);
 
@@ -108,16 +114,18 @@ export default function EventForm({
     try {
       setFetchError(null);
       setLoadingData(true);
-      const [p, c] = await Promise.all([fetchProfessors(), fetchCourses()]);
-      setProfessors(p.data);
-      setCourses(c);
-      setClasses(c.find((course: ICourse) => course.id === watchCourseId)?.classes || []);
+      const client = isProfessor ? professorCoursesClient : adminCoursesClient;
+      const courses = await client.getAllPlain();
+      setCourses(courses);
+      setClasses(
+        courses.find((course: IPlainCourse) => course.id === watchCourseId)?.classes || []
+      );
     } catch (err) {
       setFetchError('No se pudieron cargar profesores y cursos. Intenta nuevamente.');
     } finally {
       setLoadingData(false);
     }
-  }, []);
+  }, [isProfessor, watchCourseId]);
 
   useEffect(() => {
     loadData();
@@ -201,31 +209,41 @@ export default function EventForm({
                       {courses.find((c) => c.id === watchCourseId)?.title || 'No seleccionado'}
                     </p>
                   ) : (
-                    <select
-                      id="course"
-                      className="select select-bordered w-full"
-                      value={watchCourseId ?? ''}
-                      disabled={loadingData || isSubmitting}
-                      onChange={(e) => {
-                        const v = e.target.value;
-                        setValue('courseId', v === '' ? null : Number(v), { shouldDirty: true });
-                        setValue('professorId', null, { shouldDirty: true });
-                        setValue('classId', null, { shouldDirty: true, shouldValidate: true });
-                      }}
-                    >
-                      <option value="">Seleccione un curso</option>
-                      {courses
-                        .filter((cls) =>
-                          watchProfessorId == null
-                            ? true
-                            : cls.professors?.some((prof) => prof.id === watchProfessorId)
-                        )
-                        .map((cls: ICourse) => (
-                          <option key={cls.id} value={cls.id}>
-                            {cls.title}
-                          </option>
-                        ))}
-                    </select>
+                    <Controller
+                      name="courseId"
+                      control={control}
+                      rules={{ required: 'Debe seleccionar un curso' }}
+                      render={({ field }) => (
+                        <select
+                          id="course"
+                          className="select select-bordered w-full"
+                          value={field.value ?? ''}
+                          disabled={loadingData || isSubmitting}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            field.onChange(v === '' ? null : Number(v));
+                            setValue('professorId', null, { shouldDirty: true });
+                            setValue('classId', null, { shouldDirty: true, shouldValidate: true });
+                            setProfessors(
+                              courses.find((c) => c.id === Number(v))?.professors || []
+                            );
+                          }}
+                        >
+                          <option value="">Seleccione un curso</option>
+                          {courses
+                            .filter((cls) =>
+                              watchProfessorId == null
+                                ? true
+                                : cls.professors?.some((prof) => prof.id === watchProfessorId)
+                            )
+                            .map((cls: IPlainCourse) => (
+                              <option key={cls.id} value={cls.id}>
+                                {cls.title}
+                              </option>
+                            ))}
+                        </select>
+                      )}
+                    />
                   )}
                   {errors.courseId && (
                     <p className="text-error text-sm">{errors.courseId.message}</p>
@@ -234,29 +252,36 @@ export default function EventForm({
 
                 <div>
                   <label className="label">Profesor</label>
-                  <select
-                    id="professor"
-                    className="select select-bordered w-full"
-                    value={watchProfessorId ?? ''}
-                    disabled={loadingData || isSubmitting}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      const num = v === '' ? null : Number(v);
-                      setValue('professorId', num, { shouldDirty: true });
-                      setValue('classId', null, { shouldDirty: true });
-                    }}
-                  >
-                    <option value="">Seleccione un profesor</option>
-                    {professors?.length > 0 ? (
-                      professors.map((prof: IProfessor) => (
-                        <option key={prof.id} value={prof.id}>
-                          {prof.name}
-                        </option>
-                      ))
-                    ) : (
-                      <option disabled>No hay profesores disponibles</option>
+                  <Controller
+                    name="professorId"
+                    control={control}
+                    rules={{ required: 'Debe seleccionar un profesor' }}
+                    render={({ field }) => (
+                      <select
+                        id="professor"
+                        className="select select-bordered w-full"
+                        value={field.value ?? ''}
+                        disabled={loadingData || isSubmitting}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          const num = v === '' ? null : Number(v);
+                          field.onChange(num);
+                          setValue('classId', null, { shouldDirty: true });
+                        }}
+                      >
+                        <option value="">Seleccione un profesor</option>
+                        {professors?.length > 0 ? (
+                          professors.map((prof: Pick<IProfessor, 'id' | 'name'>) => (
+                            <option key={prof.id} value={prof.id}>
+                              {prof.name}
+                            </option>
+                          ))
+                        ) : (
+                          <option disabled>No hay profesores disponibles</option>
+                        )}
+                      </select>
                     )}
-                  </select>
+                  />
                   {errors.professorId && (
                     <p className="text-error text-sm">{errors.professorId.message}</p>
                   )}
@@ -272,6 +297,7 @@ export default function EventForm({
                     <Controller
                       name="classId"
                       control={control}
+                      rules={{ required: 'Debe seleccionar una clase' }}
                       render={({ field }) => (
                         <select
                           id="class"
@@ -284,14 +310,19 @@ export default function EventForm({
                           }}
                         >
                           <option value="">Seleccione una clase</option>
-                          {classes.map((cls: IClass) => (
-                            <option key={cls.id} value={cls.id}>
-                              {cls.title}
-                            </option>
-                          ))}
+                          {classes.map(
+                            (cls: Pick<IPlainCourse['classes'][number], 'id' | 'title'>) => (
+                              <option key={cls.id} value={cls.id}>
+                                {cls.title}
+                              </option>
+                            )
+                          )}
                         </select>
                       )}
                     />
+                  )}
+                  {errors.classId && (
+                    <p className="text-error text-sm">{errors.classId.message}</p>
                   )}
                 </div>
               </div>

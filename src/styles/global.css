@@ -25,8 +25,9 @@
   --color-accent-content: oklch(0.3729 0.0306 259.73); /* Azul grisáceo para contraste */
 
   /* === BASE & NEUTRALS === */
-  --color-base-100: oklch(0.985 0.003 255); /* Blanco frío */
-  --color-base-200: oklch(0.94 0.01 255); /* Gris azulado muy claro */
+  --color-base-100: oklch(0.94 0.01 255); /* Gris azulado muy claro */
+
+  --color-base-200: oklch(0.985 0.003 255); /* Blanco frío */
   --color-base-300: oklch(0.88 0.015 255); /* Gris azulado claro */
   --color-base-content: oklch(0.22 0.02 255); /* Texto gris azul oscuro */
 

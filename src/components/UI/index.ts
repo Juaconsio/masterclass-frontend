@@ -11,5 +11,6 @@ export type { DrawerRef } from './Drawer';
 export { default as NavBar } from './NavBar';
 export { default as NavButton } from './NavButton';
 export { default as NotFound } from './NotFound';
+export { default as PageHeader } from './PageHeader';
 export { default as Table } from './Table';
 export type { TableColumn, TableAction, TablePagination, TableProps } from './Table';

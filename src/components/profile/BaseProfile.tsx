@@ -490,7 +490,7 @@ export default function BaseProfile({ config }: { config: ProfileConfig }) {
         </div>
       )}
 
-      <div className="card bg-base-100 mb-6 shadow-xl">
+      <div className="card bg-base-200 mb-6 shadow-xl">
         <div className="card-body">
           {!isEditingProfile ? (
             <ProfileView
@@ -510,7 +510,7 @@ export default function BaseProfile({ config }: { config: ProfileConfig }) {
         </div>
       </div>
 
-      <div className="card bg-base-100 shadow-xl">
+      <div className="card bg-base-200 shadow-xl">
         <div className="card-body">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="card-title text-2xl">Cambiar Contraseña</h2>

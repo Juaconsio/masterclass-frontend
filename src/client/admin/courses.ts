@@ -74,20 +74,65 @@ export interface AdminCourseDetail extends AdminCourse {
   };
 }
 
+export type IPlainCourse = {
+  id: number;
+  title: string;
+  classes: Pick<Class, 'id' | 'title'>[];
+  professors: Pick<Professor, 'id' | 'name'>[];
+};
+
 export const adminCoursesClient = {
-  /**
-   * Get all courses with counts (admin view)
-   */
   async getAll(): Promise<TableResponse<AdminCourse>> {
     const response = await httpClient.get('/admin/courses');
     return response.data;
   },
 
-  /**
-   * Get a single course with full details (admin view)
-   */
+  async getAllPlain(): Promise<IPlainCourse[]> {
+    const response = await httpClient.get<IPlainCourse[]>('/admin/courses/plain');
+    return response.data;
+  },
+
+  async getAllWithClasses(): Promise<AdminCourseDetail[]> {
+    const response = await httpClient.get<AdminCourseDetail[]>('/admin/courses/with-classes/all');
+    return response.data;
+  },
+
   async getById(id: number): Promise<AdminCourseDetail> {
     const response = await httpClient.get<AdminCourseDetail>(`/admin/courses/${id}`);
+    return response.data;
+  },
+
+  async create(payload: {
+    title: string;
+    description: string;
+    acronym: string;
+    professorIds: number[];
+  }): Promise<AdminCourse> {
+    const response = await httpClient.post<AdminCourse>('/admin/courses', payload);
+    return response.data;
+  },
+
+  async update(
+    id: number,
+    payload: {
+      title: string;
+      description: string;
+      acronym: string;
+      professorIds: number[];
+    }
+  ): Promise<AdminCourse> {
+    const response = await httpClient.put<AdminCourse>(`/admin/courses/${id}`, payload);
+    return response.data;
+  },
+
+  async createClass(payload: {
+    title: string;
+    description: string;
+    objectives: string;
+    courseId: number;
+    orderIndex: number;
+  }): Promise<Class> {
+    const response = await httpClient.post<Class>('/admin/classes', payload);
     return response.data;
   },
 };

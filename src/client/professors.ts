@@ -1,29 +1,22 @@
 import { httpClient } from './config';
-import type { IProfessor } from '@/interfaces/models';
+import type { IProfessor, ICourse, ISlot } from '@/interfaces/models';
 
-async function fetchProfessors() {
-  const res = await httpClient.get('/professors');
-  return res.data;
+export interface ProfessorDashboardData {
+  professor: IProfessor;
+  courses: ICourse[];
+  slots: ISlot[];
 }
 
-async function createProfessor(payload: any) {
-  const res = await httpClient.post('/professors', payload);
-  return res.data;
+export async function getMyProfessorDashboard(): Promise<ProfessorDashboardData> {
+  try {
+    const response = await httpClient.get<ProfessorDashboardData>('professors/dashboard');
+    return response.data;
+  } catch (error: any) {
+    console.error('Error fetching professor dashboard:', error);
+    throw new Error(error.response?.data?.message || 'Error al obtener datos del profesor');
+  }
 }
 
-async function updateProfessor(payload: any) {
-  const res = await httpClient.put('/professors', payload);
-  return res.data;
-}
-
-async function deleteProfessor() {
-  const res = await httpClient.delete('/professors');
-  return res.data;
-}
-
-/**
- * Obtener perfil del profesor autenticado
- */
 export async function getMyProfessorProfile(): Promise<IProfessor> {
   try {
     const response = await httpClient.get<IProfessor>('professors/me');
@@ -34,9 +27,6 @@ export async function getMyProfessorProfile(): Promise<IProfessor> {
   }
 }
 
-/**
- * Actualizar perfil del profesor autenticado
- */
 export async function updateMyProfessorProfile(payload: {
   name?: string;
   email?: string;
@@ -52,9 +42,6 @@ export async function updateMyProfessorProfile(payload: {
   }
 }
 
-/**
- * Actualizar contraseña del profesor autenticado
- */
 export async function updateMyProfessorPassword(payload: {
   currentPassword: string;
   newPassword: string;
@@ -67,4 +54,12 @@ export async function updateMyProfessorPassword(payload: {
   }
 }
 
-export { fetchProfessors, createProfessor, updateProfessor, deleteProfessor };
+export async function getMyProfessorCourses(): Promise<ICourse[]> {
+  try {
+    const response = await httpClient.get<ICourse[]>('professors/me/courses');
+    return response.data;
+  } catch (error: any) {
+    console.error('Error fetching professor courses:', error);
+    throw new Error(error.response?.data?.message || 'Error al obtener cursos');
+  }
+}

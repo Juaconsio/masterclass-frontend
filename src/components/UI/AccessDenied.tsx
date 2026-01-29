@@ -4,9 +4,6 @@ export default function AccessDenied() {
   return (
     <div className="bg-base-200 flex min-h-screen items-center justify-center">
       <div className="card bg-base-100 w-96 shadow-xl">
-        <figure className="px-10 pt-10">
-          <div className="text-9xl">🚫</div>
-        </figure>
         <div className="card-body items-center text-center">
           <h2 className="card-title text-error">Acceso Denegado</h2>
           <p className="text-base-content/60">

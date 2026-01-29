@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import type { IEvent, EventFormValues, EventCreatePayload } from '@interfaces/events/IEvent';
 import EventForm from './EventForm';
 
@@ -42,7 +43,7 @@ export default function NewEventModal({
   return (
     <dialog open className="modal modal-open in-line">
       <div className="modal-box w-11/12 max-w-3xl">
-        <h3 className="mb-4 text-lg font-bold">Crear Nuevo Evento</h3>
+        <h3 className="mb-4 text-lg font-bold">Crear nuevo horario de clases</h3>
         <EventForm
           submitLabel="Crear"
           onSubmit={submit}
