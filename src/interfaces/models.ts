@@ -110,9 +110,9 @@ export interface IPayment {
 export interface IMaterial {
   id: number;
   classId: number;
-  type: MaterialType;
-  url: string;
-  accessPolicy: AccessPolicy;
+  mimeType: string;
+  filename: string;
+  bucketKey: string;
   class?: IClass;
 }
 

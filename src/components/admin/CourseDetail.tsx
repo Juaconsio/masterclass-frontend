@@ -14,8 +14,9 @@ import { FileInput, MATERIAL_ICONS, MATERIAL_LABELS } from '@components/content'
 import { fetchProfessors } from '@/client/admin/professors';
 import type { IProfessor } from '@/interfaces/models';
 import { makeUploadUrl, uploadFileToBucket, confirmUpload } from '@/client/admin/material';
+import { deleteMaterial, requestReplaceUrl, confirmReplaceMaterial } from '@/client/materials';
 import clsx from 'clsx';
-import { Check, Pencil, UserPlus, UserMinus } from 'lucide-react';
+import { Check, Pencil, UserPlus, UserMinus, Trash2, RefreshCw } from 'lucide-react';
 import { useConfirmAction } from '@/hooks/useConfirmAction';
 
 export default function CourseDetail() {
@@ -88,8 +89,50 @@ export default function CourseDetail() {
       });
       await uploadFileToBucket(uploadUrl, file);
       await confirmUpload(classId.toString(), filename, key, contentType);
+      await loadCourse();
     } catch (error) {
       console.error('Error uploading file to bucket:', error);
+      throw error;
+    }
+  };
+
+  const handleDeleteMaterial = async (materialId: number, filename: string) => {
+    showConfirmation({
+      title: '¿Eliminar material?',
+      message: `Se eliminará permanentemente el material "${MATERIAL_LABELS[filename] || filename}". Esta acción no se puede deshacer.`,
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      isDangerous: true,
+      onConfirm: async () => {
+        try {
+          await deleteMaterial(materialId);
+          await loadCourse();
+        } catch (error) {
+          console.error('Error deleting material:', error);
+        }
+      },
+    });
+  };
+
+  const handleReplaceMaterial = async (materialId: number, file: File, filename: string) => {
+    try {
+      const { uploadUrl, newKey, contentType } = await requestReplaceUrl(materialId, {
+        filename,
+        contentType: file.type || 'application/x-text',
+        ext: file.name.split('.').pop() || '',
+      });
+
+      await uploadFileToBucket(uploadUrl, file);
+
+      await confirmReplaceMaterial(materialId, {
+        filename,
+        newKey,
+        contentType,
+      });
+
+      await loadCourse();
+    } catch (error) {
+      console.error('Error replacing material:', error);
       throw error;
     }
   };
@@ -226,27 +269,92 @@ export default function CourseDetail() {
     {
       key: 'materials',
       label: 'Materiales',
-      formatter: (value) => {
+      formatter: (value, row) => {
         const materials = value || [];
-        const materialFilenames = materials.map((m: any) => m.filename);
         const allTypes = Object.keys(MATERIAL_LABELS);
 
+        // Debug logging
+        if (materials.length > 0) {
+          console.log('Materials for class', row.title, ':', materials);
+        }
+
         return (
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-2">
             {allTypes.map((type) => {
-              const exists = materialFilenames.includes(type);
+              const material = materials.find((m: any) => m.filename === type);
+              const exists = !!material;
+
               return (
-                <span
+                <div
                   key={type}
                   className={clsx(
-                    'flex items-center gap-1',
-                    exists ? 'text-green-700/80' : 'text-base-content/40'
+                    'flex items-center justify-between gap-2 rounded p-1',
+                    exists ? 'bg-green-50' : 'bg-base-100'
                   )}
                 >
-                  {MATERIAL_ICONS[type]}
-                  {MATERIAL_LABELS[type]}
-                  {exists && <Check className="inline-block h-4 w-4" />}
-                </span>
+                  <span
+                    className={clsx(
+                      'flex items-center gap-1 text-sm',
+                      exists ? 'text-green-700/80' : 'text-base-content/40'
+                    )}
+                  >
+                    {MATERIAL_ICONS[type]}
+                    {MATERIAL_LABELS[type]}
+                    {exists && <Check className="inline-block h-4 w-4" />}
+                  </span>
+
+                  {exists && material?.id ? (
+                    <div className="flex gap-1">
+                      <FileInput
+                        acceptedFileTypes={['image/*', 'application/pdf']}
+                        onFileUpload={async (file, _) => {
+                          await handleReplaceMaterial(material.id, file, type);
+                        }}
+                        maxSizeMB={5}
+                        buttonText=""
+                        modalTitle={`Reemplazar ${MATERIAL_LABELS[type]}`}
+                        fixedType={type}
+                        customButton={
+                          <button className="btn btn-ghost btn-xs" title="Reemplazar material">
+                            <RefreshCw className="h-3 w-3" />
+                          </button>
+                        }
+                      />
+                      <button
+                        className="btn btn-ghost btn-xs text-error"
+                        onClick={() => {
+                          console.log('Deleting material:', material);
+                          if (!material?.id) {
+                            console.error('Material ID is undefined:', material);
+                            return;
+                          }
+                          handleDeleteMaterial(material.id, type);
+                        }}
+                        title="Eliminar material"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : exists && !material?.id ? (
+                    <span className="text-error text-xs">Error: ID no disponible</span>
+                  ) : (
+                    <FileInput
+                      acceptedFileTypes={['image/*', 'application/pdf']}
+                      onFileUpload={async (file, _) => {
+                        await handleFileUpload(file, row.id, type);
+                      }}
+                      maxSizeMB={5}
+                      buttonText="Subir"
+                      modalTitle={`Subir ${MATERIAL_LABELS[type]}`}
+                      fixedType={type}
+                      customButton={
+                        <button className="btn btn-primary btn-xs" title="Subir material">
+                          Subir
+                        </button>
+                      }
+                    />
+                  )}
+                </div>
               );
             })}
           </div>
@@ -262,19 +370,6 @@ export default function CourseDetail() {
       onClick: (classItem) => {
         console.log('Ver clase:', classItem);
       },
-    },
-    {
-      render: (classItem) => (
-        <FileInput
-          acceptedFileTypes={['image/*', 'application/pdf']}
-          onFileUpload={async (file, filename) => {
-            await handleFileUpload(file, classItem.id, filename);
-          }}
-          maxSizeMB={5}
-          buttonText="Subir Material"
-          modalTitle={`Subir material para ${classItem.title}`}
-        />
-      ),
     },
   ];
 
