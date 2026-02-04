@@ -78,6 +78,8 @@ export interface ISlot {
   class: IClass;
   professor?: IProfessor;
   reservations?: IReservation[];
+  confirmedReservations?: number;
+  pendingReservations?: number;
 }
 
 // Reservation model
