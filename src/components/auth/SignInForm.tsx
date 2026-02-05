@@ -4,7 +4,7 @@ import { createReservation } from '@client/reservations';
 import { useForm } from 'react-hook-form';
 import { useSessionContext } from '../../context/SessionContext';
 import clsx from 'clsx';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import type { UserRole } from '@/interfaces/enums';
 import { AUTH_ERROR_MESSAGES } from '@/lib/errorMessages';
 
@@ -39,6 +39,7 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
   const { handleToken } = useSessionContext();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   const {
     register,
@@ -49,11 +50,17 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
   const [hasPendingReservation, setHasPendingReservation] = useState(false);
 
   const inferredRoleFromPath: UserRole = useMemo(() => {
+    // Check query params first
+    const typeParam = searchParams.get('type');
+    if (typeParam === 'professor') return 'professor';
+    if (typeParam === 'admin') return 'admin';
+
+    // Then check path
     const path = location?.pathname || '';
     if (path.includes('/admin')) return 'admin';
     if (path.includes('/profesor') || path.includes('/professor')) return 'professor';
     return 'user';
-  }, [location]);
+  }, [location, searchParams]);
   const [userRole, setUserRole] = useState<UserRole>(initialUserRole || inferredRoleFromPath);
 
   // TODO: REFAcTOREAR ESTO A UN HOOK con el hook en client

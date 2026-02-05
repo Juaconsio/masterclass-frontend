@@ -13,10 +13,12 @@ import { useLocalFilter } from '@/hooks/useLocalFilter';
 import { useNavigate } from 'react-router';
 import { Eye, UserPlus } from 'lucide-react';
 import { formatRutInput, validateRut, cleanRut } from '@/lib/rut';
+import { getHttpErrorMessage, PROFESSOR_ERROR_MESSAGES } from '@/lib/errorMessages';
 
 export default function AdminProfessors() {
   const navigate = useNavigate();
   const drawerRef = useRef<DrawerRef>(null);
+  const isDev = import.meta.env.DEV;
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -26,6 +28,7 @@ export default function AdminProfessors() {
   });
   const [rutError, setRutError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     data: professors,
@@ -53,10 +56,19 @@ export default function AdminProfessors() {
       bio: '',
     });
     setRutError(null);
+    setSubmitError(null);
     drawerRef.current?.open();
   };
 
   const handleRutChange = (value: string) => {
+    // In DEV mode, allow any value without formatting or validation
+    if (isDev) {
+      setFormData({ ...formData, rut: value });
+      setRutError(null);
+      return;
+    }
+
+    // In production, format and validate RUT
     const formatted = formatRutInput(value);
     setFormData({ ...formData, rut: formatted });
 
@@ -68,12 +80,17 @@ export default function AdminProfessors() {
   };
 
   const handleSubmit = async () => {
+    setSubmitError(null);
+
     try {
       setSubmitting(true);
       await adminProfessorsClient.create({
         ...formData,
-        rut: cleanRut(formData.rut),
+        rut: isDev ? formData.rut : cleanRut(formData.rut),
       });
+
+      alert('Profesor creado exitosamente.');
+
       drawerRef.current?.close();
       setFormData({
         name: '',
@@ -83,9 +100,17 @@ export default function AdminProfessors() {
         bio: '',
       });
       setRutError(null);
+      setSubmitError(null);
       reload();
     } catch (error) {
       console.error('Error creating professor:', error);
+      const errorMessage = getHttpErrorMessage(
+        error,
+        PROFESSOR_ERROR_MESSAGES,
+        'Error al crear el profesor. Por favor intenta nuevamente.'
+      );
+      setSubmitError(errorMessage);
+      alert(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -204,6 +229,25 @@ export default function AdminProfessors() {
         ]}
       >
         <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          {submitError && (
+            <div className="alert alert-error">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 shrink-0 stroke-current"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>{submitError}</span>
+            </div>
+          )}
+
           <div className="form-control">
             <label className="label">
               <span className="label-text font-semibold">Nombre *</span>
@@ -235,10 +279,13 @@ export default function AdminProfessors() {
           <div className="form-control">
             <label className="label">
               <span className="label-text font-semibold">RUT *</span>
+              {isDev && (
+                <span className="label-text-alt text-info">(Validación deshabilitada en DEV)</span>
+              )}
             </label>
             <input
               type="text"
-              placeholder="12.345.678-9"
+              placeholder={isDev ? 'Cualquier valor (DEV mode)' : '12.345.678-9'}
               className={`input input-bordered w-full ${rutError ? 'input-error' : ''}`}
               value={formData.rut}
               onChange={(e) => handleRutChange(e.target.value)}

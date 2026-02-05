@@ -60,7 +60,16 @@ export default function ResetPassword() {
         type: 'success',
         message: 'Contraseña actualizada correctamente. Redirigiendo...',
       });
-      setTimeout(() => navigate('/ingresar'), 2000);
+
+      // Redirect based on account type
+      const redirectPath =
+        accountType === 'admin'
+          ? '/admin/ingresar'
+          : accountType === 'professor'
+            ? '/ingresar?type=professor'
+            : '/ingresar';
+
+      setTimeout(() => navigate(redirectPath), 2000);
     } catch (error: any) {
       setFeedback({
         type: 'error',
