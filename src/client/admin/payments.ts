@@ -9,6 +9,7 @@ export interface PaymentsFilters extends Filters {
   transactionReference?: string;
   status?: 'pending' | 'paid' | 'failed' | 'refunded';
   slotId?: number;
+  courseId?: number;
 }
 
 export async function getPayments(filters?: PaymentsFilters): Promise<TableResponse<Payment>> {

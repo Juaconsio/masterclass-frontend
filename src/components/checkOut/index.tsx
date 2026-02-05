@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getCourseEnroll } from '../../client/courses';
+import { createReservation } from '../../client/reservations';
+import { useSessionContext } from '../../context/SessionContext';
 import type { IPricingPlan, ISlot, ICourse } from '../../interfaces/models';
+import { TriangleAlert } from 'lucide-react';
 
 type CheckoutProps = {
   courseId?: string | number;
@@ -20,6 +23,7 @@ function useQueryParams() {
 
 export default function CheckoutView(props: CheckoutProps) {
   const qp = useQueryParams();
+  const { isAuthenticated, isLoading: authLoading } = useSessionContext();
 
   const courseId = props.courseId ?? qp.courseId;
   const courseAcronym = props.courseAcronym ?? qp.courseAcronym;
@@ -27,9 +31,10 @@ export default function CheckoutView(props: CheckoutProps) {
 
   const [error, setError] = useState<string | null>(null);
   const [pricingPlans, setPricingPlans] = useState<IPricingPlan[]>([]);
-  const [selectedPricingPlanId, setSelectedPricingPlanId] = useState<string | null>(null);
+  const [selectedPricingPlanId, setSelectedPricingPlanId] = useState<string | number | null>(null);
   const [course, setCourse] = useState<ICourse | null>(null);
   const [slot, setSlot] = useState<ISlot | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -56,21 +61,56 @@ export default function CheckoutView(props: CheckoutProps) {
     };
   }, [courseId, slotId]);
 
-  const handleReserve = () => {
-    if (!selectedPricingPlanId) return;
-    const payload = {
-      courseId: course?.id || courseId,
-      slotId,
-      pricingPlanId: selectedPricingPlanId,
-      // Optionally attach extra info in the future
-      ts: Date.now(),
-    };
+  const handleReserve = async () => {
+    if (!selectedPricingPlanId || !slotId || !course) return;
+
+    setIsSubmitting(true);
+    setError(null);
+
     try {
-      localStorage.setItem('checkout.reservation', JSON.stringify(payload));
-      window.dispatchEvent(new Event('reservationChanged'));
-    } catch {}
-    // Send to sign up
-    window.location.href = '/registrar';
+      if (isAuthenticated) {
+        // Usuario autenticado: crear reserva directamente
+        const result = await createReservation({
+          courseId: course.id,
+          slotId: Number(slotId),
+          pricingPlanId: String(selectedPricingPlanId),
+        });
+
+        // Guardar datos para la página de éxito
+        localStorage.setItem(
+          'reservation.success',
+          JSON.stringify({
+            reservation: result.reservation,
+            payment: result.payment,
+          })
+        );
+
+        // Redirigir a página de éxito
+        window.location.href = '/app/confirmacion-pago';
+      } else {
+        // Usuario NO autenticado: guardar intención de reserva
+        const pendingReservation = {
+          courseId: course.id,
+          slotId: Number(slotId),
+          pricingPlanId: selectedPricingPlanId,
+          // Info para mostrar al usuario
+          courseTitle: course.title,
+          slotDate: slot?.startTime,
+          amount: pricingPlans.find((p) => p.id === selectedPricingPlanId)?.price || 0,
+        };
+
+        localStorage.setItem('pendingReservation', JSON.stringify(pendingReservation));
+
+        // Redirigir a registro
+        window.location.href = '/registrar';
+      }
+    } catch (e: any) {
+      setError(
+        e?.message ||
+          'Error al procesar la reserva, por favor intenta nuevamente. Si el problema persiste, contáctanos.'
+      );
+      setIsSubmitting(false);
+    }
   };
 
   if (!slot || !course || !pricingPlans) {
@@ -200,9 +240,19 @@ export default function CheckoutView(props: CheckoutProps) {
                   </div>
                 </div>
                 <div className="divider" />
-                <p className="text-base-content/70 text-sm">
-                  Si aún no tienes cuenta, te pediremos registrarte para completar la reserva.
-                </p>
+
+                {!isAuthenticated && !authLoading && (
+                  <div className="alert alert-info">
+                    <TriangleAlert className="h-6 w-6 flex-shrink-0" />
+                    <div className="text-sm">
+                      <p className="font-semibold">Necesitas una cuenta</p>
+                      <p>
+                        Al continuar, te pediremos crear una cuenta. Tu reserva se confirmará
+                        automáticamente después del registro.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </section>
@@ -256,8 +306,21 @@ export default function CheckoutView(props: CheckoutProps) {
                       </label>
                     ))}
                     <div className="mt-2 flex justify-end md:col-span-2">
-                      <button type="submit" className="btn btn-primary btn-lg">
-                        Reservar
+                      <button
+                        type="submit"
+                        className="btn btn-primary btn-lg"
+                        disabled={!selectedPricingPlanId || isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <span className="loading loading-spinner"></span>
+                            Procesando...
+                          </>
+                        ) : isAuthenticated ? (
+                          'Reservar ahora'
+                        ) : (
+                          'Continuar al registro'
+                        )}
                       </button>
                     </div>
                   </form>

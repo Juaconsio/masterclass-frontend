@@ -10,6 +10,7 @@ import { formatRutInput } from '@/lib/rut';
 import { useEffect } from 'react';
 import { useSessionContext } from '../../context/SessionContext';
 import { useNavigate } from 'react-router';
+import { getErrorMessage } from '@/lib/errorMessages';
 
 const signUpSchema = z
   .object({
@@ -24,10 +25,6 @@ const signUpSchema = z
     message: 'Las contraseñas no coinciden.',
     path: ['confirmed_password'],
   });
-
-const ErrorResponse: Record<string, string> = {
-  'Email already registered': 'El correo electrónico ya está registrado.',
-};
 
 type FormData = z.infer<typeof signUpSchema>;
 
@@ -89,11 +86,7 @@ export default function SignUpForm() {
       await registerUser(data);
       window.location.href = '/check-email';
     } catch (error) {
-      if (error instanceof Error) {
-        setFeedback(ErrorResponse[error.message] || error.message);
-      } else {
-        setFeedback('Error de red o servidor.');
-      }
+      setFeedback(getErrorMessage(error));
     }
   };
 
@@ -106,6 +99,7 @@ export default function SignUpForm() {
           formulario
         </p>
       </div>
+
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
         <input
           type="text"

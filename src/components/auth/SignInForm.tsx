@@ -1,22 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getToken } from '@client/auth';
+import { createReservation } from '@client/reservations';
 import { useForm } from 'react-hook-form';
 import { useSessionContext } from '../../context/SessionContext';
 import clsx from 'clsx';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import type { UserRole } from '@/interfaces/enums';
+import { AUTH_ERROR_MESSAGES } from '@/lib/errorMessages';
 
 interface FormData {
   email: string;
   password: string;
 }
-
-const ERROR_RESPONSE: Record<string, string> = {
-  'Incorrect email.': 'El correo no está registrado.',
-  'Incorrect password.': 'La contraseña es incorrecta.',
-  'Please confirm your email address. A confirmation link was (re)sent to your email.':
-    'Por favor confirma tu correo electrónico. Se ha enviado un enlace de confirmación a tu email.',
-};
 
 interface SignInFormProps {
   initialUserRole?: UserRole;
@@ -44,6 +39,7 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
   const { handleToken } = useSessionContext();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   const {
     register,
@@ -51,12 +47,20 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
     formState: { errors, isSubmitting },
   } = useForm<FormData>();
   const [feedback, setFeedback] = useState('');
+  const [hasPendingReservation, setHasPendingReservation] = useState(false);
+
   const inferredRoleFromPath: UserRole = useMemo(() => {
+    // Check query params first
+    const typeParam = searchParams.get('type');
+    if (typeParam === 'professor') return 'professor';
+    if (typeParam === 'admin') return 'admin';
+
+    // Then check path
     const path = location?.pathname || '';
     if (path.includes('/admin')) return 'admin';
     if (path.includes('/profesor') || path.includes('/professor')) return 'professor';
     return 'user';
-  }, [location]);
+  }, [location, searchParams]);
   const [userRole, setUserRole] = useState<UserRole>(initialUserRole || inferredRoleFromPath);
 
   // TODO: REFAcTOREAR ESTO A UN HOOK con el hook en client
@@ -97,6 +101,12 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
     checkToken();
   }, []);
 
+  // Check for pending reservation on mount
+  useEffect(() => {
+    const pending = localStorage.getItem('pendingReservation');
+    setHasPendingReservation(!!pending);
+  }, []);
+
   const onSubmit = async (data: FormData) => {
     setFeedback('');
     try {
@@ -112,11 +122,62 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
         const decoded: any = await import('jwt-decode').then((m) => m.jwtDecode(res.token!));
         const isAdmin = decoded?.role === 'admin' || decoded?.isAdmin === true;
 
-        // Redirigir según el rol
+        // Verificar si hay reserva pendiente (solo para usuarios normales)
+        if (!isAdmin && userRole === 'user') {
+          const pendingStr = localStorage.getItem('pendingReservation');
+          if (pendingStr) {
+            let pending;
+            try {
+              pending = JSON.parse(pendingStr);
+
+              // Crear la reserva automáticamente
+              const result = await createReservation({
+                courseId: pending.courseId,
+                slotId: pending.slotId,
+                pricingPlanId: pending.pricingPlanId,
+              });
+
+              // Limpiar pending reservation
+              localStorage.removeItem('pendingReservation');
+
+              // Guardar datos para la página de éxito
+              localStorage.setItem(
+                'reservation.success',
+                JSON.stringify({
+                  reservation: result.reservation,
+                  payment: result.payment,
+                })
+              );
+
+              // Redirigir a página de éxito
+              navigate('/app/confirmacion-pago');
+              return;
+            } catch (resError: any) {
+              console.error('Error creating reservation after login:', resError);
+              // Limpiar pending reservation
+              localStorage.removeItem('pendingReservation');
+
+              // Guardar información del error para mostrar en la página de confirmación
+              localStorage.setItem(
+                'reservation.error',
+                JSON.stringify({
+                  message: resError?.response?.data?.message || 'Error al crear la reserva',
+                  details: resError?.response?.data || {},
+                  pending: pending,
+                })
+              );
+
+              // Redirigir a página de error de confirmación
+              navigate('/app/confirmacion-pago');
+              return;
+            }
+          }
+        }
+
+        // Redirigir según el rol (flujo normal)
         navigate(isAdmin ? '/admin' : '/app');
       } else {
-        // Usar el mensaje mapeado si existe, sino usar el mensaje del servidor directamente
-        setFeedback(ERROR_RESPONSE[res.message || ''] || res.message || 'Error desconocido');
+        setFeedback(AUTH_ERROR_MESSAGES[res.message || ''] || res.message || 'Error desconocido');
       }
     } catch (error: any) {
       setFeedback('Error de red o servidor.' + error.message);
@@ -130,6 +191,28 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
         <p className="text-base-content">{roleTexts[userRole].subtitle}</p>
       </div>
       <div className="text-xs opacity-60">{roleTexts[userRole].helper}</div>
+
+      {hasPendingReservation && userRole === 'user' && (
+        <div className="alert alert-success my-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 shrink-0 stroke-current"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <div>
+            <p className="font-semibold">¡Tienes una reserva esperando!</p>
+            <p className="text-sm">Al iniciar sesión, tu reserva se confirmará automáticamente.</p>
+          </div>
+        </div>
+      )}
 
       <div className="join my-2">
         <button

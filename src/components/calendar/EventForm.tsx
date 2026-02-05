@@ -223,7 +223,7 @@ export default function EventForm({
                             const v = e.target.value;
                             field.onChange(v === '' ? null : Number(v));
                             setValue('professorId', null, { shouldDirty: true });
-                            setValue('classId', null, { shouldDirty: true, shouldValidate: true });
+                            setValue('classId', null, { shouldDirty: true, shouldValidate: false });
                             setProfessors(
                               courses.find((c) => c.id === Number(v))?.professors || []
                             );
@@ -297,7 +297,9 @@ export default function EventForm({
                     <Controller
                       name="classId"
                       control={control}
-                      rules={{ required: 'Debe seleccionar una clase' }}
+                      rules={{
+                        required: classes.length > 0 ? 'Debe seleccionar una clase' : false,
+                      }}
                       render={({ field }) => (
                         <select
                           id="class"
@@ -357,10 +359,15 @@ export default function EventForm({
                         field.value instanceof Date ? field.value.toISOString().split('T')[0] : ''
                       }
                       onChange={(e) => {
+                        if (!e.target.value) return;
+
                         const currentStart = field.value instanceof Date ? field.value : new Date();
                         const currentEnd = watch('end');
 
                         const [year, month, day] = e.target.value.split('-').map(Number);
+                        
+                        if (isNaN(year) || isNaN(month) || isNaN(day)) return;
+
                         const newStart = new Date(
                           year,
                           month - 1,
@@ -368,6 +375,8 @@ export default function EventForm({
                           currentStart.getHours(),
                           currentStart.getMinutes()
                         );
+
+                        if (isNaN(newStart.getTime())) return;
 
                         field.onChange(newStart);
 
@@ -418,10 +427,18 @@ export default function EventForm({
                             : ''
                         }
                         onChange={(e) => {
+                          if (!e.target.value) return;
+
                           const current = field.value instanceof Date ? field.value : new Date();
                           const [hours, minutes] = e.target.value.split(':').map(Number);
+                          
+                          if (isNaN(hours) || isNaN(minutes)) return;
+
                           const newDate = new Date(current);
                           newDate.setHours(hours, minutes);
+                          
+                          if (isNaN(newDate.getTime())) return;
+
                           field.onChange(newDate);
 
                           const newEnd = new Date(newDate);
@@ -465,10 +482,18 @@ export default function EventForm({
                             : ''
                         }
                         onChange={(e) => {
+                          if (!e.target.value) return;
+
                           const start = watch('start');
                           const current = start instanceof Date ? new Date(start) : new Date();
                           const [hours, minutes] = e.target.value.split(':').map(Number);
+                          
+                          if (isNaN(hours) || isNaN(minutes)) return;
+
                           current.setHours(hours, minutes);
+                          
+                          if (isNaN(current.getTime())) return;
+
                           field.onChange(current);
                         }}
                       />

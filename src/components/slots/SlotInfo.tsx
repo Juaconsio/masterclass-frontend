@@ -90,10 +90,12 @@ const SlotMetadata = ({ event }: { event: IEvent }) => (
 const ModalityIcons = ({
   isGroup,
   isRemote,
+  reservationsCount,
   showLabels = false,
 }: {
   isGroup: boolean;
   isRemote: boolean;
+  reservationsCount?: number;
   showLabels?: boolean;
 }) => {
   const iconSize = showLabels ? 'h-4 w-4' : 'h-4 w-4';
@@ -142,43 +144,70 @@ const LocationInfo = ({ location }: { location?: string | null }) => {
 };
 
 const ReservationInfo = ({ event }: { event: IEvent }) => {
-  const confirmedReservations =
-    event.reservations?.filter((r) => r.status === 'confirmed').length || 0;
-  const totalReservations = event.reservations?.length || 0;
+  const confirmedReservations = event.confirmedReservations ?? 0;
+  const pendingReservations = event.pendingReservations ?? 0;
   const maxStudents = event.maxStudents || 0;
   const minStudents = event.minStudents || 1;
-  const availableSpots = maxStudents - confirmedReservations;
+  const totalActiveReservations = confirmedReservations + pendingReservations;
+  const availableSpots = maxStudents - totalActiveReservations;
   const isFull = availableSpots <= 0;
   const isMinReached = confirmedReservations >= minStudents;
 
   return (
-    <div className="flex items-center gap-3 text-xs">
-      <div className="flex items-center gap-1">
-        <span className="font-medium text-gray-700">Reservas:</span>
-        <span
-          className={clsx('font-semibold', {
-            'text-success': isMinReached && !isFull,
-            'text-warning': !isMinReached,
-            'text-error': isFull,
-          })}
-        >
-          {confirmedReservations}/{maxStudents}
-        </span>
-      </div>
-      <div className="text-gray-500">
-        {isFull ? (
-          <span className="text-error font-medium">Sin cupos</span>
-        ) : (
-          <span>
-            {availableSpots} {availableSpots === 1 ? 'cupo disponible' : 'cupos disponibles'}
+    <div className="flex items-center justify-between gap-4">
+      <div>
+        <p className="text-xs font-medium tracking-wide text-gray-500 uppercase">
+          Reservas confirmadas:
+        </p>
+        <p className="mt-0.5 text-2xl font-bold text-gray-900">
+          <span
+            className={clsx({
+              'text-success': isMinReached && !isFull,
+              'text-warning': !isMinReached,
+              'text-error': isFull,
+            })}
+          >
+            {confirmedReservations}
           </span>
+          <span className="text-gray-400">/{maxStudents}</span>
+        </p>
+        {pendingReservations > 0 && (
+          <p className="mt-1 text-xs text-gray-500">
+            + {pendingReservations} pendiente{pendingReservations > 1 ? 's' : ''}
+          </p>
         )}
       </div>
-      {minStudents > 1 && (
-        <div className="text-gray-500">
-          <span>Mín: {minStudents}</span>
+      <div className="text-right">
+        <div
+          className={clsx(
+            'inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold',
+            {
+              'bg-success/10 text-success': !isFull && availableSpots > 0,
+              'bg-error/10 text-error': isFull,
+            }
+          )}
+        >
+          {isFull ? (
+            'Sin cupos'
+          ) : (
+            <>
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              {availableSpots} {availableSpots === 1 ? 'cupo' : 'cupos'} disponible
+              {availableSpots > 1 ? 's' : ''}
+            </>
+          )}
         </div>
-      )}
+        {minStudents > 1 && !isMinReached && (
+          <p className="mt-1.5 text-xs text-gray-500">Mín. {minStudents} estudiantes</p>
+        )}
+      </div>
     </div>
   );
 };
@@ -225,63 +254,70 @@ export default function SlotInfo({
     );
   }
 
-  // Variante para estudiantes (para vista de curso con tabs por día)
-  if (variant === 'student') {
-    return (
-      <div
-        className={clsx(
-          'bg-base-100 card transition hover:shadow-lg',
-          onClick && 'cursor-pointer',
-          className
-        )}
-        onClick={onClick}
-      >
-        <div className="card-body gap-3 p-4">
-          {/* Header con fecha y horario */}
-          <SlotTime event={event} compact />
-          <SlotMetadata event={event} />
-          <ModalityIcons isGroup={isGroup} isRemote={isRemote} showLabels={true} />
-
-          {/* Ubicación si existe */}
-          <LocationInfo location={event.location} />
-
-          <div className="divider my-0"></div>
-
-          {/* Info de reservas */}
-          <ReservationInfo event={event} />
-
-          {/* Acción (botón de reservar, etc.) */}
-          {action && <div className="card-actions mt-2 justify-end">{action}</div>}
-        </div>
-      </div>
-    );
-  }
-
   // Variante detallada (para cards grandes)
   return (
     <div
       className={clsx(
-        'rounded-lg border-2 bg-white p-4 shadow-md transition-all',
-        onClick && 'cursor-pointer hover:shadow-lg',
+        'overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md',
+        onClick && 'cursor-pointer',
         className
       )}
       onClick={onClick}
     >
-      <div className="mb-3 flex items-start justify-between">
-        <div className="flex-1">
-          <SlotTitle event={event} variant="detailed" />
-          <SlotTime event={event} />
-          <SlotMetadata event={event} />
+      <div className="p-5">
+        {/* Header: Título de la clase con badge de estado */}
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <div className="flex-1">
+            <h3 className="mb-1 text-xl leading-tight font-bold text-gray-900">
+              {event.class?.title || `Clase ${event.classId}`}
+            </h3>
+            <p className="text-sm text-gray-600">
+              Profesor: {event.professor?.name || `Profesor ${event.professorId}`}
+            </p>
+          </div>
+          <div
+            className={clsx('shrink-0 rounded-full px-3 py-1 text-xs font-semibold', {
+              'bg-success/10 text-success': event.status === 'confirmed',
+              'bg-warning/10 text-warning': event.status === 'candidate',
+            })}
+          >
+            {event.status === 'confirmed' ? 'Confirmado' : 'Candidato'}
+          </div>
         </div>
-        <StatusIndicator statusStyle={statusStyle} size="md" />
+
+        {/* Fecha y hora */}
+        <div className="mb-4 flex items-center gap-2 text-sm text-gray-700">
+          <svg
+            className="h-4 w-4 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
+          </svg>
+          <SlotTime event={event} />
+        </div>
+
+        {/* Modalidades */}
+        <div className="mb-5 flex items-center gap-4 text-sm text-gray-600">
+          <ModalityIcons isGroup={isGroup} isRemote={isRemote} showLabels={true} />
+        </div>
+
+        <LocationInfo location={event.location} />
+
+        {/* Información de reservas destacada con separador */}
+        <div className="border-t border-gray-100 pt-4">
+          <ReservationInfo event={event} />
+        </div>
       </div>
 
-      <LocationInfo location={event.location} />
-
-      <div className="flex items-center justify-between gap-4 text-sm text-gray-700">
-        <ModalityIcons isGroup={isGroup} isRemote={isRemote} showLabels={true} />
-        {action && <div className="shrink-0">{action}</div>}
-      </div>
+      {/* CTA en la parte inferior con fondo */}
+      {action && <div className="border-t border-gray-100 bg-gray-50 px-5 py-4">{action}</div>}
     </div>
   );
 }

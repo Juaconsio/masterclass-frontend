@@ -1,16 +1,78 @@
 ---
+import { Icon } from 'astro-icon/components';
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout>
-  <div class="container mx-auto px-4 py-24">
-    <div class="max-w-xl mx-auto bg-base-100 shadow-md rounded-lg p-8 text-center">
-      <h1 class="text-2xl font-bold mb-4">Please check your email</h1>
-      <p class="text-base-content text-sm mb-6">
-        We've sent a confirmation email to the address you provided. Please open that email and
-        follow the instructions to activate your account.
-      </p>
-      <a href="/" class="btn btn-secondary">Return to homepage</a>
+<Layout
+  title="Revisa tu correo - Salva Ramos"
+  description="Te hemos enviado un correo de confirmación"
+>
+  <div
+    class="min-h-screen bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 flex items-center"
+  >
+    <div class="container mx-auto px-4 py-8">
+      <div class="max-w-2xl mx-auto">
+        <!-- Contenido principal -->
+        <div class="card bg-base-100 shadow-2xl">
+          <div class="card-body text-center space-y-4 p-6 lg:p-8">
+            <!-- Icono compacto inline -->
+            <div class="flex justify-center">
+              <div class="bg-primary/10 rounded-full p-4 border-2 border-primary/20">
+                <Icon name="mdi:envelope-fast-outline" class="h-12 w-12 text-primary" />
+              </div>
+            </div>
+
+            <h1 class="text-2xl lg:text-3xl font-bold text-primary">
+              ¡Revisa tu correo electrónico!
+            </h1>
+
+            <p class="text-sm lg:text-base text-base-content/80">
+              Te hemos enviado un correo de confirmación a la dirección que proporcionaste.
+            </p>
+
+            <div class="bg-secondary/5 rounded-lg p-4">
+              <p class="text-sm font-semibold text-secondary mb-2">Pasos a seguir:</p>
+              <ol class="text-left space-y-1.5 text-sm">
+                <li class="flex items-start gap-2">
+                  <span class="badge badge-primary badge-sm mt-0.5 font-bold">1</span>
+                  <span>Abre tu bandeja de entrada</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="badge badge-primary badge-sm mt-0.5 font-bold">2</span>
+                  <span>Busca el correo de confirmación</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="badge badge-primary badge-sm mt-0.5 font-bold">3</span>
+                  <span>Haz clic en el enlace de activación</span>
+                </li>
+              </ol>
+            </div>
+
+            <div class="alert alert-info text-left py-3">
+              <Icon name="mdi:alert-circle" class="h-6 w-6 shrink-0" />
+              <span class="text-xs lg:text-sm">
+                <strong>Tip:</strong> Si no encuentras el correo, revisa tu carpeta de spam.
+              </span>
+            </div>
+
+            <!-- Botones de navegación -->
+            <div class="card-actions justify-center flex-col sm:flex-row gap-3 pt-2">
+              <a href="/" class="btn btn-secondary btn-sm lg:btn-md"> Ir al inicio </a>
+              <a href="/ingresar" class="btn btn-outline btn-primary btn-sm lg:btn-md">
+                Ya tengo cuenta
+              </a>
+            </div>
+
+            <!-- Links adicionales compactos -->
+            <div class="flex flex-wrap justify-center gap-3 text-sm pt-2">
+              <a href="/cursos" class="link link-hover text-primary">Ver cursos</a>
+              <span class="text-base-content/30">•</span>
+
+              <a href="/nosotros" class="link link-hover text-primary">Nosotros</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </Layout>

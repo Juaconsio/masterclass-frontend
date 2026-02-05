@@ -141,7 +141,6 @@ export default function CourseSessionCalendar({ courseAcronym }: CourseSessionCa
           {classesWithSlots.map((classData, index) => (
             <div key={index} className={`space-y-3 ${activeTab === index ? '' : 'hidden'}`}>
               {classData.slots.map((slot) => {
-                // Convertir slot a IEvent para SlotInfo
                 const event: IEvent = {
                   id: slot.id,
                   classId: slot.classId,
@@ -154,6 +153,8 @@ export default function CourseSessionCalendar({ courseAcronym }: CourseSessionCa
                   studentsGroup: 'group' as const,
                   minStudents: slot.minStudents,
                   maxStudents: slot.maxStudents,
+                  confirmedReservations: slot.confirmedReservations,
+                  pendingReservations: slot.pendingReservations,
                   class: {
                     id: slot.classId,
                     title: classData.title,
@@ -162,7 +163,6 @@ export default function CourseSessionCalendar({ courseAcronym }: CourseSessionCa
                     orderIndex: 0,
                     basePrice: 0,
                   },
-                  reservations: [],
                 };
 
                 return (
@@ -171,14 +171,27 @@ export default function CourseSessionCalendar({ courseAcronym }: CourseSessionCa
                       event={event}
                       variant="detailed"
                       action={
-                        <div className="mt-2 flex justify-end">
+                        <div className="flex items-center justify-end gap-3">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleSelectSlot(slot.id);
                             }}
-                            className="btn btn-primary btn-sm"
+                            className="btn btn-primary w-full sm:w-auto"
                           >
+                            <svg
+                              className="h-5 w-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                              />
+                            </svg>
                             Inscribirse en esta sesión
                           </button>
                         </div>

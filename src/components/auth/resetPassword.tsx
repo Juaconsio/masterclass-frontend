@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { useSearchParams, useNavigate } from 'react-router';
 import { resetPassword } from '@/client/auth';
 import type { UserRole } from '@/interfaces/enums';
+import { getErrorMessage } from '@/lib/errorMessages';
 
 const resetPasswordSchema = z
   .object({
@@ -59,11 +60,20 @@ export default function ResetPassword() {
         type: 'success',
         message: 'Contraseña actualizada correctamente. Redirigiendo...',
       });
-      setTimeout(() => navigate('/ingresar'), 2000);
+
+      // Redirect based on account type
+      const redirectPath =
+        accountType === 'admin'
+          ? '/admin/ingresar'
+          : accountType === 'professor'
+            ? '/ingresar?type=professor'
+            : '/ingresar';
+
+      setTimeout(() => navigate(redirectPath), 2000);
     } catch (error: any) {
       setFeedback({
         type: 'error',
-        message: error?.message || 'No se pudo actualizar la contraseña.',
+        message: getErrorMessage(error?.message || error),
       });
     }
   };

@@ -16,9 +16,6 @@ export function ReservationsCalendar({
   onDeleteReservation,
   deletingId,
 }: ReservationsCalendarProps) {
-  console.log('ReservationsCalendar render');
-  console.log('reservations:', reservations);
-
   const [currentDate, setCurrentDate] = useState(() => {
     const now = new Date();
     // start at the first day of the current month
@@ -146,10 +143,10 @@ export function ReservationsCalendar({
                         {isDeleting ? (
                           <>
                             <span className="loading loading-spinner loading-xs"></span>
-                            Eliminando...
+                            Cancelando...
                           </>
                         ) : (
-                          'Eliminar'
+                          'Cancelar'
                         )}
                       </button>
                     </div>
