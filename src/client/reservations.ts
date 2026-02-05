@@ -32,7 +32,7 @@ async function createReservation(payload: {
   classId?: string | number;
   slotId?: string | number;
   pricingPlanId?: string;
-}): Promise<{ course: ICourse; reservation: IReservation; payment: IPayment }> {
+}): Promise<{ course: ICourse; reservation: IReservation; payment: IPayment; slot: ISlot }> {
   const res = await httpClient.post('/reservations', payload);
 
   return res.data;

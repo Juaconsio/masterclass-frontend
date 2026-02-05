@@ -1,34 +1,11 @@
 import { useSessionContext } from '../../context/SessionContext';
 import { Link } from 'react-router';
 import Greetings from './Greetings';
-import PendingReservationBanner from '../reservations/PendingReservationBanner';
-import type { PendingReservationBannerRef } from '../reservations/PendingReservationBanner';
 import { BookOpen, Calendar, Users, BookMarked, AlertCircle } from 'lucide-react';
-import { useRef, useEffect, useState } from 'react';
+import { useRef } from 'react';
 
 function Home() {
   const { isLoading } = useSessionContext();
-  const bannerRef = useRef<PendingReservationBannerRef>(null);
-  const [hasPendingReservation, setHasPendingReservation] = useState(false);
-
-  useEffect(() => {
-    // Check if there's a pending reservation in localStorage
-    const checkPendingReservation = () => {
-      const stored = localStorage.getItem('checkout.reservation');
-      setHasPendingReservation(!!stored);
-    };
-
-    checkPendingReservation();
-
-    // Listen for custom event (same tab) and storage event (other tabs)
-    window.addEventListener('reservationChanged', checkPendingReservation);
-    window.addEventListener('storage', checkPendingReservation);
-
-    return () => {
-      window.removeEventListener('reservationChanged', checkPendingReservation);
-      window.removeEventListener('storage', checkPendingReservation);
-    };
-  }, []);
 
   const ShowSoonDialog = () => {
     alert('¡Próximamente! Esta funcionalidad estará disponible en futuras actualizaciones.');
@@ -55,22 +32,6 @@ function Home() {
               académicas.
             </p>
           </div>
-
-          {hasPendingReservation && (
-            <div className="alert alert-info shadow-lg">
-              <AlertCircle className="h-6 w-6" />
-              <div>
-                <h3 className="font-bold">Tienes una reserva pendiente de confirmar</h3>
-                <div className="text-xs">Haz clic para ver los detalles y confirmar tu reserva</div>
-              </div>
-              <button
-                className="btn btn-secondary btn-sm"
-                onClick={() => bannerRef.current?.openDrawer()}
-              >
-                Ver Detalles
-              </button>
-            </div>
-          )}
 
           {/* Main Features Grid */}
           <div>
@@ -211,8 +172,6 @@ function Home() {
               </div> */}
             </div>
           </div>
-
-          <PendingReservationBanner ref={bannerRef} />
         </div>
       </main>
     </div>

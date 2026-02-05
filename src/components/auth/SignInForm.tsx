@@ -119,8 +119,9 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
         if (!isAdmin && userRole === 'user') {
           const pendingStr = localStorage.getItem('pendingReservation');
           if (pendingStr) {
+            let pending;
             try {
-              const pending = JSON.parse(pendingStr);
+              pending = JSON.parse(pendingStr);
 
               // Crear la reserva automáticamente
               const result = await createReservation({
@@ -142,11 +143,26 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
               );
 
               // Redirigir a página de éxito
-              navigate('/app/reservation-success');
+              navigate('/app/confirmacion-pago');
               return;
-            } catch (resError) {
+            } catch (resError: any) {
               console.error('Error creating reservation after login:', resError);
-              // Si falla la reserva, seguir con flujo normal
+              // Limpiar pending reservation
+              localStorage.removeItem('pendingReservation');
+
+              // Guardar información del error para mostrar en la página de confirmación
+              localStorage.setItem(
+                'reservation.error',
+                JSON.stringify({
+                  message: resError?.response?.data?.message || 'Error al crear la reserva',
+                  details: resError?.response?.data || {},
+                  pending: pending,
+                })
+              );
+
+              // Redirigir a página de error de confirmación
+              navigate('/app/confirmacion-pago');
+              return;
             }
           }
         }
