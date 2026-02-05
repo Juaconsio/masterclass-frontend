@@ -18,6 +18,7 @@ export interface TableAction<T> {
   onClick?: (row: T) => void;
   variant?: 'primary' | 'secondary' | 'danger' | 'success';
   show?: (row: T) => boolean;
+  isDisabled?: (row: T) => boolean;
   className?: string;
   render?: (row: T) => React.ReactNode;
 }
@@ -212,6 +213,7 @@ export default function Table<T extends Record<string, any>>({
                                   action.variant
                                 )} ${action.className || ''}`}
                                 onClick={() => action.onClick?.(row)}
+                                disabled={action.isDisabled ? action.isDisabled(row) : false}
                                 title={action.label}
                               >
                                 {action.icon && (
