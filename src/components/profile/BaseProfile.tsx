@@ -6,6 +6,7 @@ import { formatPhone, formatPhoneInput, cleanPhone } from '@/lib/formatPhone';
 import { formatRut, formatRutInput, normalizeRut } from '@/lib/rut';
 import { rutSchema, phoneSchema } from '@/lib/schemas';
 import { updatePassword } from '@/client/auth';
+import { getErrorMessage } from '@/lib/errorMessages';
 
 type FeedbackType = {
   message: string;
@@ -312,7 +313,7 @@ function PasswordChangeForm({
       onSuccess();
     } catch (error: any) {
       setFeedback({
-        message: error.message || 'No se pudo actualizar la contraseña',
+        message: getErrorMessage(error?.message || error),
         type: 'error',
       });
     }
