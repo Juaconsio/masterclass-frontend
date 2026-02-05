@@ -1,14 +1,50 @@
-import { Calendar, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, Trash2, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useState, useRef } from 'react';
 import type { IReservation } from '@/interfaces';
+import { deleteReservation } from '@/client/reservations';
+import { ConfirmActionModal, type ConfirmActionModalRef } from '@/components/UI/ConfirmActionModal';
 
 interface MyReservationsProps {
   reservations: IReservation[];
   loading: boolean;
+  onReservationDeleted?: () => void;
 }
 
-export function MyReservations({ reservations, loading }: MyReservationsProps) {
+export function MyReservations({
+  reservations,
+  loading,
+  onReservationDeleted,
+}: MyReservationsProps) {
+  const [selectedReservationId, setSelectedReservationId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const modalRef = useRef<ConfirmActionModalRef>(null);
+
+  const handleDeleteClick = (reservationId: number) => {
+    setSelectedReservationId(reservationId);
+    modalRef.current?.open();
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!selectedReservationId) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteReservation(selectedReservationId);
+      modalRef.current?.close();
+      onReservationDeleted?.();
+    } catch (error) {
+      console.error('Error al cancelar reserva:', error);
+    } finally {
+      setIsDeleting(false);
+      setSelectedReservationId(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setSelectedReservationId(null);
+  };
   if (loading) {
     return (
       <div className="flex flex-col gap-4">
@@ -128,7 +164,13 @@ export function MyReservations({ reservations, loading }: MyReservationsProps) {
 
           {reservation.status === 'pending' && (
             <div className="card-actions mt-4 justify-end">
-              <button className="btn btn-sm btn-ghost">Ver detalles de pago</button>
+              <button
+                className="btn btn-sm btn-ghost btn-error gap-2"
+                onClick={() => handleDeleteClick(reservation.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+                Cancelar reserva
+              </button>
             </div>
           )}
         </div>
@@ -167,6 +209,18 @@ export function MyReservations({ reservations, loading }: MyReservationsProps) {
           <div className="grid gap-4">{cancelled.map((r) => renderReservation(r))}</div>
         </section>
       )}
+
+      <ConfirmActionModal
+        ref={modalRef}
+        title="¿Cancelar reserva?"
+        message="Esta acción marcará tu reserva como cancelada. Los datos se conservarán pero el slot quedará disponible para otros estudiantes."
+        confirmText="Sí, cancelar"
+        cancelText="No, mantener"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isDangerous={true}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

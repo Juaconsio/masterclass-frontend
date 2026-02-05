@@ -18,23 +18,24 @@ const StudentCourseView: React.FC = () => {
 
   const { courseId } = useParams<{ courseId: string }>();
 
-  useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      setError('');
-      try {
-        const [courseData, reservationsData] = await Promise.all([
-          fetchStudentCourseById(Number(courseId)),
-          fetchReservations(),
-        ]);
-        setCourse(courseData);
-        setMyReservations(reservationsData);
-      } catch (err: any) {
-        setError(err.message || 'Error loading course');
-      } finally {
-        setLoading(false);
-      }
+  const fetchData = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const [courseData, reservationsData] = await Promise.all([
+        fetchStudentCourseById(Number(courseId)),
+        fetchReservations(),
+      ]);
+      setCourse(courseData);
+      setMyReservations(reservationsData);
+    } catch (err: any) {
+      setError(err.message || 'Error loading course');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchData();
   }, [courseId]);
 
@@ -94,7 +95,11 @@ const StudentCourseView: React.FC = () => {
                 )}
 
                 {activeTab === 'reservations' && (
-                  <MyReservations reservations={myReservations} loading={loading} />
+                  <MyReservations
+                    reservations={myReservations}
+                    loading={loading}
+                    onReservationDeleted={fetchData}
+                  />
                 )}
               </div>
             </div>
