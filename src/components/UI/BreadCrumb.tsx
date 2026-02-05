@@ -27,6 +27,7 @@ const ROUTE_LABELS: Record<string, string> = {
 
   // Professor routes
   profesor: 'Dashboard Profesor',
+  'confirmacion-pago': 'Confirmación de Pago',
 };
 
 const DETAIL_LABELS: Record<string, string> = {

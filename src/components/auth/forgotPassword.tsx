@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
 import { requestPasswordReset } from '@/client/auth';
+import { getErrorMessage } from '@/lib/errorMessages';
 
 const schema = z.object({
   email: z.email('Correo electrónico inválido'),
@@ -36,7 +37,7 @@ export default function ForgotPassword() {
     } catch (error: any) {
       setFeedback({
         type: 'error',
-        message: error?.message || 'No se pudo enviar el correo de recuperación.',
+        message: getErrorMessage(error?.message || error),
       });
     }
   };
@@ -80,7 +81,7 @@ export default function ForgotPassword() {
             </label>
           ) : (
             <label className="label">
-              <span className="label-text-alt text-base-content/60">
+              <span className="label-text-alt text-base-content/60 mt-4">
                 Te enviaremos un enlace de recuperación.
               </span>
             </label>

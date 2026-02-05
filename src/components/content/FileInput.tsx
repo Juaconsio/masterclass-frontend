@@ -10,6 +10,8 @@ interface FileInputProps {
   maxSizeMB?: number;
   buttonText?: string;
   modalTitle?: string;
+  customButton?: React.ReactNode;
+  fixedType?: string;
 }
 
 /**
@@ -19,6 +21,8 @@ interface FileInputProps {
  * @param maxSizeMB - Maximum file size in megabytes (default: 10MB)
  * @param buttonText - Text for the trigger button (default: "Upload File")
  * @param modalTitle - Title for the modal (default: "Upload File")
+ * @param customButton - Custom button component to trigger the modal
+ * @param fixedType - If provided, skips type selection and uses this value
  */
 export default function FileInput({
   acceptedFileTypes,
@@ -26,12 +30,14 @@ export default function FileInput({
   maxSizeMB = 10,
   buttonText = 'Upload File',
   modalTitle = 'Upload File',
+  customButton,
+  fixedType,
 }: FileInputProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<string | null>(fixedType || null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -49,6 +55,7 @@ export default function FileInput({
     setIsOpen(true);
     setError(null);
     setSelectedFile(null);
+    setSelectedType(fixedType || null);
     modalRef.current?.showModal();
   };
 
@@ -174,10 +181,14 @@ export default function FileInput({
 
   return (
     <>
-      <button type="button" onClick={openModal} className="btn btn-primary btn-xs">
-        <Paperclip className="mr-1 h-4 w-4" />
-        <span className="w-full">{buttonText}</span>
-      </button>
+      {customButton ? (
+        <div onClick={openModal}>{customButton}</div>
+      ) : (
+        <button type="button" onClick={openModal} className="btn btn-primary btn-xs">
+          <Paperclip className="mr-1 h-4 w-4" />
+          <span className="w-full">{buttonText}</span>
+        </button>
+      )}
 
       <dialog ref={modalRef} className="modal">
         <div className="modal-box relative max-w-2xl">
@@ -193,28 +204,30 @@ export default function FileInput({
 
           <h3 className="mb-4 text-lg font-bold">{modalTitle}</h3>
 
-          {/* Material Type Select */}
-          <div className="fieldset mb-4">
-            <label className="label" htmlFor="material-type">
-              <span className="label-text font-semibold">Tipo de Material</span>
-            </label>
-            <select
-              value={selectedType || ''}
-              id="material-type"
-              className="select select-primary w-full"
-              onChange={(e) => setSelectedType(e.target.value)}
-              disabled={isLoading}
-            >
-              <option value="" disabled>
-                Escoge el tipo de material
-              </option>
-              {materialTypes.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
+          {/* Material Type Select - Only show if no fixedType */}
+          {!fixedType && (
+            <div className="fieldset mb-4">
+              <label className="label" htmlFor="material-type">
+                <span className="label-text font-semibold">Tipo de Material</span>
+              </label>
+              <select
+                value={selectedType || ''}
+                id="material-type"
+                className="select select-primary w-full"
+                onChange={(e) => setSelectedType(e.target.value)}
+                disabled={isLoading}
+              >
+                <option value="" disabled>
+                  Escoge el tipo de material
                 </option>
-              ))}
-            </select>
-          </div>
+                {materialTypes.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div
             onDragEnter={handleDragEnter}

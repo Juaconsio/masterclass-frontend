@@ -1,6 +1,6 @@
 import { useMemo, useCallback, useState } from 'react';
 import { getPayments, updatePayment, type PaymentsFilters } from '@/client/admin/payments';
-import type { Payment } from '@/interfaces';
+import type { IPayment, IReservation } from '@/interfaces';
 import { useTableData } from '@/hooks/useTableData';
 import { Table, type TableColumn, type TableAction } from '@components/UI';
 import { updateReservation } from '@/client/reservations';
@@ -16,7 +16,7 @@ export default function AdminPayments() {
     handlePageChange,
     handlePageSizeChange,
     updateFilters,
-  } = useTableData<Payment, PaymentsFilters>({
+  } = useTableData<IPayment, PaymentsFilters>({
     fetchFn: getPayments,
     initialFilters: {
       page: 1,
@@ -64,7 +64,7 @@ export default function AdminPayments() {
   }, []);
 
   // Table columns definition
-  const columns: TableColumn<Payment>[] = useMemo(
+  const columns: TableColumn<IPayment>[] = useMemo(
     () => [
       {
         key: 'id',
@@ -99,52 +99,103 @@ export default function AdminPayments() {
         sortable: true,
         formatter: (value) => <span className="text-sm">{formatDate(value as string)}</span>,
       },
+      {
+        key: 'reservations',
+        label: 'Reservaciones',
+        formatter: (value, row) => {
+          const reservations = value as IReservation[] | undefined;
+          const count = reservations?.length || 0;
+          return (
+            <div className="flex items-center gap-2">
+              <span className="badge badge-info">{count}</span>
+              {reservations && reservations.length > 0 && (
+                <span className="text-base-content/60 text-xs">
+                  {reservations.map((r) => r.slot?.class?.title || 'N/A').join(', ')}
+                </span>
+              )}
+            </div>
+          );
+        },
+      },
     ],
     [formatCurrency, formatDate, getStatusBadge]
   );
 
   // Confirm payment
-  const confirmPayment = async (payment: Payment) => {
+  const confirmPayment = async (payment: IPayment) => {
+    if (payment.status === 'paid') {
+      alert('El pago ya está confirmado');
+      return;
+    }
+
+    if (!payment.reservations || payment.reservations.length === 0) {
+      alert('El pago no tiene reservaciones asociadas');
+      return;
+    }
+
     setUpdatingPayment(true);
     try {
-      await updateReservation(payment.id, { status: 'confirmed' });
+      // Update all associated reservations
+      for (const reservation of payment.reservations) {
+        await updateReservation(reservation.id, { status: 'confirmed' });
+      }
+
+      // Update payment status
       await updatePayment(payment.id, { status: 'paid' });
+
+      alert(
+        `Pago confirmado exitosamente. ${payment.reservations.length} reservación(es) actualizada(s).`
+      );
       updateFilters({}); // Refresh payments
     } catch (error) {
       console.error('Error confirming payment:', error);
+      alert('Error al confirmar el pago. Por favor, intente nuevamente.');
     } finally {
       setUpdatingPayment(false);
     }
   };
 
   // Cancel payment
-  const cancelPayment = async (payment: Payment) => {
+  const cancelPayment = async (payment: IPayment) => {
+    if (payment.status === 'failed') {
+      alert('El pago ya está cancelado');
+      return;
+    }
+
+    if (!confirm('¿Está seguro de que desea cancelar este pago?')) {
+      return;
+    }
+
     setUpdatingPayment(true);
     try {
       await updatePayment(payment.id, { status: 'failed' });
+      alert('Pago cancelado exitosamente.');
       updateFilters({}); // Refresh payments
     } catch (error) {
       console.error('Error canceling payment:', error);
+      alert('Error al cancelar el pago. Por favor, intente nuevamente.');
     } finally {
       setUpdatingPayment(false);
     }
   };
 
   // Table actions definition
-  const actions: TableAction<Payment>[] = useMemo(
+  const actions: TableAction<IPayment>[] = useMemo(
     () => [
       {
         label: 'Confirmar Pago',
         variant: 'primary',
         onClick: confirmPayment,
+        isDisabled: (payment) => payment.status === 'paid' || !payment.reservations?.length,
       },
       {
         label: 'Cancelar',
         variant: 'secondary',
         onClick: cancelPayment,
+        isDisabled: (payment) => payment.status === 'failed' || payment.status === 'paid',
       },
     ],
-    []
+    [confirmPayment, cancelPayment]
   );
 
   return (
@@ -194,8 +245,9 @@ export default function AdminPayments() {
             >
               <option value="">Todos los estados</option>
               <option value="pending">Pendiente</option>
-              <option value="completed">Completado</option>
+              <option value="paid">Pagado</option>
               <option value="failed">Fallido</option>
+              <option value="refunded">Reembolsado</option>
             </select>
           </div>
         </div>
@@ -214,9 +266,9 @@ export default function AdminPayments() {
           </div>
         </div>
         <div className="stat bg-base-200 rounded-lg shadow">
-          <div className="stat-title">Completados</div>
+          <div className="stat-title">Pagados</div>
           <div className="stat-value text-info">
-            {payments.filter((p) => p.status.toLowerCase() === 'completed').length}
+            {payments.filter((p) => p.status.toLowerCase() === 'paid').length}
           </div>
         </div>
       </div>

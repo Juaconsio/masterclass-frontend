@@ -78,6 +78,8 @@ export interface ISlot {
   class: IClass;
   professor?: IProfessor;
   reservations?: IReservation[];
+  confirmedReservations?: number;
+  pendingReservations?: number;
 }
 
 // Reservation model
@@ -110,9 +112,9 @@ export interface IPayment {
 export interface IMaterial {
   id: number;
   classId: number;
-  type: MaterialType;
-  url: string;
-  accessPolicy: AccessPolicy;
+  mimeType: string;
+  filename: string;
+  bucketKey: string;
   class?: IClass;
 }
 

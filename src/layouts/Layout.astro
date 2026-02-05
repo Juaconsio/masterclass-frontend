@@ -27,7 +27,7 @@ const {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content="/images/LOGO_FONDO_AZUL.png" />
-    <meta property="og:url" content="https://www.salvaramos.cl" />
+    <meta property="og:url" content={import.meta.env.PUBLIC_FRONTEND_URL || 'https://www.salvaramos.cl'} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
