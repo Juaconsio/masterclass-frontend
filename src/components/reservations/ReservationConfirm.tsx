@@ -4,6 +4,7 @@ import { es } from 'date-fns/locale';
 import { Calendar, Clock, CreditCard, Copy, TriangleAlert } from 'lucide-react';
 import type { IReservation, IPayment } from '@/interfaces';
 import { Link } from 'react-router';
+import { showToast } from '@/lib/toast';
 interface StoredReservationData {
   reservation: IReservation;
   payment: IPayment;
@@ -35,7 +36,7 @@ Email: ${BANK_DATA.email}
     `.trim();
 
     navigator.clipboard.writeText(details).then(() => {
-      alert('Datos bancarios copiados al portapapeles');
+      showToast.success('Datos bancarios copiados al portapapeles');
     });
   };
 

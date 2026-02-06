@@ -4,6 +4,8 @@ import type { IPayment, IReservation } from '@/interfaces';
 import { useTableData } from '@/hooks/useTableData';
 import { Table, type TableColumn, type TableAction } from '@components/UI';
 import { updateReservation } from '@/client/reservations';
+import { showToast } from '@/lib/toast';
+import { useConfirmAction } from '@/hooks/useConfirmAction';
 
 export default function AdminPayments() {
   const {
@@ -27,6 +29,7 @@ export default function AdminPayments() {
   });
 
   const [updatingPayment, setUpdatingPayment] = useState(false);
+  const { showConfirmation, ConfirmationModal } = useConfirmAction();
 
   // Format currency
   const formatCurrency = useCallback((amount: number) => {
@@ -124,59 +127,73 @@ export default function AdminPayments() {
   // Confirm payment
   const confirmPayment = async (payment: IPayment) => {
     if (payment.status === 'paid') {
-      alert('El pago ya está confirmado');
+      showToast.error('El pago ya está confirmado');
       return;
     }
 
     if (!payment.reservations || payment.reservations.length === 0) {
-      alert('El pago no tiene reservaciones asociadas');
+      showToast.error('El pago no tiene reservaciones asociadas');
       return;
     }
 
-    setUpdatingPayment(true);
-    try {
-      // Update all associated reservations
-      for (const reservation of payment.reservations) {
-        await updateReservation(reservation.id, { status: 'confirmed' });
-      }
+    showConfirmation({
+      title: '¿Confirmar pago?',
+      message: `Se confirmarán ${payment.reservations.length} reservación(es) asociada(s) a este pago.`,
+      confirmText: 'Confirmar',
+      cancelText: 'Cancelar',
+      isDangerous: false,
+      onConfirm: async () => {
+        setUpdatingPayment(true);
+        try {
+          // Update all associated reservations
+          for (const reservation of payment.reservations!) {
+            await updateReservation(reservation.id, { status: 'confirmed' });
+          }
 
-      // Update payment status
-      await updatePayment(payment.id, { status: 'paid' });
+          // Update payment status
+          await updatePayment(payment.id, { status: 'paid' });
 
-      alert(
-        `Pago confirmado exitosamente. ${payment.reservations.length} reservación(es) actualizada(s).`
-      );
-      updateFilters({}); // Refresh payments
-    } catch (error) {
-      console.error('Error confirming payment:', error);
-      alert('Error al confirmar el pago. Por favor, intente nuevamente.');
-    } finally {
-      setUpdatingPayment(false);
-    }
+          showToast.success(
+            `Pago confirmado exitosamente. ${payment.reservations!.length} reservación(es) actualizada(s).`
+          );
+          updateFilters({}); // Refresh payments
+        } catch (error) {
+          console.error('Error confirming payment:', error);
+          showToast.error('Error al confirmar el pago. Por favor, intente nuevamente.');
+        } finally {
+          setUpdatingPayment(false);
+        }
+      },
+    });
   };
 
   // Cancel payment
   const cancelPayment = async (payment: IPayment) => {
     if (payment.status === 'failed') {
-      alert('El pago ya está cancelado');
+      showToast.error('El pago ya está cancelado');
       return;
     }
 
-    if (!confirm('¿Está seguro de que desea cancelar este pago?')) {
-      return;
-    }
-
-    setUpdatingPayment(true);
-    try {
-      await updatePayment(payment.id, { status: 'failed' });
-      alert('Pago cancelado exitosamente.');
-      updateFilters({}); // Refresh payments
-    } catch (error) {
-      console.error('Error canceling payment:', error);
-      alert('Error al cancelar el pago. Por favor, intente nuevamente.');
-    } finally {
-      setUpdatingPayment(false);
-    }
+    showConfirmation({
+      title: '¿Cancelar pago?',
+      message: '¿Está seguro de que desea cancelar este pago?',
+      confirmText: 'Cancelar Pago',
+      cancelText: 'Volver',
+      isDangerous: true,
+      onConfirm: async () => {
+        setUpdatingPayment(true);
+        try {
+          await updatePayment(payment.id, { status: 'failed' });
+          showToast.success('Pago cancelado exitosamente');
+          updateFilters({}); // Refresh payments
+        } catch (error) {
+          console.error('Error canceling payment:', error);
+          showToast.error('Error al cancelar el pago. Por favor, intente nuevamente.');
+        } finally {
+          setUpdatingPayment(false);
+        }
+      },
+    });
   };
 
   // Table actions definition
@@ -295,6 +312,8 @@ export default function AdminPayments() {
           />
         </div>
       </div>
+
+      <ConfirmationModal />
     </div>
   );
 }

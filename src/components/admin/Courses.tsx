@@ -13,6 +13,7 @@ import { useLocalFilter } from '@/hooks/useLocalFilter';
 import { useNavigate } from 'react-router';
 import { fetchProfessors } from '@/client/admin/professors';
 import type { IProfessor } from '@/interfaces/models';
+import { showToast } from '@/lib/toast';
 
 export default function AdminCourses() {
   const navigate = useNavigate();
@@ -56,6 +57,7 @@ export default function AdminCourses() {
     try {
       setSubmitting(true);
       await adminCoursesClient.create(formData);
+      showToast.success('Curso creado exitosamente');
       drawerRef.current?.close();
       setFormData({
         title: '',
@@ -66,6 +68,7 @@ export default function AdminCourses() {
       reload();
     } catch (error) {
       console.error('Error creating course:', error);
+      showToast.error('Error al crear el curso');
     } finally {
       setSubmitting(false);
     }

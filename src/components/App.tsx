@@ -1,6 +1,7 @@
 import CalendarTemplate from './calendar/CalendarTemplate';
 import { SessionProvider, useSessionContext } from '../context/SessionContext';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
+import { Toaster } from 'react-hot-toast';
 import AuthLayout from '@layouts/authLayout';
 import AppLayout from '@layouts/appLayout';
 import AdminLayout from '@layouts/adminLayout';
@@ -78,6 +79,7 @@ export default function Spa() {
   return (
     <BrowserRouter>
       <SessionProvider>
+        <Toaster position="bottom-right" />
         <Routes>
           {/* Rutas de autenticación */}
           <Route element={<AuthLayout />}>

@@ -5,6 +5,7 @@ import { useState, useRef } from 'react';
 import type { IReservation } from '@/interfaces';
 import { deleteReservation } from '@/client/reservations';
 import { ConfirmActionModal, type ConfirmActionModalRef } from '@/components/UI/ConfirmActionModal';
+import { showToast } from '@/lib/toast';
 
 interface MyReservationsProps {
   reservations: IReservation[];
@@ -32,10 +33,12 @@ export function MyReservations({
     setIsDeleting(true);
     try {
       await deleteReservation(selectedReservationId);
+      showToast.success('Reserva cancelada correctamente');
       modalRef.current?.close();
       onReservationDeleted?.();
     } catch (error) {
       console.error('Error al cancelar reserva:', error);
+      showToast.error('Error al cancelar la reserva');
     } finally {
       setIsDeleting(false);
       setSelectedReservationId(null);

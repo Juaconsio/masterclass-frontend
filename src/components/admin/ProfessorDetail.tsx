@@ -18,6 +18,7 @@ import { Pencil, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useConfirmAction } from '@/hooks/useConfirmAction';
+import { showToast } from '@/lib/toast';
 
 export default function ProfessorDetail() {
   const [professor, setProfessor] = useState<AdminProfessorDetail | null>(null);
@@ -69,8 +70,10 @@ export default function ProfessorDetail() {
       await adminProfessorsClient.update(professorId, formData);
       drawerRef.current?.close();
       await loadProfessor();
-    } catch (error) {
-      console.error('Error updating professor:', error);
+      showToast.success('Profesor actualizado correctamente');
+    } catch (err) {
+      console.error('Error updating professor:', err);
+      showToast.error('No se pudo actualizar el profesor');
     } finally {
       setSubmitting(false);
     }
@@ -79,16 +82,21 @@ export default function ProfessorDetail() {
   const handleDelete = async () => {
     showConfirmation({
       title: '¿Eliminar profesor?',
-      message: 'Esta acción eliminará al profesor y todas sus asociaciones. ¿Deseas continuar?',
+      message:
+        'Esta acción cancelará todos los slots futuros y reservaciones del profesor. ¿Deseas continuar?',
       confirmText: 'Eliminar',
       cancelText: 'Cancelar',
       isDangerous: true,
       onConfirm: async () => {
         try {
           await adminProfessorsClient.delete(professorId);
-          navigate('/admin/profesores');
-        } catch (error) {
-          console.error('Error deleting professor:', error);
+          showToast.success('Profesor eliminado correctamente');
+          setTimeout(() => {
+            navigate('/admin/profesores');
+          }, 1500);
+        } catch (err) {
+          console.error('Error deleting professor:', err);
+          showToast.error('No se pudo eliminar el profesor');
         }
       },
     });
