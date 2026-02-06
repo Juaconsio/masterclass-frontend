@@ -3,12 +3,13 @@ import { Link } from 'react-router';
 import Greetings from './Greetings';
 import { BookOpen, Calendar, Users, BookMarked, AlertCircle } from 'lucide-react';
 import { useRef } from 'react';
+import { showToast } from '@/lib/toast';
 
 function Home() {
   const { isLoading } = useSessionContext();
 
   const ShowSoonDialog = () => {
-    alert('¡Próximamente! Esta funcionalidad estará disponible en futuras actualizaciones.');
+    showToast.error('¡Próximamente! Esta funcionalidad estará disponible en futuras actualizaciones.');
   };
 
   if (isLoading) {
