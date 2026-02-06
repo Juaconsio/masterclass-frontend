@@ -3,6 +3,8 @@ import type { Student, StudentFilters } from '@/client/admin/students';
 import type { UserRole } from '@/interfaces/enums';
 import { Table, type TableColumn, type TableAction } from '@components/UI';
 import { useTableData } from '@/hooks/useTableData';
+import { showToast } from '@/lib/toast';
+import { useConfirmAction } from '@/hooks/useConfirmAction';
 
 export default function AdminUsers() {
   const {
@@ -24,36 +26,57 @@ export default function AdminUsers() {
       sortOrder: 'desc',
     },
   });
+  const { showConfirmation, ConfirmationModal } = useConfirmAction();
 
   const handleDelete = async (id: number) => {
-    if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
-
-    try {
-      await deleteStudent(id);
-      loadUsers();
-    } catch (error) {
-      alert('Error al eliminar usuario');
-    }
+    showConfirmation({
+      title: '¿Eliminar estudiante?',
+      message: 'Esta acción eliminará permanentemente al estudiante. ¿Deseas continuar?',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      isDangerous: true,
+      onConfirm: async () => {
+        try {
+          await deleteStudent(id);
+          showToast.success('Estudiante eliminado correctamente');
+          loadUsers();
+        } catch (error) {
+          console.error('Error deleting student:', error);
+          showToast.error('Error al eliminar estudiante');
+        }
+      },
+    });
   };
 
   const handleToggleStatus = async (id: number, currentStatus: boolean) => {
     try {
       await toggleStudentStatus(id, !currentStatus);
+      showToast.success(`Estado del estudiante actualizado correctamente`);
       loadUsers();
     } catch (error) {
-      alert('Error al cambiar estado del usuario');
+      console.error('Error toggling student status:', error);
+      showToast.error('Error al cambiar estado del estudiante');
     }
   };
 
   const handlePromote = async (id: number) => {
-    if (!confirm('¿Estás seguro de promover este estudiante a profesor?')) return;
-
-    try {
-      await promoteStudent(id);
-      loadUsers();
-    } catch (error) {
-      alert('Error al promover estudiante');
-    }
+    showConfirmation({
+      title: '¿Promover estudiante?',
+      message: '¿Estás seguro de promover este estudiante a profesor?',
+      confirmText: 'Promover',
+      cancelText: 'Cancelar',
+      isDangerous: false,
+      onConfirm: async () => {
+        try {
+          await promoteStudent(id);
+          showToast.success('Estudiante promovido a profesor correctamente');
+          loadUsers();
+        } catch (error) {
+          console.error('Error promoting student:', error);
+          showToast.error('Error al promover estudiante');
+        }
+      },
+    });
   };
 
   const columns: TableColumn<Student>[] = [
@@ -135,6 +158,8 @@ export default function AdminUsers() {
         }}
         emptyMessage="No se encontraron estudiantes"
       />
+      
+      <ConfirmationModal />
     </div>
   );
 }
