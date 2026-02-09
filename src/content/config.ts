@@ -4,7 +4,14 @@ const courseSchema = z.object({
   id: z.string(), // Matches backend course ID
   acronym: z.string(),
   title: z.string(),
-  department: z.enum(['Matemática', 'Física', 'Eléctrica', 'Computación', 'Industrial']),
+  department: z.enum([
+    'Matemática',
+    'Física',
+    'Eléctrica',
+    'Computación',
+    'Industrial',
+    'Ingeniería',
+  ]),
   level: z.enum(['Plan Común', 'Major', 'Minor']),
   description: z.string(),
   prerequisites: z.array(z.string()).optional(),
