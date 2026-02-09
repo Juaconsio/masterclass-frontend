@@ -18,6 +18,7 @@ import { deleteMaterial, requestReplaceUrl, confirmReplaceMaterial } from '@/cli
 import clsx from 'clsx';
 import { Check, Pencil, UserPlus, UserMinus, Trash2, RefreshCw } from 'lucide-react';
 import { useConfirmAction } from '@/hooks/useConfirmAction';
+import { showToast } from '@/lib/toast';
 
 export default function CourseDetail() {
   const [course, setCourse] = useState<AdminCourseDetail | null>(null);
@@ -89,9 +90,11 @@ export default function CourseDetail() {
       });
       await uploadFileToBucket(uploadUrl, file);
       await confirmUpload(classId.toString(), filename, key, contentType);
+      showToast.success('Material subido exitosamente');
       await loadCourse();
     } catch (error) {
       console.error('Error uploading file to bucket:', error);
+      showToast.error('Error al subir el material');
       throw error;
     }
   };
@@ -106,9 +109,11 @@ export default function CourseDetail() {
       onConfirm: async () => {
         try {
           await deleteMaterial(materialId);
+          showToast.success('Material eliminado correctamente');
           await loadCourse();
         } catch (error) {
           console.error('Error deleting material:', error);
+          showToast.error('Error al eliminar el material');
         }
       },
     });
@@ -130,9 +135,11 @@ export default function CourseDetail() {
         contentType,
       });
 
+      showToast.success('Material reemplazado exitosamente');
       await loadCourse();
     } catch (error) {
       console.error('Error replacing material:', error);
+      showToast.error('Error al reemplazar el material');
       throw error;
     }
   };
@@ -162,10 +169,12 @@ export default function CourseDetail() {
     try {
       setSubmitting(true);
       await adminCoursesClient.update(courseId, formData);
+      showToast.success('Curso actualizado correctamente');
       drawerRef.current?.close();
       await loadCourse();
     } catch (error) {
       console.error('Error updating course:', error);
+      showToast.error('Error al actualizar el curso');
     } finally {
       setSubmitting(false);
     }
@@ -191,10 +200,12 @@ export default function CourseDetail() {
         courseId,
         orderIndex,
       });
+      showToast.success('Clase creada exitosamente');
       classDrawerRef.current?.close();
       await loadCourse();
     } catch (error) {
       console.error('Error creating class:', error);
+      showToast.error('Error al crear la clase');
     } finally {
       setSubmittingClass(false);
     }
@@ -210,10 +221,12 @@ export default function CourseDetail() {
     try {
       setSubmitting(true);
       await adminProfessorsClient.associateCourse(selectedProfessorId, courseId);
+      showToast.success('Profesor asociado correctamente');
       professorDrawerRef.current?.close();
       await loadCourse();
     } catch (error) {
       console.error('Error associating professor:', error);
+      showToast.error('Error al asociar el profesor');
     } finally {
       setSubmitting(false);
     }
@@ -230,9 +243,11 @@ export default function CourseDetail() {
       onConfirm: async () => {
         try {
           await adminProfessorsClient.dissociateCourse(professorId, courseId);
+          showToast.success('Profesor desasociado correctamente');
           await loadCourse();
         } catch (error) {
           console.error('Error dissociating professor:', error);
+          showToast.error('Error al desasociar el profesor');
         }
       },
     });

@@ -10,6 +10,7 @@ import type { EventCreatePayload, IEvent } from '@interfaces/events/IEvent';
 import { useSessionContext } from '../../context/SessionContext';
 import { useNavigate } from 'react-router';
 import { useConfirmAction } from '@/hooks';
+import { showToast } from '@/lib/toast';
 
 export default function CalendarTemplate() {
   const { user } = useSessionContext();
@@ -67,30 +68,44 @@ export default function CalendarTemplate() {
   }
 
   async function handleEdit(id: number, payload: Partial<IEvent>) {
-    const updatedEvent = await slotsClient.update(id, payload as any);
-    setEvents(events.map((event) => (event.id === updatedEvent.id ? updatedEvent : event)));
-    setSelectedEvent(updatedEvent);
+    try {
+      const updatedEvent = await slotsClient.update(id, payload as any);
+      setEvents(events.map((event) => (event.id === updatedEvent.id ? updatedEvent : event)));
+      setSelectedEvent(updatedEvent);
+      showToast.success('Slot actualizado correctamente');
+    } catch (error) {
+      console.error('Error updating slot:', error);
+      showToast.error('Error al actualizar el slot');
+      throw error;
+    }
   }
 
   async function handleCreate(newEventPayload?: EventCreatePayload) {
-    const payload: any = {
-      classId: newEventPayload?.classId!,
-      professorId: isProfessor ? user?.id : newEventPayload?.professorId,
-      startTime: newEventPayload?.startTime!,
-      endTime: newEventPayload?.endTime!,
-      modality: newEventPayload?.modality === 'remote' ? 'remote' : 'onsite',
-      studentsGroup: newEventPayload?.studentsGroup || null,
-      location: newEventPayload?.location || null,
-      maxStudents: newEventPayload?.maxStudents,
-      minStudents: newEventPayload?.minStudents,
-      status: newEventPayload?.status,
-      link: null,
-    };
+    try {
+      const payload: any = {
+        classId: newEventPayload?.classId!,
+        professorId: isProfessor ? user?.id : newEventPayload?.professorId,
+        startTime: newEventPayload?.startTime!,
+        endTime: newEventPayload?.endTime!,
+        modality: newEventPayload?.modality === 'remote' ? 'remote' : 'onsite',
+        studentsGroup: newEventPayload?.studentsGroup || null,
+        location: newEventPayload?.location || null,
+        maxStudents: newEventPayload?.maxStudents,
+        minStudents: newEventPayload?.minStudents,
+        status: newEventPayload?.status,
+        link: null,
+      };
 
-    const createdEvent = await slotsClient.create(payload);
-    setShowNewEventModal(false);
-    if (createdEvent) {
-      setEvents([...events, createdEvent]);
+      const createdEvent = await slotsClient.create(payload);
+      showToast.success('Slot creado exitosamente');
+      setShowNewEventModal(false);
+      if (createdEvent) {
+        setEvents([...events, createdEvent]);
+      }
+    } catch (error) {
+      console.error('Error creating slot:', error);
+      showToast.error('Error al crear el slot');
+      throw error;
     }
   }
 
@@ -107,9 +122,15 @@ export default function CalendarTemplate() {
       cancelText: 'Cancelar',
       isDangerous: true,
       onConfirm: async () => {
-        await slotsClient.delete(id);
-        setEvents(events.filter((event) => event.id !== id));
-        setShowEventDetailsModal(false);
+        try {
+          await slotsClient.delete(id);
+          showToast.success('Slot eliminado correctamente');
+          setEvents(events.filter((event) => event.id !== id));
+          setShowEventDetailsModal(false);
+        } catch (error) {
+          console.error('Error deleting slot:', error);
+          showToast.error('Error al eliminar el slot');
+        }
       },
     });
   }

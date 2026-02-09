@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router';
 import { Eye, UserPlus } from 'lucide-react';
 import { formatRutInput, validateRut, cleanRut } from '@/lib/rut';
 import { getHttpErrorMessage, PROFESSOR_ERROR_MESSAGES } from '@/lib/errorMessages';
+import { showToast } from '@/lib/toast';
 
 export default function AdminProfessors() {
   const navigate = useNavigate();
@@ -89,7 +90,7 @@ export default function AdminProfessors() {
         rut: isDev ? formData.rut : cleanRut(formData.rut),
       });
 
-      alert('Profesor creado exitosamente.');
+      showToast.success('Profesor creado exitosamente');
 
       drawerRef.current?.close();
       setFormData({
@@ -110,7 +111,7 @@ export default function AdminProfessors() {
         'Error al crear el profesor. Por favor intenta nuevamente.'
       );
       setSubmitError(errorMessage);
-      alert(errorMessage);
+      showToast.error(errorMessage);
     } finally {
       setSubmitting(false);
     }
