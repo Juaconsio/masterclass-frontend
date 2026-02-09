@@ -1,6 +1,6 @@
 ---
 id: "6"
-acronym: "ING2026"
+acronym: "ING2000"
 title: "Fundamentals"
 department: "Ingenería"
 level: "Plan Común"
