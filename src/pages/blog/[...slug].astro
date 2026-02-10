@@ -1,0 +1,96 @@
+---
+import { getEntry } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import Navbar from '@components/landing/Navbar.astro';
+import Footer from '@components/landing/footer.astro';
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+const post = await getEntry('blog', slug as string);
+
+if (!post) {
+  return Astro.redirect('/404');
+}
+
+const { Content } = await post.render();
+const formattedDate = new Date(post.data.date).toLocaleDateString('es-CL', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+const heroImageFit = post.data.heroImageFit ?? 'cover';
+const heroImageClass = heroImageFit === 'contain' ? 'object-contain bg-base-200' : 'object-cover';
+const heroImagePosition = post.data.heroImagePosition ?? 'center';
+---
+
+<Layout title={`${post.data.title} - Blog`}>
+  <Navbar />
+
+  <section class="container mx-auto px-4 py-10 mt-16">
+    <div class="breadcrumbs text-sm">
+      <ul>
+        <li><a href="/" class="link link-hover">Inicio</a></li>
+        <li><a href="/blog" class="link link-hover">Blog</a></li>
+        <li>{post.data.title}</li>
+      </ul>
+    </div>
+
+    {
+      (post.data.heroImage || post.data.cover) && (
+        <div class="card bg-base-100 shadow-xl overflow-hidden mt-6">
+          <div class="relative">
+            <img
+              src={post.data.heroImage ?? post.data.cover}
+              alt={post.data.title}
+              class={`h-80 md:h-96 w-full ${heroImageClass}`}
+              style={`object-position: ${heroImagePosition};`}
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8 text-white">
+              <p class="text-xs uppercase tracking-widest text-white/70">{formattedDate}</p>
+              <h1 class="text-3xl md:text-5xl font-extrabold mt-2">{post.data.title}</h1>
+              <div class="mt-3 flex flex-wrap items-center gap-3">
+                {post.data.author && (
+                  <span class="text-sm text-white/80">Por {post.data.author}</span>
+                )}
+                {post.data.categories && post.data.categories.length > 0 && (
+                  <div class="flex flex-wrap gap-2">
+                    {post.data.categories.map((category) => (
+                      <span class="badge badge-ghost text-black/90">{category}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    <div class="mt-6 max-w-3xl mx-auto">
+      <p class="text-base-content/70">{post.data.description}</p>
+    </div>
+  </section>
+
+  <section class="container mx-auto px-4 py-10">
+    <article
+      class="prose prose-lg max-w-3xl mx-auto
+        prose-headings:text-secondary
+        prose-h1:text-3xl prose-h1:font-bold
+        prose-h2:text-2xl prose-h2:font-semibold
+        prose-h3:text-xl prose-h3:font-semibold
+        prose-p:text-base-content/90
+        prose-a:text-primary
+        prose-strong:text-base-content
+        prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:bg-base-200
+        prose-blockquote:rounded-r-lg prose-blockquote:p-4
+        prose-code:bg-base-200 prose-code:px-2 prose-code:py-1 prose-code:rounded
+        prose-pre:bg-base-300 prose-pre:rounded-lg prose-pre:p-4"
+    >
+      <Content />
+    </article>
+  </section>
+
+  <Footer />
+</Layout>

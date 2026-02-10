@@ -44,10 +44,29 @@ const reviewsCollection = defineCollection({
   schema: reviewSchema,
 });
 
+const blogSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  date: z.string(),
+  cover: z.string().optional(),
+  heroImage: z.string().optional(),
+  heroImageFit: z.enum(['cover', 'contain']).optional(),
+  heroImagePosition: z.string().optional(),
+  author: z.string().optional(),
+  categories: z.array(z.string()).optional(),
+});
+
+const blogCollection = defineCollection({
+  type: 'content',
+  schema: blogSchema,
+});
+
 export const collections = {
   courses: coursesCollection,
   reviews: reviewsCollection,
+  blog: blogCollection,
 };
 
 export type Course = z.infer<typeof courseSchema>;
 export type Review = z.infer<typeof reviewSchema>;
+export type BlogPost = z.infer<typeof blogSchema>;

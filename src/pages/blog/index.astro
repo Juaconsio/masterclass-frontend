@@ -1,0 +1,90 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import Navbar from '@components/landing/Navbar.astro';
+import Footer from '@components/landing/footer.astro';
+
+const posts = await getCollection('blog');
+const sortedPosts = posts
+  .slice()
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+// const heroImage = sortedPosts[0]?.data.heroImage;
+
+const formatDate = (value: string) =>
+  new Date(value).toLocaleDateString('es-CL', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+---
+
+<Layout title="Blog - Salva Ramos">
+  <Navbar />
+
+  <div class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-secondary/80 via-secondary to-secondary/90">
+    </div>
+    <section class="px-4 py-16 mt-16 relative">
+      <div class="grid gap-8 items-center lg:grid-cols-[1.2fr_0.8fr]">
+        <div class="max-w-3xl">
+          <p class="text-sm uppercase tracking-widest text-white">Blog</p>
+          <h1 class="text-4xl md:text-5xl font-extrabold text-white mt-2">Salva Ramos Blog</h1>
+          <p class="text-white/70 mt-4">
+            Novedades, recursos y aprendizajes compartidos por el equipo y la comunidad.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="px-4 py-12">
+    {
+      sortedPosts.length === 0 ? (
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body items-center text-center">
+            <div class="text-6xl">📝</div>
+            <h2 class="card-title">Aun no hay publicaciones</h2>
+            <p class="text-white/70">Vuelve pronto para ver novedades.</p>
+          </div>
+        </div>
+      ) : (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sortedPosts.map((post) => (
+            <article class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+              {(post.data.cover || post.data.heroImage) && (
+                <figure>
+                  <img
+                    src={post.data.heroImage ?? post.data.cover}
+                    alt={post.data.title}
+                    class="h-48 w-full object-cover"
+                  />
+                </figure>
+              )}
+              <div class="card-body">
+                <p class="text-sm text-secondary">{formatDate(post.data.date)}</p>
+                <h2 class="card-title leading-snug">{post.data.title}</h2>
+                <p class="text-sm text-base-content/70">{post.data.description}</p>
+                {post.data.author && (
+                  <p class="text-sm text-base-content/70">Por {post.data.author}</p>
+                )}
+                {post.data.categories && post.data.categories.length > 0 && (
+                  <div class="flex flex-wrap gap-2">
+                    {post.data.categories.map((category) => (
+                      <span class="badge badge-outline">{category}</span>
+                    ))}
+                  </div>
+                )}
+                <div class="card-actions justify-end">
+                  <a href={`/blog/${post.slug}`} class="btn btn-primary btn-sm">
+                    Leer mas
+                  </a>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      )
+    }
+  </section>
+  <Footer />
+</Layout>
