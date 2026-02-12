@@ -1,9 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 
 const courseSchema = z.object({
-  id: z.string(), // Matches backend course ID
-  acronym: z.string(),
-  title: z.string(),
   department: z.enum([
     'Matemática',
     'Física',
@@ -16,9 +13,7 @@ const courseSchema = z.object({
   description: z.string(),
   prerequisites: z.array(z.string()).optional(),
   basePrice: z.number(), // TODO : ver precio
-  image: z.string().optional(),
   featured: z.boolean().default(false),
-  class_count: z.number().optional(),
 });
 
 const coursesCollection = defineCollection({

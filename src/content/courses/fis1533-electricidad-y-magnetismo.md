@@ -1,14 +1,9 @@
 ---
-id: "1"
-acronym: "FIS1533"
-title: "Electricidad y Magnetismo"
 department: "Física"
 level: "Plan Común"
 description: "Electro. Que susto "
 basePrice: 15_000
 featured: true
-image: "/images/courses/calculus.png"
-class_count: 14
 ---
 
 

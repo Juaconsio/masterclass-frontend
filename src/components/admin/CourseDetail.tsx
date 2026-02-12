@@ -38,6 +38,7 @@ export default function CourseDetail() {
     description: '',
     acronym: '',
     professorIds: [] as number[],
+    isActive: true,
   });
   const [classFormData, setClassFormData] = useState({
     title: '',
@@ -151,6 +152,7 @@ export default function CourseDetail() {
         description: course.description || '',
         acronym: course.acronym,
         professorIds: course.professors.map((p) => p.id),
+        isActive: course.isActive,
       });
       drawerRef.current?.open();
     }
@@ -304,7 +306,7 @@ export default function CourseDetail() {
                   key={type}
                   className={clsx(
                     'flex items-center justify-between gap-2 rounded p-1',
-                    exists ? 'bg-green-50' : 'bg-base-100'
+                    exists ? 'bg-green-50' : 'bg-gray-300/50'
                   )}
                 >
                   <span
@@ -724,6 +726,19 @@ export default function CourseDetail() {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
+          </div>
+
+          {/* Estado */}
+          <div className="form-control">
+            <label className="label cursor-pointer justify-start gap-3">
+              <input
+                type="checkbox"
+                className="toggle toggle-primary"
+                checked={formData.isActive}
+                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+              />
+              <span className="label-text font-semibold">Curso activo en landing</span>
+            </label>
           </div>
 
           {/* Asignación de Profesores */}

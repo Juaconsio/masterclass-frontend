@@ -1,7 +1,7 @@
 ---
-import type { Course } from '../../../content/config';
+import type { CourseListingData } from '@/types/course';
 
-const { course } = Astro.props as { course: Course };
+const { course } = Astro.props as { course: CourseListingData };
 ---
 
 <div class="flex flex-col sm:flex-row md:flex-col gap-4 sm:gap-6">
@@ -20,7 +20,7 @@ const { course } = Astro.props as { course: Course };
     </div>
   </div>
 
-  <div class="card bg-base-100 shadow-xl w-full sm:flex-1 md:w-full h-fit">
+  <div class="card shadow-xl w-full sm:flex-1 md:w-full h-fit">
     <div class="card-body p-4 sm:p-6">
       <h3 class="card-title text-info text-base sm:text-lg">
         <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

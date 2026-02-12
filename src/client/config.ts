@@ -67,10 +67,12 @@ class HttpClient {
   private setupInterceptors() {
     this.axiosInstance.interceptors.request.use(
       (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-          config.headers = config.headers || {};
-          config.headers.Authorization = `Bearer ${token}`;
+        if (typeof localStorage !== 'undefined') {
+          const token = localStorage.getItem('token');
+          if (token) {
+            config.headers = config.headers || {};
+            config.headers.Authorization = `Bearer ${token}`;
+          }
         }
         this.logRequest(config);
         return config;

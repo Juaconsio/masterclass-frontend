@@ -12,7 +12,42 @@ export interface Course {
   featured: boolean;
 }
 
-export type Department = 'Matemática' | 'Física' | 'Eléctrica' | 'Computación' | 'Industrial';
+export interface PublicCourseSummary {
+  id: number;
+  slug: string;
+  acronym: string;
+  title: string;
+  description: string;
+  isActive: boolean;
+}
+
+export interface CourseListingData {
+  id: number;
+  slug: string;
+  acronym: string;
+  title: string;
+  description: string;
+  department: Department;
+  level: Level;
+  basePrice: number;
+  prerequisites?: string[];
+  image?: string;
+  featured: boolean;
+}
+
+export interface CourseListingEntry {
+  slug: string;
+  data: CourseListingData;
+}
+
+export type Department =
+  | 'Matemática'
+  | 'Física'
+  | 'Eléctrica'
+  | 'Computación'
+  | 'Industrial'
+  | 'Ingeniería'
+  | 'General';
 export type Level = 'Plan Común' | 'Major' | 'Minor';
 
 // Department colors for UI
@@ -22,6 +57,8 @@ export const DEPARTMENT_COLORS = {
   Eléctrica: 'badge-accent',
   Computación: 'badge-info',
   Industrial: 'badge-warning',
+  Ingeniería: 'badge-neutral',
+  General: 'badge-ghost',
 } as const;
 
 // Level colors for UI
@@ -39,4 +76,6 @@ export const DEPARTMENT_ICONS = {
   Eléctrica: '⚡',
   Computación: '💻',
   Industrial: '⚙️',
+  Ingeniería: '🏗️',
+  General: '📘',
 } as const;

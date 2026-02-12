@@ -111,7 +111,7 @@ const Drawer = forwardRef<DrawerRef, DrawerProps>(
             onClick={handleClose}
           />
 
-          <div className={`bg-base-100 min-h-full ${widthClasses[width]} flex flex-col`}>
+          <div className={`bg-base-200 min-h-full ${widthClasses[width]} flex flex-col`}>
             <div className="flex h-full flex-col p-4">
               {/* Header */}
               <div className="mb-4 flex items-center justify-between">

@@ -25,6 +25,7 @@ export default function AdminCourses() {
     description: '',
     acronym: '',
     professorIds: [] as number[],
+    isActive: true,
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -64,6 +65,7 @@ export default function AdminCourses() {
         description: '',
         acronym: '',
         professorIds: [],
+        isActive: true,
       });
       reload();
     } catch (error) {
@@ -274,6 +276,19 @@ export default function AdminCourses() {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
+          </div>
+
+          {/* Estado */}
+          <div className="form-control">
+            <label className="label cursor-pointer justify-start gap-3">
+              <input
+                type="checkbox"
+                className="toggle toggle-primary"
+                checked={formData.isActive}
+                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+              />
+              <span className="label-text font-semibold">Curso activo en landing</span>
+            </label>
           </div>
 
           {/* Asignación de Profesores */}

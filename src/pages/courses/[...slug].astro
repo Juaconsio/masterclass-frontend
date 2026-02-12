@@ -1,29 +1,44 @@
 ---
-import { getEntry, getCollection } from 'astro:content';
+import { getEntry } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import NavBar from '@components/landing/Navbar.astro';
 import Header from '@components/landing/courses/header.astro';
 import Aside from '@components/landing/courses/aside.astro';
 import CourseSessionCalendar from '@components/islands/CourseSessionCalendar';
+import { getPublicCourseCatalog } from '@/lib/courseCatalog';
+import type { CourseListingData } from '@/types/course';
 
-export const prerender = false; // para el contenido dinámico
+export const prerender = false;
 
 const { slug } = Astro.params;
-const course = await getEntry('courses', slug as string);
+const catalog = await getPublicCourseCatalog({ includeInactive: true });
+const catalogCourse = catalog.find((entry) => entry.slug === slug);
+let contentEntry = null;
+
+try {
+  contentEntry = await getEntry('courses', slug as string);
+} catch (error) {
+  contentEntry = null;
+}
+
+const course = (catalogCourse?.data ?? null) as CourseListingData | null;
 
 if (!course) {
+  // Si el catálogo vino vacío (backend caído), llevar al listado en vez de 404
+  if (catalog.length === 0) {
+    return Astro.redirect('/courses');
+  }
   return Astro.redirect('/404');
 }
 
-const { Content } = await course.render();
+const contentRender = contentEntry ? await contentEntry.render() : null;
 
-const allCourses = await getCollection('courses');
-const relatedCourses = allCourses
-  .filter((c) => c.data.department === course.data.department && c.slug !== course.slug)
+const relatedCourses = catalog
+  .filter((entry) => entry.data.department === course.department && entry.slug !== slug)
   .slice(0, 3);
 ---
 
-<Layout title={`${course.data.acronym} - ${course.data.title}`}>
+<Layout title={`${course.acronym} - ${course.title}`}>
   <div>
     <NavBar />
     <section class="h-hero h-fit flex flex-col">
@@ -34,24 +49,24 @@ const relatedCourses = allCourses
           <li><a href="/courses" class="link link-hover">Cursos</a></li>
           <li>
             <a
-              href={`/courses?department=${encodeURIComponent(course.data.department)}`}
+              href={`/courses?department=${encodeURIComponent(course.department)}`}
               class="link link-hover"
             >
-              {course.data.department}
+              {course.department}
             </a>
           </li>
-          <li>{course.data.acronym}</li>
+          <li>{course.acronym}</li>
         </ul>
       </div>
 
       <div class="order-2 h-full flex gap-10">
         <div class="flex flex-col md:basis-7/10 overflow-y-auto mx-10">
           <div class="basis-4/10">
-            <Header course={course.data} />
+            <Header course={course} />
           </div>
 
           <div class="h-full w-full md:hidden right-0 md:sticky top-16 p-4">
-            <Aside course={course.data} />
+            <Aside course={course} />
           </div>
 
           <!-- Tabbed Content Section -->
@@ -63,46 +78,58 @@ const relatedCourses = allCourses
                 name="course_tabs"
                 role="tab"
                 class="tab font-semibold"
-                aria-label="Próximas Sesiones"
+                aria-label="Contenidos del Curso"
                 checked
               />
               <div role="tabpanel" class="tab-content pt-6">
-                <CourseSessionCalendar courseAcronym={course.data.acronym} client:load />
+                {
+                  contentRender ? (
+                    <div class="card bg-white shadow-xl">
+                      <div class="card-body">
+                        <div
+                          class="prose prose-lg max-w-none
+                                  prose-headings:text-primary
+                                  prose-h1:text-3xl prose-h1:font-bold prose-h1:mb-6 prose-h1:mt-0
+                                  prose-h2:text-2xl prose-h2:font-semibold prose-h2:mb-4 prose-h2:mt-8 prose-h2:text-secondary
+                                  prose-h3:text-xl prose-h3:font-medium prose-h3:mb-3 prose-h3:mt-6 prose-h3:text-secondary
+                                  prose-p:text-base-content prose-p:leading-relaxed prose-p:mb-4
+                                  prose-strong:text-base-content prose-strong:font-semibold
+                                  prose-ul:my-4 prose-li:my-2 prose-li:text-base-content
+                                  prose-ol:my-4 prose-ol:text-base-content
+                                  prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:bg-base-200 prose-blockquote:p-4 prose-blockquote:rounded-r-lg prose-blockquote:my-6
+                                  prose-code:bg-base-200 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm prose-code:text-accent-content
+                                  prose-pre:bg-base-300 prose-pre:p-4 prose-pre:rounded-lg prose-pre:overflow-x-auto
+                                  prose-hr:border-base-300 prose-hr:my-8
+                                  prose-table:table-auto prose-table:w-full
+                                  prose-th:bg-primary prose-th:text-primary-content prose-th:p-3 prose-th:text-left
+                                  prose-td:p-3 prose-td:border-b prose-td:border-base-300
+                                  prose-img:rounded-lg prose-img:shadow-lg prose-img:mx-auto"
+                        >
+                          <contentRender.Content />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div class="card bg-white shadow-xl">
+                      <div class="card-body">
+                        <p class="text-base-content/70">
+                          Este curso aun no tiene contenido publicado. Puedes reservar una sesion y
+                          un tutor te guiara con el material.
+                        </p>
+                      </div>
+                    </div>
+                  )
+                }
               </div>
-
               <input
                 type="radio"
                 name="course_tabs"
                 role="tab"
                 class="tab font-semibold"
-                aria-label="Contenidos del Curso"
+                aria-label="Próximas Sesiones"
               />
               <div role="tabpanel" class="tab-content pt-6">
-                <div class="card bg-white shadow-xl">
-                  <div class="card-body">
-                    <div
-                      class="prose prose-lg max-w-none
-                              prose-headings:text-primary
-                              prose-h1:text-3xl prose-h1:font-bold prose-h1:mb-6 prose-h1:mt-0
-                              prose-h2:text-2xl prose-h2:font-semibold prose-h2:mb-4 prose-h2:mt-8 prose-h2:text-secondary
-                              prose-h3:text-xl prose-h3:font-medium prose-h3:mb-3 prose-h3:mt-6 prose-h3:text-secondary
-                              prose-p:text-base-content prose-p:leading-relaxed prose-p:mb-4
-                              prose-strong:text-base-content prose-strong:font-semibold
-                              prose-ul:my-4 prose-li:my-2 prose-li:text-base-content
-                              prose-ol:my-4 prose-ol:text-base-content
-                              prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:bg-base-200 prose-blockquote:p-4 prose-blockquote:rounded-r-lg prose-blockquote:my-6
-                              prose-code:bg-base-200 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm prose-code:text-accent-content
-                              prose-pre:bg-base-300 prose-pre:p-4 prose-pre:rounded-lg prose-pre:overflow-x-auto
-                              prose-hr:border-base-300 prose-hr:my-8
-                              prose-table:table-auto prose-table:w-full
-                              prose-th:bg-primary prose-th:text-primary-content prose-th:p-3 prose-th:text-left
-                              prose-td:p-3 prose-td:border-b prose-td:border-base-300
-                              prose-img:rounded-lg prose-img:shadow-lg prose-img:mx-auto"
-                    >
-                      <Content />
-                    </div>
-                  </div>
-                </div>
+                <CourseSessionCalendar courseAcronym={course.acronym} client:load />
               </div>
             </div>
           </div>
@@ -146,10 +173,10 @@ const relatedCourses = allCourses
                   </div>
                   <div class="card-actions">
                     <a
-                      href={`/courses?department=${encodeURIComponent(course.data.department)}`}
+                      href={`/courses?department=${encodeURIComponent(course.department)}`}
                       class="btn btn-accent btn-sm"
                     >
-                      Ver todos los cursos de {course.data.department}
+                      Ver todos los cursos de {course.department}
                     </a>
                   </div>
                 </div>
@@ -159,7 +186,7 @@ const relatedCourses = allCourses
         </div>
 
         <div class="h-full w-sm md:basis-3/10 right-0 md:sticky top-16 p-4 hidden md:block">
-          <Aside course={course.data} />
+          <Aside course={course} />
         </div>
       </div>
     </section>
