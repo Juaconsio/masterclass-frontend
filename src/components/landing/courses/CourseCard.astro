@@ -1,36 +1,19 @@
 ---
-import type { CollectionEntry } from 'astro:content';
+import type { CourseListingEntry } from '../../../types/course';
 import { LEVEL_COLORS, DEPARTMENT_ICONS } from '../../../types/course';
 interface Props {
-  course: CollectionEntry<'courses'>;
-  index?: number;
+  course: CourseListingEntry;
 }
 
-const { course, index } = Astro.props;
-
-const getUsalAnimation = (idx: number | null) => {
-  if (idx === null) return 'fade-u';
-  switch (idx % 4) {
-    case 0:
-      return 'fade-r delay-[100]';
-    case 1:
-      return 'fade-u delay-[200]';
-    case 2:
-      return 'fade-b delay-[300]';
-    case 3:
-      return 'fade-l delay-[400]';
-    default:
-      return 'fade-u';
-  }
-};
+const { course } = Astro.props;
 ---
 
 <div
-  class="card bg-base-100 shadow-xl hover:shadow-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2 course-card"
+  class="card shadow-xl hover:shadow-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2 course-card"
   data-department={course.data.department}
   data-level={course.data.level}
   data-acronym={course.data.acronym}
-  data-usal={getUsalAnimation(index || null)}
+  data-usal-trigger="50%"
 >
   <!-- Course Image -->
   {
@@ -93,7 +76,7 @@ const getUsalAnimation = (idx: number | null) => {
     </div>
 
     <!-- Course Description -->
-    <p class="text-base-content/50 text-xs sm:text-sm line-clamp-3">
+    <p class="text-base-content/50 text-xs sm:text-sm line-clamp-2">
       {course.data.description}
     </p>
 
@@ -155,19 +138,3 @@ const getUsalAnimation = (idx: number | null) => {
     </div>
   </div>
 </div>
-
-<style>
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-</style>

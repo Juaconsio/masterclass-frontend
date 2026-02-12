@@ -1,14 +1,9 @@
 ---
-id: "3"
-acronym: "ICS1113"
-title: "Optimización"
 department: "Industrial"
 level: "Major"
 description: "Opti. Que susto "
 basePrice: 11_000
 featured: true
-image: "/images/courses/calculus.png"
-class_count: 10
 ---
 
 ## Descripción del Curso

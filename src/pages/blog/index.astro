@@ -40,7 +40,7 @@ const formatDate = (value: string) =>
   <section class="px-4 py-12">
     {
       sortedPosts.length === 0 ? (
-        <div class="card bg-base-100 shadow-xl">
+        <div class="card  shadow-xl">
           <div class="card-body items-center text-center">
             <div class="text-6xl">📝</div>
             <h2 class="card-title">Aun no hay publicaciones</h2>
@@ -50,7 +50,7 @@ const formatDate = (value: string) =>
       ) : (
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sortedPosts.map((post) => (
-            <article class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+            <article class="card  shadow-xl hover:shadow-2xl transition-shadow">
               {(post.data.cover || post.data.heroImage) && (
                 <figure>
                   <img

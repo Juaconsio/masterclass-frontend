@@ -1,13 +1,9 @@
 ---
-id: "4"
-acronym: "MAT1620"
-title: "Cálculo II"
 department: "Matemática"
 level: "Plan Común"
 description: "Aprende sobre integrales indeterminadas y series."
 basePrice: 15_000
 featured: true
-image: "/images/courses/calculus.png"
 ---
 
 ## Clase 0 — Repaso Cálculo I

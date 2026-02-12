@@ -60,7 +60,7 @@
 
 @layer base {
   body {
-    @apply bg-base-100 text-base-content min-h-[var(--app-dvh)] w-full overflow-x-hidden pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] antialiased;
+    @apply text-base-content min-h-[var(--app-dvh)] w-full overflow-x-hidden bg-white pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] antialiased;
   }
 
   section {
@@ -110,4 +110,3 @@
     --app-dvh: 100dvh;
   }
 }
-

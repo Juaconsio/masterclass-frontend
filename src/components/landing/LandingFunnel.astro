@@ -5,12 +5,13 @@ import CourseCard from './courses/CourseCard.astro';
 import ReviewsCarousel from './reviews/ReviewsCarousel.tsx';
 import { Icon } from 'astro-icon/components';
 import { getCollection } from 'astro:content';
+import { getPublicCourseCatalog } from '@/lib/courseCatalog';
 import { Carousel } from '@components/UI';
 import Stats from './stats.astro';
 import ContactUs from './contactUs/index.astro';
 import Footer from './footer.astro';
 // Get collections
-const allCourses = await getCollection('courses');
+const allCourses = await getPublicCourseCatalog();
 const allReviews = await getCollection('reviews');
 
 // Get featured courses (filter by featured flag, then fallback to first 4)
@@ -100,8 +101,9 @@ const getUsalAnimation = (idx: number) => {
 
       <div
         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-8 sm:mb-12"
+        data-usal="split-item split-fade-l split-delay-800 duration-700"
       >
-        {coursesToShow.map((course, index) => <CourseCard course={course} index={index} />)}
+        {coursesToShow.map((course) => <CourseCard course={course} />)}
       </div>
 
       <div class="text-center">

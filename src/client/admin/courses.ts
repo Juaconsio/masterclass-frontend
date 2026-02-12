@@ -107,6 +107,7 @@ export const adminCoursesClient = {
     description: string;
     acronym: string;
     professorIds: number[];
+    isActive: boolean;
   }): Promise<AdminCourse> {
     const response = await httpClient.post<AdminCourse>('/admin/courses', payload);
     return response.data;
@@ -119,6 +120,7 @@ export const adminCoursesClient = {
       description: string;
       acronym: string;
       professorIds: number[];
+      isActive: boolean;
     }
   ): Promise<AdminCourse> {
     const response = await httpClient.put<AdminCourse>(`/admin/courses/${id}`, payload);

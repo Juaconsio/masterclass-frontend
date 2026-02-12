@@ -1,17 +1,16 @@
 ---
-import type { CollectionEntry } from 'astro:content';
-import type { Department, Level } from '../../../types/course';
+import type { CourseListingEntry, Department, Level } from '../../../types/course';
 
 interface Props {
   departments: Department[];
   levels: Level[];
-  courses: CollectionEntry<'courses'>[];
+  courses: CourseListingEntry[];
 }
 
 const { departments, levels, courses } = Astro.props;
 ---
 
-<div class="card bg-base-100 shadow-lg mb-6 sm:mb-8">
+<div class="card shadow-lg mb-6 sm:mb-8">
   <div class="card-body p-4 sm:p-6">
     <div class="flex flex-col lg:flex-row gap-3 sm:gap-4 items-start lg:items-center">
       <!-- Search Input -->
