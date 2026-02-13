@@ -25,7 +25,7 @@ function buildSlug(acronym: string, title: string) {
 
 function mergeCourse(
   baseCourse: PublicCourseSummary,
-  marketing?: CollectionEntry<'courses'>
+  marketing?: CollectionEntry<'courseDescriptions'>
 ): CourseListingEntry {
   const data = marketing?.data;
 
@@ -53,7 +53,7 @@ export async function getPublicCourseCatalog(options?: {
     const { includeInactive = false } = options ?? {};
     const [baseCourses, marketingEntries] = await Promise.all([
       fetchPublicCourses(),
-      getCollection('courses'),
+      getCollection('courseDescriptions'),
     ]);
     const marketingBySlug = new Map(marketingEntries.map((entry) => [entry.slug, entry]));
 

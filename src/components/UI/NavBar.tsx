@@ -99,7 +99,7 @@ const NavBar: React.FC = () => {
     <div className="flex h-full flex-col">
       {/* Logo/Header */}
       <div>
-        <div className="flex items-center gap-2 px-4 py-6">
+        <a href="/" className="flex items-center gap-2 px-4 py-6">
           <div className="avatar">
             <div className="h-16 rounded-lg">
               <img
@@ -115,7 +115,7 @@ const NavBar: React.FC = () => {
               {isAdmin ? 'Panel de administración' : 'Plataforma de estudio'}
             </p>
           </div>
-        </div>
+        </a>
         <div className="divider"></div>
       </div>
 

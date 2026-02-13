@@ -20,33 +20,26 @@ const { course } = Astro.props as { course: CourseListingData };
     }
     <div class="flex flex-col gap-2 sm:gap-3 max-w-4xl text-left w-full">
       <div class="flex flex-wrap justify-start gap-2 sm:gap-3">
-        <div
-          class="badge badge-ghost badge-md sm:badge-lg font-mono font-bold text-sm sm:text-base md:text-lg"
-        >
+        <div class="badge badge-md sm:badge-lg font-mono font-bold text-sm sm:text-base md:text-lg">
           {course.acronym}
         </div>
 
         <div
-          class={`badge ${LEVEL_COLORS[course.level]} badge-md sm:badge-lg text-xs sm:text-sm md:text-base px-3 sm:px-4 py-2 sm:py-3`}
+          class={`badge  badge-md sm:badge-lg text-xs font-mono font-bold sm:text-sm md:text-base px-3 sm:px-4 py-2 sm:py-3`}
         >
           {course.level}
         </div>
         <div
-          class={`badge ${DEPARTMENT_COLORS[course.department]} badge-md sm:badge-lg text-xs sm:text-sm md:text-base px-3 sm:px-4 py-2 sm:py-3`}
+          class={`badge  badge-md sm:badge-lg text-xs font-mono font-bold sm:text-sm md:text-base px-3 sm:px-4 py-2 sm:py-3`}
         >
           {DEPARTMENT_ICONS[course.department]}
           <span class="ml-1">{course.department}</span>
         </div>
-        {
-          course.featured && (
-            <div class="badge badge-warning badge-md sm:badge-lg">⭐ Curso Destacado</div>
-          )
-        }
       </div>
 
       <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">{course.title}</h1>
 
-      <p class="text-base sm:text-lg md:text-xl text-base-content/50 max-w-2xl px-0 sm:px-2">
+      <p class="text-base sm:text-lg md:text-xl text-base-content/50 max-w-2xl text-pretty">
         {course.description}
       </p>
     </div>
