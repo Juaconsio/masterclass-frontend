@@ -1,6 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 
-const courseSchema = z.object({
+const courseDescriptionSchema = z.object({
   department: z.enum([
     'Matemática',
     'Física',
@@ -12,13 +12,18 @@ const courseSchema = z.object({
   level: z.enum(['Plan Común', 'Major', 'Minor']),
   description: z.string(),
   prerequisites: z.array(z.string()).optional(),
-  basePrice: z.number(), // TODO : ver precio
+  basePrice: z.number(),
   featured: z.boolean().default(false),
 });
 
-const coursesCollection = defineCollection({
+const courseDescriptionsCollection = defineCollection({
   type: 'content',
-  schema: courseSchema,
+  schema: courseDescriptionSchema,
+});
+
+const courseContentsCollection = defineCollection({
+  type: 'content',
+  schema: z.object({}),
 });
 
 const reviewSchema = z.object({
@@ -57,11 +62,13 @@ const blogCollection = defineCollection({
 });
 
 export const collections = {
-  courses: coursesCollection,
+  courseDescriptions: courseDescriptionsCollection,
+  courseContents: courseContentsCollection,
   reviews: reviewsCollection,
   blog: blogCollection,
 };
 
-export type Course = z.infer<typeof courseSchema>;
+export type CourseDescription = z.infer<typeof courseDescriptionSchema>;
+export type Course = CourseDescription;
 export type Review = z.infer<typeof reviewSchema>;
 export type BlogPost = z.infer<typeof blogSchema>;
