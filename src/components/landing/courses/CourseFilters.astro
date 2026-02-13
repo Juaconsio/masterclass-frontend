@@ -5,25 +5,31 @@ interface Props {
   departments: Department[];
   levels: Level[];
   courses: CourseListingEntry[];
+  idPrefix?: string;
 }
 
-const { departments, levels, courses } = Astro.props;
+const { departments, levels, courses, idPrefix = '' } = Astro.props;
 ---
 
-<div class="card shadow-lg mb-6 sm:mb-8">
+<div class="card shadow-lg mb-6 sm:mb-8 lg:mb-0">
   <div class="card-body p-4 sm:p-6">
-    <div class="flex flex-col lg:flex-row gap-3 sm:gap-4 items-start lg:items-center">
+    <div class="flex flex-col gap-3 sm:gap-4">
       <!-- Search Input -->
-      <div class="flex-1 min-w-0 w-full">
-        <div class="form-control">
+      <div class="flex flex-col gap-2">
+        <h3 class="text-lg font-bold">Filtros</h3>
+        <div class="form-control w-full">
           <div class="input-group flex">
             <input
               type="text"
               placeholder="Buscar por nombre, sigla..."
               class="input input-bordered input-sm sm:input-md flex-1 min-w-0 text-sm sm:text-base"
-              id="search-input"
+              id={`${idPrefix}search-input`}
             />
-            <button class="btn btn-square btn-sm sm:btn-md btn-primary" id="search-btn">
+            <button
+              class="btn btn-square btn-sm sm:btn-md btn-primary"
+              id={`${idPrefix}search-btn`}
+              type="button"
+            >
               <svg
                 class="w-4 h-4 sm:w-5 sm:h-5"
                 fill="none"
@@ -39,46 +45,62 @@ const { departments, levels, courses } = Astro.props;
             </button>
           </div>
         </div>
-      </div>
 
-      <!-- Filter Dropdowns -->
-      <div class="flex flex-wrap gap-2 sm:gap-3 w-full lg:w-auto">
-        <div class="form-control flex-1 sm:flex-initial min-w-[140px]">
+        <!-- Filter Dropdowns -->
+        <div class="form-control w-full">
           <select
-            class="select select-bordered select-sm sm:select-md text-sm sm:text-base"
-            id="department-filter"
+            class="select select-bordered select-sm sm:select-md text-sm sm:text-base w-full"
+            id={`${idPrefix}department-filter`}
           >
             <option value="">Todos los Departamentos</option>
             {departments.map((department) => <option value={department}>{department}</option>)}
           </select>
         </div>
 
-        <div class="form-control flex-1 sm:flex-initial min-w-[120px]">
+        <div class="form-control w-full">
           <select
-            class="select select-bordered select-sm sm:select-md text-sm sm:text-base"
-            id="level-filter"
+            class="select select-bordered select-sm sm:select-md text-sm sm:text-base w-full"
+            id={`${idPrefix}level-filter`}
           >
             <option value="">Todos los Niveles</option>
             {levels.map((level) => <option value={level}>{level}</option>)}
           </select>
         </div>
 
-        <!-- Featured Toggle -->
-        <div class="form-control flex items-center">
-          <label class="label cursor-pointer gap-2 py-1 sm:py-2">
-            <span class="label-text text-xs sm:text-sm whitespace-nowrap">Solo destacados</span>
-            <input
-              type="checkbox"
-              class="toggle toggle-primary toggle-xs sm:toggle-sm"
-              id="featured-toggle"
-            />
-          </label>
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="form-control flex items-center">
+            <label class="label cursor-pointer gap-2 py-1 sm:py-2">
+              <span class="label-text text-xs sm:text-sm whitespace-nowrap">Solo destacados</span>
+              <input
+                type="checkbox"
+                class="toggle toggle-primary toggle-xs sm:toggle-sm"
+                id={`${idPrefix}featured-toggle`}
+              />
+            </label>
+          </div>
+          <button
+            class="btn btn-ghost btn-xs sm:btn-sm"
+            id={`${idPrefix}clear-filters`}
+            type="button"
+          >
+            <svg
+              class="w-3 h-3 sm:w-4 sm:h-4 mr-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            <span class="hidden sm:inline">Limpiar</span>
+          </button>
         </div>
 
-        <!-- Price Range / TODO: ver si lo dejamos o no, hidden por ahora -->
-
         <div class="form-control hidden">
-          <select class="select select-bordered select-sm w-32" id="price-filter">
+          <select class="select select-bordered select-sm w-full" id={`${idPrefix}price-filter`}>
             <option value="">Cualquier precio</option>
             <option value="0-20000">$0 - $20.000</option>
             <option value="20000-40000">$20.000 - $40.000</option>
@@ -86,86 +108,43 @@ const { departments, levels, courses } = Astro.props;
             <option value="60000+">$60.000+</option>
           </select>
         </div>
-
-        <!-- Clear Filters Button -->
-        <button class="btn btn-ghost btn-xs sm:btn-sm" id="clear-filters">
-          <svg
-            class="w-3 h-3 sm:w-4 sm:h-4 mr-1"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-          <span class="hidden sm:inline">Limpiar</span>
-        </button>
       </div>
-    </div>
 
-    <!-- Active Filters Display -->
-    <div id="active-filters" class="hidden mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-base-300">
-      <div class="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
-        <span class="text-base-content/70">Filtros activos:</span>
-        <div id="filter-tags" class="flex flex-wrap gap-1.5 sm:gap-2"></div>
+      <!-- Active Filters Display -->
+      <div
+        id={`${idPrefix}active-filters`}
+        class="hidden mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-base-300"
+      >
+        <div class="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
+          <span class="text-base-content/70">Filtros activos:</span>
+          <div id={`${idPrefix}filter-tags`} class="flex flex-wrap gap-1.5 sm:gap-2"></div>
+        </div>
       </div>
-    </div>
 
-    <!-- Results Count and Sort -->
-    <div
-      class="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-3 sm:mt-4 gap-2 text-xs sm:text-sm text-base-content/70"
-    >
-      <span id="results-count">Mostrando todos los {courses.length} cursos</span>
-
-      <!-- Sort Dropdown -->
-      <div class="form-control">
-        <select class="select select-bordered select-xs w-auto" id="sort-select">
-          <option value="default">Ordenar por defecto</option>
-          <option value="name-asc">Nombre A-Z</option>
-          <option value="name-desc">Nombre Z-A</option>
-          <option value="price-asc">Precio menor a mayor</option>
-          <option value="price-desc">Precio mayor a menor</option>
-          <option value="department">Por departamento</option>
-          <option value="level">Por nivel</option>
-        </select>
+      <!-- Results Count and Sort -->
+      <div
+        class="flex flex-col gap-2 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-base-300 text-xs sm:text-sm text-base-content/70"
+      >
+        <span id={`${idPrefix}results-count`}>Mostrando todos los {courses.length} cursos</span>
+        <div class="form-control">
+          <select class="select select-bordered select-xs w-full" id={`${idPrefix}sort-select`}>
+            <option value="default">Ordenar por defecto</option>
+            <option value="name-asc">Nombre A-Z</option>
+            <option value="name-desc">Nombre Z-A</option>
+            <option value="price-asc">Precio menor a mayor</option>
+            <option value="price-desc">Precio mayor a menor</option>
+            <option value="department">Por departamento</option>
+            <option value="level">Por nivel</option>
+          </select>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<script>
-  interface FilterState {
-    search: string;
-    department: string;
-    level: string;
-    featured: boolean;
-    priceRange: '0-20000' | '20000-40000' | '40000-60000' | '60000+' | '';
-    sort: string;
-  }
-
-  interface FilterTag {
-    label: string;
-    key: string;
-  }
+<script define:vars={{ idPrefix }}>
+  const prefix = typeof idPrefix === 'string' ? idPrefix : '';
 
   class CourseFilters {
-    private searchInput!: HTMLInputElement;
-    private departmentFilter!: HTMLSelectElement;
-    private levelFilter!: HTMLSelectElement;
-    private featuredToggle!: HTMLInputElement;
-    private priceFilter!: HTMLSelectElement;
-    private sortSelect!: HTMLSelectElement;
-    private clearButton!: HTMLButtonElement;
-    private activeFiltersContainer!: HTMLElement;
-    private filterTagsContainer!: HTMLElement;
-    private resultsCount!: HTMLElement;
-    private courseCards!: NodeListOf<HTMLElement>;
-    private emptyState!: HTMLElement;
-    private courseGrid!: HTMLElement;
-
     constructor() {
       this.initializeElements();
       this.attachEventListeners();
@@ -173,44 +152,35 @@ const { departments, levels, courses } = Astro.props;
     }
 
     initializeElements() {
-      this.searchInput = document.querySelector('#search-input')!;
-      this.departmentFilter = document.querySelector('#department-filter')!;
-      this.levelFilter = document.querySelector('#level-filter')!;
-      this.featuredToggle = document.querySelector('#featured-toggle')!;
-      this.priceFilter = document.querySelector('#price-filter')!;
-      this.sortSelect = document.querySelector('#sort-select')!;
-      this.clearButton = document.querySelector('#clear-filters')!;
-      this.activeFiltersContainer = document.querySelector('#active-filters')!;
-      this.filterTagsContainer = document.querySelector('#filter-tags')!;
-      this.resultsCount = document.querySelector('#results-count')!;
-
-      // Get elements from the main page
+      this.searchInput = document.querySelector(`#${prefix}search-input`);
+      this.departmentFilter = document.querySelector(`#${prefix}department-filter`);
+      this.levelFilter = document.querySelector(`#${prefix}level-filter`);
+      this.featuredToggle = document.querySelector(`#${prefix}featured-toggle`);
+      this.priceFilter = document.querySelector(`#${prefix}price-filter`);
+      this.sortSelect = document.querySelector(`#${prefix}sort-select`);
+      this.clearButton = document.querySelector(`#${prefix}clear-filters`);
+      this.activeFiltersContainer = document.querySelector(`#${prefix}active-filters`);
+      this.filterTagsContainer = document.querySelector(`#${prefix}filter-tags`);
+      this.resultsCount = document.querySelector(`#${prefix}results-count`);
       this.courseCards = document.querySelectorAll('.course-card');
-      this.emptyState = document.querySelector('#empty-state')!;
-      this.courseGrid = document.querySelector('#course-grid')!;
+      this.emptyState = document.querySelector('#empty-state');
+      this.courseGrid = document.querySelector('#course-grid');
     }
 
     attachEventListeners() {
-      // Search input with debounce
-      let searchTimeout: ReturnType<typeof setTimeout>;
-      this.searchInput.addEventListener('input', () => {
+      let searchTimeout;
+      this.searchInput?.addEventListener('input', () => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => this.applyFilters(), 300);
       });
 
-      // Filter controls
       [this.departmentFilter, this.levelFilter, this.priceFilter, this.sortSelect].forEach(
-        (filter) => {
-          filter.addEventListener('change', () => this.applyFilters());
-        }
+        (filter) => filter?.addEventListener('change', () => this.applyFilters())
       );
 
-      this.featuredToggle.addEventListener('change', () => this.applyFilters());
+      this.featuredToggle?.addEventListener('change', () => this.applyFilters());
+      this.clearButton?.addEventListener('click', () => this.clearAllFilters());
 
-      // Clear filters button
-      this.clearButton.addEventListener('click', () => this.clearAllFilters());
-
-      // Clear filters from empty state
       const emptyClearButton = document.querySelector('#empty-state #clear-filters');
       if (emptyClearButton) {
         emptyClearButton.addEventListener('click', () => this.clearAllFilters());
@@ -219,152 +189,129 @@ const { departments, levels, courses } = Astro.props;
 
     getCurrentFilters() {
       return {
-        search: this.searchInput.value.toLowerCase().trim(),
-        department: this.departmentFilter.value,
-        level: this.levelFilter.value,
-        featured: this.featuredToggle.checked,
-        priceRange: this.priceFilter.value as
-          | '0-20000'
-          | '20000-40000'
-          | '40000-60000'
-          | '60000+'
-          | '',
-        sort: this.sortSelect.value,
+        search: this.searchInput?.value?.toLowerCase().trim() ?? '',
+        department: this.departmentFilter?.value ?? '',
+        level: this.levelFilter?.value ?? '',
+        featured: this.featuredToggle?.checked ?? false,
+        priceRange: this.priceFilter?.value ?? '',
+        sort: this.sortSelect?.value ?? 'default',
       };
     }
 
-    matchesPriceRange(price: number, range: string) {
-      if (!range) return true;
+    matchesPriceRange(price, range) {
+        if (!range) return true;
 
-      switch (range) {
-        case '0-20000':
-          return price >= 0 && price <= 20000;
-        case '20000-40000':
-          return price > 20000 && price <= 40000;
-        case '40000-60000':
-          return price > 40000 && price <= 60000;
-        case '60000+':
-          return price > 60000;
-        default:
-          return true;
+        switch (range) {
+          case '0-20000':
+            return price >= 0 && price <= 20000;
+          case '20000-40000':
+            return price > 20000 && price <= 40000;
+          case '40000-60000':
+            return price > 40000 && price <= 60000;
+          case '60000+':
+            return price > 60000;
+          default:
+            return true;
+        }
       }
-    }
 
     applyFilters() {
       const filters = this.getCurrentFilters();
-      let visibleCards: HTMLElement[] = [];
+      const visibleCards = [];
 
-      this.courseCards.forEach((card) => {
+      this.courseCards?.forEach((card) => {
         const cardDepartment = card.dataset.department || '';
         const cardLevel = card.dataset.level || '';
         const cardAcronym = card.dataset.acronym || '';
-
-        // Get searchable text from the card
         const titleElement = card.querySelector('.card-title');
         const descriptionElement = card.querySelector('p');
-        const cardTitle = titleElement ? titleElement.textContent!.toLowerCase() : '';
-        const cardDescription = descriptionElement
-          ? descriptionElement.textContent!.toLowerCase()
-          : '';
+        const cardTitle = (titleElement?.textContent ?? '').toLowerCase();
+        const cardDescription = (descriptionElement?.textContent ?? '').toLowerCase();
         const searchableText = `${cardTitle} ${cardDescription} ${cardAcronym.toLowerCase()}`;
-
-        // Get price from the card
         const priceElement = card.querySelector('.text-primary');
-        const priceText = priceElement ? priceElement.textContent!.replace(/[^\d]/g, '') : '0';
-        const cardPrice = parseInt(priceText) || 0;
+        const priceText = priceElement?.textContent?.replace(/[^\d]/g, '') ?? '0';
+        const cardPrice = parseInt(priceText, 10) || 0;
 
-        // Check if featured
-        const isFeatured = card.querySelector('.badge-warning') !== null;
+          // Check if featured
+          const isFeatured = card.querySelector('.badge-warning') !== null;
 
-        // Apply filters
-        const matchesSearch = !filters.search || searchableText.includes(filters.search);
-        const matchesDepartment = !filters.department || cardDepartment === filters.department;
-        const matchesLevel = !filters.level || cardLevel === filters.level;
-        const matchesFeatured = !filters.featured || isFeatured;
-        const matchesPrice = this.matchesPriceRange(cardPrice, filters.priceRange);
+          // Apply filters
+          const matchesSearch = !filters.search || searchableText.includes(filters.search);
+          const matchesDepartment = !filters.department || cardDepartment === filters.department;
+          const matchesLevel = !filters.level || cardLevel === filters.level;
+          const matchesFeatured = !filters.featured || isFeatured;
+          const matchesPrice = this.matchesPriceRange(cardPrice, filters.priceRange);
 
-        const isVisible =
-          matchesSearch && matchesDepartment && matchesLevel && matchesFeatured && matchesPrice;
+          const isVisible =
+            matchesSearch && matchesDepartment && matchesLevel && matchesFeatured && matchesPrice;
 
-        if (isVisible) {
-          card.style.display = 'block';
-          card.classList.add('animate-fadeIn');
-          visibleCards.push(card);
-        } else {
-          card.style.display = 'none';
-          card.classList.remove('animate-fadeIn');
+          if (isVisible) {
+            card.style.display = 'block';
+            card.classList.add('animate-fadeIn');
+            visibleCards.push(card);
+          } else {
+            card.style.display = 'none';
+            card.classList.remove('animate-fadeIn');
+          }
+        });
+
+        // Apply sorting to visible cards
+        if (filters.sort !== 'default') {
+          this.sortCards(visibleCards, filters.sort);
         }
-      });
 
-      // Apply sorting to visible cards
-      if (filters.sort !== 'default') {
-        this.sortCards(visibleCards, filters.sort);
+        this.updateUI(filters, visibleCards.length);
       }
 
-      this.updateUI(filters, visibleCards.length);
-    }
-
-    sortCards(cards: HTMLElement[], sortType: string) {
+    sortCards(cards, sortType) {
       const parent = this.courseGrid;
-
       cards.sort((a, b) => {
         switch (sortType) {
           case 'name-asc':
-            const titleA = a.querySelector('.card-title')?.textContent || '';
-            const titleB = b.querySelector('.card-title')?.textContent || '';
-            return titleA.localeCompare(titleB, 'es');
-
+            return (a.querySelector('.card-title')?.textContent || '').localeCompare(
+              b.querySelector('.card-title')?.textContent || '',
+              'es'
+            );
           case 'name-desc':
-            const titleDescA = a.querySelector('.card-title')?.textContent || '';
-            const titleDescB = b.querySelector('.card-title')?.textContent || '';
-            return titleDescB.localeCompare(titleDescA, 'es');
-
-          case 'price-asc':
+            return (b.querySelector('.card-title')?.textContent || '').localeCompare(
+              a.querySelector('.card-title')?.textContent || '',
+              'es'
+            );
+          case 'price-asc': {
             const priceA = parseInt(
-              a.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0'
+              a.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0',
+              10
             );
             const priceB = parseInt(
-              b.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0'
+              b.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0',
+              10
             );
             return priceA - priceB;
-
-          case 'price-desc':
+          }
+          case 'price-desc': {
             const priceDescA = parseInt(
-              a.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0'
+              a.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0',
+              10
             );
             const priceDescB = parseInt(
-              b.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0'
+              b.querySelector('.text-primary')?.textContent?.replace(/[^\d]/g, '') || '0',
+              10
             );
             return priceDescB - priceDescA;
-
+          }
           case 'department':
-            const deptA = a.dataset.department || '';
-            const deptB = b.dataset.department || '';
-            return deptA.localeCompare(deptB, 'es');
-
+            return (a.dataset.department || '').localeCompare(b.dataset.department || '', 'es');
           case 'level':
-            const levelA = a.dataset.level || '';
-            const levelB = b.dataset.level || '';
-            return levelA.localeCompare(levelB, 'es');
-
+            return (a.dataset.level || '').localeCompare(b.dataset.level || '', 'es');
           default:
             return 0;
         }
       });
-
-      // Reorder DOM elements
-      cards.forEach((card) => {
-        if (parent) {
-          parent.appendChild(card);
-        }
-      });
+      cards.forEach((card) => parent?.appendChild(card));
     }
 
-    updateUI(filters: FilterState, visibleCount: number) {
-      // Update results count
+    updateUI(filters, visibleCount) {
       this.updateResultsCount(visibleCount);
-
-      // Show/hide empty state
       if (visibleCount === 0) {
         if (this.courseGrid) this.courseGrid.style.display = 'none';
         if (this.emptyState) this.emptyState.classList.remove('hidden');
@@ -372,17 +319,27 @@ const { departments, levels, courses } = Astro.props;
         if (this.courseGrid) this.courseGrid.style.display = 'grid';
         if (this.emptyState) this.emptyState.classList.add('hidden');
       }
-
-      // Update active filters display
       this.updateActiveFilters(filters);
+      const activeCount =
+        (filters.search ? 1 : 0) +
+        (filters.department ? 1 : 0) +
+        (filters.level ? 1 : 0) +
+        (filters.featured ? 1 : 0) +
+        (filters.priceRange ? 1 : 0);
+      const mobileBadge = document.querySelector('#mobile-filters-badge');
+      if (mobileBadge) {
+        mobileBadge.textContent = String(activeCount);
+        mobileBadge.classList.toggle('hidden', activeCount === 0);
+      }
     }
 
-    updateResultsCount(count: number) {
+    updateResultsCount(count) {
       if (count === -1) {
-        count = Array.from(this.courseCards).filter((card) => card.style.display !== 'none').length;
+        count = Array.from(this.courseCards ?? []).filter(
+          (card) => card.style.display !== 'none'
+        ).length;
       }
-
-      const total = this.courseCards.length;
+      const total = (this.courseCards?.length) ?? 0;
       if (this.resultsCount) {
         this.resultsCount.textContent =
           count === total
@@ -391,21 +348,12 @@ const { departments, levels, courses } = Astro.props;
       }
     }
 
-    updateActiveFilters(filters: FilterState) {
-      const activeFilters: FilterTag[] = [];
-
-      if (filters.search) {
-        activeFilters.push({ label: `Búsqueda: "${filters.search}"`, key: 'search' });
-      }
-      if (filters.department) {
-        activeFilters.push({ label: `Departamento: ${filters.department}`, key: 'department' });
-      }
-      if (filters.level) {
-        activeFilters.push({ label: `Nivel: ${filters.level}`, key: 'level' });
-      }
-      if (filters.featured) {
-        activeFilters.push({ label: 'Solo destacados', key: 'featured' });
-      }
+    updateActiveFilters(filters) {
+      const activeFilters = [];
+      if (filters.search) activeFilters.push({ label: `Búsqueda: "${filters.search}"`, key: 'search' });
+      if (filters.department) activeFilters.push({ label: `Departamento: ${filters.department}`, key: 'department' });
+      if (filters.level) activeFilters.push({ label: `Nivel: ${filters.level}`, key: 'level' });
+      if (filters.featured) activeFilters.push({ label: 'Solo destacados', key: 'featured' });
       if (filters.priceRange) {
         const priceLabels = {
           '0-20000': '$0 - $20.000',
@@ -413,14 +361,14 @@ const { departments, levels, courses } = Astro.props;
           '40000-60000': '$40.000 - $60.000',
           '60000+': '$60.000+',
         };
-        const priceLabel = priceLabels[filters.priceRange] || filters.priceRange;
-        activeFilters.push({ label: `Precio: ${priceLabel}`, key: 'priceRange' });
+        activeFilters.push({
+          label: `Precio: ${priceLabels[filters.priceRange] ?? filters.priceRange}`,
+          key: 'priceRange',
+        });
       }
 
       if (activeFilters.length > 0) {
-        if (this.activeFiltersContainer) {
-          this.activeFiltersContainer.classList.remove('hidden');
-        }
+        this.activeFiltersContainer?.classList.remove('hidden');
         if (this.filterTagsContainer) {
           this.filterTagsContainer.innerHTML = activeFilters
             .map(
@@ -436,76 +384,69 @@ const { departments, levels, courses } = Astro.props;
           `
             )
             .join('');
-
-          // Add event listeners to remove individual filters
           this.filterTagsContainer.querySelectorAll('[data-filter-key]').forEach((button) => {
             button.addEventListener('click', (e) => {
-              const target = e.currentTarget as HTMLElement;
-              const filterKey = target.dataset.filterKey;
-              if (filterKey) {
-                this.removeFilter(filterKey);
-              }
+              const filterKey = e.currentTarget?.dataset?.filterKey;
+              if (filterKey) this.removeFilter(filterKey);
             });
           });
         }
       } else {
-        if (this.activeFiltersContainer) {
-          this.activeFiltersContainer.classList.add('hidden');
-        }
+        this.activeFiltersContainer?.classList.add('hidden');
       }
     }
 
-    removeFilter(filterKey: string) {
+    removeFilter(filterKey) {
       switch (filterKey) {
         case 'search':
-          this.searchInput.value = '';
+          if (this.searchInput) this.searchInput.value = '';
           break;
         case 'department':
-          this.departmentFilter.value = '';
+          if (this.departmentFilter) this.departmentFilter.value = '';
           break;
         case 'level':
-          this.levelFilter.value = '';
+          if (this.levelFilter) this.levelFilter.value = '';
           break;
         case 'featured':
-          this.featuredToggle.checked = false;
+          if (this.featuredToggle) this.featuredToggle.checked = false;
           break;
         case 'priceRange':
-          this.priceFilter.value = '';
+          if (this.priceFilter) this.priceFilter.value = '';
           break;
       }
       this.applyFilters();
     }
 
     clearAllFilters() {
-      this.searchInput.value = '';
-      this.departmentFilter.value = '';
-      this.levelFilter.value = '';
-      this.featuredToggle.checked = false;
-      this.priceFilter.value = '';
-      this.sortSelect.value = 'default';
+      if (this.searchInput) this.searchInput.value = '';
+      if (this.departmentFilter) this.departmentFilter.value = '';
+      if (this.levelFilter) this.levelFilter.value = '';
+      if (this.featuredToggle) this.featuredToggle.checked = false;
+      if (this.priceFilter) this.priceFilter.value = '';
+      if (this.sortSelect) this.sortSelect.value = 'default';
       this.applyFilters();
     }
   }
 
-  // Initialize when DOM is loaded
   document.addEventListener('DOMContentLoaded', () => {
     new CourseFilters();
   });
 </script>
 
-<style>
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
+  <style>
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
 
-  .animate-fadeIn {
-    animation: fadeIn 0.3s ease-out;
-  }
-</style>
+    .animate-fadeIn {
+      animation: fadeIn 0.3s ease-out;
+    }
+  </style>
+</div>

@@ -27,7 +27,6 @@ try {
 const course = (catalogCourse?.data ?? null) as CourseListingData | null;
 
 if (!course) {
-  // Si el catálogo vino vacío (backend caído), llevar al listado en vez de 404
   if (catalog.length === 0) {
     return Astro.redirect('/courses');
   }
