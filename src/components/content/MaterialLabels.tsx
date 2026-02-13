@@ -16,9 +16,9 @@ export interface MaterialByType {
 }
 type MaterialIconMap = Record<string, React.ReactElement>;
 export const MATERIAL_ICONS: MaterialIconMap = {
-  contenido: <BookOpenText className="mr-2" />,
-  guia: <FilePenLine className="mr-2" />,
-  soluciones: <BookOpenText className="mr-2" />,
-  videos: <FileVideoCamera className="mr-2" />,
-  extras: <RectangleEllipsis className="mr-2" />,
+  contenido: <BookOpenText />,
+  guia: <FilePenLine />,
+  soluciones: <BookOpenText />,
+  videos: <FileVideoCamera />,
+  extras: <RectangleEllipsis />,
 };

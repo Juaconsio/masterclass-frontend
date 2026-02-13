@@ -57,7 +57,7 @@ export function useConfirmAction(): UseConfirmActionReturn {
     if (!config || !isOpen) return null;
 
     return (
-      <dialog open className="modal modal-bottom sm:modal-middle z-40">
+      <dialog open className="modal modal-bottom sm:modal-middle z-[100]">
         <div className="modal-box">
           <h3 className="mb-4 text-lg font-bold">{config.title || '¿Estás seguro?'}</h3>
           <p className="py-4">{config.message}</p>
