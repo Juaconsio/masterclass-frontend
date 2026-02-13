@@ -6,6 +6,7 @@ import {
   PageHeader,
   Drawer,
   type DrawerRef,
+  DescriptionModal,
 } from '@components/UI';
 import { adminCoursesClient, type AdminCourse } from '../../client/admin/courses';
 import { useTableData } from '@/hooks/useTableData';
@@ -13,11 +14,13 @@ import { useLocalFilter } from '@/hooks/useLocalFilter';
 import { useNavigate } from 'react-router';
 import { fetchProfessors } from '@/client/admin/professors';
 import type { IProfessor } from '@/interfaces/models';
+import { FileText } from 'lucide-react';
 import { showToast } from '@/lib/toast';
 
 export default function AdminCourses() {
   const navigate = useNavigate();
   const drawerRef = useRef<DrawerRef>(null);
+  const [descriptionModalCourse, setDescriptionModalCourse] = useState<AdminCourse | null>(null);
   const [professors, setProfessors] = useState<IProfessor[]>([]);
   const [loadingProfessors, setLoadingProfessors] = useState(false);
   const [formData, setFormData] = useState({
@@ -151,6 +154,12 @@ export default function AdminCourses() {
   const actions: TableAction<AdminCourse>[] = useMemo(
     () => [
       {
+        label: 'Ver descripción',
+        icon: <FileText className="h-4 w-4" />,
+        variant: 'secondary',
+        onClick: (course) => setDescriptionModalCourse(course),
+      },
+      {
         label: 'Ver',
         variant: 'primary',
         onClick: (course) => {
@@ -199,6 +208,13 @@ export default function AdminCourses() {
           </div>
         </div>
       </div>
+
+      <DescriptionModal
+        open={!!descriptionModalCourse}
+        onClose={() => setDescriptionModalCourse(null)}
+        title={descriptionModalCourse?.title ?? ''}
+        description={descriptionModalCourse?.description ?? null}
+      />
 
       {/* Tabla de cursos */}
       <div className="card bg-base-200 shadow-xl">

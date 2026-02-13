@@ -47,9 +47,10 @@ export interface Slot {
 
 export interface Material {
   id: number;
-  title: string;
-  url: string;
-  type: string;
+  title?: string;
+  url?: string;
+  type?: string;
+  filename?: string;
   classId: number;
 }
 
@@ -57,8 +58,9 @@ export interface Class {
   id: number;
   title: string;
   description: string | null;
+  objectives?: string | null;
+  orderIndex: number;
   courseId: number;
-  createdAt: string;
   slots: Slot[];
   materials: Material[];
 }
@@ -135,6 +137,19 @@ export const adminCoursesClient = {
     orderIndex: number;
   }): Promise<Class> {
     const response = await httpClient.post<Class>('/admin/classes', payload);
+    return response.data;
+  },
+
+  async updateClass(
+    id: number,
+    payload: {
+      title?: string;
+      description?: string;
+      objectives?: string;
+      orderIndex?: number;
+    }
+  ): Promise<Class> {
+    const response = await httpClient.put<Class>(`/admin/classes/${id}`, payload);
     return response.data;
   },
 };

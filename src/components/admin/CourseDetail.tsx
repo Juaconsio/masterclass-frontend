@@ -1,6 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { adminCoursesClient, type AdminCourseDetail } from '../../client/admin/courses';
+import {
+  adminCoursesClient,
+  type AdminCourseDetail,
+  type Class,
+  type Material,
+} from '../../client/admin/courses';
 import { adminProfessorsClient } from '@/client/admin/professors';
 import {
   Table,
@@ -9,6 +14,7 @@ import {
   PageHeader,
   Drawer,
   type DrawerRef,
+  DescriptionModal,
 } from '@components/UI';
 import { FileInput, MATERIAL_ICONS, MATERIAL_LABELS } from '@components/content';
 import { fetchProfessors } from '@/client/admin/professors';
@@ -16,7 +22,7 @@ import type { IProfessor } from '@/interfaces/models';
 import { makeUploadUrl, uploadFileToBucket, confirmUpload } from '@/client/admin/material';
 import { deleteMaterial, requestReplaceUrl, confirmReplaceMaterial } from '@/client/materials';
 import clsx from 'clsx';
-import { Check, Pencil, UserPlus, UserMinus, Trash2, RefreshCw } from 'lucide-react';
+import { FileText, FolderOpen, Pencil, RefreshCw, Trash2, UserPlus } from 'lucide-react';
 import { useConfirmAction } from '@/hooks/useConfirmAction';
 import { showToast } from '@/lib/toast';
 
@@ -30,7 +36,13 @@ export default function CourseDetail() {
   const navigate = useNavigate();
   const drawerRef = useRef<DrawerRef>(null);
   const classDrawerRef = useRef<DrawerRef>(null);
+  const editClassDrawerRef = useRef<DrawerRef>(null);
+  const materialsDrawerRef = useRef<DrawerRef>(null);
+  const materialsDrawerClassIdRef = useRef<number | null>(null);
   const professorDrawerRef = useRef<DrawerRef>(null);
+  const [editingClass, setEditingClass] = useState<Class | null>(null);
+  const [descriptionModalClass, setDescriptionModalClass] = useState<Class | null>(null);
+  const [materialsDrawerClass, setMaterialsDrawerClass] = useState<Class | null>(null);
   const [professors, setProfessors] = useState<IProfessor[]>([]);
   const [loadingProfessors, setLoadingProfessors] = useState(false);
   const [formData, setFormData] = useState({
@@ -44,6 +56,7 @@ export default function CourseDetail() {
     title: '',
     description: '',
     objectives: '',
+    orderIndex: undefined as number | undefined,
   });
   const [selectedProfessorId, setSelectedProfessorId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -54,6 +67,12 @@ export default function CourseDetail() {
     loadCourse();
     loadProfessors();
   }, [courseId]);
+
+  useEffect(() => {
+    if (!course || !materialsDrawerClass) return;
+    const updated = course.classes.find((c) => c.id === materialsDrawerClass.id);
+    if (updated) setMaterialsDrawerClass(updated);
+  }, [course, materialsDrawerClass?.id]);
 
   const loadProfessors = async () => {
     try {
@@ -69,30 +88,43 @@ export default function CourseDetail() {
     }
   };
 
-  const loadCourse = async () => {
+  const loadCourse = async (): Promise<AdminCourseDetail | null> => {
     try {
       setLoading(true);
       const data = await adminCoursesClient.getById(courseId);
       setCourse(data);
+      return data;
     } catch (error) {
       console.error('Error loading course:', error);
+      return null;
     } finally {
       setLoading(false);
     }
   };
 
   const handleFileUpload = async (file: File, classId: number, filename: string) => {
+    const id = Number(classId);
+    if (!id || Number.isNaN(id)) {
+      showToast.error('Clase no válida. Cierra el panel de materiales y vuelve a abrirlo.');
+      return;
+    }
     try {
       const { uploadUrl, key, contentType } = await makeUploadUrl({
-        classId: classId,
-        filename: filename,
-        contentType: file.type || 'application/x-text',
+        classId: id,
+        filename,
+        contentType: file.type || 'application/octet-stream',
         ext: file.name.split('.').pop() || '',
       });
       await uploadFileToBucket(uploadUrl, file);
-      await confirmUpload(classId.toString(), filename, key, contentType);
+      await confirmUpload(String(id), filename, key, contentType);
       showToast.success('Material subido exitosamente');
-      await loadCourse();
+      const data = await loadCourse();
+      if (data && materialsDrawerClassIdRef.current != null) {
+        const updated = data.classes.find((c) => c.id === materialsDrawerClassIdRef.current);
+        if (updated) setMaterialsDrawerClass(updated);
+        // TODO [tech-debt]: Drawer se cierra al actualizar estado; reabrir con setTimeout es un workaround. Preferible: Drawer controlado por estado (open prop) o evitar que el re-render cierre el drawer.
+        setTimeout(() => materialsDrawerRef.current?.open(), 0);
+      }
     } catch (error) {
       console.error('Error uploading file to bucket:', error);
       showToast.error('Error al subir el material');
@@ -111,7 +143,13 @@ export default function CourseDetail() {
         try {
           await deleteMaterial(materialId);
           showToast.success('Material eliminado correctamente');
-          await loadCourse();
+          const data = await loadCourse();
+          if (data && materialsDrawerClassIdRef.current != null) {
+            const updated = data.classes.find((c) => c.id === materialsDrawerClassIdRef.current);
+            if (updated) setMaterialsDrawerClass(updated);
+            // TODO [tech-debt]: idem workaround drawer materiales (reabrir tras actualizar).
+            setTimeout(() => materialsDrawerRef.current?.open(), 0);
+          }
         } catch (error) {
           console.error('Error deleting material:', error);
           showToast.error('Error al eliminar el material');
@@ -137,7 +175,13 @@ export default function CourseDetail() {
       });
 
       showToast.success('Material reemplazado exitosamente');
-      await loadCourse();
+      const data = await loadCourse();
+      if (data && materialsDrawerClassIdRef.current != null) {
+        const updated = data.classes.find((c) => c.id === materialsDrawerClassIdRef.current);
+        if (updated) setMaterialsDrawerClass(updated);
+        // TODO [tech-debt]: idem workaround drawer materiales (reabrir tras actualizar).
+        setTimeout(() => materialsDrawerRef.current?.open(), 0);
+      }
     } catch (error) {
       console.error('Error replacing material:', error);
       showToast.error('Error al reemplazar el material');
@@ -187,8 +231,49 @@ export default function CourseDetail() {
       title: '',
       description: '',
       objectives: '',
+      orderIndex: undefined,
     });
+    setEditingClass(null);
     classDrawerRef.current?.open();
+  };
+
+  const handleOpenEditClass = (classItem: Class) => {
+    setEditingClass(classItem);
+    setClassFormData({
+      title: classItem.title,
+      description: classItem.description ?? '',
+      objectives: classItem.objectives ?? '',
+      orderIndex: classItem.orderIndex,
+    });
+    editClassDrawerRef.current?.open();
+  };
+
+  const handleOpenMaterialsDrawer = (classItem: Class) => {
+    materialsDrawerClassIdRef.current = classItem.id;
+    setMaterialsDrawerClass(classItem);
+    materialsDrawerRef.current?.open();
+  };
+
+  const handleSubmitEditClass = async () => {
+    if (!editingClass) return;
+    try {
+      setSubmittingClass(true);
+      await adminCoursesClient.updateClass(editingClass.id, {
+        title: classFormData.title,
+        description: classFormData.description,
+        objectives: classFormData.objectives,
+        orderIndex: classFormData.orderIndex,
+      });
+      showToast.success('Clase actualizada correctamente');
+      editClassDrawerRef.current?.close();
+      setEditingClass(null);
+      await loadCourse();
+    } catch (error) {
+      console.error('Error updating class:', error);
+      showToast.error('Error al actualizar la clase');
+    } finally {
+      setSubmittingClass(false);
+    }
   };
 
   const handleSubmitClass = async () => {
@@ -198,7 +283,9 @@ export default function CourseDetail() {
       setSubmittingClass(true);
       const orderIndex = course.classes.length + 1;
       await adminCoursesClient.createClass({
-        ...classFormData,
+        title: classFormData.title,
+        description: classFormData.description,
+        objectives: classFormData.objectives,
         courseId,
         orderIndex,
       });
@@ -270,8 +357,15 @@ export default function CourseDetail() {
     );
   }
 
-  // Columns for Classes table
+  const allMaterialTypes = Object.keys(MATERIAL_LABELS);
+
   const classColumns: TableColumn<(typeof course.classes)[0]>[] = [
+    {
+      key: 'orderIndex',
+      label: 'Orden',
+      sortable: true,
+      formatter: (value) => <span className="text-base-content/80 font-mono">{value}</span>,
+    },
     {
       key: 'title',
       label: 'Título',
@@ -288,92 +382,22 @@ export default function CourseDetail() {
       label: 'Materiales',
       formatter: (value, row) => {
         const materials = value || [];
-        const allTypes = Object.keys(MATERIAL_LABELS);
-
-        // Debug logging
-        if (materials.length > 0) {
-          console.log('Materials for class', row.title, ':', materials);
-        }
-
+        const count = materials.length;
+        const total = allMaterialTypes.length;
         return (
-          <div className="flex flex-col gap-2">
-            {allTypes.map((type) => {
-              const material = materials.find((m: any) => m.filename === type);
-              const exists = !!material;
-
-              return (
-                <div
-                  key={type}
-                  className={clsx(
-                    'flex items-center justify-between gap-2 rounded p-1',
-                    exists ? 'bg-green-50' : 'bg-gray-300/50'
-                  )}
-                >
-                  <span
-                    className={clsx(
-                      'flex items-center gap-1 text-sm',
-                      exists ? 'text-green-700/80' : 'text-base-content/40'
-                    )}
-                  >
-                    {MATERIAL_ICONS[type]}
-                    {MATERIAL_LABELS[type]}
-                    {exists && <Check className="inline-block h-4 w-4" />}
-                  </span>
-
-                  {exists && material?.id ? (
-                    <div className="flex gap-1">
-                      <FileInput
-                        acceptedFileTypes={['image/*', 'application/pdf']}
-                        onFileUpload={async (file, _) => {
-                          await handleReplaceMaterial(material.id, file, type);
-                        }}
-                        maxSizeMB={5}
-                        buttonText=""
-                        modalTitle={`Reemplazar ${MATERIAL_LABELS[type]}`}
-                        fixedType={type}
-                        customButton={
-                          <button className="btn btn-ghost btn-xs" title="Reemplazar material">
-                            <RefreshCw className="h-3 w-3" />
-                          </button>
-                        }
-                      />
-                      <button
-                        className="btn btn-ghost btn-xs text-error"
-                        onClick={() => {
-                          console.log('Deleting material:', material);
-                          if (!material?.id) {
-                            console.error('Material ID is undefined:', material);
-                            return;
-                          }
-                          handleDeleteMaterial(material.id, type);
-                        }}
-                        title="Eliminar material"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ) : exists && !material?.id ? (
-                    <span className="text-error text-xs">Error: ID no disponible</span>
-                  ) : (
-                    <FileInput
-                      acceptedFileTypes={['image/*', 'application/pdf']}
-                      onFileUpload={async (file, _) => {
-                        await handleFileUpload(file, row.id, type);
-                      }}
-                      maxSizeMB={5}
-                      buttonText="Subir"
-                      modalTitle={`Subir ${MATERIAL_LABELS[type]}`}
-                      fixedType={type}
-                      customButton={
-                        <button className="btn btn-primary btn-xs" title="Subir material">
-                          Subir
-                        </button>
-                      }
-                    />
-                  )}
-                </div>
-              );
-            })}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={clsx('badge', count >= total ? 'badge-success' : 'badge-ghost')}>
+              {count}/{total}
+            </span>
+            <button
+              type="button"
+              className="btn btn-ghost btn-xs gap-1"
+              onClick={() => handleOpenMaterialsDrawer(row)}
+              title="Gestionar materiales"
+            >
+              <FolderOpen className="h-3.5 w-3.5" />
+              Gestionar
+            </button>
           </div>
         );
       },
@@ -382,11 +406,16 @@ export default function CourseDetail() {
 
   const classActions: TableAction<(typeof course.classes)[0]>[] = [
     {
-      label: 'Ver',
+      label: 'Ver descripción',
+      icon: <FileText className="h-4 w-4" />,
+      variant: 'secondary',
+      onClick: (classItem) => setDescriptionModalClass(classItem),
+    },
+    {
+      label: 'Editar',
+      icon: <Pencil className="h-4 w-4" />,
       variant: 'primary',
-      onClick: (classItem) => {
-        console.log('Ver clase:', classItem);
-      },
+      onClick: (classItem) => handleOpenEditClass(classItem),
     },
   ];
 
@@ -871,6 +900,203 @@ export default function CourseDetail() {
       </Drawer>
 
       <Drawer
+        ref={editClassDrawerRef}
+        title="Editar Clase"
+        width="lg"
+        actions={[
+          {
+            label: 'Cancelar',
+            variant: 'ghost',
+            onClick: () => editClassDrawerRef.current?.close(),
+          },
+          {
+            label: 'Guardar Cambios',
+            variant: 'primary',
+            onClick: handleSubmitEditClass,
+            loading: submittingClass,
+            disabled: !classFormData.title || classFormData.orderIndex == null,
+          },
+        ]}
+      >
+        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-semibold">Título *</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Ej: Introducción a Límites"
+              className="input input-bordered w-full"
+              value={classFormData.title}
+              onChange={(e) => setClassFormData({ ...classFormData, title: e.target.value })}
+              required
+            />
+          </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-semibold">Descripción</span>
+            </label>
+            <textarea
+              placeholder="Descripción de la clase..."
+              className="textarea textarea-bordered h-24 w-full"
+              value={classFormData.description}
+              onChange={(e) => setClassFormData({ ...classFormData, description: e.target.value })}
+            />
+          </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-semibold">Objetivos</span>
+            </label>
+            <textarea
+              placeholder="Objetivos de aprendizaje de la clase..."
+              className="textarea textarea-bordered h-24 w-full"
+              value={classFormData.objectives}
+              onChange={(e) => setClassFormData({ ...classFormData, objectives: e.target.value })}
+            />
+          </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-semibold">Orden</span>
+            </label>
+            <input
+              type="number"
+              min={1}
+              className="input input-bordered w-full"
+              value={classFormData.orderIndex ?? ''}
+              onChange={(e) =>
+                setClassFormData({
+                  ...classFormData,
+                  orderIndex: e.target.value ? Number(e.target.value) : undefined,
+                })
+              }
+            />
+          </div>
+        </form>
+      </Drawer>
+
+      <Drawer
+        ref={materialsDrawerRef}
+        title={
+          materialsDrawerClass
+            ? `Materiales: ${materialsDrawerClass.title}`
+            : 'Gestionar materiales'
+        }
+        width="lg"
+        actions={[
+          {
+            label: 'Cerrar',
+            variant: 'ghost',
+            onClick: () => materialsDrawerRef.current?.close(),
+          },
+        ]}
+      >
+        {materialsDrawerClass && (
+          <div className="space-y-4">
+            <p className="text-base-content/60 text-sm">
+              Administra los archivos por tipo de material.
+            </p>
+            <div className="flex flex-col gap-2">
+              {allMaterialTypes.map((type) => {
+                const materials = materialsDrawerClass.materials || [];
+                const material = materials.find((m: Material) => m.filename === type);
+                const exists = !!material;
+
+                return (
+                  <div
+                    key={type}
+                    className={clsx(
+                      'flex items-center justify-between gap-4 rounded-xl border px-4 py-3 transition-colors',
+                      exists
+                        ? 'border-success/40 bg-success/5 dark:bg-success/10'
+                        : 'border-base-300 bg-base-200/50'
+                    )}
+                  >
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <span
+                        className={clsx(
+                          'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
+                          exists ? 'bg-success/20 text-success' : 'bg-base-300 text-base-content/50'
+                        )}
+                      >
+                        {MATERIAL_ICONS[type]}
+                      </span>
+                      <p
+                        className={clsx(
+                          'font-medium',
+                          exists ? 'text-base-content' : 'text-base-content/70'
+                        )}
+                        title={MATERIAL_LABELS[type]}
+                      >
+                        {MATERIAL_LABELS[type]}
+                      </p>
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-2">
+                      {exists && material?.id ? (
+                        <>
+                          <FileInput
+                            acceptedFileTypes={['image/*', 'application/pdf']}
+                            onFileUpload={async (file) => {
+                              await handleReplaceMaterial(material.id, file, type);
+                            }}
+                            maxSizeMB={5}
+                            buttonText=""
+                            modalTitle={`Reemplazar ${MATERIAL_LABELS[type]}`}
+                            fixedType={type}
+                            customButton={
+                              <button
+                                type="button"
+                                className="btn btn-outline btn-sm gap-1.5"
+                                title="Reemplazar material"
+                              >
+                                <RefreshCw className="h-3.5 w-3.5" />
+                              </button>
+                            }
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-outline btn-sm text-error hover:bg-error/10 gap-1.5"
+                            onClick={() => handleDeleteMaterial(material.id, type)}
+                            title="Eliminar material"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      ) : exists && !material?.id ? (
+                        <span className="text-error text-sm">Error: ID no disponible</span>
+                      ) : (
+                        <FileInput
+                          acceptedFileTypes={['image/*', 'application/pdf']}
+                          onFileUpload={async (file) => {
+                            const classId =
+                              materialsDrawerClassIdRef.current ?? materialsDrawerClass.id;
+                            await handleFileUpload(file, classId, type);
+                          }}
+                          maxSizeMB={5}
+                          buttonText="Subir"
+                          modalTitle={`Subir ${MATERIAL_LABELS[type]}`}
+                          fixedType={type}
+                          customButton={
+                            <button
+                              type="button"
+                              className="btn btn-primary btn-sm gap-1.5"
+                              title="Subir material"
+                            >
+                              Subir
+                            </button>
+                          }
+                        />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </Drawer>
+
+      <Drawer
         ref={professorDrawerRef}
         title="Asociar Profesor al Curso"
         width="lg"
@@ -930,6 +1156,18 @@ export default function CourseDetail() {
           )}
         </div>
       </Drawer>
+
+      <DescriptionModal
+        open={!!descriptionModalClass}
+        onClose={() => setDescriptionModalClass(null)}
+        title={descriptionModalClass?.title ?? ''}
+        description={descriptionModalClass?.description ?? null}
+        sections={
+          descriptionModalClass
+            ? [{ label: 'Objetivos', content: descriptionModalClass.objectives ?? null }]
+            : []
+        }
+      />
 
       <ConfirmationModal />
     </div>
