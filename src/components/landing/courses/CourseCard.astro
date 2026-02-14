@@ -9,12 +9,17 @@ const { course } = Astro.props;
 ---
 
 <div
-  class="card shadow-xl hover:shadow-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2 course-card"
+  class="card relative shadow-xl hover:shadow-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2 course-card md:cursor-pointer"
   data-department={course.data.department}
   data-level={course.data.level}
   data-acronym={course.data.acronym}
   data-usal-trigger="50%"
 >
+  <a
+    class="hidden md:block absolute inset-0 z-10"
+    href={'/courses/' + course.slug}
+    aria-label={`Abrir curso ${course.data.acronym} - ${course.data.title}`}
+  />
   <!-- Course Image -->
   {
     course.data.image ? (
@@ -79,7 +84,7 @@ const { course } = Astro.props;
     <div class="card-actions justify-end pt-3 sm:pt-4 border-t border-base-300">
       <a
         href={'/courses/' + course.slug}
-        class="btn btn-primary btn-sm sm:btn-md btn-block hover:btn-primary-focus transition-colors group"
+        class="btn btn-primary btn-sm sm:btn-md btn-block hover:btn-primary-focus transition-colors group relative z-20"
       >
         Reservar
       </a>
