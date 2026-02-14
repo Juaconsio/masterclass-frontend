@@ -59,6 +59,10 @@
 }
 
 @layer base {
+  html {
+    @apply w-full overflow-x-hidden;
+  }
+
   body {
     @apply text-base-content min-h-[var(--app-dvh)] w-full overflow-x-hidden bg-white pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] antialiased;
   }

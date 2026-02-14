@@ -1,10 +1,10 @@
 ---
 department: "Ingeniería"
 level: "Plan Común"
-description: "Preparación para el examen Fundamentals: menos teoría, más ejercicios tipo prueba. Talleres por área (Matemáticas y Ciencias) con enfoque práctico desde el primer minuto."
 basePrice: 12_500
 featured: true
 ---
+
 ¿Complicado con el Fundamentals? La prueba del plan común de Ingeniería UC exige dominio de muchas áreas a la vez: cálculo, álgebra, ecuaciones diferenciales, probabilidad y estadística, y las ciencias de base (dinámica, termodinámica, química, electricidad y magnetismo). Sabemos exactamente cómo viene la prueba y hemos diseñado una preparación pensada como el examen:
 
 - **Menos teoría eterna** — Solo lo necesario para entender y aplicar.
@@ -21,4 +21,3 @@ Trabajamos en formato **taller grupal**: resolvemos ejercicios en conjunto, expl
 - **Clases:** Grupales (3–5 personas)  
 - **Precio:** $12.500 por sesión  
 - **Disponibilidad:** Desde esta semana hasta la fecha del examen  
-

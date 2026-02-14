@@ -3,9 +3,9 @@
 
 ## Talleres
 
-La preparación se organiza en **tres talleres por cada área** (Matemáticas y Ciencias). A continuación se describen los contenidos de cada taller.
+La preparación para el examen se organiza en dos grandes bloques: Matemáticas y Ciencias, cada uno con un total de tres talleres.
 
-## Talleres — Área Matemáticas (3 talleres)
+## Matemáticas
 
 ### Taller I — Cálculo I, II y III
 
@@ -18,12 +18,11 @@ La preparación se organiza en **tres talleres por cada área** (Matemáticas y 
 - **Álgebra lineal:** Escalonada reducida, dependencia lineal, sistemas Ax=b y AX=B, inversas y bases de subespacios; interpretación geométrica (complemento ortogonal, sistemas de ecuaciones); propiedades de operaciones matriciales, matrices elementales, triangulares, simétricas, determinantes; transformaciones lineales, cambio de base; valores y vectores propios, diagonalización, matrices simétricas.
 - **Ecuaciones diferenciales:** Modelado de situaciones con EDO; reconocimiento de tipo (lineal/no lineal, orden, grado) y métodos de solución; soluciones de ecuaciones lineales y sistemas lineales 2×2 y 3×3 de coeficientes constantes.
 
-### Taller III — Cálculo III (complementos) y probabilidad y estadística
+### Taller III — Probabilidad y estadística
 
-- **Cálculo III:** Refuerzo de integral múltiple, curvas de nivel y derivadas direccionales según programa.
 - **Probabilidad y estadística:** Álgebra de eventos, axiomas, probabilidad clásica (conteo), condicional, independencia, teoremas de probabilidades totales y de Bayes; variables aleatorias, medidas descriptivas (media, varianza, percentiles, etc.); modelos univariados (Binomial, Poisson, Normal, Exponencial, etc.) y uso de R; estimación, intervalos de confianza, tests de hipótesis (chi-cuadrado, KS); regresión lineal, coeficiente de determinación, tests t y F.
 
-## Talleres — Área Ciencias (3 talleres)
+## Ciencias
 
 ### Taller Ciencias I — Dinámica
 

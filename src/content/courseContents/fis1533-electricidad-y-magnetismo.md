@@ -1,8 +1,5 @@
 ---
 ---
-
-
-
 ## Contenidos Principales
 
 ### Clase 1 — Carga, Fuerza Eléctrica y Campo Eléctrico (cargas puntuales)

@@ -1,10 +1,10 @@
 ---
 department: "Física"
 level: "Plan Común"
-description: "Dinamica. Que susto "
 basePrice: 15_000
 featured: true
 ---
+
 ## Descripción general
 
 Este curso se centra en el estudio del movimiento y las fuerzas que lo producen, uno de los pilares de la mecánica clásica. Comenzamos con la cinemática, analizando cómo describir trayectorias en distintas coordenadas —desde el movimiento rectilíneo hasta el circular y curvilíneo en polares y cilíndricas— para luego introducir las leyes de Newton, que permiten modelar la dinámica de partículas mediante diagramas de cuerpo libre, considerando fuerzas como peso, normal, rozamiento, elásticas y tensiones en sistemas con poleas o ligaduras.
