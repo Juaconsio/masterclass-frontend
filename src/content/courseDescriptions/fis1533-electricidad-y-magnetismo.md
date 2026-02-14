@@ -1,7 +1,6 @@
 ---
 department: "Física"
 level: "Plan Común"
-description: "Electro. Que susto "
 basePrice: 15_000
 featured: true
 ---

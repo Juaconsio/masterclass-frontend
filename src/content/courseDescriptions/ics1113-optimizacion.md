@@ -1,7 +1,6 @@
 ---
 department: "Industrial"
 level: "Major"
-description: "Opti. Que susto "
 basePrice: 11_000
 featured: true
 ---

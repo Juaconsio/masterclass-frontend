@@ -1,8 +1,6 @@
 ---
 ---
-
 ## Contenidos Principales
-
 
 ### Módulo 1: Límites y Continuidad
 - Concepto intuitivo y formal de límite

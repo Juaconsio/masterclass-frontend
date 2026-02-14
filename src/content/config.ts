@@ -10,8 +10,6 @@ const courseDescriptionSchema = z.object({
     'Ingeniería',
   ]),
   level: z.enum(['Plan Común', 'Major', 'Minor']),
-  description: z.string(),
-  prerequisites: z.array(z.string()).optional(),
   basePrice: z.number(),
   featured: z.boolean().default(false),
 });

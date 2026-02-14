@@ -1,7 +1,6 @@
 ---
 department: "Ingeniería"
 level: "Plan Común"
-description: "Preparación para el examen Fundamentals: menos teoría, más ejercicios tipo prueba. Talleres por área (Matemáticas y Ciencias) con enfoque práctico desde el primer minuto."
 basePrice: 12_500
 featured: true
 ---

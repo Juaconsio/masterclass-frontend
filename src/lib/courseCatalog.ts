@@ -36,11 +36,10 @@ function mergeCourse(
       slug: baseCourse.slug,
       acronym: baseCourse.acronym,
       title: baseCourse.title,
-      description: data?.description ?? baseCourse.description,
+      description: baseCourse.description,
       department: data?.department ?? defaultMarketing.department,
       level: data?.level ?? defaultMarketing.level,
       basePrice: data?.basePrice ?? defaultMarketing.basePrice,
-      prerequisites: data?.prerequisites,
       featured: data?.featured ?? defaultMarketing.featured,
     },
   };

@@ -7,7 +7,6 @@ export interface Course {
   level: Level;
   description: string;
   basePrice: number;
-  prerequisites?: string[];
   image?: string;
   featured: boolean;
 }
@@ -30,7 +29,6 @@ export interface CourseListingData {
   department: Department;
   level: Level;
   basePrice: number;
-  prerequisites?: string[];
   image?: string;
   featured: boolean;
 }
