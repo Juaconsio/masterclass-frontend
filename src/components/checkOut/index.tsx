@@ -4,6 +4,9 @@ import { createReservation } from '../../client/reservations';
 import { useSessionContext } from '../../context/SessionContext';
 import type { IPricingPlan, ISlot, ICourse } from '../../interfaces/models';
 import { TriangleAlert } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { getHttpErrorMessage } from '@/lib/errorMessages';
+import { clearAuthStorage } from '@client/authStorage';
 
 type CheckoutProps = {
   courseId?: string | number;
@@ -21,20 +24,54 @@ function useQueryParams() {
   }, []);
 }
 
+/** Limpia credenciales locales y redirige a inicio de sesión. */
+function clearAuthAndGoToLogin() {
+  clearAuthStorage();
+  window.location.href = '/ingresar?type=user';
+}
+
+function getReservationUiError(error: any) {
+  const status = error?.response?.status;
+  const code = error?.response?.data?.code;
+
+  if (status === 401) {
+    return {
+      message: 'Tu sesión expiró o no es válida. Inicia sesión nuevamente para continuar.',
+      action: 'login' as const,
+    };
+  }
+
+  if (status === 403 && code === 'EMAIL_NOT_CONFIRMED') {
+    return {
+      message:
+        'Debes confirmar tu email antes de reservar. Revisa tu bandeja de entrada (y spam) y vuelve a intentar.',
+    };
+  }
+
+  return { message: getHttpErrorMessage(error) };
+}
+
 export default function CheckoutView(props: CheckoutProps) {
   const qp = useQueryParams();
-  const { isAuthenticated, isLoading: authLoading } = useSessionContext();
+  const { isAuthenticated, isLoading: authLoading, user } = useSessionContext();
 
   const courseId = props.courseId ?? qp.courseId;
   const courseAcronym = props.courseAcronym ?? qp.courseAcronym;
   const slotId = props.slotId ?? qp.slotId;
 
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ message: string; action?: 'login' | 'switchAccount' } | null>(
+    null
+  );
   const [pricingPlans, setPricingPlans] = useState<IPricingPlan[]>([]);
   const [selectedPricingPlanId, setSelectedPricingPlanId] = useState<string | number | null>(null);
   const [course, setCourse] = useState<ICourse | null>(null);
   const [slot, setSlot] = useState<ISlot | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const role = (user as any)?.role as string | undefined;
+  const isStudent = !role || role === 'user';
+  const canSubmit = !!selectedPricingPlanId && !isSubmitting && !authLoading && (!isAuthenticated || isStudent);
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -47,22 +84,36 @@ export default function CheckoutView(props: CheckoutProps) {
             if (courseAcronym) options.courseAcronym = courseAcronym;
             if (slotId) options.slotId = Number(slotId);
             const res = await getCourseEnroll(options);
+            if (!mounted) return;
             setCourse(res.course);
             setSlot(res.slot);
             setPricingPlans(res.pricingPlans);
           } catch {}
         }
       } catch (e: any) {
-        setError(e?.message ?? 'No se pudo cargar los planes');
+        if (!mounted) return;
+        setError({ message: e?.message ?? 'No se pudo cargar los planes' });
       }
     })();
     return () => {
       mounted = false;
     };
-  }, [courseId, slotId]);
+  }, [courseId, slotId, courseAcronym]);
 
   const handleReserve = async () => {
+    if (authLoading) {
+      setError({ message: 'Estamos validando tu sesión. Intenta nuevamente en unos segundos.' });
+      return;
+    }
     if (!selectedPricingPlanId || !slotId || !course) return;
+    if (isAuthenticated && !isStudent) {
+      setError({
+        message:
+          'Estás autenticado como Profesor/Admin. Para reservar necesitas iniciar sesión como Estudiante.',
+        action: 'switchAccount',
+      });
+      return;
+    }
 
     setIsSubmitting(true);
     setError(null);
@@ -105,10 +156,19 @@ export default function CheckoutView(props: CheckoutProps) {
         window.location.href = '/registrar';
       }
     } catch (e: any) {
-      setError(
-        e?.message ||
-          'Error al procesar la reserva, por favor intenta nuevamente. Si el problema persiste, contáctanos.'
-      );
+      const uiError = getReservationUiError(e);
+      setError(uiError);
+      if (uiError.action === 'login') {
+        toast.error('Sesión expirada. Vuelve a iniciar sesión.');
+        try {
+          localStorage.removeItem('user');
+          localStorage.removeItem('token');
+        } catch {
+          // noop
+        }
+      } else {
+        toast.error(uiError.message);
+      }
       setIsSubmitting(false);
     }
   };
@@ -241,6 +301,52 @@ export default function CheckoutView(props: CheckoutProps) {
                 </div>
                 <div className="divider" />
 
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-base-content/60">Plan</span>
+                    <span className="font-medium">
+                      {pricingPlans.find((p) => p.id === selectedPricingPlanId)?.name || '—'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-base-content/60">Total</span>
+                    <span className="font-semibold">
+                      {selectedPricingPlanId
+                        ? new Intl.NumberFormat('es-CL', {
+                            style: 'currency',
+                            currency: 'CLP',
+                          }).format(
+                            pricingPlans.find((p) => p.id === selectedPricingPlanId)?.price || 0
+                          )
+                        : '—'}
+                    </span>
+                  </div>
+                </div>
+
+                {authLoading && (
+                  <div className="alert alert-info mt-4">
+                    <span className="text-sm">Validando sesión...</span>
+                  </div>
+                )}
+
+                {isAuthenticated && !authLoading && !isStudent && (
+                  <div className="alert alert-warning mt-4">
+                    <TriangleAlert className="h-6 w-6 flex-shrink-0" />
+                    <div className="text-sm">
+                      <p className="font-semibold">Sesión con rol no compatible</p>
+                      <p>
+                        Estás logueado como <span className="font-medium">{role}</span>. Para
+                        reservar necesitas una cuenta de estudiante.
+                      </p>
+                      <div className="mt-3">
+                        <button className="btn btn-sm btn-outline" onClick={clearAuthAndGoToLogin}>
+                          Cambiar cuenta
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {!isAuthenticated && !authLoading && (
                   <div className="alert alert-info">
                     <TriangleAlert className="h-6 w-6 flex-shrink-0" />
@@ -264,10 +370,35 @@ export default function CheckoutView(props: CheckoutProps) {
                 <h2 className="card-title">Elige tu plan</h2>
                 {error && (
                   <div className="alert alert-error">
-                    <span>{error}</span>
+                    <div className="flex w-full items-start justify-between gap-4">
+                      <span>{error.message}</span>
+                      {error.action === 'login' && (
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline"
+                          onClick={clearAuthAndGoToLogin}
+                        >
+                          Iniciar sesión
+                        </button>
+                      )}
+                      {error.action === 'switchAccount' && (
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline"
+                          onClick={clearAuthAndGoToLogin}
+                        >
+                          Cambiar cuenta
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
-                {!error && (
+                {!error && pricingPlans.length === 0 && (
+                  <div className="alert alert-warning">
+                    <span>No hay planes disponibles para este horario.</span>
+                  </div>
+                )}
+                {!error && pricingPlans.length > 0 && (
                   <form
                     className="grid gap-4 md:grid-cols-2"
                     onSubmit={(e) => {
@@ -309,7 +440,7 @@ export default function CheckoutView(props: CheckoutProps) {
                       <button
                         type="submit"
                         className="btn btn-primary btn-lg"
-                        disabled={!selectedPricingPlanId || isSubmitting}
+                        disabled={!canSubmit}
                       >
                         {isSubmitting ? (
                           <>

@@ -1,5 +1,5 @@
 import { httpClient } from '../config';
-import type { Payment } from '@/interfaces';
+import type { IPayment } from '@/interfaces';
 import { buildQueryString } from '@/lib/queryParams';
 import type { Filters, TableResponse } from '@/interfaces';
 
@@ -12,13 +12,13 @@ export interface PaymentsFilters extends Filters {
   courseId?: number;
 }
 
-export async function getPayments(filters?: PaymentsFilters): Promise<TableResponse<Payment>> {
+export async function getPayments(filters?: PaymentsFilters): Promise<TableResponse<IPayment>> {
   const queryString = buildQueryString(filters);
   const response = await httpClient.get(`/admin/payments${queryString}`);
   return response.data;
 }
 
-export async function updatePayment(id: number, data: Partial<Payment>): Promise<Payment> {
+export async function updatePayment(id: number, data: Partial<IPayment>): Promise<IPayment> {
   const response = await httpClient.put(`/admin/payments/${id}`, data);
   return response.data;
 }

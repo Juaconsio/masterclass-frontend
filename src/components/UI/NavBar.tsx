@@ -5,7 +5,6 @@ import {
   User,
   LogOut,
   LayoutDashboard,
-  ShieldCheck,
   GraduationCap,
   Calendar,
   CreditCard,
@@ -15,6 +14,7 @@ import {
 import clsx from 'clsx';
 import { Link, useLocation } from 'react-router';
 import { useSessionContext } from '@/context/SessionContext';
+import { clearAuthStorage } from '@client/authStorage';
 
 type NavLink = {
   label: string;
@@ -82,12 +82,7 @@ const NavBar: React.FC = () => {
   };
 
   const handleLogout = () => {
-    try {
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
-    } catch (e) {
-      // noop
-    }
+    clearAuthStorage();
     window.location.href = '/';
   };
 

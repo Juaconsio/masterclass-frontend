@@ -17,6 +17,7 @@ interface EventFormDrawerProps {
   onSubmit: (values: EventFormValues) => void | Promise<void>;
   submitLabel?: string;
   onClose?: () => void;
+  lockedByReservations?: boolean;
 }
 
 const EventFormDrawer = forwardRef<EventFormDrawerRef, EventFormDrawerProps>(
@@ -26,7 +27,8 @@ const EventFormDrawer = forwardRef<EventFormDrawerRef, EventFormDrawerProps>(
       initialValues,
       onSubmit,
       submitLabel = 'Guardar',
-      onClose
+      onClose,
+      lockedByReservations = false,
     },
     ref
   ) => {
@@ -91,6 +93,7 @@ const EventFormDrawer = forwardRef<EventFormDrawerRef, EventFormDrawerProps>(
           submitLabel={submitLabel}
           onCancel={handleCancel}
           showActions={false}
+          lockedByReservations={lockedByReservations}
           onDataStateChange={({ ready }) => setCanSubmit(ready)}
         />
       </Drawer>

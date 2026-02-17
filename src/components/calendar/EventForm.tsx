@@ -16,6 +16,7 @@ interface EventFormProps {
   showActions?: boolean;
   mode?: 'create' | 'edit';
   onDataStateChange?: (state: { loading: boolean; error: string | null; ready: boolean }) => void;
+  lockedByReservations?: boolean;
 }
 
 function normalizeInitialValues(values?: Partial<EventFormValues>): EventFormValues {
@@ -54,6 +55,7 @@ export default function EventForm({
   showActions = true,
   mode,
   onDataStateChange,
+  lockedByReservations = false,
 }: EventFormProps) {
   const [professors, setProfessors] = useState<Pick<IProfessor, 'id' | 'name'>[]>([]);
   const [courses, setCourses] = useState<IPlainCourse[]>([]);
@@ -69,6 +71,8 @@ export default function EventForm({
   const client = isProfessor ? professorCoursesClient : adminCoursesClient;
 
   const isEditMode = mode === 'edit' || (mode === undefined && initialValues?.courseId != null);
+  const isLocked = Boolean(lockedByReservations) && isEditMode;
+  const canEditCourseClassInEdit = !isProfessor && !isLocked;
 
   // Normalizar initialValues para asegurar que no haya undefined
   const normalizedValues = normalizeInitialValues(initialValues);
@@ -142,6 +146,7 @@ export default function EventForm({
     const selectedCourse = courses.find((c) => c.id === watchCourseId);
     const newClasses = selectedCourse?.classes || [];
     setClasses(newClasses);
+    setProfessors(selectedCourse?.professors || []);
   }, [watchCourseId, courses]);
 
   useEffect(() => {
@@ -160,6 +165,13 @@ export default function EventForm({
       aria-busy={isSubmitting}
       className="flex flex-col gap-4"
     >
+      {isLocked && (
+        <div role="status" className="alert alert-info alert-soft">
+          <span className="text-sm">
+            Este slot tiene reservas registradas. Solo puedes editar profesor, estado y cupos.
+          </span>
+        </div>
+      )}
       {fetchError && (
         <div role="alert" className="alert alert-error alert-soft">
           <CircleX className="h-4 w-4" />
@@ -204,7 +216,7 @@ export default function EventForm({
               <div className="space-y-3">
                 <div>
                   <label className="label">Cursos</label>
-                  {isEditMode ? (
+                  {isEditMode && !canEditCourseClassInEdit ? (
                     <p className="input input-bordered flex w-full items-center">
                       {courses.find((c) => c.id === watchCourseId)?.title || 'No seleccionado'}
                     </p>
@@ -230,13 +242,14 @@ export default function EventForm({
                           }}
                         >
                           <option value="">Seleccione un curso</option>
-                          {courses
-                            .filter((cls) =>
-                              watchProfessorId == null
-                                ? true
-                                : cls.professors?.some((prof) => prof.id === watchProfessorId)
-                            )
-                            .map((cls: IPlainCourse) => (
+                          {(isEditMode && canEditCourseClassInEdit
+                            ? courses
+                            : courses.filter((cls) =>
+                                watchProfessorId == null
+                                  ? true
+                                  : cls.professors?.some((prof) => prof.id === watchProfessorId)
+                              )
+                          ).map((cls: IPlainCourse) => (
                               <option key={cls.id} value={cls.id}>
                                 {cls.title}
                               </option>
@@ -261,7 +274,7 @@ export default function EventForm({
                         id="professor"
                         className="select select-bordered w-full"
                         value={field.value ?? ''}
-                        disabled={loadingData || isSubmitting}
+                        disabled={loadingData || isSubmitting || (isProfessor && isEditMode)}
                         onChange={(e) => {
                           const v = e.target.value;
                           const num = v === '' ? null : Number(v);
@@ -289,7 +302,7 @@ export default function EventForm({
 
                 <div>
                   <label className="label">Clases</label>
-                  {isEditMode ? (
+                  {isEditMode && !canEditCourseClassInEdit ? (
                     <p className="input input-bordered flex w-full items-center">
                       {classes.find((c) => c.id === watch('classId'))?.title || 'No seleccionado'}
                     </p>
@@ -354,7 +367,7 @@ export default function EventForm({
                     <input
                       type="date"
                       className="input input-bordered w-full"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || isLocked}
                       value={
                         field.value instanceof Date ? field.value.toISOString().split('T')[0] : ''
                       }
@@ -398,7 +411,7 @@ export default function EventForm({
                 {errors.start && <p className="text-error text-sm">{errors.start.message}</p>}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="label">Hora de inicio</label>
                   <Controller
@@ -420,7 +433,7 @@ export default function EventForm({
                       <input
                         type="time"
                         className="input input-bordered w-full"
-                        disabled={isSubmitting}
+                          disabled={isSubmitting || isLocked}
                         value={
                           field.value instanceof Date
                             ? `${String(field.value.getHours()).padStart(2, '0')}:${String(field.value.getMinutes()).padStart(2, '0')}`
@@ -475,7 +488,7 @@ export default function EventForm({
                       <input
                         type="time"
                         className="input input-bordered w-full"
-                        disabled={isSubmitting}
+                          disabled={isSubmitting || isLocked}
                         value={
                           field.value instanceof Date
                             ? `${String(field.value.getHours()).padStart(2, '0')}:${String(field.value.getMinutes()).padStart(2, '0')}`
@@ -517,7 +530,7 @@ export default function EventForm({
                 <select
                   {...register('modality', { required: 'Modalidad es obligatoria' })}
                   className="select select-bordered w-full"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isLocked}
                 >
                   <option value="">Selecciona una modalidad</option>
                   <option value="remote">Online</option>
@@ -533,7 +546,7 @@ export default function EventForm({
                     required: 'Clase grupal o individual es obligatoria',
                   })}
                   className="select select-bordered w-full"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isLocked}
                   onChange={async (e) => {
                     const handler = register('studentsGroup').onChange;
                     if (handler) handler(e);
@@ -572,7 +585,7 @@ export default function EventForm({
               </div>
 
               {watch('studentsGroup') === 'group' && (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <label className="label">Mínimo</label>
                     <input
