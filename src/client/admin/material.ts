@@ -19,10 +19,14 @@ export async function makeUploadUrl(payload: makeUploadUrlPayload): Promise<Uplo
   return data;
 }
 
-export async function uploadFileToBucket(uploadUrl: string, file: File): Promise<void> {
+export async function uploadFileToBucket(
+  uploadUrl: string,
+  file: File,
+  contentType?: string
+): Promise<void> {
   await axios.put(uploadUrl, file, {
     headers: {
-      'Content-Type': file.type,
+      'Content-Type': contentType || file.type || 'application/octet-stream',
     },
   });
 }

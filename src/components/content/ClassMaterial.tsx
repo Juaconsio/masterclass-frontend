@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
 import { getMyClassMaterials } from '@client/student/materials';
-import axios from 'axios';
+import type React from 'react';
 import { MATERIAL_LABELS, type MaterialByType, MATERIAL_ICONS } from './MaterialLabels';
 import PDFViewer from './PDFViewer';
 
@@ -27,12 +27,16 @@ export default function ClassMaterial() {
       try {
         const data = await getMyClassMaterials(Number(classId));
 
-        setMaterialsByType(
-          data.materials.map((mat) => ({
-            type: mat.filename,
-            pdfUrl: mat.downloadUrl,
-            filename: mat.filename,
-          }))
+        const nextMaterials = data.materials.map((mat) => ({
+          type: mat.filename,
+          url: mat.downloadUrl,
+          mimeType: mat.mimeType,
+          filename: mat.filename,
+        }));
+
+        setMaterialsByType(nextMaterials);
+        setSelectedType((prev) =>
+          nextMaterials.some((m) => m.type === prev) ? prev : nextMaterials[0]?.type || prev
         );
       } catch (error: any) {
         console.error('Error loading material:', error);
@@ -112,9 +116,8 @@ export default function ClassMaterial() {
             <>
               <div role="tablist" className="tabs tabs-border px-4 pt-4">
                 {materialsByType.map((material) => (
-                  <label className="tab">
+                  <label key={material.type} className="tab">
                     <input
-                      key={material.type}
                       type="radio"
                       name="material_tabs"
                       role="tab"
@@ -133,12 +136,36 @@ export default function ClassMaterial() {
       </div>
 
       <div className="flex flex-1 flex-col">
-        {materialsByType.find((m) => m.type === selectedType) && (
-          <PDFViewer
-            pdfUrl={materialsByType.find((m) => m.type === selectedType)!.pdfUrl}
-            title={MATERIAL_LABELS[selectedType]}
-          />
-        )}
+        {materialsByType.find((m) => m.type === selectedType) && (() => {
+          const selected = materialsByType.find((m) => m.type === selectedType)!;
+
+          if (selected.mimeType === 'video/mp4') {
+            const videoAttrs: React.VideoHTMLAttributes<HTMLVideoElement> = {
+              controls: true,
+              playsInline: true,
+              preload: 'metadata',
+              disablePictureInPicture: true,
+              disableRemotePlayback: true,
+              onContextMenu: (e) => e.preventDefault(),
+            };
+
+            return (
+              <div className="flex h-screen w-full flex-col">
+                <video
+                  className="h-full w-full flex-1"
+                  {...videoAttrs}
+                  {...({
+                    controlsList: 'nodownload noplaybackrate noremoteplayback',
+                  } as any)}
+                >
+                  <source src={selected.url} type={selected.mimeType} />
+                </video>
+              </div>
+            );
+          }
+
+          return <PDFViewer pdfUrl={selected.url} title={MATERIAL_LABELS[selectedType]} />;
+        })()}
       </div>
     </div>
   );
