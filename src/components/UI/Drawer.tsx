@@ -27,10 +27,10 @@ interface DrawerProps {
 }
 
 const widthClasses = {
-  sm: 'w-64',
-  md: 'w-80',
-  lg: 'w-96',
-  xl: 'w-[32rem]',
+  sm: 'w-full sm:w-64',
+  md: 'w-full sm:w-80',
+  lg: 'w-full sm:w-96',
+  xl: 'w-full sm:w-[32rem]',
   full: 'w-full',
 };
 
@@ -102,6 +102,9 @@ const Drawer = forwardRef<DrawerRef, DrawerProps>(
           }}
         />
 
+        {/* Drawer Content (required by DaisyUI layout) */}
+        <div className="drawer-content" />
+
         {/* Drawer Side */}
         <div className="drawer-side">
           <label
@@ -111,7 +114,9 @@ const Drawer = forwardRef<DrawerRef, DrawerProps>(
             onClick={handleClose}
           />
 
-          <div className={`bg-base-200 min-h-full ${widthClasses[width]} flex flex-col`}>
+          <div
+            className={`bg-base-200 ${widthClasses[width]} max-w-[100vw] h-[100dvh] flex flex-col overflow-x-hidden`}
+          >
             <div className="flex h-full flex-col p-4">
               {/* Header */}
               <div className="mb-4 flex items-center justify-between">

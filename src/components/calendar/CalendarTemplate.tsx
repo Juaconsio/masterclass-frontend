@@ -75,7 +75,12 @@ export default function CalendarTemplate() {
       showToast.success('Slot actualizado correctamente');
     } catch (error) {
       console.error('Error updating slot:', error);
-      showToast.error('Error al actualizar el slot');
+      const message =
+        (error as any)?.response?.data?.message ??
+        (error as any)?.response?.data?.error ??
+        (error as any)?.message ??
+        'Error al actualizar el slot';
+      showToast.error(String(message));
       throw error;
     }
   }
@@ -129,7 +134,12 @@ export default function CalendarTemplate() {
           setShowEventDetailsModal(false);
         } catch (error) {
           console.error('Error deleting slot:', error);
-          showToast.error('Error al eliminar el slot');
+          const message =
+            (error as any)?.response?.data?.message ??
+            (error as any)?.response?.data?.error ??
+            (error as any)?.message ??
+            'Error al eliminar el slot';
+          showToast.error(String(message));
         }
       },
     });

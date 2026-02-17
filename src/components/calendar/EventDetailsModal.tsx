@@ -75,11 +75,17 @@ export default function EventDetailsModal({
     const newEndISO = iso(form.end instanceof Date ? form.end : new Date(form.end));
     if (!sameInstant(newEndISO, original.endTime)) payload.endTime = newEndISO;
 
-    const newClassId = Number(form.classId);
-    if (newClassId !== original.classId) payload.classId = newClassId;
+    if (form.classId != null) {
+      const newClassId = Number(form.classId);
+      if (Number.isFinite(newClassId) && newClassId !== original.classId)
+        payload.classId = newClassId;
+    }
 
-    const newProfessorId = Number(form.professorId);
-    if (newProfessorId !== original.professorId) payload.professorId = newProfessorId;
+    if (form.professorId != null) {
+      const newProfessorId = Number(form.professorId);
+      if (Number.isFinite(newProfessorId) && newProfessorId !== original.professorId)
+        payload.professorId = newProfessorId;
+    }
 
     if (form.modality !== original.modality) payload.modality = form.modality;
     if (form.status !== original.status) payload.status = form.status;
@@ -146,14 +152,17 @@ export default function EventDetailsModal({
     if (!event.location) return modalityLabel === 'Online' ? 'Online' : '-';
     return event.location.toLowerCase() === 'online' ? 'Online' : event.location;
   })();
+
+  const reservationCount = event.reservations?.length ?? 0;
+  const hasReservations = reservationCount > 0;
   return (
     <>
-      <dialog open className="modal modal-open in-line z-30">
-        <div className="modal-box w-11/12 max-w-3xl">
+      <dialog open className="modal modal-open modal-bottom sm:modal-middle z-30">
+        <div className="modal-box w-full max-w-3xl overflow-hidden sm:w-11/12 max-h-[90dvh]">
           <div className="flex gap-4">
             <div className={clsx('w-2 flex-shrink-0 rounded', statusBg)} />
             <div className="flex flex-1 flex-col gap-4">
-              <div className="flex max-h-[60vh] flex-col gap-5 overflow-y-auto pr-2">
+              <div className="flex max-h-[70dvh] flex-col gap-5 overflow-y-auto pr-2 sm:max-h-[60vh]">
                 {/* Header row: title + status */}
                 <div className="flex items-start justify-between gap-4">
                   <h3 className="text-lg leading-snug font-bold text-gray-900">
@@ -221,7 +230,7 @@ export default function EventDetailsModal({
                     <span className="text-xs font-medium tracking-wide text-gray-500 uppercase">
                       Reservas
                     </span>
-                    <span className="font-semibold">{event.reservations?.length ?? 0}</span>
+                    <span className="font-semibold">{reservationCount}</span>
                   </div>
                 </div>
               </div>
@@ -238,11 +247,25 @@ export default function EventDetailsModal({
                     </button>
                   )}
                   {handleDelete && (
-                    <button className="btn btn-error" onClick={() => handleDelete(event.id)}>
+                    <button
+                      className="btn btn-error"
+                      disabled={hasReservations}
+                      title={
+                        hasReservations
+                          ? 'No puedes eliminar un slot que tenga reservas registradas.'
+                          : undefined
+                      }
+                      onClick={() => handleDelete(event.id)}
+                    >
                       Eliminar
                     </button>
                   )}
                 </div>
+                {hasReservations && (
+                  <p className="text-base-content/60 mt-1 text-right text-xs">
+                    Eliminar bloqueado porque existen reservas registradas.
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -253,6 +276,7 @@ export default function EventDetailsModal({
         title="Editar Evento"
         submitLabel="Actualizar"
         onSubmit={handleUpdate}
+        lockedByReservations={hasReservations}
         initialValues={{
           courseId: event.class?.course?.id ?? null,
           classId: event.classId,
