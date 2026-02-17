@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { AxiosRequestConfig, AxiosResponse, AxiosInstance } from 'axios';
+import { clearAuthStorage, getStoredToken } from './authStorage';
 
 class HttpClient {
   private static instance: HttpClient;
@@ -67,12 +68,10 @@ class HttpClient {
   private setupInterceptors() {
     this.axiosInstance.interceptors.request.use(
       (config) => {
-        if (typeof localStorage !== 'undefined') {
-          const token = localStorage.getItem('token');
-          if (token) {
-            config.headers = config.headers || {};
-            config.headers.Authorization = `Bearer ${token}`;
-          }
+        const token = getStoredToken();
+        if (token) {
+          config.headers = config.headers || {};
+          config.headers.Authorization = `Bearer ${token}`;
         }
         this.logRequest(config);
         return config;
@@ -88,6 +87,10 @@ class HttpClient {
       },
       (error) => {
         this.logError(error);
+        const status = error?.response?.status;
+        if (status === 401) {
+          clearAuthStorage();
+        }
         return Promise.reject(error);
       }
     );

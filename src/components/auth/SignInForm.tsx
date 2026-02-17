@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getToken } from '@client/auth';
+import { getToken, validateToken } from '@client/auth';
 import { createReservation } from '@client/reservations';
 import { useForm } from 'react-hook-form';
 import { useSessionContext } from '../../context/SessionContext';
@@ -67,7 +67,7 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
   useEffect(() => {
     const checkToken = async () => {
       try {
-        const token = localStorage.getItem('token') || sessionStorage.getItem('token') || undefined;
+        const token = (await validateToken()) || undefined;
         if (!token) return;
 
         const jwtModule: any = await import('jwt-decode');
@@ -81,13 +81,6 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
                 : undefined;
 
         if (!decoded) return;
-
-        // verificar expiración si existe el claim exp
-        if (decoded.exp && Date.now() / 1000 > decoded.exp) {
-          localStorage.removeItem('token');
-          sessionStorage.removeItem('token');
-          return;
-        }
 
         // pasar token al contexto y redirigir según rol
         handleToken(token);

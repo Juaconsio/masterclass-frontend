@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { registerUser } from '@client/auth';
+import { registerUser, validateToken } from '@client/auth';
 import { useForm, Controller } from 'react-hook-form';
 import clsx from 'clsx';
 import { z } from 'zod';
@@ -34,7 +34,7 @@ export default function SignUpForm() {
   useEffect(() => {
     const checkToken = async () => {
       try {
-        const token = localStorage.getItem('token') || sessionStorage.getItem('token') || undefined;
+        const token = (await validateToken()) || undefined;
         if (!token) return;
 
         const jwtModule: any = await import('jwt-decode');
@@ -48,13 +48,6 @@ export default function SignUpForm() {
                 : undefined;
 
         if (!decoded) return;
-
-        // verificar expiración si existe el claim exp
-        if (decoded.exp && Date.now() / 1000 > decoded.exp) {
-          localStorage.removeItem('token');
-          sessionStorage.removeItem('token');
-          return;
-        }
 
         // pasar token al contexto y redirigir según rol
         handleToken(token);

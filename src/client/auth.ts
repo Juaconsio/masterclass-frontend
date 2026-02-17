@@ -1,6 +1,7 @@
 import { httpClient } from './config';
 import { jwtDecode } from 'jwt-decode';
 import type { UserRole } from '../interfaces/enums';
+import { clearAuthStorage, getStoredToken } from './authStorage';
 
 async function registerUser(payload: any) {
   try {
@@ -12,22 +13,27 @@ async function registerUser(payload: any) {
 }
 
 async function validateToken() {
-  const existingToken = localStorage.getItem('token');
+  const existingToken = getStoredToken();
   if (!existingToken) return null;
 
   try {
-    const decoded: { exp: number } = jwtDecode(existingToken);
+    const decoded: { exp?: number } = jwtDecode(existingToken);
     const now = Math.floor(Date.now() / 1000);
-    const shouldValidateWithServer = decoded.exp - now < 5 * 60;
-    if (!shouldValidateWithServer) {
-      return existingToken;
+    if (decoded?.exp && now >= decoded.exp) {
+      clearAuthStorage();
+      return null;
     }
-    const resTokenValidate = await httpClient.get('auth/validate');
+
+    const resTokenValidate = await httpClient.get('/auth/validate');
     if (resTokenValidate.status == 200) return existingToken;
-  } catch (error) {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
     return null;
+  } catch (error) {
+    const status = (error as any)?.response?.status;
+    if (status === 401 || status === 403) {
+      clearAuthStorage();
+      return null;
+    }
+    return existingToken;
   }
 }
 
