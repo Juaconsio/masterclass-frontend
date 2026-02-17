@@ -8,6 +8,7 @@ export interface TableColumn<T> {
   key: string;
   label: string;
   sortable?: boolean;
+  render?: (row: T) => React.ReactNode;
   formatter?: (value: any, row: T) => React.ReactNode;
   className?: string;
 }
@@ -32,11 +33,16 @@ export interface TablePagination {
   onPageSizeChange?: (size: number) => void;
 }
 
+export interface TableScroll {
+  maxHeight: string | number;
+}
+
 export interface TableProps<T> {
   columns: TableColumn<T>[];
   data: T[];
   actions?: TableAction<T>[];
   pagination?: TablePagination;
+  scroll?: TableScroll;
   loading?: boolean;
   emptyMessage?: string;
   onSort?: (key: string, order: 'asc' | 'desc') => void;
@@ -54,6 +60,7 @@ export default function Table<T extends Record<string, any>>({
   data,
   actions,
   pagination,
+  scroll,
   loading = false,
   emptyMessage = 'No hay datos disponibles',
   onSort,
@@ -88,6 +95,9 @@ export default function Table<T extends Record<string, any>>({
 
   // Get cell value
   const getCellValue = (row: T, column: TableColumn<T>) => {
+    if (column.render) {
+      return column.render(row);
+    }
     const value = row[column.key];
 
     if (column.formatter) {
@@ -116,14 +126,19 @@ export default function Table<T extends Record<string, any>>({
   return (
     <div className={`w-full ${className}`}>
       {/* Table Container */}
-      <div className="border-base-300 overflow-x-auto rounded-lg border">
+      <div
+        className={`border-base-300 rounded-lg border overflow-x-auto ${
+          scroll ? 'overflow-y-auto' : ''
+        }`}
+        style={scroll ? { maxHeight: scroll.maxHeight } : undefined}
+      >
         <table
-          className={`table w-full ${striped ? 'table-zebra' : ''} ${
+          className={`table w-full min-w-max ${striped ? 'table-zebra' : ''} ${
             hoverable ? 'table-hover' : ''
           } ${compact ? 'table-compact' : ''}`}
         >
           {/* Table Header */}
-          <thead className="bg-base-200">
+          <thead className={`bg-base-200 ${scroll ? 'sticky top-0 z-10' : ''}`}>
             <tr>
               {columns.map((column) => (
                 <th
