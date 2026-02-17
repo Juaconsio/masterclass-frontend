@@ -1,11 +1,48 @@
 import { useMemo, useCallback, useState } from 'react';
 import { getPayments, updatePayment, type PaymentsFilters } from '@/client/admin/payments';
-import type { IPayment, IReservation } from '@/interfaces';
+import type { IPayment, IReservation, ISlot, IStudent } from '@/interfaces';
 import { useTableData } from '@/hooks/useTableData';
 import { Table, type TableColumn, type TableAction } from '@components/UI';
 import { updateReservation } from '@/client/reservations';
 import { showToast } from '@/lib/toast';
 import { useConfirmAction } from '@/hooks/useConfirmAction';
+
+function formatSlotRange(startISO?: string, endISO?: string) {
+  if (!startISO || !endISO) return 'N/A';
+
+  const start = new Date(startISO);
+  const end = new Date(endISO);
+
+  const sameDay =
+    start.getFullYear() === end.getFullYear() &&
+    start.getMonth() === end.getMonth() &&
+    start.getDate() === end.getDate();
+
+  if (!sameDay) {
+    return `${start.toLocaleString('es-CL', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })} – ${end.toLocaleString('es-CL', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })}`;
+  }
+
+  const datePart = start.toLocaleDateString('es-CL', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+  const startTime = start.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+  const endTime = end.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+  return `${datePart} ${startTime}–${endTime}`;
+}
 
 export default function AdminPayments() {
   const {
@@ -29,9 +66,9 @@ export default function AdminPayments() {
   });
 
   const [updatingPayment, setUpdatingPayment] = useState(false);
+  const [detailsPayment, setDetailsPayment] = useState<IPayment | null>(null);
   const { showConfirmation, ConfirmationModal } = useConfirmAction();
 
-  // Format currency
   const formatCurrency = useCallback((amount: number) => {
     return new Intl.NumberFormat('es-CL', {
       style: 'currency',
@@ -39,7 +76,6 @@ export default function AdminPayments() {
     }).format(amount);
   }, []);
 
-  // Format date
   const formatDate = useCallback((dateString: string) => {
     return new Date(dateString).toLocaleString('es-CL', {
       year: 'numeric',
@@ -50,7 +86,6 @@ export default function AdminPayments() {
     });
   }, []);
 
-  // Get status badge color
   const getStatusBadge = useCallback((status: string) => {
     switch (status.toLowerCase()) {
       case 'paid':
@@ -66,7 +101,14 @@ export default function AdminPayments() {
     }
   }, []);
 
-  // Table columns definition
+  const pickStudent = useCallback((payment: IPayment): IStudent | undefined => {
+    return payment.student ?? payment.reservations?.find((r) => r.student)?.student ?? undefined;
+  }, []);
+
+  const pickPrimarySlot = useCallback((payment: IPayment): ISlot | undefined => {
+    return payment.reservations?.find((r) => r.slot)?.slot ?? payment.reservations?.[0]?.slot;
+  }, []);
+
   const columns: TableColumn<IPayment>[] = useMemo(
     () => [
       {
@@ -81,6 +123,58 @@ export default function AdminPayments() {
         formatter: (value) => (
           <span className="badge badge-ghost font-mono text-xs">{value || 'N/A'}</span>
         ),
+      },
+      {
+        key: 'student',
+        label: 'Estudiante',
+        className: 'min-w-[16rem]',
+        render: (payment) => {
+          const student = pickStudent(payment);
+          const name = student?.name || 'N/A';
+          const rut = student?.rut || 'RUT N/A';
+          const email = student?.email || 'Email N/A';
+          return (
+            <div className="flex min-w-0 flex-col">
+              <div className="truncate leading-tight font-semibold">{name}</div>
+              <div className="text-base-content/60 truncate text-xs leading-tight">{rut}</div>
+              <div className="text-base-content/60 truncate text-xs leading-tight">{email}</div>
+            </div>
+          );
+        },
+      },
+      {
+        key: 'slot',
+        label: 'Reservaciones / Plan',
+        className: 'min-w-[20rem]',
+        render: (payment) => {
+          const reservations = payment.reservations || [];
+          const count = reservations.length;
+          const slot = pickPrimarySlot(payment);
+          const classTitle = slot?.class?.title || 'Clase N/A';
+          const courseAcronym = slot?.class?.course?.acronym;
+          const professorName =
+            slot?.professor?.name || (slot?.professorId ? `#${slot.professorId}` : 'N/A');
+          const range = formatSlotRange(slot?.startTime, slot?.endTime);
+
+          if (count > 1) {
+            return <span>Plan: Por implementar</span>;
+          }
+          return (
+            <div className="flex min-w-0 flex-col gap-1">
+              <div className="truncate leading-tight font-semibold">
+                {courseAcronym ? `${courseAcronym} · ` : ''}
+                {classTitle}
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="text-base-content/60 truncate text-xs leading-tight">
+                  Prof: {professorName}
+                </div>
+                <div className="text-base-content/60 truncate text-xs leading-tight">·</div>
+                <div className="text-base-content/60 truncate text-xs leading-tight">{range}</div>
+              </div>
+            </div>
+          );
+        },
       },
       {
         key: 'amount',
@@ -98,33 +192,14 @@ export default function AdminPayments() {
       },
       {
         key: 'createdAt',
-        label: 'Fecha',
+        label: 'Fecha de registro',
         sortable: true,
         formatter: (value) => <span className="text-sm">{formatDate(value as string)}</span>,
       },
-      {
-        key: 'reservations',
-        label: 'Reservaciones',
-        formatter: (value, row) => {
-          const reservations = value as IReservation[] | undefined;
-          const count = reservations?.length || 0;
-          return (
-            <div className="flex items-center gap-2">
-              <span className="badge badge-info">{count}</span>
-              {reservations && reservations.length > 0 && (
-                <span className="text-base-content/60 text-xs">
-                  {reservations.map((r) => r.slot?.class?.title || 'N/A').join(', ')}
-                </span>
-              )}
-            </div>
-          );
-        },
-      },
     ],
-    [formatCurrency, formatDate, getStatusBadge]
+    [formatCurrency, formatDate, getStatusBadge, pickPrimarySlot, pickStudent]
   );
 
-  // Confirm payment
   const confirmPayment = async (payment: IPayment) => {
     if (payment.status === 'paid') {
       showToast.error('El pago ya está confirmado');
@@ -145,18 +220,16 @@ export default function AdminPayments() {
       onConfirm: async () => {
         setUpdatingPayment(true);
         try {
-          // Update all associated reservations
           for (const reservation of payment.reservations!) {
             await updateReservation(reservation.id, { status: 'confirmed' });
           }
 
-          // Update payment status
           await updatePayment(payment.id, { status: 'paid' });
 
           showToast.success(
             `Pago confirmado exitosamente. ${payment.reservations!.length} reservación(es) actualizada(s).`
           );
-          updateFilters({}); // Refresh payments
+          updateFilters({});
         } catch (error) {
           console.error('Error confirming payment:', error);
           showToast.error('Error al confirmar el pago. Por favor, intente nuevamente.');
@@ -167,7 +240,6 @@ export default function AdminPayments() {
     });
   };
 
-  // Cancel payment
   const cancelPayment = async (payment: IPayment) => {
     if (payment.status === 'failed') {
       showToast.error('El pago ya está cancelado');
@@ -185,7 +257,7 @@ export default function AdminPayments() {
         try {
           await updatePayment(payment.id, { status: 'failed' });
           showToast.success('Pago cancelado exitosamente');
-          updateFilters({}); // Refresh payments
+          updateFilters({});
         } catch (error) {
           console.error('Error canceling payment:', error);
           showToast.error('Error al cancelar el pago. Por favor, intente nuevamente.');
@@ -196,14 +268,13 @@ export default function AdminPayments() {
     });
   };
 
-  // Table actions definition
   const actions: TableAction<IPayment>[] = useMemo(
     () => [
       {
         label: 'Confirmar Pago',
         variant: 'primary',
         onClick: confirmPayment,
-        isDisabled: (payment) => payment.status === 'paid' || !payment.reservations?.length,
+        isDisabled: (payment) => ['paid', 'failed'].includes(payment.status),
       },
       {
         label: 'Cancelar',
@@ -217,17 +288,6 @@ export default function AdminPayments() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Gestión de Pagos</h1>
-          <p className="text-base-content/60 mt-2">
-            Administra todos los pagos del sistema ({total} total)
-          </p>
-        </div>
-      </div>
-
-      {/* Filters */}
       <div className="card bg-base-200">
         <div className="card-body">
           <div className="flex flex-col gap-4 md:flex-row">
@@ -270,7 +330,6 @@ export default function AdminPayments() {
         </div>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="stat bg-base-200 rounded-lg shadow">
           <div className="stat-title">Total Pagos</div>
@@ -290,7 +349,6 @@ export default function AdminPayments() {
         </div>
       </div>
 
-      {/* Table */}
       <div className="card bg-base-200 shadow-xl">
         <div className="card-body">
           <Table
@@ -312,6 +370,87 @@ export default function AdminPayments() {
           />
         </div>
       </div>
+
+      {detailsPayment && (
+        <dialog open className="modal modal-open modal-bottom sm:modal-middle z-30">
+          <div className="modal-box max-h-[90dvh] w-full max-w-4xl overflow-hidden sm:w-11/12">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <h3 className="truncate text-lg font-bold">Detalle de pago #{detailsPayment.id}</h3>
+                <div className="text-base-content/60 mt-1 flex flex-wrap items-center gap-2 text-sm">
+                  {getStatusBadge(detailsPayment.status)}
+                  <span className="font-semibold">{formatCurrency(detailsPayment.amount)}</span>
+                  <span className="font-mono text-xs">
+                    {detailsPayment.transactionReference || 'Sin referencia'}
+                  </span>
+                  <span className="text-xs">{formatDate(detailsPayment.createdAt)}</span>
+                </div>
+              </div>
+              <button type="button" className="btn btn-sm" onClick={() => setDetailsPayment(null)}>
+                Cerrar
+              </button>
+            </div>
+
+            <div className="divider my-3" />
+
+            <div className="max-h-[70dvh] space-y-3 overflow-y-auto pr-1">
+              {(detailsPayment.reservations || []).length === 0 ? (
+                <div className="text-base-content/60 text-sm">
+                  Este pago no tiene reservaciones.
+                </div>
+              ) : (
+                (detailsPayment.reservations || []).map((reservation) => {
+                  const student = reservation.student || detailsPayment.student;
+                  const slot = reservation.slot;
+                  const classTitle = slot?.class?.title || 'Clase N/A';
+                  const courseAcronym = slot?.class?.course?.acronym;
+                  const professorName =
+                    slot?.professor?.name || (slot?.professorId ? `#${slot.professorId}` : 'N/A');
+                  const range = formatSlotRange(slot?.startTime, slot?.endTime);
+
+                  return (
+                    <div
+                      key={reservation.id}
+                      className="border-base-300 bg-base-100 rounded-lg border p-3"
+                    >
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0">
+                          <div className="text-sm leading-tight font-semibold">
+                            {student?.name || 'N/A'}
+                          </div>
+                          <div className="text-base-content/60 text-xs leading-tight">
+                            {student?.rut || 'RUT N/A'}
+                          </div>
+                          <div className="text-base-content/60 text-xs leading-tight">
+                            {student?.email || 'Email N/A'}
+                          </div>
+                        </div>
+
+                        <div className="min-w-0 sm:text-right">
+                          <div className="text-sm leading-tight font-semibold">
+                            {courseAcronym ? `${courseAcronym} · ` : ''}
+                            {classTitle}
+                          </div>
+                          <div className="text-base-content/60 text-xs leading-tight">
+                            Prof: {professorName}
+                          </div>
+                          <div className="text-base-content/60 text-xs leading-tight">{range}</div>
+                          <div className="text-base-content/60 mt-1 text-xs leading-tight">
+                            Reserva #{reservation.id} · {reservation.status}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+          <form method="dialog" className="modal-backdrop" onSubmit={() => setDetailsPayment(null)}>
+            <button>Cerrar</button>
+          </form>
+        </dialog>
+      )}
 
       <ConfirmationModal />
     </div>
