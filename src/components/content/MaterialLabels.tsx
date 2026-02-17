@@ -6,12 +6,14 @@ export const MATERIAL_LABELS: Record<string, string> = {
   guia: 'Guía de Ejercicios',
   soluciones: 'Soluciones',
   videos: 'Videos',
+  grabacion_clase: 'Grabación clase',
   extras: 'Material Extra',
 };
 
 export interface MaterialByType {
   type: string;
-  pdfUrl: string;
+  url: string;
+  mimeType: string;
   filename: string;
 }
 type MaterialIconMap = Record<string, React.ReactElement>;
@@ -20,5 +22,6 @@ export const MATERIAL_ICONS: MaterialIconMap = {
   guia: <FilePenLine />,
   soluciones: <BookOpenText />,
   videos: <FileVideoCamera />,
+  grabacion_clase: <FileVideoCamera />,
   extras: <RectangleEllipsis />,
 };

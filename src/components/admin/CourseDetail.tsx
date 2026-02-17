@@ -63,6 +63,8 @@ export default function CourseDetail() {
   const [submittingClass, setSubmittingClass] = useState(false);
   const { showConfirmation, ConfirmationModal } = useConfirmAction();
 
+  const isVideoMaterialType = (type: string) => type === 'videos' || type === 'grabacion_clase';
+
   useEffect(() => {
     loadCourse();
     loadProfessors();
@@ -109,13 +111,18 @@ export default function CourseDetail() {
       return;
     }
     try {
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
+      const requestedContentType = isVideoMaterialType(filename)
+        ? file.type || 'video/mp4'
+        : file.type || 'application/octet-stream';
+
       const { uploadUrl, key, contentType } = await makeUploadUrl({
         classId: id,
         filename,
-        contentType: file.type || 'application/octet-stream',
-        ext: file.name.split('.').pop() || '',
+        contentType: requestedContentType,
+        ext,
       });
-      await uploadFileToBucket(uploadUrl, file);
+      await uploadFileToBucket(uploadUrl, file, requestedContentType);
       await confirmUpload(String(id), filename, key, contentType);
       showToast.success('Material subido exitosamente');
       const data = await loadCourse();
@@ -160,13 +167,18 @@ export default function CourseDetail() {
 
   const handleReplaceMaterial = async (materialId: number, file: File, filename: string) => {
     try {
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
+      const requestedContentType = isVideoMaterialType(filename)
+        ? file.type || 'video/mp4'
+        : file.type || 'application/octet-stream';
+
       const { uploadUrl, newKey, contentType } = await requestReplaceUrl(materialId, {
         filename,
-        contentType: file.type || 'application/x-text',
-        ext: file.name.split('.').pop() || '',
+        contentType: requestedContentType,
+        ext,
       });
 
-      await uploadFileToBucket(uploadUrl, file);
+      await uploadFileToBucket(uploadUrl, file, requestedContentType);
 
       await confirmReplaceMaterial(materialId, {
         filename,
@@ -1000,6 +1012,10 @@ export default function CourseDetail() {
                 const materials = materialsDrawerClass.materials || [];
                 const material = materials.find((m: Material) => m.filename === type);
                 const exists = !!material;
+                const acceptedFileTypes = isVideoMaterialType(type)
+                  ? (['video/mp4', '.mp4'] as const)
+                  : (['image/*', 'application/pdf'] as const);
+                const maxSizeMB = isVideoMaterialType(type) ? 500 : 5;
 
                 return (
                   <div
@@ -1035,11 +1051,11 @@ export default function CourseDetail() {
                       {exists && material?.id ? (
                         <>
                           <FileInput
-                            acceptedFileTypes={['image/*', 'application/pdf']}
+                            acceptedFileTypes={[...acceptedFileTypes]}
                             onFileUpload={async (file) => {
                               await handleReplaceMaterial(material.id, file, type);
                             }}
-                            maxSizeMB={5}
+                            maxSizeMB={maxSizeMB}
                             buttonText=""
                             modalTitle={`Reemplazar ${MATERIAL_LABELS[type]}`}
                             fixedType={type}
@@ -1066,13 +1082,13 @@ export default function CourseDetail() {
                         <span className="text-error text-sm">Error: ID no disponible</span>
                       ) : (
                         <FileInput
-                          acceptedFileTypes={['image/*', 'application/pdf']}
+                          acceptedFileTypes={[...acceptedFileTypes]}
                           onFileUpload={async (file) => {
                             const classId =
                               materialsDrawerClassIdRef.current ?? materialsDrawerClass.id;
                             await handleFileUpload(file, classId, type);
                           }}
-                          maxSizeMB={5}
+                          maxSizeMB={maxSizeMB}
                           buttonText="Subir"
                           modalTitle={`Subir ${MATERIAL_LABELS[type]}`}
                           fixedType={type}
