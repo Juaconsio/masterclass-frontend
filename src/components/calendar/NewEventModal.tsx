@@ -41,16 +41,18 @@ export default function NewEventModal({
   if (!open) return null;
 
   return (
-    <dialog open className="modal modal-open in-line">
-      <div className="modal-box w-11/12 max-w-3xl">
+    <dialog open className="modal modal-open modal-bottom sm:modal-middle">
+      <div className="modal-box w-full max-w-3xl sm:w-11/12 max-h-[90dvh] overflow-hidden">
         <h3 className="mb-4 text-lg font-bold">Crear nuevo horario de clases</h3>
-        <EventForm
-          submitLabel="Crear"
-          onSubmit={submit}
-          onCancel={onClose}
-          initialValues={initialValues}
-          mode="create"
-        />
+        <div className="max-h-[75dvh] overflow-y-auto pr-1">
+          <EventForm
+            submitLabel="Crear"
+            onSubmit={submit}
+            onCancel={onClose}
+            initialValues={initialValues}
+            mode="create"
+          />
+        </div>
       </div>
     </dialog>
   );
