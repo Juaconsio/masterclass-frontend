@@ -204,7 +204,7 @@ const NavBar: React.FC = () => {
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className="bg-base-200 text-base-content border-base-300 sticky top-0 hidden h-screen w-fit flex-col overflow-y-auto border-r pb-4 lg:flex">
+      <aside className="bg-base-200 text-base-content border-base-300 sticky top-0 hidden h-screen w-fit shrink-0 flex-col overflow-y-auto border-r px-4 pb-4 lg:flex">
         <NavContent />
       </aside>
 
