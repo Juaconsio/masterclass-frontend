@@ -48,6 +48,42 @@ async function deleteReservation(reservationId: number) {
   return res.data;
 }
 
+export interface RescheduleOption {
+  id: number;
+  startTime: string;
+  endTime: string;
+  modality: string;
+  studentsGroup: string;
+  location: string | null;
+  status: string;
+  minStudents: number | null;
+  maxStudents: number;
+  professor: { id: number; name: string; email: string };
+  confirmedCount: number;
+  availableSeats: number;
+}
+
+export async function getRescheduleOptions(reservationId: number): Promise<{
+  reservationId: number;
+  classId: number;
+  options: RescheduleOption[];
+}> {
+  const res = await httpClient.get(`/students/me/reservations/${reservationId}/reschedule-options`);
+  return res.data;
+}
+
+export async function rescheduleReservation(reservationId: number, newSlotId: number) {
+  const res = await httpClient.post(`/students/me/reservations/${reservationId}/reschedule`, {
+    newSlotId,
+  });
+  return res.data;
+}
+
+export async function requestRefund(reservationId: number) {
+  const res = await httpClient.post(`/students/me/reservations/${reservationId}/refund-request`);
+  return res.data;
+}
+
 export {
   fetchReservations,
   getReservationEnroll,

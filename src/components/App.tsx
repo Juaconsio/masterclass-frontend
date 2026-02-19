@@ -28,6 +28,7 @@ import ForgotPassword from './auth/forgotPassword';
 import ResetPassword from './auth/resetPassword';
 import ClassMaterial from '@components/content/ClassMaterial';
 import ReservationConfirm from '@components/reservations/ReservationConfirm';
+import RescheduleReservation from '@components/reservations/RescheduleReservation';
 
 export default function Spa() {
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -100,6 +101,7 @@ export default function Spa() {
           >
             <Route index element={<Home />} />
             <Route path="reservas" element={<Reservations />} />
+            <Route path="reservas/:reservationId/reagendar" element={<RescheduleReservation />} />
             <Route path="confirmacion-pago" element={<ReservationConfirm />} />
             <Route path="cursos">
               <Route index element={<StudentCourses />} />
