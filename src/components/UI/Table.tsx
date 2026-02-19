@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 
 // ==================== TYPES ====================
 
@@ -51,6 +52,9 @@ export interface TableProps<T> {
   hoverable?: boolean;
   compact?: boolean;
   className?: string;
+  expandableRow?: {
+    render: (row: T) => React.ReactNode;
+  };
 }
 
 // ==================== COMPONENT ====================
@@ -69,11 +73,13 @@ export default function Table<T extends Record<string, any>>({
   hoverable = true,
   compact = false,
   className = '',
+  expandableRow,
 }: TableProps<T>) {
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     order: 'asc' | 'desc';
   } | null>(null);
+  const [expandedRowKey, setExpandedRowKey] = useState<string | number | null>(null);
 
   // Handle sort
   const handleSort = (key: string) => {
@@ -140,6 +146,7 @@ export default function Table<T extends Record<string, any>>({
           {/* Table Header */}
           <thead className={`bg-base-200 ${scroll ? 'sticky top-0 z-10' : ''}`}>
             <tr>
+              {expandableRow && <th className="w-10" />}
               {columns.map((column) => (
                 <th
                   key={column.key}
@@ -174,14 +181,24 @@ export default function Table<T extends Record<string, any>>({
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={columns.length + (actions ? 1 : 0)} className="py-8 text-center">
+                <td
+                  colSpan={
+                    columns.length + (actions ? 1 : 0) + (expandableRow ? 1 : 0)
+                  }
+                  className="py-8 text-center"
+                >
                   <span className="loading loading-spinner loading-lg"></span>
                   <p className="text-base-content/60 mt-2 text-sm">Cargando...</p>
                 </td>
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + (actions ? 1 : 0)} className="py-8 text-center">
+                <td
+                  colSpan={
+                    columns.length + (actions ? 1 : 0) + (expandableRow ? 1 : 0)
+                  }
+                  className="py-8 text-center"
+                >
                   <div className="flex flex-col items-center gap-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -202,47 +219,83 @@ export default function Table<T extends Record<string, any>>({
                 </td>
               </tr>
             ) : (
-              data.map((row, index) => (
-                <tr key={getRowKey(row, index)}>
-                  {columns.map((column) => (
-                    <td key={column.key} className={column.className || ''}>
-                      {getCellValue(row, column)}
-                    </td>
-                  ))}
-                  {actions && actions.length > 0 && (
-                    <td className="text-right">
-                      <div className="flex justify-end gap-1">
-                        {actions
-                          .filter((action) => (action.show ? action.show(row) : true))
-                          .map((action, actionIndex) => {
-                            // Custom render function
-                            if (action.render) {
-                              return <div key={actionIndex}>{action.render(row)}</div>;
-                            }
+              data.map((row, index) => {
+                const rowKeyVal = getRowKey(row, index);
+                const isExpanded = expandedRowKey === rowKeyVal;
 
-                            // Default button
-                            return (
-                              <button
-                                key={actionIndex}
-                                className={`btn btn-xs ${getActionVariantClass(
-                                  action.variant
-                                )} ${action.className || ''}`}
-                                onClick={() => action.onClick?.(row)}
-                                disabled={action.isDisabled ? action.isDisabled(row) : false}
-                                title={action.label}
-                              >
-                                {action.icon && (
-                                  <span className="flex items-center">{action.icon}</span>
-                                )}
-                                {!action.icon && action.label}
-                              </button>
-                            );
-                          })}
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              ))
+                return (
+                  <React.Fragment key={rowKeyVal}>
+                    <tr>
+                      {expandableRow && (
+                        <td className="w-10 p-0">
+                          <button
+                            type="button"
+                            className="btn btn-ghost btn-xs btn-square"
+                            onClick={() =>
+                              setExpandedRowKey(isExpanded ? null : rowKeyVal)
+                            }
+                            aria-expanded={isExpanded}
+                          >
+                            {isExpanded ? (
+                              <ChevronDown className="h-4 w-4" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4" />
+                            )}
+                          </button>
+                        </td>
+                      )}
+                      {columns.map((column) => (
+                        <td key={column.key} className={column.className || ''}>
+                          {getCellValue(row, column)}
+                        </td>
+                      ))}
+                      {actions && actions.length > 0 && (
+                        <td className="text-right">
+                          <div className="flex justify-end gap-1">
+                            {actions
+                              .filter((action) => (action.show ? action.show(row) : true))
+                              .map((action, actionIndex) => {
+                                if (action.render) {
+                                  return <div key={actionIndex}>{action.render(row)}</div>;
+                                }
+                                return (
+                                  <button
+                                    key={actionIndex}
+                                    className={`btn btn-xs ${getActionVariantClass(
+                                      action.variant
+                                    )} ${action.className || ''}`}
+                                    onClick={() => action.onClick?.(row)}
+                                    disabled={action.isDisabled ? action.isDisabled(row) : false}
+                                    title={action.label}
+                                  >
+                                    {action.icon && (
+                                      <span className="flex items-center">{action.icon}</span>
+                                    )}
+                                    {!action.icon && action.label}
+                                  </button>
+                                );
+                              })}
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                    {expandableRow && isExpanded && (
+                      <tr key={`${rowKeyVal}-expanded`}>
+                        <td
+                          colSpan={
+                            columns.length + (actions ? 1 : 0) + 1
+                          }
+                          className="bg-base-200/50 p-0 align-top"
+                        >
+                          <div className="p-4">
+                            {expandableRow.render(row)}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })
             )}
           </tbody>
         </table>
