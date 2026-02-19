@@ -1,12 +1,92 @@
-import { getStudents, deleteStudent, toggleStudentStatus, promoteStudent } from '@/client/admin/students';
-import type { Student, StudentFilters } from '@/client/admin/students';
-import type { UserRole } from '@/interfaces/enums';
+import { useEffect, useState } from 'react';
+import {
+  getStudents,
+  deleteStudent,
+  toggleStudentStatus,
+  promoteStudent,
+  getStudentEnrollmentProgress,
+} from '@/client/admin/students';
+import type { Student, StudentFilters, StudentEnrollmentProgress } from '@/client/admin/students';
 import { Table, type TableColumn, type TableAction } from '@components/UI';
 import { useTableData } from '@/hooks/useTableData';
 import { showToast } from '@/lib/toast';
 import { useConfirmAction } from '@/hooks/useConfirmAction';
+import { CheckCircle, Circle } from 'lucide-react';
 
-export default function AdminUsers() {
+function StudentEnrollmentProgressContent({ studentId }: { studentId: number }) {
+  const [progress, setProgress] = useState<StudentEnrollmentProgress | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    getStudentEnrollmentProgress(studentId)
+      .then((data) => {
+        if (!cancelled) setProgress(data);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err.message || 'Error al cargar');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [studentId]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-6">
+        <span className="loading loading-spinner loading-md" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <p className="text-error py-4 text-center text-sm">{error}</p>;
+  }
+
+  if (!progress?.courses?.length) {
+    return <p className="text-base-content/60 py-4 text-center text-sm">Sin cursos inscritos</p>;
+  }
+
+  return (
+    <div className="space-y-4">
+      <h4 className="text-base-content/70 text-sm font-semibold tracking-wide uppercase">
+        Seguimiento del alumno
+      </h4>
+      {progress.courses.map((course) => (
+        <div key={course.id} className="border-base-300 bg-base-100 rounded-lg border p-3">
+          <p className="text-base-content mb-2 font-medium">
+            {course.acronym} — {course.title}
+          </p>
+          <ul className="flex flex-col gap-1.5 text-sm">
+            {course.classes.map((cls) => (
+              <li key={cls.id} className="flex items-center gap-2">
+                {cls.hasReservation ? (
+                  <CheckCircle className="text-success h-4 w-4 shrink-0" />
+                ) : (
+                  <Circle className="text-base-content/40 h-4 w-4 shrink-0" />
+                )}
+                <span className={cls.hasReservation ? 'font-medium' : 'text-base-content/70'}>
+                  {cls.title}
+                </span>
+                <span className="text-base-content/50 text-xs">
+                  — {cls.hasReservation ? 'Con reserva' : 'Sin reserva'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AdminUsers() {
   const {
     data: users,
     loading,
@@ -104,50 +184,29 @@ export default function AdminUsers() {
       formatter: (rut) => <div className="badge badge-ghost badge-sm">{rut}</div>,
     },
     {
+      key: 'email',
+      label: 'Email',
+      formatter: (email) => <div className="badge badge-ghost badge-sm">{email}</div>,
+    },
+    {
       key: 'phone',
       label: 'Teléfono',
       formatter: (phone) => phone || '-',
     },
   ];
 
-  // Definir acciones de la tabla
-  const actions: TableAction<Student>[] = [
-    {
-      label: 'Promover a Profesor',
-      variant: 'primary',
-      onClick: (student) => handlePromote(student.id),
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.615 1.738 4.346a1 1 0 01-.51 1.307 6.174 6.174 0 01-5.885 0 1 1 0 01-.51-1.307l1.738-4.346-1.785-.893V7a1 1 0 01-2 0V5.667l-1.785.893 1.738 4.346a1 1 0 01-.51 1.307 6.174 6.174 0 01-5.885 0 1 1 0 01-.51-1.307l1.738-4.346-1.233-.616a1 1 0 01.894-1.79l1.599.8L9 4.323V3a1 1 0 011-1z" />
-        </svg>
-      ),
-    },
-  ];
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Gestión de Estudiantes</h1>
-          <p className="text-base-content/60 mt-2">
-            Administra todos los estudiantes del sistema ({total} total)
-          </p>
-        </div>
-      </div>
-
+    <div className="mt-6 space-y-6">
       {/* Tabla */}
       <Table
         columns={columns}
         data={users}
-        actions={actions}
         loading={loading}
         rowKey="id"
         onSort={handleSort}
+        expandableRow={{
+          render: (student) => <StudentEnrollmentProgressContent studentId={student.id} />,
+        }}
         pagination={{
           currentPage: filters.page || 1,
           totalPages,
@@ -158,8 +217,10 @@ export default function AdminUsers() {
         }}
         emptyMessage="No se encontraron estudiantes"
       />
-      
+
       <ConfirmationModal />
     </div>
   );
 }
+
+export default AdminUsers;

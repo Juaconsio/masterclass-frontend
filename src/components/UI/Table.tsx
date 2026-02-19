@@ -133,7 +133,7 @@ export default function Table<T extends Record<string, any>>({
     <div className={`w-full ${className}`}>
       {/* Table Container */}
       <div
-        className={`border-base-300 rounded-lg border overflow-x-auto ${
+        className={`border-base-300 overflow-x-auto rounded-lg border ${
           scroll ? 'overflow-y-auto' : ''
         }`}
         style={scroll ? { maxHeight: scroll.maxHeight } : undefined}
@@ -182,9 +182,7 @@ export default function Table<T extends Record<string, any>>({
             {loading ? (
               <tr>
                 <td
-                  colSpan={
-                    columns.length + (actions ? 1 : 0) + (expandableRow ? 1 : 0)
-                  }
+                  colSpan={columns.length + (actions ? 1 : 0) + (expandableRow ? 1 : 0)}
                   className="py-8 text-center"
                 >
                   <span className="loading loading-spinner loading-lg"></span>
@@ -194,9 +192,7 @@ export default function Table<T extends Record<string, any>>({
             ) : data.length === 0 ? (
               <tr>
                 <td
-                  colSpan={
-                    columns.length + (actions ? 1 : 0) + (expandableRow ? 1 : 0)
-                  }
+                  colSpan={columns.length + (actions ? 1 : 0) + (expandableRow ? 1 : 0)}
                   className="py-8 text-center"
                 >
                   <div className="flex flex-col items-center gap-2">
@@ -227,13 +223,11 @@ export default function Table<T extends Record<string, any>>({
                   <React.Fragment key={rowKeyVal}>
                     <tr>
                       {expandableRow && (
-                        <td className="w-10 p-0">
+                        <td className="w-10 p-0 pl-2">
                           <button
                             type="button"
                             className="btn btn-ghost btn-xs btn-square"
-                            onClick={() =>
-                              setExpandedRowKey(isExpanded ? null : rowKeyVal)
-                            }
+                            onClick={() => setExpandedRowKey(isExpanded ? null : rowKeyVal)}
                             aria-expanded={isExpanded}
                           >
                             {isExpanded ? (
@@ -282,14 +276,10 @@ export default function Table<T extends Record<string, any>>({
                     {expandableRow && isExpanded && (
                       <tr key={`${rowKeyVal}-expanded`}>
                         <td
-                          colSpan={
-                            columns.length + (actions ? 1 : 0) + 1
-                          }
+                          colSpan={columns.length + (actions ? 1 : 0) + 1}
                           className="bg-base-200/50 p-0 align-top"
                         >
-                          <div className="p-4">
-                            {expandableRow.render(row)}
-                          </div>
+                          <div className="p-4">{expandableRow.render(row)}</div>
                         </td>
                       </tr>
                     )}
