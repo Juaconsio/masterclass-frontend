@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -10,11 +10,14 @@ import {
   CircleCheck,
   Ban,
   CheckCheck,
+  Phone,
 } from 'lucide-react';
 import clsx from 'clsx';
 import type { IEvent } from '@interfaces/events/IEvent';
 import type { EventFormValues } from '@interfaces/events/IEvent';
+import type { IReservation } from '@/interfaces';
 import EventFormDrawer, { type EventFormDrawerRef } from './EventFormDrawer';
+import Drawer, { type DrawerRef } from '@components/UI/Drawer';
 
 type EventUpdatePayload = Partial<
   Pick<
@@ -36,6 +39,7 @@ interface EventDetailsModalProps {
   onClose: (event?: IEvent) => void;
   handleDelete?: (id: number) => void;
   handleEdit?: (id: number, payload: EventUpdatePayload) => void;
+  onFetchSlotDetails?: (slotId: number) => Promise<IEvent>;
 }
 
 export default function EventDetailsModal({
@@ -47,6 +51,7 @@ export default function EventDetailsModal({
 }: EventDetailsModalProps) {
   if (!open) return null;
   const drawerRef = useRef<EventFormDrawerRef>(null);
+  const reservationsDrawerRef = useRef<DrawerRef>(null);
 
   function buildSlotUpdatePayload(original: IEvent, form: EventFormValues) {
     type UpdateSlotPayload = Partial<
@@ -110,6 +115,12 @@ export default function EventDetailsModal({
     drawerRef.current?.close();
   }
 
+  async function handleOpenReservationsDrawer() {
+    reservationsDrawerRef.current?.open();
+  }
+
+  const activeReservations = event?.reservations || [];
+
   if (!event) return null;
 
   const STATUS_CLASS: Record<string, { bg: string; icon: typeof CircleDashed; label: string }> = {
@@ -158,7 +169,7 @@ export default function EventDetailsModal({
   return (
     <>
       <dialog open className="modal modal-open modal-bottom sm:modal-middle z-30">
-        <div className="modal-box w-full max-w-3xl overflow-hidden sm:w-11/12 max-h-[90dvh]">
+        <div className="modal-box max-h-[90dvh] w-full max-w-3xl overflow-hidden sm:w-11/12">
           <div className="flex gap-4">
             <div className={clsx('w-2 flex-shrink-0 rounded', statusBg)} />
             <div className="flex flex-1 flex-col gap-4">
@@ -226,12 +237,17 @@ export default function EventDetailsModal({
                     </span>
                     <span className="font-semibold">{event.maxStudents}</span>
                   </div>
-                  <div className="flex flex-col">
+                  <button
+                    type="button"
+                    onClick={reservationCount > 0 ? handleOpenReservationsDrawer : undefined}
+                    disabled={reservationCount === 0}
+                    className="border-base-300 hover:bg-base-300/50 -m-2 flex cursor-pointer flex-col rounded-md border p-2 transition-colors disabled:cursor-default disabled:opacity-60 disabled:hover:bg-transparent"
+                  >
                     <span className="text-xs font-medium tracking-wide text-gray-500 uppercase">
-                      Reservas
+                      Ver reservas
                     </span>
                     <span className="font-semibold">{reservationCount}</span>
-                  </div>
+                  </button>
                 </div>
               </div>
 
@@ -291,6 +307,37 @@ export default function EventDetailsModal({
           maxStudents: event.maxStudents,
         }}
       />
+
+      <Drawer ref={reservationsDrawerRef} title="Estudiantes con reserva" width="lg" side="right">
+        {activeReservations.length === 0 ? (
+          <p className="text-base-content/70 py-4 text-center">No hay reservas activas.</p>
+        ) : (
+          <ul className="flex flex-col gap-3">
+            {activeReservations.map((res: IReservation) => (
+              <li
+                key={res.id}
+                className="border-base-300 bg-base-100 flex flex-col gap-1 rounded-lg border p-3"
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className={clsx(
+                      'badge badge-sm',
+                      res.status === 'confirmed' ? 'badge-success' : 'badge-warning'
+                    )}
+                  >
+                    {res.status === 'confirmed' ? 'Confirmada' : 'Pendiente'}
+                  </span>
+                  <span className="font-medium">{res.student?.name ?? 'Estudiante'}</span>
+                </div>
+                <div className="text-base-content/70 flex items-center gap-2 text-sm">
+                  <Phone className="h-4 w-4 shrink-0" />
+                  <span>{res.student?.phone ?? '-'}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Drawer>
     </>
   );
 }
