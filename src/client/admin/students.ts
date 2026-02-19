@@ -59,6 +59,23 @@ export interface StudentsResponse {
   totalPages: number;
 }
 
+export interface EnrollmentProgressClass {
+  id: number;
+  title: string;
+  hasReservation: boolean;
+}
+
+export interface EnrollmentProgressCourse {
+  id: number;
+  title: string;
+  acronym: string;
+  classes: EnrollmentProgressClass[];
+}
+
+export interface StudentEnrollmentProgress {
+  courses: EnrollmentProgressCourse[];
+}
+
 // ==================== CRUD OPERATIONS ====================
 
 /**
@@ -85,6 +102,25 @@ export async function getStudentById(id: number): Promise<Student> {
   } catch (error: any) {
     console.error(`Error fetching student ${id}:`, error);
     throw new Error(error.response?.data?.message || 'Error al obtener usuario');
+  }
+}
+
+/**
+ * Obtener progreso de inscripción del estudiante (cursos y clases con/sin reserva)
+ */
+export async function getStudentEnrollmentProgress(
+  studentId: number
+): Promise<StudentEnrollmentProgress> {
+  try {
+    const response = await httpClient.get<StudentEnrollmentProgress>(
+      `admin/students/${studentId}/enrollment-progress`
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error(`Error fetching enrollment progress for student ${studentId}:`, error);
+    throw new Error(
+      error.response?.data?.message || 'Error al obtener progreso del estudiante'
+    );
   }
 }
 
@@ -255,6 +291,7 @@ export async function getStudentStats(): Promise<{
 export default {
   getStudents,
   getStudentById,
+  getStudentEnrollmentProgress,
   createStudent,
   updateStudent,
   deleteStudent,
