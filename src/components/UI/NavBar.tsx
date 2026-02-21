@@ -50,7 +50,11 @@ const NavBar: React.FC = () => {
           icon: <GraduationCap className="h-5 w-5" />,
         },
         { label: 'Reservas', href: '/admin/reservas', icon: <Calendar className="h-5 w-5" /> },
-        { label: 'Pagos', href: '/admin/pagos', icon: <CreditCard className="h-5 w-5" /> },
+        {
+          label: 'Pagos y reservas',
+          href: '/admin/pagos',
+          icon: <CreditCard className="h-5 w-5" />,
+        },
       ];
     } else if (isProfessor) {
       return [
@@ -74,7 +78,6 @@ const NavBar: React.FC = () => {
   const isActive = (href: string) => {
     const path = location.pathname;
     if (!path) return false;
-    // Exact match para home, starts with para otros
     if (href === '/app' || href === '/admin' || href === '/profesor') {
       return path === href;
     }
