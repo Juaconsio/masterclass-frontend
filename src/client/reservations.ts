@@ -1,5 +1,6 @@
 import { httpClient } from './config';
 import type { ICourse, IPayment, IPricingPlan, IReservation, ISlot } from '@/interfaces';
+import type { IEvent } from '@/interfaces/events/IEvent';
 import buildQuery from './lib/buildQuery';
 
 async function fetchReservations() {
@@ -45,6 +46,30 @@ async function updateReservation(reservationId: number, payload: any) {
 
 async function deleteReservation(reservationId: number) {
   const res = await httpClient.delete(`/reservations/${reservationId}`);
+  return res.data;
+}
+
+/** Reschedule options match IEvent/ISlot for direct use with SlotInfo. */
+export type RescheduleOption = IEvent & { availableSeats: number };
+
+export async function getRescheduleOptions(reservationId: number): Promise<{
+  reservationId: number;
+  classId: number;
+  options: RescheduleOption[];
+}> {
+  const res = await httpClient.get(`/students/me/reservations/${reservationId}/reschedule-options`);
+  return res.data;
+}
+
+export async function rescheduleReservation(reservationId: number, newSlotId: number) {
+  const res = await httpClient.post(`/students/me/reservations/${reservationId}/reschedule`, {
+    newSlotId,
+  });
+  return res.data;
+}
+
+export async function requestRefund(reservationId: number) {
+  const res = await httpClient.post(`/students/me/reservations/${reservationId}/refund-request`);
   return res.data;
 }
 

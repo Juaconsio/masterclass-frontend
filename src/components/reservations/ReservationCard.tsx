@@ -26,6 +26,9 @@ const RESERVATION_STATUS_STYLES = {
   pending: { bg: 'bg-warning', text: 'text-warning', label: 'Pendiente' },
   confirmed: { bg: 'bg-success', text: 'text-success', label: 'Confirmada' },
   cancelled: { bg: 'bg-error', text: 'text-error', label: 'Cancelada' },
+  reschedule_pending: { bg: 'bg-warning', text: 'text-warning', label: 'Reagendar' },
+  to_refund: { bg: 'bg-warning', text: 'text-warning', label: 'Reembolso solicitado' },
+  refunded: { bg: 'bg-info', text: 'text-info', label: 'Reembolsada' },
   attended: { bg: 'bg-info', text: 'text-info', label: 'Completada' },
   no_show: { bg: 'bg-error', text: 'text-error', label: 'No Asistió' },
 };
