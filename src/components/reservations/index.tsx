@@ -19,11 +19,7 @@ const Reservations: React.FC = () => {
     setLoading(true);
     try {
       const reservationsRes = await fetchReservations().then((dataJson) => dataJson || []);
-      // Filtrar solo reservas activas (pending o confirmed)
-      const activeReservations = (reservationsRes || []).filter(
-        (r: Reservation) => r.status === 'pending' || r.status === 'confirmed'
-      );
-      setReservations(activeReservations);
+      setReservations(reservationsRes || []);
     } catch (err) {
       console.error('Error loading dashboard data', err);
     } finally {

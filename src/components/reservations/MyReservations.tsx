@@ -80,6 +80,9 @@ export function MyReservations({
 
   const pending = reservations.filter((r) => r.status === 'pending');
   const confirmed = reservations.filter((r) => r.status === 'confirmed');
+  const reschedulePending = reservations.filter((r) => r.status === 'reschedule_pending');
+  const toRefund = reservations.filter((r) => r.status === 'to_refund');
+  const refunded = reservations.filter((r) => r.status === 'refunded');
   const cancelled = reservations.filter((r) => r.status === 'cancelled');
 
   const getStatusBadge = (status: string) => {
@@ -103,6 +106,27 @@ export function MyReservations({
           <div className="badge badge-error gap-2">
             <XCircle className="h-3 w-3" />
             Cancelada
+          </div>
+        );
+      case 'reschedule_pending':
+        return (
+          <div className="badge badge-warning gap-2">
+            <Clock className="h-3 w-3" />
+            Reagendar
+          </div>
+        );
+      case 'to_refund':
+        return (
+          <div className="badge badge-warning gap-2">
+            <Clock className="h-3 w-3" />
+            Reembolso solicitado
+          </div>
+        );
+      case 'refunded':
+        return (
+          <div className="badge badge-info gap-2">
+            <CheckCircle className="h-3 w-3" />
+            Reembolsada
           </div>
         );
       default:
@@ -176,6 +200,17 @@ export function MyReservations({
               </button>
             </div>
           )}
+
+          {reservation.status === 'reschedule_pending' && (
+            <div className="card-actions mt-4 justify-end">
+              <a
+                className="btn btn-sm btn-outline"
+                href={`/app/reservas/${reservation.id}/reagendar`}
+              >
+                Reagendar o reembolso
+              </a>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -200,6 +235,36 @@ export function MyReservations({
             Confirmadas ({confirmed.length})
           </h3>
           <div className="grid gap-4">{confirmed.map((r) => renderReservation(r))}</div>
+        </section>
+      )}
+
+      {reschedulePending.length > 0 && (
+        <section>
+          <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+            <Clock className="text-warning h-5 w-5" />
+            Pendientes de Reagendar ({reschedulePending.length})
+          </h3>
+          <div className="grid gap-4">{reschedulePending.map((r) => renderReservation(r))}</div>
+        </section>
+      )}
+
+      {toRefund.length > 0 && (
+        <section>
+          <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+            <Clock className="text-warning h-5 w-5" />
+            Reembolso solicitado ({toRefund.length})
+          </h3>
+          <div className="grid gap-4">{toRefund.map((r) => renderReservation(r))}</div>
+        </section>
+      )}
+
+      {refunded.length > 0 && (
+        <section>
+          <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+            <CheckCircle className="text-info h-5 w-5" />
+            Reembolsadas ({refunded.length})
+          </h3>
+          <div className="grid gap-4">{refunded.map((r) => renderReservation(r))}</div>
         </section>
       )}
 

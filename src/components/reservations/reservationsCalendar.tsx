@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight, CalendarIcon } from 'lucide-react';
 import { ReservationCard } from './';
 import type { IEvent, IReservation } from '@/interfaces';
+import { Link } from 'react-router';
 
 type ReservationsCalendarProps = {
   reservations: IReservation[];
@@ -135,20 +136,30 @@ export function ReservationsCalendar({
                           Ver clase
                         </a>
                       )}
-                      <button
-                        className="btn btn-error btn-sm"
-                        onClick={() => onDeleteReservation?.(reservation.id)}
-                        disabled={isDeleting}
-                      >
-                        {isDeleting ? (
-                          <>
-                            <span className="loading loading-spinner loading-xs"></span>
-                            Cancelando...
-                          </>
-                        ) : (
-                          'Cancelar'
-                        )}
-                      </button>
+                      {reservation.status === 'reschedule_pending' && (
+                        <Link
+                          to={`/app/reservas/${reservation.id}/reagendar`}
+                          className="btn btn-outline btn-sm"
+                        >
+                          Reagendar
+                        </Link>
+                      )}
+                      {reservation.status === 'pending' && (
+                        <button
+                          className="btn btn-error btn-sm"
+                          onClick={() => onDeleteReservation?.(reservation.id)}
+                          disabled={isDeleting}
+                        >
+                          {isDeleting ? (
+                            <>
+                              <span className="loading loading-spinner loading-xs"></span>
+                              Cancelando...
+                            </>
+                          ) : (
+                            'Cancelar'
+                          )}
+                        </button>
+                      )}
                     </div>
                   }
                 />
