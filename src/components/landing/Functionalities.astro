@@ -1,0 +1,99 @@
+---
+import { Icon } from 'astro-icon/components';
+
+const features = [
+  {
+    title: 'Booking Inteligente',
+    desc: 'Reserva tus clases particulares o grupales en segundos. Elige a tu tutor favorito y horario.',
+    icon: 'mdi:calendar-clock',
+    iconBg: 'bg-info/15',
+    iconColor: 'text-info',
+  },
+  {
+    title: 'Biblioteca de Material',
+    desc: 'Acceso ilimitado a guías, ejercicios resueltos y resúmenes hechos por expertos.',
+    icon: 'mdi:book-open-page-variant',
+    iconBg: 'bg-primary/15',
+    iconColor: 'text-primary',
+  },
+  {
+    title: 'Clases Grabadas',
+    desc: '¿Te perdiste la clase? No importa. Todas las sesiones quedan grabadas en alta definición.',
+    icon: 'mdi:play-circle',
+    iconBg: 'bg-secondary/15',
+    iconColor: 'text-secondary',
+  },
+  {
+    title: 'Notificaciones',
+    desc: 'Olvidate del desorden: avisos de horarios, recordatorios y novedades al instante.',
+    icon: 'mdi:bell-ring',
+    iconBg: 'bg-warning/15',
+    iconColor: 'text-warning',
+  },
+  {
+    title: 'Foro de Dudas',
+    desc: 'Un espacio colaborativo donde alumnos y tutores resuelven dudas y comparten tips.',
+    icon: 'mdi:account-group',
+    iconBg: 'bg-neutral/15',
+    iconColor: 'text-neutral',
+    comingSoon: true,
+  },
+  {
+    title: 'Pagos Automáticos',
+    desc: 'Pago seguro con Webpay, transferencia o tarjeta. Sin sorpresas, todo automatizado.',
+    icon: 'mdi:credit-card-check',
+    iconBg: 'bg-success/15',
+    iconColor: 'text-success',
+    comingSoon: true,
+  },
+];
+---
+
+<section id="functionalities" class="py-12 sm:py-16 md:py-20">
+  <div class="container mx-auto px-4 sm:px-6">
+    <div class="mb-10 text-center sm:mb-14 md:mb-16">
+      <h2 class="font-display mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl md:text-5xl">
+        Todo lo que necesitas
+        <span class="text-primary"> en un solo lugar</span>
+      </h2>
+      <p class="text-base-content/70 mx-auto max-w-2xl text-base sm:text-lg">
+        Una plataforma pensada para maximizar tu rendimiento académico.
+      </p>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
+      {
+        features.map((item) => (
+          <article class="shadow-base-content/5 relative flex flex-col overflow-hidden rounded-2xl bg-white/80 p-6 shadow-lg transition-shadow hover:shadow-xl sm:p-8">
+            {item.comingSoon && (
+              <div
+                class="pointer-events-none absolute inset-0 z-20 flex items-center justify-center overflow-hidden"
+                aria-hidden="true"
+              >
+                <span class="font-display -rotate-[28deg] text-4xl font-bold tracking-[0.25em] text-base-content opacity-30 select-none sm:text-5xl">
+                  PRONTO
+                </span>
+              </div>
+            )}
+            <div
+              class={`relative z-10 flex flex-col ${item.comingSoon ? 'opacity-50' : ''}`}
+            >
+              <header class="mb-5 flex items-center gap-3">
+                <div
+                  class={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl sm:h-14 sm:w-14 ${item.iconBg} ${item.iconColor}`}
+                  aria-hidden="true"
+                >
+                  <Icon name={item.icon} size={28} class="sm:h-8 sm:w-8" />
+                </div>
+              </header>
+              <h3 class="font-display text-base-content mb-3 text-xl font-bold sm:text-2xl">
+                {item.title}
+              </h3>
+              <p class="text-base-content/70 text-sm leading-relaxed sm:text-base">{item.desc}</p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

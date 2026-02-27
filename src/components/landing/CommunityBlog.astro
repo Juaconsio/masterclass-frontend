@@ -1,0 +1,99 @@
+---
+import { getCollection } from 'astro:content';
+import { Icon } from 'astro-icon/components';
+
+const posts = await getCollection('blog');
+const sortedPosts = posts
+  .slice()
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+const postsToShow = sortedPosts.slice(0, 3);
+
+const formatDate = (value: string) =>
+  new Date(value).toLocaleDateString('es-CL', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+---
+
+<div class="bg-base-100">
+  <section id="blog" class="py-12 sm:py-16 md:py-20">
+    <div class="container mx-auto px-4 sm:px-6">
+      <div
+        class="mb-8 flex flex-col gap-4 sm:mb-10 md:flex-row md:items-end md:justify-between md:gap-6"
+      >
+        <div>
+          <h2 class="font-display text-base-content text-3xl font-bold sm:text-4xl md:text-5xl">
+            Comunidad SalvaRamos
+          </h2>
+          <p class="text-base-content/70 mt-2 text-base sm:text-lg">
+            Tips, guías y lo último en la vida universitaria.
+          </p>
+        </div>
+        <a
+          href="/blog"
+          class="text-primary hover:text-primary/80 inline-flex items-center gap-1 font-semibold transition-colors"
+        >
+          Ver todo el blog
+          <Icon name="mdi:arrow-right" size={20} class="shrink-0" aria-hidden="true" />
+        </a>
+      </div>
+
+      {
+        postsToShow.length === 0 ? (
+          <p class="text-base-content/60 text-center">Pronto habrá contenido aquí.</p>
+        ) : (
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {postsToShow.map((post) => {
+              const imageSrc = post.data.heroImage ?? post.data.cover;
+              const category = post.data.categories?.[0] ?? 'Blog';
+              return (
+                <article class="group card bg-base-200 overflow-hidden rounded-2xl shadow-lg">
+                  {imageSrc && (
+                    <a href={`/blog/${post.slug}`} class="block overflow-hidden">
+                      <figure class="relative aspect-[4/3] overflow-hidden">
+                        <img
+                          src={imageSrc}
+                          alt={post.data.title}
+                          class="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+                        />
+                        <span class="bg-primary text-primary-content absolute top-3 left-3 rounded-md px-2.5 py-1 text-xs font-semibold tracking-wide uppercase">
+                          {category}
+                        </span>
+                      </figure>
+                    </a>
+                  )}
+                  <div class="card-body p-5 sm:p-6">
+                    {!imageSrc && post.data.categories?.length && (
+                      <span class="bg-primary text-primary-content mb-2 inline-block w-fit rounded-md px-2.5 py-1 text-xs font-semibold tracking-wide uppercase">
+                        {post.data.categories[0]}
+                      </span>
+                    )}
+                    <p class="text-base-content/60 text-sm">{formatDate(post.data.date)}</p>
+                    <h3 class="font-display card-title mt-1 line-clamp-2 text-lg leading-snug font-bold">
+                      <a href={`/blog/${post.slug}`} class="hover:text-primary">
+                        {post.data.title}
+                      </a>
+                    </h3>
+                    <a
+                      href={`/blog/${post.slug}`}
+                      class="text-base-content hover:text-primary mt-3 inline-flex items-center gap-1 text-sm font-medium"
+                    >
+                      Leer más
+                      <Icon
+                        name="mdi:chevron-right"
+                        size={18}
+                        class="shrink-0"
+                        aria-hidden="true"
+                      />
+                    </a>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )
+      }
+    </div>
+  </section>
+</div>

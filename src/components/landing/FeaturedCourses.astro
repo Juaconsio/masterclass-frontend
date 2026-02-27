@@ -1,0 +1,51 @@
+---
+import type { CourseListingEntry } from '@/types/course';
+import CourseCard from './courses/CourseCard.astro';
+
+interface Props {
+  courses: CourseListingEntry[];
+}
+
+const { courses } = Astro.props;
+---
+
+<section id="courses">
+  <div class="container mx-auto px-4 sm:px-6">
+    <div class="mb-8 text-center sm:mb-12 md:mb-16">
+      <h2 class="font-display mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl md:text-5xl">
+        Revisa los cursos que enseñamos
+      </h2>
+      <p class="text-base-content/70 mx-auto max-w-3xl px-4 text-base sm:text-lg md:text-xl">
+        ¿No encuentras el que buscas? Contáctanos y veremos si podemos crearlo para ti.
+      </p>
+    </div>
+
+    <div
+      class="mb-8 grid grid-cols-1 gap-4 sm:mb-12 sm:grid-cols-2 sm:gap-6 md:gap-8 lg:grid-cols-3 xl:grid-cols-4"
+      data-usal="split-item split-fade-l split-delay-800 duration-700"
+    >
+      {
+        courses.length > 0 ? (
+          courses.map((course) => <CourseCard course={course} />)
+        ) : (
+          <div class="col-span-4">
+            <div class="flex flex-col items-center justify-center">
+              <h3 class="font-display text-2xl font-bold">No hay cursos disponibles</h3>
+            </div>
+            <div class="flex flex-col items-center justify-center">
+              <p class="text-base-content/70 text-sm">
+                No hay cursos disponibles en este momento. Por favor, inténtalo más tarde.
+              </p>
+            </div>
+          </div>
+        )
+      }
+    </div>
+
+    <div class="text-center" data-usal="fade delay-800 duration-700">
+      <a href="/courses" class="btn btn-ghost btn-md sm:btn-lg w-full sm:w-auto">
+        Ver todos los cursos
+      </a>
+    </div>
+  </div>
+</section>

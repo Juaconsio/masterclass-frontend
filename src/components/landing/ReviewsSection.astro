@@ -1,0 +1,38 @@
+---
+import ReviewsCarousel from './reviews/ReviewsCarousel.tsx';
+
+export interface ReviewItem {
+  id: string;
+  name: string;
+  profile: string;
+  studies: string;
+  comment: string;
+  course: string;
+  rating?: number;
+  image?: string;
+  date?: string;
+}
+
+interface Props {
+  reviews: ReviewItem[];
+}
+
+const { reviews } = Astro.props;
+---
+
+<div class="bg-base-200">
+  <section id="reviews" class="pt-12 pb-12 sm:pt-16 sm:pb-16 md:pt-20 md:pb-20">
+    <div class="container mx-auto px-4 sm:px-6">
+      <div class="mb-8 text-center sm:mb-12 md:mb-16">
+        <h2 class="font-display mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl md:text-5xl">
+          Que te lo cuenten ellas y ellos
+        </h2>
+        <p class="text-base-content/70 mx-auto max-w-3xl px-4 text-base sm:text-lg md:text-xl">
+          Conoce la experiencia de quienes ya han confiado en nosotros.
+        </p>
+      </div>
+
+      <ReviewsCarousel reviews={reviews} client:load />
+    </div>
+  </section>
+</div>

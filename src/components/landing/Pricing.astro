@@ -1,0 +1,133 @@
+---
+import { Icon } from 'astro-icon/components';
+
+const plans = [
+  {
+    name: 'Clase Individual',
+    price: 'Desde $15.000',
+    features: [
+      'Acceso a 1 clase en vivo',
+      'Grabación de la sesión',
+      'Material de apoyo PDF',
+      'Resolución de dudas',
+    ],
+    cta: 'Seleccionar Plan',
+    highlighted: false,
+    href: '/courses',
+  },
+  {
+    name: 'Pack Interrogación',
+    price: 'Desde $40.000',
+    features: [
+      'Todas las clases de la interrogación',
+      'Acceso ilimitado a grabaciones',
+      'Guías de ejercicios resueltos',
+      'Soporte prioritario 24/7',
+      'Ensayos de certámenes',
+    ],
+    cta: 'Seleccionar Plan',
+    highlighted: true,
+    badge: 'MÁS ELEGIDO',
+    href: '/courses',
+  },
+  {
+    name: 'Solo Material',
+    price: 'Desde $20.000',
+    features: [
+      'Guías teóricas completas',
+      'Ejercicios resueltos paso a paso',
+      'Acceso a plataforma 24/7',
+    ],
+    cta: 'Seleccionar Plan',
+    highlighted: false,
+    href: '/courses',
+  },
+];
+---
+
+<section id="pricing" class="bg-base-200 py-12 sm:py-16 md:py-20">
+  <div class="container mx-auto px-4 sm:px-6">
+    <div class="mb-10 text-center sm:mb-14 md:mb-16">
+      <h2 class="font-display mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl md:text-5xl">
+        Planes diseñados para salvarte
+      </h2>
+      <p class="text-base-content/70 mx-auto max-w-2xl text-base sm:text-lg">
+        Los precios varían según el ramo y la universidad. Elige el que mejor te funcione.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-3">
+      {
+        plans.map((plan, i) => (
+          <div
+            class={`relative flex max-w-md mx-auto w-full ${
+              plan.highlighted ? 'lg:-mx-2 lg:max-w-none lg:scale-[1.02] xl:scale-105' : ''
+            }`}
+            data-usal={
+              plan.highlighted
+                ? 'fade-u delay-400 duration-600'
+                : i === 0
+                  ? 'fade-l duration-500'
+                  : 'fade-r duration-500'
+            }
+          >
+            {plan.highlighted && plan.badge && (
+              <div
+                class="absolute -top-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-primary px-5 py-2 text-sm font-bold uppercase tracking-wide text-primary-content shadow-lg"
+                aria-hidden="true"
+              >
+                {plan.badge}
+              </div>
+            )}
+            <div
+              class={`card flex w-full flex-col overflow-hidden shadow-xl ${
+                plan.highlighted
+                  ? 'rounded-3xl bg-neutral pt-6 text-neutral-content ring-2 ring-primary/30 lg:pt-8'
+                  : 'rounded-2xl bg-base-100'
+              }`}
+            >
+              {!plan.highlighted && plan.badge && (
+                <div class="bg-primary text-primary-content px-4 py-2 text-center text-sm font-semibold uppercase tracking-wide">
+                  {plan.badge}
+                </div>
+              )}
+              <div class="card-body flex flex-1 flex-col p-6 md:p-8">
+                <h3 class="font-display card-title text-xl font-bold sm:text-2xl">{plan.name}</h3>
+                <p
+                  class={`mb-6 font-bold ${
+                    plan.highlighted ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'
+                  }`}
+                >
+                  {plan.price}
+                </p>
+                <ul class="space-y-3">
+                  {plan.features.map((feature) => (
+                    <li class="flex items-start gap-3">
+                      <Icon
+                        name="mdi:check-circle"
+                        size={22}
+                        class="mt-0.5 shrink-0 text-primary"
+                        aria-hidden="true"
+                      />
+                      <span class="text-sm sm:text-base">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div class="card-actions mt-auto pt-6">
+                  <a
+                    href={plan.href}
+                    class={`btn w-full rounded-2xl ${
+                      plan.highlighted ? 'btn-primary' : 'btn-neutral'
+                    } ${plan.highlighted ? 'btn-lg' : 'btn-md sm:btn-lg'}`}
+                  >
+                    {plan.cta}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

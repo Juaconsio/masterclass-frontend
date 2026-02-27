@@ -1,0 +1,70 @@
+---
+import { Icon } from 'astro-icon/components';
+
+const steps = [
+  {
+    number: '01',
+    title: 'Elige tu plan',
+    desc: 'Selecciona la clase individual o el paquete por pruebas se adapte a tus necesidades.',
+    icon: 'mdi:view-grid-outline',
+  },
+  {
+    number: '02',
+    title: 'Crea tu cuenta',
+    desc: 'Regístrate en segundos y realiza tu pago de forma segura con transferencia.',
+    icon: 'mdi:account-circle-outline',
+  },
+  {
+    number: '03',
+    title: 'Accede al material',
+    desc: 'Entra a tu portal personal y comienza a estudiar con clases grabadas, guías y ayuda de profesores.',
+    icon: 'mdi:play-circle-outline',
+  },
+];
+---
+
+<section id="how-it-works" class="py-12 sm:py-16 md:py-20">
+  <div class="container mx-auto px-4 sm:px-6">
+    <div class="mb-12 text-center sm:mb-16">
+      <h2 class="font-display text-primary mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl md:text-5xl">
+        Tu camino al éxito en 3 pasos
+      </h2>
+      <p class="text-base-content/70 mx-auto max-w-2xl text-base sm:text-lg">
+        Diseñamos un proceso simple para que te enfoques en lo que importa: aprender y aprobar.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-y-12 sm:grid-cols-3 sm:gap-x-10 sm:gap-y-0">
+      {
+        steps.map((step) => (
+          <div class="flex flex-col items-center text-center">
+            <div class="relative flex justify-center">
+              <div
+                class="bg-primary/80 text-primary-content flex h-20 w-20 items-center justify-center rounded-2xl shadow-sm sm:h-24 sm:w-24"
+                aria-hidden="true"
+              >
+                <Icon name={step.icon} size={40} class="sm:h-12 sm:w-12" />
+              </div>
+              <span
+                class="bg-neutral/80 text-neutral-content absolute -top-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold sm:-top-2 sm:-right-2 sm:h-9 sm:w-9"
+                aria-hidden="true"
+              >
+                {step.number}
+              </span>
+            </div>
+            <div
+              class="border-primary/40 mt-6 hidden border-b border-dashed sm:mt-8 sm:block sm:w-full"
+              aria-hidden="true"
+            />
+            <h3 class="font-display text-primary mt-6 mb-2 text-lg font-bold sm:mt-8 sm:text-xl">
+              {step.title}
+            </h3>
+            <p class="text-base-content/70 text-sm leading-relaxed text-balance sm:text-base">
+              {step.desc}
+            </p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
