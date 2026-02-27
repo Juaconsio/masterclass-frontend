@@ -1,7 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
-
+import IsotipoOutlined from '/src/assets/Isotipo Verde Outlined.svg';
 const posts = await getCollection('blog');
 const sortedPosts = posts
   .slice()
@@ -16,9 +17,15 @@ const formatDate = (value: string) =>
   });
 ---
 
-<div class="bg-base-100">
-  <section id="blog" class="py-12 sm:py-16 md:py-20">
-    <div class="container mx-auto px-4 sm:px-6">
+<div class="bg-base-100 relative overflow-hidden">
+  <section id="blog" class="relative py-12 sm:py-16 md:py-20">
+    <div
+      class="pointer-events-none absolute -right-[10%] -bottom-[15%] z-0 h-[min(100vw,100vh)] w-[min(100vw,100vh)] opacity-[0.08] 2xl:-right-0 2xl:-bottom-[40%] 2xl:h-[min(70vw,75vh)] 2xl:w-[min(70vw,75vh)]"
+      aria-hidden="true"
+    >
+      <Image src={IsotipoOutlined} alt="" class="h-full w-full object-contain object-right" />
+    </div>
+    <div class="relative z-10 container mx-auto px-4 sm:px-6">
       <div
         class="mb-8 flex flex-col gap-4 sm:mb-10 md:flex-row md:items-end md:justify-between md:gap-6"
       >

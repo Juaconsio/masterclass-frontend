@@ -58,6 +58,8 @@
   --color-accent-content: oklch(15.196% 0.04 56.72);
   --color-neutral: oklch(0.2244 0.1242 265.6);
   --color-neutral-content: oklch(0.8647 0.0272 80.24);
+
+  --color-complement: oklch(58.75% 0.078 62.62);
   --color-dark-blue: oklch(0.2254 0.1392 264.18);
   --color-info: oklch(72.06% 0.191 231.6);
   --color-info-content: oklch(0% 0 0);
@@ -91,14 +93,6 @@
   section {
     @apply container mx-auto;
   }
-
-  .line-clamp-4 {
-    display: -webkit-box;
-    line-clamp: 4;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
 }
 
 [data-navlink] {
@@ -118,7 +112,6 @@
 }
 
 @utility h-hero {
-  min-height: max(24rem, calc(var(--app-dvh) - 4rem)); /* Nunca menos de 24rem */
   margin-top: 4rem;
   padding-top: 2rem;
   padding-bottom: 2rem;
@@ -126,8 +119,7 @@
 
 @media (min-width: 1024px) {
   .h-hero {
-    min-height: calc(var(--app-dvh) - 4rem);
-    padding-bottom: 0;
+    padding-bottom: 4rem;
   }
 }
 

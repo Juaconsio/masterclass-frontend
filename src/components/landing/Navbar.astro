@@ -1,7 +1,8 @@
 ---
 import { Icon } from 'astro-icon/components';
 import { Image } from 'astro:assets';
-import Logo from '/src/assets/logo.webp';
+import Logo from '/src/assets/imagotipo.svg';
+import IsoTipo from '/src/assets/isotipo.svg';
 const links = [
   { href: '/', label: 'Inicio', icon: 'mdi:home' },
   { href: '/courses', label: 'Cursos', icon: 'mdi:book' },
@@ -11,7 +12,7 @@ const links = [
 
 <!-- Navbar principal -->
 <nav
-  class="navbar h-navbar px-3 sm:px-4 md:px-8 lg:px-12 fixed top-0 bg-base-200 backdrop-blur border-b border-base-300 z-50 flex justify-between"
+  class="navbar h-navbar bg-base-200 border-base-300 fixed top-0 z-50 flex justify-between border-b px-3 backdrop-blur sm:px-4 md:px-8 lg:px-12"
 >
   <!-- Mobile: Botón menú principal (izquierda) -->
   <div class="flex-none lg:hidden">
@@ -20,24 +21,17 @@ const links = [
       aria-label="open main menu"
       class="btn btn-navbar btn-square btn-sm sm:btn-md"
     >
-      <Icon name="mdi:menu" size={28} class="sm:w-8 sm:h-8" />
+      <Icon name="mdi:menu" size={28} class="sm:h-8 sm:w-8" />
     </label>
   </div>
 
   <!-- Logo/título -->
-  <div class="flex-1 lg:flex-none">
+  <div class="flex-1 py-2 lg:flex-none">
     <a
       href="/"
-      class="flex justify-center items-center normal-case text-lg sm:text-xl font-bold tracking-wide gap-1 sm:gap-2 hover:bg-transparent hover:border-0 px-1 sm:px-2"
+      class="flex items-center justify-center gap-1 px-1 text-lg font-bold tracking-wide normal-case hover:border-0 hover:bg-transparent sm:gap-2 sm:px-2 sm:text-xl"
     >
-      <div class="avatar">
-        <!-- <div class="w-10 h-20 sm:w-12 sm:h-24 rounded-full">
-          <Image src={Logo} alt="Salva Ramos Logo" />
-        </div> -->
-      </div>
-      <span class="hidden sm:inline font-sans font-bold text-xl text-[#0B192C] tracking-tight"
-        >Salva Ramos</span
-      >
+      <Image src={Logo} alt="Salva Ramos Logo" class="h-12 w-auto" />
     </a>
   </div>
 
@@ -57,15 +51,19 @@ const links = [
   </div>
 
   <!-- Botón Iniciar Sesión -->
-  <div class="flex-none mr-2">
+  <div class="mr-2 flex-none">
     <a href="/ingresar" aria-label="Iniciar Sesión" class="btn btn-ghost lg:px-2">
-      <Icon name="mdi:login" size={20} class="sm:w-6 sm:h-6 lg:hidden" />
+      <Icon name="mdi:login" size={20} class="sm:h-6 sm:w-6 lg:hidden" />
       <span class="hidden lg:inline">Iniciar Sesión</span>
     </a>
   </div>
   <div class="flex-none">
-    <a href="/ingresar" aria-label="Iniciar Sesión" class="btn rounded-full btn-primary lg:px-2">
-      <Icon name="mdi:login" size={20} class="sm:w-6 sm:h-6 lg:hidden" />
+    <a
+      href="/ingresar"
+      aria-label="Iniciar Sesión"
+      class="btn btn-primary rounded-full px-2 lg:px-4"
+    >
+      <Icon name="mdi:login" size={20} class="sm:h-6 sm:w-6 lg:hidden" />
       <span class="hidden lg:inline">Empezar ahora</span>
     </a>
   </div>
@@ -77,7 +75,7 @@ const links = [
   <div class="drawer-content"></div>
   <div class="drawer-side">
     <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-    <ul class="menu bg-base-200 min-h-full w-72 sm:w-80 p-4 sm:p-6">
+    <ul class="menu bg-base-200 min-h-full w-72 p-4 sm:w-80 sm:p-6">
       <li class="menu-title mb-2">
         <span class="text-base sm:text-lg">Navegación</span>
       </li>
@@ -87,9 +85,9 @@ const links = [
             <a
               data-navlink
               href={link.href}
-              class="text-base sm:text-lg font-medium flex justify-between py-3 sm:py-4"
+              class="flex justify-between py-3 text-base font-medium sm:py-4 sm:text-lg"
             >
-              <Icon name={link.icon} size={24} class="sm:w-6 sm:h-6" />
+              <Icon name={link.icon} size={24} class="sm:h-6 sm:w-6" />
               <span>{link.label}</span>
             </a>
           </li>

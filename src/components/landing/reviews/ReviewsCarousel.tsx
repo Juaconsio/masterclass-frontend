@@ -1,5 +1,6 @@
 import { Splide, SplideSlide, SplideTrack } from '@splidejs/react-splide';
 import ReviewCard from './ReviewCard';
+import { ChevronLeft, ChevronRight, Icon } from 'lucide-react';
 
 interface Review {
   id: string;
@@ -57,22 +58,37 @@ export default function ReviewsCarousel({ reviews }: ReviewsCarouselProps) {
   };
 
   return (
-    <div className="w-full px-2 sm:px-4">
+    <div className="w-full">
       <Splide
         aria-label="Reseñas de estudiantes"
         options={options}
         hasTrack={false}
-        className="relative [mask-image:linear-gradient(to_right,transparent_0,black_var(--edge-fade),black_calc(100%_-_var(--edge-fade)),transparent_100%)] [--edge-fade:20px] [-webkit-mask-image:linear-gradient(to_right,transparent_0,black_var(--edge-fade),black_calc(100%_-_var(--edge-fade)),transparent_100%)] sm:[--edge-fade:24px] md:[--edge-fade:40px] [&_.splide__arrow--next]:!-right-4 [&_.splide__arrow--next]:sm:!-right-8 [&_.splide__arrow--next]:md:!-right-12 [&_.splide__arrow--prev]:!-left-4 [&_.splide__arrow--prev]:sm:!-left-8 [&_.splide__arrow--prev]:md:!-left-12 [&_.splide__arrows]:px-4 [&_.splide__arrows]:sm:px-8 [&_.splide__arrows]:md:px-12 [&_.splide__pagination]:!mt-6 [&_.splide__pagination]:sm:!mt-8"
+        className="relative"
       >
-        <SplideTrack className="overflow-visible">
+        {/* Track */}
+        <SplideTrack className="overflow-visible px-8 pb-8">
           {reviews.map((review) => (
             <SplideSlide key={review.id}>
-              <div className="h-full px-2 py-2 sm:px-3 sm:py-3 md:px-4">
-                <ReviewCard review={review} />
-              </div>
+              <ReviewCard review={review} />
             </SplideSlide>
           ))}
         </SplideTrack>
+
+        {/* Arrows custom */}
+        <div className="splide__arrows pointer-events-none absolute inset-y-0 w-full">
+          <button
+            className="splide__arrow splide__arrow--prev pointer-events-auto absolute top-1/2 left-0 -translate-y-1/2"
+            aria-label="Anterior"
+          >
+            <ChevronRight size={24} />
+          </button>
+          <button
+            className="splide__arrow splide__arrow--next pointer-events-auto absolute top-1/2 right-0 -translate-y-1/2"
+            aria-label="Siguiente"
+          >
+            <ChevronRight size={24} />
+          </button>
+        </div>
       </Splide>
     </div>
   );

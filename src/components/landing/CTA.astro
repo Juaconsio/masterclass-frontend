@@ -1,0 +1,26 @@
+---
+import { Icon } from 'astro-icon/components';
+---
+
+<div class="py-24">
+  <section
+    class="bg-neutral text-neutral-content flex h-96 flex-col items-center justify-center gap-3 rounded-4xl p-8 text-center"
+  >
+    <h2 class="font-display mb-2 text-6xl font-bold">¿Listo para comenzar?</h2>
+    <p class="text-xl">
+      Únete a cientos de estudiantes que ya están estudiando de forma inteligente.
+    </p>
+    <div class="mt-6 flex items-center justify-center gap-3">
+      <a href="/ingresar" class="btn btn-primary btn-xl rounded-full">Empezar ahora</a>
+      <a
+        href="https://wa.me/56934476377"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-ghost btn-primary btn-xl rounded-full"
+      >
+        <Icon name="mdi:whatsapp" size={24} />
+        Habla con nosotros
+      </a>
+    </div>
+  </section>
+</div>

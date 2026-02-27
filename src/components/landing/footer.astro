@@ -1,5 +1,7 @@
 ---
-// Props opcionales si se necesitara personalizar más adelante
+import { Image } from 'astro:assets';
+import Logo from '/src/assets/logo.svg';
+import { Icon } from 'astro-icon/components';
 const year = new Date().getFullYear();
 ---
 
@@ -9,15 +11,9 @@ const year = new Date().getFullYear();
       <!-- Brand / About -->
       <div class="space-y-3 sm:space-y-4">
         <a href="/" class="inline-flex items-center gap-2 sm:gap-3">
-          <img
-            src="/images/logo.png"
-            alt="SalvaRamos Logo"
-            class="h-18 w-auto sm:h-22"
-            loading="lazy"
-          />
-          <span class="text-xl font-bold sm:text-2xl">SalvaRamos</span>
+          <Image src={Logo} alt="SalvaRamos Logo" class="h-18 w-auto sm:h-22" />
         </a>
-        <p class="text-sm sm:text-base">
+        <p class="text-sm text-balance sm:text-base">
           Empoderamos a la próxima generación de ingenieros con cursos claros, prácticos y
           acompañamiento cercano.
         </p>
@@ -27,24 +23,22 @@ const year = new Date().getFullYear();
       <nav aria-labelledby="footer-nav-title" class="space-y-3 sm:space-y-4">
         <h3 id="footer-nav-title" class="text-base font-semibold sm:text-lg">Navegación</h3>
         <ul class="space-y-1.5 text-sm sm:space-y-2 sm:text-base">
-          <li><a class="link link-hover text-base-100 hover:text-primary" href="/">Inicio</a></li>
-          <li><a class="link link-hover text-base-100 hover:text-primary" href="/about">Sobre nosotros</a></li>
-          <li><a class="link link-hover text-base-100 hover:text-primary" href="/courses">Cursos</a></li>
+          <li><a class="link link-hover link-white" href="/">Inicio</a></li>
+          <li><a class="link link-hover link-white" href="/about">Sobre nosotros</a></li>
+          <li><a class="link link-hover link-white" href="/courses">Cursos</a></li>
           <!-- <li><a class="link link-hover" href="/home#faq">Preguntas frecuentes</a></li> -->
-          <li><a class="link link-hover text-base-100 hover:text-primary" href="/#contact">Contacto</a></li>
+          <li><a class="link link-hover link-white" href="/#contact">Contacto</a></li>
         </ul>
       </nav>
 
       <!-- Contacto -->
-      <div
-        aria-labelledby="footer-contact-title"
-        class="text-base-content/80 space-y-3 sm:space-y-4"
-      >
+      <div aria-labelledby="footer-contact-title" class="space-y-3 sm:space-y-4">
         <h3 id="footer-contact-title" class="text-base font-semibold sm:text-lg">Contacto</h3>
         <ul class="space-y-1.5 text-sm sm:space-y-2 sm:text-base">
           <li>
-            <a class="link link-hover text-base-100/90 break-all hover:text-primary" href="mailto:contacto@salvaramos.cl"
-              >salvaramos@gmail.com</a
+            <a
+              class="link link-hover text-base-100/90 hover:text-primary break-all"
+              href="mailto:contacto@salvaramos.cl">salvaramos@gmail.com</a
             >
           </li>
           <li>
@@ -67,11 +61,9 @@ const year = new Date().getFullYear();
       </div>
 
       <!-- Boletín (opcional) -->
-      <div class="space-y-3 sm:space-y-4">
+      <!-- <div class="space-y-3 sm:space-y-4">
         <h3 class="text-base font-semibold sm:text-lg">Mantente al día</h3>
-        <p class="text-neutral/80 text-sm sm:text-base">
-          Recibe novedades de cursos y fechas importantes.
-        </p>
+        <p class="text-sm sm:text-base">Recibe novedades de cursos y fechas importantes.</p>
         <form class="join max-w-sm flex-col sm:flex-row">
           <input
             type="email"
@@ -83,24 +75,19 @@ const year = new Date().getFullYear();
             >Suscribirme</button
           >
         </form>
-      </div>
+      </div> -->
     </div>
 
     <div class="divider my-6 sm:my-8"></div>
 
     <!-- Legal / Credits -->
     <div class="flex flex-col items-center justify-between gap-3 sm:gap-4 md:flex-row">
-      <p class="text-base-content/60 text-center text-xs sm:text-sm md:text-left">
+      <p class="text-center text-xs sm:text-sm md:text-left">
         © {year} SalvaRamos. Todos los derechos reservados.
       </p>
-      <!-- <p class="text-sm text-base-content/60">
-        Powered by <a
-          href="https://conejodev.com"
-          class="link link-hover font-medium"
-          rel="noopener"
-          target="_blank">Conejo Dev</a
-        >
-      </p> -->
+      <p class="text-sm">
+        Powered by <Icon name="mdi:rabbit" class="inline-block" size={16} /> conejo.dev
+      </p>
     </div>
   </div>
 </footer>

@@ -9,7 +9,7 @@ import Functionalities from './Functionalities.astro';
 import HowItWorks from './HowItWorks.astro';
 import Pricing from './Pricing.astro';
 import CommunityBlog from './CommunityBlog.astro';
-import ContactUs from './contactUs/index.astro';
+import CTA from './CTA.astro';
 import Footer from './footer.astro';
 import { getCollection } from 'astro:content';
 import { getPublicCourseCatalog } from '@/lib/courseCatalog';
@@ -61,8 +61,6 @@ const reviewsData = reviewsToShow.map((review) => ({
   <ReviewsSection reviews={reviewsData} />
   <CommunityBlog />
 
-  <!-- Contact Section -->
-  <!-- <ContactUs /> -->
-
+  <CTA />
   <Footer />
 </div>
