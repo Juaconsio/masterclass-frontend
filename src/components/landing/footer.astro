@@ -3,21 +3,21 @@
 const year = new Date().getFullYear();
 ---
 
-<footer class="bg-neutral-content text-white">
-  <div class="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
+<footer class="text-neutral-content bg-black">
+  <div class="container mx-auto px-4 py-8 sm:px-6 sm:py-12">
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 md:grid-cols-4">
       <!-- Brand / About -->
       <div class="space-y-3 sm:space-y-4">
         <a href="/" class="inline-flex items-center gap-2 sm:gap-3">
           <img
             src="/images/logo.png"
             alt="SalvaRamos Logo"
-            class="h-18 sm:h-22 w-auto"
+            class="h-18 w-auto sm:h-22"
             loading="lazy"
           />
-          <span class="text-xl sm:text-2xl font-bold text-primary">SalvaRamos</span>
+          <span class="text-xl font-bold sm:text-2xl">SalvaRamos</span>
         </a>
-        <p class="text-neutral/80 text-sm sm:text-base">
+        <p class="text-sm sm:text-base">
           Empoderamos a la próxima generación de ingenieros con cursos claros, prácticos y
           acompañamiento cercano.
         </p>
@@ -25,28 +25,31 @@ const year = new Date().getFullYear();
 
       <!-- Navegación -->
       <nav aria-labelledby="footer-nav-title" class="space-y-3 sm:space-y-4">
-        <h3 id="footer-nav-title" class="text-base sm:text-lg font-semibold">Navegación</h3>
-        <ul class="space-y-1.5 sm:space-y-2 text-sm sm:text-base">
-          <li><a class="link link-hover" href="/">Inicio</a></li>
-          <li><a class="link link-hover" href="/about">Sobre nosotros</a></li>
-          <li><a class="link link-hover" href="/courses">Cursos</a></li>
+        <h3 id="footer-nav-title" class="text-base font-semibold sm:text-lg">Navegación</h3>
+        <ul class="space-y-1.5 text-sm sm:space-y-2 sm:text-base">
+          <li><a class="link link-hover text-base-100 hover:text-primary" href="/">Inicio</a></li>
+          <li><a class="link link-hover text-base-100 hover:text-primary" href="/about">Sobre nosotros</a></li>
+          <li><a class="link link-hover text-base-100 hover:text-primary" href="/courses">Cursos</a></li>
           <!-- <li><a class="link link-hover" href="/home#faq">Preguntas frecuentes</a></li> -->
-          <li><a class="link link-hover" href="/#contact">Contacto</a></li>
+          <li><a class="link link-hover text-base-100 hover:text-primary" href="/#contact">Contacto</a></li>
         </ul>
       </nav>
 
       <!-- Contacto -->
-      <div aria-labelledby="footer-contact-title" class="space-y-3 sm:space-y-4">
-        <h3 id="footer-contact-title" class="text-base sm:text-lg font-semibold">Contacto</h3>
-        <ul class="space-y-1.5 sm:space-y-2 text-neutral/80 text-sm sm:text-base">
+      <div
+        aria-labelledby="footer-contact-title"
+        class="text-base-content/80 space-y-3 sm:space-y-4"
+      >
+        <h3 id="footer-contact-title" class="text-base font-semibold sm:text-lg">Contacto</h3>
+        <ul class="space-y-1.5 text-sm sm:space-y-2 sm:text-base">
           <li>
-            <a class="link link-hover break-all" href="mailto:contacto@salvaramos.cl"
+            <a class="link link-hover text-base-100/90 break-all hover:text-primary" href="mailto:contacto@salvaramos.cl"
               >salvaramos@gmail.com</a
             >
           </li>
           <li>
             <a
-              class="link link-hover"
+              class="link link-hover text-base-100/90 hover:text-primary"
               href="https://wa.me/56934476377"
               rel="noopener"
               target="_blank">+56 9 3447 6377</a
@@ -54,7 +57,7 @@ const year = new Date().getFullYear();
           </li>
           <li>
             <a
-              class="link link-hover"
+              class="link link-hover text-base-100/90 hover:text-primary"
               href="https://instagram.com/salvaramos_ing"
               rel="noopener"
               target="_blank">@salvaramos_ing</a
@@ -65,16 +68,16 @@ const year = new Date().getFullYear();
 
       <!-- Boletín (opcional) -->
       <div class="space-y-3 sm:space-y-4">
-        <h3 class="text-base sm:text-lg font-semibold">Mantente al día</h3>
+        <h3 class="text-base font-semibold sm:text-lg">Mantente al día</h3>
         <p class="text-neutral/80 text-sm sm:text-base">
           Recibe novedades de cursos y fechas importantes.
         </p>
-        <form class="join flex-col sm:flex-row max-w-sm">
+        <form class="join max-w-sm flex-col sm:flex-row">
           <input
             type="email"
             required
             placeholder="Tu correo"
-            class="input input-bordered input-sm sm:input-md join-item w-full text-neutral-content"
+            class="input input-bordered input-sm sm:input-md join-item text-neutral-content w-full"
           />
           <button class="btn btn-primary btn-sm sm:btn-md join-item mt-2 sm:mt-0" type="submit"
             >Suscribirme</button
@@ -86,8 +89,8 @@ const year = new Date().getFullYear();
     <div class="divider my-6 sm:my-8"></div>
 
     <!-- Legal / Credits -->
-    <div class="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
-      <p class="text-xs sm:text-sm text-base-content/60 text-center md:text-left">
+    <div class="flex flex-col items-center justify-between gap-3 sm:gap-4 md:flex-row">
+      <p class="text-base-content/60 text-center text-xs sm:text-sm md:text-left">
         © {year} SalvaRamos. Todos los derechos reservados.
       </p>
       <!-- <p class="text-sm text-base-content/60">

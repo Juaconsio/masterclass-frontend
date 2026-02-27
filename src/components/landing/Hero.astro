@@ -1,52 +1,49 @@
 ---
-import { Carousel } from '@components/UI';
+import { Icon } from 'astro-icon/components';
+import Stats from './stats.astro';
 ---
 
-<div class="h-hero">
-  <section class="hero h-full relative">
-    <div class="hero-content justify-center flex-col relative z-30 px-4 sm:px-6 md:px-8">
-      <div
-        class="flex w-full flex-col lg:flex-row items-center gap-8 sm:gap-12 lg:gap-24 mb-8 sm:mb-12"
+<div class="h-hero flex w-full flex-col gap-12">
+  <section
+    class="hero relative z-10 flex flex-col items-center justify-center px-4 text-center sm:px-6 md:px-8"
+  >
+    <div
+      class="bg-primary/10 text-primary relative z-10 mb-8 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium"
+    >
+      <span class="relative flex h-2 w-2">
+        <span
+          class="bg-primary absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
+        ></span>
+        <span class="bg-primary relative inline-flex h-2 w-2 rounded-full"></span>
+      </span>
+      Semestre 01-2026
+    </div>
+    <h1 class="font-display mb-4 text-4xl font-bold sm:mb-6 md:text-5xl lg:text-6xl xl:text-7xl">
+      No dejes que un ramo <br />
+      <span class="text-primary relative">atrase tu carrera</span>
+    </h1>
+
+    <p
+      class="mb-6 max-w-4xl text-center text-base text-pretty sm:mb-8 sm:text-lg md:text-xl lg:text-2xl"
+    >
+      Únete a la comunidad de estudiantes y profesores expertos. Material de estudio, clases en vivo
+      y resolución de dudas para que pases tus ramos con éxito.
+    </p>
+
+    <div class="flex w-full flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+      <a
+        href="/courses"
+        class="btn sm:btn-wide sm:btn-lg btn-primary font-display h-auto w-full border-none px-6 py-3 text-base sm:px-8 sm:py-4 sm:text-lg"
       >
-        <div class="basis-full lg:basis-1/2">
-          <h1
-            class="text-center lg:text-left text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-4 sm:mb-6"
-          >
-            Clases en vivo de
-            <span class="text-primary relative border-b-2 sm:border-b-4 border-primary">
-              Excelencia.</span
-            >
-          </h1>
-
-          <p
-            class="text-base sm:text-lg md:text-xl text-center lg:text-left lg:text-2xl mb-6 sm:mb-8 leading-relaxed max-w-3xl"
-          >
-            Aprende mediante sesiones grupales o personales, con foco a desarrollar herramientas
-            para que rindas tus exámenes de la mejor forma posible. <span
-              class="font-semibold
-            text-primary">¡Salva tu ramo ahora!</span
-            >
-          </p>
-
-          <div class="flex flex-col w-full justify-center items-center sm:flex-row gap-3 sm:gap-4">
-            <a
-              href="/courses"
-              class="btn w-full sm:btn-wide sm:btn-lg btn-secondary border-none text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 h-auto"
-            >
-              Busca tu curso!
-            </a>
-            <a
-              href="#reviews"
-              class="btn w-full sm:btn-wide sm:btn-lg btn-soft btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 h-auto"
-            >
-              Ver Reseñas
-            </a>
-          </div>
-        </div>
-        <div class="basis-full lg:basis-1/2 flex justify-center w-full">
-          <Carousel client:load />
-        </div>
-      </div>
+        Salva tu semestre!
+      </a>
+      <a
+        href="#reviews"
+        class="btn sm:btn-wide sm:btn-lg btn-ghost h-auto w-full px-6 py-3 text-base sm:px-8 sm:py-4 sm:text-lg"
+      >
+        Habla con nosotros
+      </a>
     </div>
   </section>
+  <Stats />
 </div>

@@ -11,7 +11,7 @@ const links = [
 
 <!-- Navbar principal -->
 <nav
-  class="navbar h-navbar px-3 sm:px-4 md:px-8 lg:px-12 fixed top-0 bg-secondary backdrop-blur border-b border-base-300 z-50 flex justify-between"
+  class="navbar h-navbar px-3 sm:px-4 md:px-8 lg:px-12 fixed top-0 bg-base-200 backdrop-blur border-b border-base-300 z-50 flex justify-between"
 >
   <!-- Mobile: Botón menú principal (izquierda) -->
   <div class="flex-none lg:hidden">
@@ -31,11 +31,13 @@ const links = [
       class="flex justify-center items-center normal-case text-lg sm:text-xl font-bold tracking-wide gap-1 sm:gap-2 hover:bg-transparent hover:border-0 px-1 sm:px-2"
     >
       <div class="avatar">
-        <div class="w-10 h-20 sm:w-12 sm:h-24 rounded-full">
+        <!-- <div class="w-10 h-20 sm:w-12 sm:h-24 rounded-full">
           <Image src={Logo} alt="Salva Ramos Logo" />
-        </div>
+        </div> -->
       </div>
-      <span class="hidden sm:inline text-white">Salva Ramos</span>
+      <span class="hidden sm:inline font-sans font-bold text-xl text-[#0B192C] tracking-tight"
+        >Salva Ramos</span
+      >
     </a>
   </div>
 
@@ -45,7 +47,7 @@ const links = [
       {
         links.map((link) => (
           <li>
-            <a data-navlink href={link.href} class="text-lg font-medium text-secondary-content ">
+            <a data-navlink href={link.href} class="text-sm font-medium transition-colors">
               {link.label}
             </a>
           </li>
@@ -55,14 +57,16 @@ const links = [
   </div>
 
   <!-- Botón Iniciar Sesión -->
-  <div class="flex-none">
-    <a
-      href="/ingresar"
-      aria-label="Iniciar Sesión"
-      class="btn btn-square btn-primary btn-sm sm:btn-md btn-outline lg:btn-wide lg:px-2"
-    >
+  <div class="flex-none mr-2">
+    <a href="/ingresar" aria-label="Iniciar Sesión" class="btn btn-ghost lg:px-2">
       <Icon name="mdi:login" size={20} class="sm:w-6 sm:h-6 lg:hidden" />
-      <span class="hidden lg:inline text-lg font-medium">Iniciar Sesión</span>
+      <span class="hidden lg:inline">Iniciar Sesión</span>
+    </a>
+  </div>
+  <div class="flex-none">
+    <a href="/ingresar" aria-label="Iniciar Sesión" class="btn rounded-full btn-primary lg:px-2">
+      <Icon name="mdi:login" size={20} class="sm:w-6 sm:h-6 lg:hidden" />
+      <span class="hidden lg:inline">Empezar ahora</span>
     </a>
   </div>
 </nav>

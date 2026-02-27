@@ -1,4 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import 'tailwindcss';
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('/fonts/Plus_Jakarta_Sans/PlusJakartaSans-VariableFont_wght.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: italic;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('/fonts/Plus_Jakarta_Sans/PlusJakartaSans-Italic-VariableFont_wght.woff2')
+    format('woff2');
+}
+
+@font-face {
+  font-family: 'Gebuk';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/gebuk/Gebuk-Regular.woff2') format('woff2');
+}
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-gebuk: 'Gebuk', ui-sans-serif, system-ui, sans-serif;
+}
+
 @plugin "daisyui" {
   themes: light --default;
 }
@@ -6,56 +39,44 @@
 @import 'react-day-picker/style.css';
 @import '@splidejs/react-splide/css';
 @import '@splidejs/react-splide/css/core';
-/* oklch(0.3729 0.0306 259.73) */
-/* oklch(0.7049 0.1867 47.6) */
-/* oklch(0.2101 0.0318 264.66) */
 
 @plugin "daisyui/theme" {
-  name: 'light';
+  name: 'fantasy';
   default: true;
-
-  /* === BRAND COLORS === */
-  --color-primary: oklch(0.7049 0.1867 47.6); /* Naranja brillante y energético */
-  --color-primary-content: white;
-
-  --color-secondary: oklch(0.2101 0.0318 264.66); /* Azul oscuro elegante */
-  --color-secondary-content: white;
-
-  --color-accent: oklch(0.93 0.03 47.6); /* Amarillo claro, vibrante */
-  --color-accent-content: oklch(0.3729 0.0306 259.73); /* Azul grisáceo para contraste */
-
-  /* === BASE & NEUTRALS === */
-  --color-base-100: oklch(0.94 0.01 255); /* Gris azulado muy claro */
-
-  --color-base-200: oklch(0.985 0.003 255); /* Blanco frío */
-  --color-base-300: oklch(0.88 0.015 255); /* Gris azulado claro */
-  --color-base-content: oklch(0.22 0.02 255); /* Texto gris azul oscuro */
-
-  --color-neutral: oklch(0.6 0.02 255); /* Gris frío equilibrado */
-  --color-neutral-content: oklch(0.2 0.015 255);
-  /* === FEEDBACK COLORS === */
-  --color-info: oklch(0.78 0.09 250); /* Azul suave para info */
-  --color-info-content: oklch(0.25 0.04 250);
-
-  --color-success: oklch(0.78 0.15 150); /* Verde brillante para éxito */
-  --color-success-content: white;
-
-  --color-warning: oklch(0.82 0.17 75); /* Amarillo cálido para advertencias */
-  --color-warning-content: oklch(0.25 0.05 75);
-
-  --color-error: oklch(0.65 0.19 25); /* Rojo intenso para errores */
-  --color-error-content: white;
-
-  /* === VARIANTS === */
-  --color-secondary-light: oklch(0.45 0.05 260); /* Azul medio, hover */
-  --color-secondary-dark: oklch(0.15 0.02 260); /* Azul casi negro */
-
-  /* === GENERAL UI === */
-  --rounded-btn: 0.75rem;
-  --animation-btn: 0.25s;
-  --border-btn: 1px;
-  --btn-text-case: capitalize;
-  --focus-ring: 2px solid oklch(0.7049 0.1867 47.6 / 0.5);
+  prefersdark: false;
+  color-scheme: 'light';
+  --color-white: #f9f6ee;
+  --color-base-100: #f9f6ee;
+  --color-base-200: oklch(0.8647 0.0272 80.24);
+  --color-base-300: oklch(87% 0.006 286.286);
+  --color-base-content: oklch(0.2134 0 0);
+  --color-primary: oklch(0.3517 0.0489 147.41);
+  --color-primary-content: oklch(0.8647 0.0272 80.24);
+  --color-secondary: oklch(0.3072 0.12587 28.7629);
+  --color-secondary-content: oklch(0.8647 0.0272 80.24);
+  --color-accent: oklch(0.8647 0.0272 80.24);
+  --color-accent-content: oklch(15.196% 0.04 56.72);
+  --color-neutral: oklch(0.2244 0.1242 265.6);
+  --color-neutral-content: oklch(0.8647 0.0272 80.24);
+  --color-dark-blue: oklch(0.2254 0.1392 264.18);
+  --color-info: oklch(72.06% 0.191 231.6);
+  --color-info-content: oklch(0% 0 0);
+  --color-success: oklch(64.8% 0.15 160);
+  --color-success-content: oklch(0% 0 0);
+  --color-warning: oklch(84.71% 0.199 83.87);
+  --color-warning-content: oklch(0% 0 0);
+  --color-error: oklch(71.76% 0.221 22.18);
+  --color-error-content: oklch(0% 0 0);
+  --color-nav-link: oklch(0.4216 0.0055 270.74);
+  --color-nav-link-active: oklch(0.6924 0.0217 146.65);
+  --radius-selector: 1rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
 }
 
 @layer base {
@@ -64,7 +85,7 @@
   }
 
   body {
-    @apply text-base-content min-h-[var(--app-dvh)] w-full overflow-x-hidden bg-white pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] antialiased;
+    @apply text-base-content bg-base-200 min-h-[var(--app-dvh)] w-full overflow-x-hidden pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] font-sans antialiased;
   }
 
   section {
@@ -80,12 +101,16 @@
   }
 }
 
+[data-navlink] {
+  @apply text-base-content;
+}
+
 [data-navlink].active {
-  @apply bg-base-100/20 rounded-lg font-bold;
+  @apply text-primary font-semibold;
 }
 
 [data-navlink]:not(.active) {
-  @apply hover:bg-base-100/20;
+  @apply hover:text-primary/80;
 }
 
 @utility h-navbar {

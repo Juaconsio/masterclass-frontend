@@ -9,17 +9,16 @@ const { course } = Astro.props;
 ---
 
 <div
-  class="card relative shadow-xl hover:shadow-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2 course-card md:cursor-pointer"
+  class="card course-card relative overflow-hidden bg-white shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl md:cursor-pointer"
   data-department={course.data.department}
   data-level={course.data.level}
   data-acronym={course.data.acronym}
   data-usal-trigger="50%"
 >
   <a
-    class="hidden md:block absolute inset-0 z-10"
+    class="absolute inset-0 z-10 hidden md:block"
     href={'/courses/' + course.slug}
-    aria-label={`Abrir curso ${course.data.acronym} - ${course.data.title}`}
-  />
+    aria-label={`Abrir curso ${course.data.acronym} - ${course.data.title}`}></a>
   <!-- Course Image -->
   {
     course.data.image ? (
@@ -27,66 +26,43 @@ const { course } = Astro.props;
         <img
           src={course.data.image}
           alt={course.data.title}
-          class="h-32 sm:h-36 md:h-40 w-full object-cover"
+          class="h-18 w-full object-cover sm:h-18 md:h-24"
           loading="lazy"
         />
-        {course.data.featured && (
-          <div class="absolute top-2 sm:top-4 right-2 sm:right-4">
-            <div class="badge badge-primary badge-sm sm:badge-lg font-bold shadow-lg">
-              ⭐ Destacado
-            </div>
-          </div>
-        )}
       </figure>
     ) : (
-      <figure class="bg-gradient-to-br from-primary/20 to-secondary/20 h-36 sm:h-40 md:h-48 flex items-center justify-center relative">
-        <div class="text-4xl sm:text-5xl md:text-6xl opacity-50">
+      <figure class="from-primary/20 to-secondary/20 relative flex h-18 items-center justify-center bg-gradient-to-br md:h-24">
+        <div class="text-4xl opacity-50 sm:text-5xl md:text-6xl">
           {DEPARTMENT_ICONS[course.data.department]}
         </div>
-        {course.data.featured && (
-          <div class="absolute top-2 sm:top-4 right-2 sm:right-4">
-            <div class="badge badge-primary badge-sm sm:badge-lg font-bold shadow-lg">
-              ⭐ Destacado
-            </div>
-          </div>
-        )}
       </figure>
     )
   }
 
-  <div class="card-body p-4 sm:p-5 md:p-6 justify-between">
+  <div class="card-body justify-between p-4 sm:p-5 md:p-6">
     <!-- Course Acronym and Title -->
-    <div class="mb-2 sm:mb-3">
-      <div class="flex items-center gap-1.5 sm:gap-2 mb-2">
-        <div class="badge badge-ghost font-mono font-bold text-xs sm:text-sm">
-          {course.data.acronym}
-        </div>
-        <div
-          class={`badge badge-soft ${LEVEL_COLORS[course.data.level]} font-mono font-bold text-xs sm:text-sm`}
-        >
-          {course.data.level}
+    <div class="flex flex-col justify-between gap-2 text-left sm:mt-3">
+      <h2 class="card-title line-clamp-2 text-lg font-bold sm:text-xl md:text-2xl">
+        {course.data.title}
+      </h2>
+      <div>
+        <div class="text-base-content/50 flex items-center gap-1.5 sm:gap-2">
+          <span class="sm:text-sm">
+            {course.data.acronym}
+            -
+            {course.data.level}
+          </span>
         </div>
       </div>
-      <div class="flex items-center justify-between mt-2 sm:mt-3 gap-2">
-        <h2 class="card-title text-lg sm:text-xl md:text-2xl font-bold line-clamp-2">
-          {course.data.title}
-        </h2>
-      </div>
-    </div>
-
-    <!-- Department and Level Badges -->
-    <div class="text-base-content/50 text-xs sm:text-sm flex items-center gap-1">
-      {DEPARTMENT_ICONS[course.data.department]}
-      <span class="truncate">{course.data.department}</span>
     </div>
 
     <!-- Card Actions -->
-    <div class="card-actions justify-end pt-3 sm:pt-4 border-t border-base-300">
+    <div class="card-actions justify-end">
       <a
         href={'/courses/' + course.slug}
-        class="btn btn-primary btn-sm sm:btn-md btn-block hover:btn-primary-focus transition-colors group relative z-20"
+        class="btn btn-primary btn-sm sm:btn-md btn-block hover:btn-primary-focus group relative z-20 transition-colors"
       >
-        Reservar
+        Ver horarios
       </a>
     </div>
   </div>
