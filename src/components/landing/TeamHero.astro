@@ -1,0 +1,27 @@
+---
+interface Props {
+  backgroundImage?: string;
+}
+
+const { backgroundImage = 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920&q=80' } = Astro.props;
+---
+
+<div
+  class="relative flex min-h-[50vh] w-full flex-col sm:min-h-hero"
+  style={backgroundImage ? `background-image: url(${backgroundImage}); background-size: cover; background-position: center;` : ''}
+>
+  <div class="bg-base-100/85 absolute inset-0 z-0 backdrop-blur-[1px]" aria-hidden="true" />
+  <section
+    class="hero relative z-10 flex flex-col items-center justify-center px-4 py-16 text-center sm:px-6 sm:py-20 md:px-8 md:py-24"
+  >
+    <h1 class="font-display mb-4 text-4xl font-bold sm:mb-6 md:text-5xl lg:text-6xl xl:text-7xl">
+      Mentes brillantes a tu servicio
+    </h1>
+    <p
+      class="max-w-4xl text-center text-base text-pretty sm:text-lg md:text-xl lg:text-2xl"
+    >
+      Combinamos excelencia académica con cercanía humana. No solo son ayudantes expertos, fuimos
+      estudiantes y seremos tu compañía en esta etapa.
+    </p>
+  </section>
+</div>

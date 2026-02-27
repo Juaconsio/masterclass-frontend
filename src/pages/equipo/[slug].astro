@@ -1,0 +1,43 @@
+---
+import Layout from '@layouts/Layout.astro';
+import Navbar from '@components/landing/Navbar.astro';
+import Footer from '@components/landing/footer.astro';
+import { Icon } from 'astro-icon/components';
+
+export function getStaticPaths() {
+  const slugs = [
+    'lider-1',
+    'lider-2',
+    'lider-3',
+    'profesor-1',
+    'profesor-2',
+    'profesor-3',
+  ];
+  return slugs.map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+---
+
+<Layout title="Perfil - Salva Ramos" description="Perfil del equipo Salva Ramos.">
+  <Navbar />
+  <div class="mt-16 min-h-screen">
+    <div class="container mx-auto flex flex-col items-center justify-center px-4 py-24 sm:py-32">
+      <div class="bg-base-200 flex max-w-md flex-col items-center gap-6 rounded-2xl p-8 text-center shadow-lg sm:p-10">
+        <div class="bg-primary/10 text-primary rounded-full p-4">
+          <Icon name="mdi:account-hard-hat" size={48} aria-hidden="true" />
+        </div>
+        <h1 class="font-display text-2xl font-bold sm:text-3xl">Perfil en construcción</h1>
+        <p class="text-base-content/70 text-sm sm:text-base">
+          Estamos preparando la información de este miembro del equipo. Pronto podrás conocer su
+          trayectoria y experiencia.
+        </p>
+        <a href="/equipo" class="btn btn-primary mt-2">
+          <Icon name="mdi:arrow-left" size={20} aria-hidden="true" />
+          Volver al equipo
+        </a>
+      </div>
+    </div>
+    <Footer />
+  </div>
+</Layout>

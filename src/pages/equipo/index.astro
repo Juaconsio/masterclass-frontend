@@ -1,0 +1,114 @@
+---
+import Layout from '@layouts/Layout.astro';
+import Navbar from '@components/landing/Navbar.astro';
+import TeamHero from '@components/landing/TeamHero.astro';
+import TeamMemberCard from '@components/landing/team/TeamMemberCard.astro';
+import CTA from '@components/landing/CTA.astro';
+import Footer from '@components/landing/footer.astro';
+
+interface TeamMember {
+  slug: string;
+  name: string;
+  role: string;
+  description: string;
+  image?: string;
+}
+
+const featuredTeam: TeamMember[] = [
+  {
+    slug: 'lider-1',
+    name: 'María González',
+    role: 'Directora académica',
+    description: 'Combinamos excelencia académica con cercanía humana. No solo son expertos, son mentores.',
+  },
+  {
+    slug: 'lider-2',
+    name: 'Carlos Ruiz',
+    role: 'Coordinador de tutores',
+    description: 'Experiencia en ingeniería y docencia. Acompaña a cada estudiante en su proceso.',
+  },
+  {
+    slug: 'lider-3',
+    name: 'Ana Martínez',
+    role: 'Líder de comunidad',
+    description: 'Conecta estudiantes y profesores. Tu voz y tu avance son la prioridad.',
+  },
+];
+
+const teamMembers: TeamMember[] = [
+  ...featuredTeam,
+  {
+    slug: 'profesor-1',
+    name: 'Pedro Sánchez',
+    role: 'Tutor de matemáticas',
+    description: 'Especialista en cálculo y álgebra lineal. Clases claras y al ritmo del estudiante.',
+  },
+  {
+    slug: 'profesor-2',
+    name: 'Laura Fernández',
+    role: 'Tutora de física',
+    description: 'Doctora en Física. Hace accesibles los conceptos más complejos.',
+  },
+  {
+    slug: 'profesor-3',
+    name: 'Diego Torres',
+    role: 'Tutor de programación',
+    description: 'Desarrollador y docente. Enfocado en proyectos prácticos y buenas prácticas.',
+  },
+];
+---
+
+<Layout title="Equipo - Salva Ramos" description="Conoce al equipo de Salva Ramos. Mentes brillantes a tu servicio.">
+  <Navbar />
+  <div class="mt-16">
+    <TeamHero />
+    <div class="container mx-auto px-4 py-12 sm:px-6 sm:py-16 md:py-20">
+      <section class="mb-16 md:mb-20">
+        <h2 class="font-display mb-8 text-center text-2xl font-bold sm:mb-10 sm:text-3xl md:text-4xl">
+          Quiénes somos
+        </h2>
+        <p class="text-base-content/70 mx-auto mb-10 max-w-2xl text-center text-base sm:mb-12 sm:text-lg">
+          Mentes brillantes a tu servicio. Combinamos excelencia académica con cercanía humana. No
+          solo son expertos, son mentores.
+        </p>
+        <div
+          class="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3"
+          data-usal="split-item split-fade-u split-delay-400 duration-500"
+        >
+          {featuredTeam.map((member) => (
+            <TeamMemberCard
+              slug={member.slug}
+              name={member.name}
+              role={member.role}
+              description={member.description}
+              image={member.image}
+            />
+          ))}
+        </div>
+      </section>
+      <section>
+        <h2 class="font-display mb-8 text-center text-2xl font-bold sm:mb-10 sm:text-3xl md:text-4xl">
+          Nuestro equipo
+        </h2>
+        <div
+          class="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3"
+          data-usal="split-item split-fade-u split-delay-400 duration-500"
+        >
+          {teamMembers.map((member) => (
+            <TeamMemberCard
+              slug={member.slug}
+              name={member.name}
+              role={member.role}
+              description={member.description}
+              image={member.image}
+            />
+          ))}
+        </div>
+      </section>
+    </div>
+    <div class="container mx-auto px-4 sm:px-6">
+      <CTA />
+    </div>
+    <Footer />
+  </div>
+</Layout>
