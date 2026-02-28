@@ -1,43 +1,145 @@
 ---
+import { getEntry, getCollection } from 'astro:content';
 import Layout from '@layouts/Layout.astro';
 import Navbar from '@components/landing/Navbar.astro';
 import Footer from '@components/landing/footer.astro';
 import { Icon } from 'astro-icon/components';
+import { getPublicCourseCatalog } from '@/lib/courseCatalog';
 
-export function getStaticPaths() {
-  const slugs = [
-    'lider-1',
-    'lider-2',
-    'lider-3',
-    'profesor-1',
-    'profesor-2',
-    'profesor-3',
-  ];
-  return slugs.map((slug) => ({ params: { slug } }));
+export async function getStaticPaths() {
+  const team = await getCollection('team');
+  return team.map((entry) => ({ params: { slug: entry.slug } }));
 }
 
 const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/404');
+
+const teamEntry = await getEntry('team', slug);
+if (!teamEntry) return Astro.redirect('/404');
+
+let academicEntry = null;
+try {
+  academicEntry = await getEntry('teamAcademic', slug);
+} catch {
+  academicEntry = null;
+}
+
+const catalog = await getPublicCourseCatalog({ includeInactive: true });
+const courseSlugs = teamEntry.data.courseSlugs ?? [];
+const specialties = courseSlugs.map((s) => catalog.find((c) => c.slug === s)).filter(Boolean);
+
+const sobreMiRender = await teamEntry.render();
+const academicRender = academicEntry ? await academicEntry.render() : null;
+const { name, degree, image, classesCount } = teamEntry.data;
 ---
 
-<Layout title="Perfil - Salva Ramos" description="Perfil del equipo Salva Ramos.">
+<Layout title={`${name} - Equipo Salva Ramos`} description={`Perfil de ${name}. ${degree}.`}>
   <Navbar />
-  <div class="mt-16 min-h-screen">
-    <div class="container mx-auto flex flex-col items-center justify-center px-4 py-24 sm:py-32">
-      <div class="bg-base-200 flex max-w-md flex-col items-center gap-6 rounded-2xl p-8 text-center shadow-lg sm:p-10">
-        <div class="bg-primary/10 text-primary rounded-full p-4">
-          <Icon name="mdi:account-hard-hat" size={48} aria-hidden="true" />
-        </div>
-        <h1 class="font-display text-2xl font-bold sm:text-3xl">Perfil en construcción</h1>
-        <p class="text-base-content/70 text-sm sm:text-base">
-          Estamos preparando la información de este miembro del equipo. Pronto podrás conocer su
-          trayectoria y experiencia.
-        </p>
-        <a href="/equipo" class="btn btn-primary mt-2">
-          <Icon name="mdi:arrow-left" size={20} aria-hidden="true" />
-          Volver al equipo
-        </a>
+  <div class="my-24 min-h-screen">
+    <section>
+      <a
+        href="/equipo"
+        class="btn btn-ghost btn-sm text-base-content/70 hover:text-base-content gap-2"
+        aria-label="Volver al equipo"
+      >
+        <Icon name="mdi:arrow-left" size={20} aria-hidden="true" />
+        Volver al equipo
+      </a>
+
+      <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,340px)_1fr] lg:gap-6">
+        <aside class="flex flex-col gap-6">
+          <div class="avatar flex justify-center lg:block">
+            <div class="h-48 w-48 rounded-2xl sm:h-56 sm:w-56 lg:h-64 lg:w-64">
+              {
+                image ? (
+                  <img src={image} alt={name} class="h-full w-full object-cover" />
+                ) : (
+                  <div class="bg-complement text-primary-content flex h-full w-full items-center justify-center text-5xl font-bold lg:text-6xl">
+                    {name
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')
+                      .slice(0, 2)
+                      .toUpperCase()}
+                  </div>
+                )
+              }
+            </div>
+          </div>
+
+          {
+            specialties.length > 0 && (
+              <div class="card bg-base-200 shadow-lg">
+                <div class="card-body p-4 sm:p-5">
+                  <h3 class="font-display text-base-content/70 text-sm font-semibold tracking-wide uppercase">
+                    Especialidades
+                  </h3>
+                  <ul class="mt-2 flex flex-wrap gap-2">
+                    {specialties.map((course) => (
+                      <li>
+                        <a
+                          href={`/courses/${course!.slug}`}
+                          class="badge badge-primary badge-lg hover:badge-secondary"
+                        >
+                          {course!.data.acronym}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )
+          }
+        </aside>
+
+        <main class="min-w-0">
+          <h1 class="font-gebuk text-3xl font-bold sm:text-4xl md:text-6xl">{name}</h1>
+          <p class="text-primary font-display mt-1 text-lg font-semibold sm:text-xl">{degree}</p>
+
+          {
+            classesCount != null && (
+              <p class="text-base-content/80 mt-3 text-base">
+                <span class="font-semibold">{classesCount}</span> clases realizadas con Salva Ramos
+              </p>
+            )
+          }
+
+          <div class="mt-8">
+            <h2 class="font-display mb-3 text-xl font-bold sm:text-2xl">Sobre mí</h2>
+            <div
+              class="prose prose-base prose-p:text-base-content/90 prose-ul:text-base-content/90 prose-li:my-1 max-w-none"
+            >
+              <sobreMiRender.Content />
+            </div>
+          </div>
+
+          {
+            academicRender && (
+              <div class="mt-10">
+                <h2 class="font-display mb-3 text-xl font-bold sm:text-2xl">
+                  Experiencia académica
+                </h2>
+                <div class="prose prose-base prose-p:text-base-content/90 prose-ul:text-base-content/90 prose-li:my-1 max-w-none">
+                  <academicRender.Content />
+                </div>
+              </div>
+            )
+          }
+
+          <div class="bg-neutral text-neutral-content mt-12 rounded-2xl p-6 sm:p-8">
+            <h2 class="font-display text-xl font-bold sm:text-2xl">
+              ¿Quieres tomar clases con {name}?
+            </h2>
+            <p class="text-neutral-content/90 mt-2">
+              Agenda tu sesión y revisa la disponibilidad para reservar con este tutor.
+            </p>
+            <a href="/courses" class="btn btn-primary btn-lg mt-4 rounded-full">
+              Ver disponibilidad
+            </a>
+          </div>
+        </main>
       </div>
-    </div>
-    <Footer />
+    </section>
   </div>
+  <Footer />
 </Layout>

@@ -16,22 +16,23 @@ interface TeamMember {
 
 const featuredTeam: TeamMember[] = [
   {
-    slug: 'lider-1',
-    name: 'María González',
-    role: 'Directora académica',
-    description: 'Combinamos excelencia académica con cercanía humana. No solo son expertos, son mentores.',
+    slug: 'lider-2',
+    name: 'Ignacio Quezada',
+    role: 'CMO & Co-Fundador',
+    description: 'Co-fundador de Salva Ramos. Ex-director y fundador de Major League UC.',
   },
   {
-    slug: 'lider-2',
-    name: 'Carlos Ruiz',
-    role: 'Coordinador de tutores',
-    description: 'Experiencia en ingeniería y docencia. Acompaña a cada estudiante en su proceso.',
+    slug: 'lider-1',
+    name: 'Carlos Saez',
+    role: 'CEO & Fundador',
+    description:
+      'Fundador de Salva Ramos. Más de 6 años de experiencia siendo ayudante y dando clases particulares.',
   },
   {
     slug: 'lider-3',
-    name: 'Ana Martínez',
-    role: 'Líder de comunidad',
-    description: 'Conecta estudiantes y profesores. Tu voz y tu avance son la prioridad.',
+    name: 'Joaquín Concha',
+    role: 'CTO & Co-Fundador',
+    description: 'Co-fundador de Salva Ramos. Desarrollador Full Stack.',
   },
 ];
 
@@ -41,7 +42,8 @@ const teamMembers: TeamMember[] = [
     slug: 'profesor-1',
     name: 'Pedro Sánchez',
     role: 'Tutor de matemáticas',
-    description: 'Especialista en cálculo y álgebra lineal. Clases claras y al ritmo del estudiante.',
+    description:
+      'Especialista en cálculo y álgebra lineal. Clases claras y al ritmo del estudiante.',
   },
   {
     slug: 'profesor-2',
@@ -58,57 +60,71 @@ const teamMembers: TeamMember[] = [
 ];
 ---
 
-<Layout title="Equipo - Salva Ramos" description="Conoce al equipo de Salva Ramos. Mentes brillantes a tu servicio.">
+<Layout
+  title="Equipo - Salva Ramos"
+  description="Conoce al equipo de Salva Ramos. Mentes brillantes a tu servicio."
+>
   <Navbar />
   <div class="mt-16">
     <TeamHero />
     <div class="container mx-auto px-4 py-12 sm:px-6 sm:py-16 md:py-20">
       <section class="mb-16 md:mb-20">
-        <h2 class="font-display mb-8 text-center text-2xl font-bold sm:mb-10 sm:text-3xl md:text-4xl">
-          Quiénes somos
+        <h5 class="text-base-content/70 text-center text-sm">Somos...</h5>
+        <h2 class="text-primary mb-2 text-center text-4xl font-bold sm:text-5xl md:text-6xl">
+          <span class="font-display"> Salva</span>
+          <span class="font-gebuk">Ramos</span>
         </h2>
-        <p class="text-base-content/70 mx-auto mb-10 max-w-2xl text-center text-base sm:mb-12 sm:text-lg">
-          Mentes brillantes a tu servicio. Combinamos excelencia académica con cercanía humana. No
-          solo son expertos, son mentores.
+        <p
+          class="text-base-content/70 mx-auto mb-10 max-w-3xl text-center text-base sm:mb-12 sm:text-lg"
+        >
+          Ingenieros UC apasionados por la enseñanza, el aprendizaje y la experiencia universitaria.
         </p>
         <div
           class="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3"
           data-usal="split-item split-fade-u split-delay-400 duration-500"
         >
-          {featuredTeam.map((member) => (
-            <TeamMemberCard
-              slug={member.slug}
-              name={member.name}
-              role={member.role}
-              description={member.description}
-              image={member.image}
-            />
-          ))}
+          {
+            featuredTeam.map((member) => (
+              <TeamMemberCard
+                slug={member.slug}
+                name={member.name}
+                role={member.role}
+                description={member.description}
+                image={member.image}
+              />
+            ))
+          }
         </div>
       </section>
       <section>
-        <h2 class="font-display mb-8 text-center text-2xl font-bold sm:mb-10 sm:text-3xl md:text-4xl">
-          Nuestro equipo
-        </h2>
+        <div class="mb-8 text-center">
+          <h2 class="font-display mb-4 text-2xl font-bold sm:text-3xl md:text-4xl">
+            Nuestro equipo docente
+          </h2>
+          <p class="">
+            Profesores expertos dedicados a darte las mejores herramientas para estudiar y aprobar
+            tus ramos.
+          </p>
+        </div>
         <div
           class="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3"
           data-usal="split-item split-fade-u split-delay-400 duration-500"
         >
-          {teamMembers.map((member) => (
-            <TeamMemberCard
-              slug={member.slug}
-              name={member.name}
-              role={member.role}
-              description={member.description}
-              image={member.image}
-            />
-          ))}
+          {
+            teamMembers.map((member) => (
+              <TeamMemberCard
+                slug={member.slug}
+                name={member.name}
+                role={member.role}
+                description={member.description}
+                image={member.image}
+              />
+            ))
+          }
         </div>
       </section>
     </div>
-    <div class="container mx-auto px-4 sm:px-6">
-      <CTA />
-    </div>
+    <CTA />
     <Footer />
   </div>
 </Layout>

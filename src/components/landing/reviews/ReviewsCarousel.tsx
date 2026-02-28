@@ -30,29 +30,29 @@ export default function ReviewsCarousel({ reviews }: ReviewsCarouselProps) {
     perPage: 3,
     perMove: 1,
     pagination: false,
-    padding: { left: '2rem', right: '2rem' },
+    padding: { left: '6rem', right: '6rem' },
     breakpoints: {
       1280: {
         perPage: 3,
         gap: '1.5rem',
-        padding: { left: '2rem', right: '2rem' },
+        padding: { left: '6rem', right: '6rem' },
       },
       1024: {
         perPage: 2,
         gap: '1rem',
-        padding: { left: '1rem', right: '1rem' },
+        padding: { left: '4rem', right: '4rem' },
       },
       768: {
         perPage: 1,
         pagination: true,
         gap: '0.75rem',
-        padding: { left: '0.5rem', right: '0.5rem' },
+        padding: { left: '2rem', right: '2rem' },
       },
       640: {
         perPage: 1,
         pagination: true,
         gap: '0.5rem',
-        padding: { left: '0', right: '0' },
+        padding: { left: '2rem', right: '2rem' },
       },
     },
   };

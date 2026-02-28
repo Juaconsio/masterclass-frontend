@@ -2,47 +2,55 @@
 import { Icon } from 'astro-icon/components';
 import { Image } from 'astro:assets';
 import Logo from '/src/assets/imagotipo.svg';
-import IsoTipo from '/src/assets/isotipo.svg';
+
 const links = [
   { href: '/', label: 'Inicio', icon: 'mdi:home' },
   { href: '/courses', label: 'Cursos', icon: 'mdi:book' },
   { href: '/equipo', label: 'Equipo', icon: 'mdi:account-group' },
   { href: '/#contact', label: 'Contacto', icon: 'mdi:contact-mail' },
 ];
+
+const current = Astro.url.pathname + (Astro.url.hash ?? '');
+const isActive = (href: string) => href === current;
 ---
 
-<!-- Navbar principal -->
+<!-- Navbar principal: estructura DaisyUI navbar-start | navbar-center | navbar-end -->
 <nav
-  class="navbar h-navbar bg-base-200 border-base-300 fixed top-0 z-50 flex justify-between border-b px-3 backdrop-blur sm:px-4 md:px-8 lg:px-12"
+  class="navbar h-navbar bg-base-100/80 border-base-300 fixed top-0 z-50 border-b px-3 backdrop-blur sm:px-4 md:px-6 lg:px-8"
 >
-  <!-- Mobile: Botón menú principal (izquierda) -->
-  <div class="flex-none lg:hidden">
+  <!-- navbar-start: menú (móvil) + logo (desktop) -->
+  <div class="navbar-start">
     <label
       for="main-drawer"
-      aria-label="open main menu"
-      class="btn btn-navbar btn-square btn-sm sm:btn-md"
+      aria-label="Abrir menú"
+      class="btn btn-square btn-ghost btn-sm sm:btn-md lg:hidden"
     >
       <Icon name="mdi:menu" size={28} class="sm:h-8 sm:w-8" />
     </label>
-  </div>
-
-  <!-- Logo/título -->
-  <div class="flex-1 py-2 lg:flex-none">
     <a
       href="/"
-      class="flex items-center justify-center gap-1 px-1 text-lg font-bold tracking-wide normal-case hover:border-0 hover:bg-transparent sm:gap-2 sm:px-2 sm:text-xl"
+      class="hidden items-center gap-1 px-1 text-lg font-bold tracking-wide normal-case hover:bg-transparent sm:gap-2 sm:px-2 sm:text-xl lg:flex lg:px-0"
     >
       <Image src={Logo} alt="Salva Ramos Logo" class="h-12 w-auto" />
     </a>
   </div>
 
-  <!-- Desktop: Menú de navegación (centro) -->
-  <div class="hidden lg:flex lg:flex-1 lg:justify-center">
-    <ul class="menu menu-horizontal gap-1">
+  <!-- navbar-center: logo (móvil, centrado) + enlaces (desktop) -->
+  <div class="navbar-center flex w-full flex-1 justify-center lg:flex-initial">
+    <a href="/" class="flex min-w-28 items-center px-1 lg:hidden">
+      <Image src={Logo} alt="Salva Ramos Logo" class="h-12 w-auto" />
+    </a>
+    <ul class="menu menu-horizontal hidden gap-1 px-1 lg:flex">
       {
         links.map((link) => (
           <li>
-            <a data-navlink href={link.href} class="text-sm font-medium transition-colors">
+            <a
+              data-navlink
+              data-current={isActive(link.href) ? 'page' : undefined}
+              href={link.href}
+              class="text-sm font-medium"
+              aria-current={isActive(link.href) ? 'page' : undefined}
+            >
               {link.label}
             </a>
           </li>
@@ -51,26 +59,26 @@ const links = [
     </ul>
   </div>
 
-  <!-- Botón Iniciar Sesión -->
-  <div class="mr-2 flex-none">
-    <a href="/ingresar" aria-label="Iniciar Sesión" class="btn btn-ghost lg:px-2">
-      <Icon name="mdi:login" size={20} class="sm:h-6 sm:w-6 lg:hidden" />
-      <span class="hidden lg:inline">Iniciar Sesión</span>
-    </a>
-  </div>
-  <div class="flex-none">
+  <!-- navbar-end: Iniciar sesión + CTA -->
+  <div class="navbar-end gap-1 sm:gap-2">
     <a
       href="/ingresar"
       aria-label="Iniciar Sesión"
-      class="btn btn-primary rounded-full px-2 lg:px-4"
+      class="btn btn-ghost btn-sm hidden lg:inline-flex"
     >
-      <Icon name="mdi:login" size={20} class="sm:h-6 sm:w-6 lg:hidden" />
-      <span class="hidden lg:inline">Empezar ahora</span>
+      Iniciar Sesión
+    </a>
+    <a
+      href="/courses"
+      aria-label="Ver cursos"
+      class="btn btn-primary btn-sm sm:btn-md rounded-xl sm:px-4"
+    >
+      Empezar <span class="hidden sm:inline">ahora</span>
     </a>
   </div>
 </nav>
 
-<!-- Drawer 1: Menú principal -->
+<!-- Drawer: Menú principal (móvil) -->
 <div class="drawer z-60">
   <input id="main-drawer" type="checkbox" class="drawer-toggle" />
   <div class="drawer-content"></div>
@@ -85,8 +93,10 @@ const links = [
           <li>
             <a
               data-navlink
+              data-current={isActive(link.href) ? 'page' : undefined}
               href={link.href}
               class="flex justify-between py-3 text-base font-medium sm:py-4 sm:text-lg"
+              aria-current={isActive(link.href) ? 'page' : undefined}
             >
               <Icon name={link.icon} size={24} class="sm:h-6 sm:w-6" />
               <span>{link.label}</span>
@@ -94,27 +104,16 @@ const links = [
           </li>
         ))
       }
+      <div class="mt-4 mr-2 flex-none">
+        <a
+          href="/ingresar"
+          aria-label="Iniciar Sesión"
+          class="btn btn-primary btn-wide rounded-xl px-2 lg:px-4"
+        >
+          <Icon name="mdi:login" size={20} class="sm:h-6 sm:w-6 lg:hidden" />
+          <span>Iniciar Sesión</span>
+        </a>
+      </div>
     </ul>
   </div>
 </div>
-
-<!-- Drawer 2: Menú de autenticación -->
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const currentPath = window.location.pathname;
-    const currentHash = window.location.hash;
-    const current = currentPath.concat(currentHash);
-    const links = document.querySelectorAll('[data-navlink]');
-    links.forEach((el) => {
-      const href = el.getAttribute('href');
-      if (href === current) {
-        el.classList.add('active');
-        el.setAttribute('aria-current', 'page');
-      } else {
-        el.classList.remove('active');
-        el.removeAttribute('aria-current');
-      }
-    });
-  });
-</script>

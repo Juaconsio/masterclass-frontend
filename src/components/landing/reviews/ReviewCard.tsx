@@ -21,18 +21,17 @@ export default function ReviewCard({ review }: ReviewCardProps) {
   };
 
   return (
-    <div className="card flex h-full min-h-[320px] flex-col bg-white/50 shadow-xl sm:min-h-[360px] md:h-[360px]">
+    <div className="card bg-base-200 flex h-full flex-col shadow-xl">
       <div className="card-body flex flex-col p-4 sm:p-5 md:p-6">
-        {/* Review Text */}
-        <div className="mb-4 max-h-[4.5rem] min-h-0 overflow-y-auto sm:mb-6 sm:max-h-[5rem] md:max-h-[5.5rem]">
-          <p className="text-sm leading-relaxed italic sm:text-base md:text-lg">
-            &quot;{review.comment}&quot;
-          </p>
-        </div>
-
         {/* Course Badge */}
         <div className="mb-3 sm:mb-4">
           <div className="badge badge-accent badge-xs sm:badge-sm text-xs">{review.course}</div>
+        </div>
+        {/* Review Text */}
+        <div className="mb-4 min-h-0 overflow-y-auto sm:mb-6">
+          <p className="text-sm leading-relaxed italic sm:text-base md:text-lg">
+            &quot;{review.comment}&quot;
+          </p>
         </div>
 
         {/* Reviewer Info */}

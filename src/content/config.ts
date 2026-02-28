@@ -59,14 +59,38 @@ const blogCollection = defineCollection({
   schema: blogSchema,
 });
 
+const teamSchema = z.object({
+  name: z.string(),
+  degree: z.string(),
+  image: z.string().optional(),
+  professorId: z.number().optional(),
+  courseSlugs: z.array(z.string()).optional(),
+  classesCount: z.number().optional(),
+});
+
+const teamCollection = defineCollection({
+  type: 'content',
+  schema: teamSchema,
+});
+
+const teamAcademicSchema = z.object({});
+
+const teamAcademicCollection = defineCollection({
+  type: 'content',
+  schema: teamAcademicSchema,
+});
+
 export const collections = {
   courseDescriptions: courseDescriptionsCollection,
   courseContents: courseContentsCollection,
   reviews: reviewsCollection,
   blog: blogCollection,
+  team: teamCollection,
+  teamAcademic: teamAcademicCollection,
 };
 
 export type CourseDescription = z.infer<typeof courseDescriptionSchema>;
 export type Course = CourseDescription;
 export type Review = z.infer<typeof reviewSchema>;
 export type BlogPost = z.infer<typeof blogSchema>;
+export type TeamMember = z.infer<typeof teamSchema>;

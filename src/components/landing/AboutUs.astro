@@ -1,6 +1,7 @@
 ---
 import { Icon } from 'astro-icon/components';
-
+import AboutImage from '/src/assets/team.webp';
+import { Image } from 'astro:assets';
 const benefits = [
   {
     title: 'Apoyo humano',
@@ -22,8 +23,6 @@ const benefits = [
 
 const statLabel = '+500';
 const statSuffix = 'estudiantes acompañados';
-/** Reemplaza por tu imagen: public/images/about-community.jpg */
-const aboutImage = 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80';
 ---
 
 <div class="from-primary to-primary/75 bg-gradient-to-br from-60% to-100%">
@@ -77,12 +76,12 @@ const aboutImage = 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f
           <div
             class="border-neutral-content/10 relative w-full max-w-md overflow-hidden rounded-2xl border shadow-xl sm:rounded-3xl lg:max-w-none"
           >
-            <img
-              src={aboutImage}
+            <Image
+              src={AboutImage}
               alt="Comunidad SalvaRamos: estudiantes y tutores en un entorno de apoyo"
-              class="aspect-[4/5] w-full object-cover sm:aspect-[3/4] sm:h-full"
-              width="300"
-              height="400"
+              class="w-full object-contain"
+              width="1024"
+              height="1024"
               fetchpriority="low"
             />
             <div

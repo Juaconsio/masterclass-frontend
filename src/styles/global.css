@@ -46,8 +46,8 @@
   prefersdark: false;
   color-scheme: 'light';
   --color-white: #f9f6ee;
-  --color-base-100: #f9f6ee;
-  --color-base-200: oklch(0.8647 0.0272 80.24);
+  --color-base-100: oklch(0.8647 0.0272 80.24);
+  --color-base-200: #f9f6ee;
   --color-base-300: oklch(87% 0.006 286.286);
   --color-base-content: oklch(0.2134 0 0);
   --color-primary: oklch(0.3517 0.0489 147.41);
@@ -81,13 +81,22 @@
   --noise: 0;
 }
 
+@layer utilities {
+  .bg-complement {
+    background-color: var(--color-complement);
+  }
+  .text-complement {
+    color: var(--color-complement);
+  }
+}
+
 @layer base {
   html {
     @apply w-full overflow-x-hidden;
   }
 
   body {
-    @apply text-base-content bg-base-200 min-h-[var(--app-dvh)] w-full overflow-x-hidden pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] font-sans antialiased;
+    @apply text-base-content bg-base-100 min-h-[var(--app-dvh)] w-full overflow-x-hidden pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] font-sans antialiased;
   }
 
   section {
@@ -99,11 +108,11 @@
   @apply text-base-content;
 }
 
-[data-navlink].active {
-  @apply text-primary font-semibold;
+[data-navlink][data-current='page'] {
+  @apply text-primary decoration-primary font-semibold underline decoration-2;
 }
 
-[data-navlink]:not(.active) {
+[data-navlink]:not([data-current='page']) {
   @apply hover:text-primary/80;
 }
 

@@ -45,7 +45,7 @@ const plans = [
 ];
 ---
 
-<section id="pricing" class="bg-base-200 py-12 sm:py-16 md:py-20">
+<section id="pricing" class="py-12 sm:py-16 md:py-20">
   <div class="container mx-auto px-4 sm:px-6">
     <div class="mb-10 text-center sm:mb-14 md:mb-16">
       <h2 class="font-display mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl md:text-5xl">
@@ -60,7 +60,7 @@ const plans = [
       {
         plans.map((plan, i) => (
           <div
-            class={`relative flex max-w-md mx-auto w-full ${
+            class={`relative mx-auto flex w-full max-w-md ${
               plan.highlighted ? 'lg:-mx-2 lg:max-w-none lg:scale-[1.02] xl:scale-105' : ''
             }`}
             data-usal={
@@ -73,7 +73,7 @@ const plans = [
           >
             {plan.highlighted && plan.badge && (
               <div
-                class="absolute -top-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-primary px-5 py-2 text-sm font-bold uppercase tracking-wide text-primary-content shadow-lg"
+                class="bg-primary text-primary-content absolute -top-3 left-1/2 z-10 -translate-x-1/2 rounded-full px-5 py-2 text-sm font-bold tracking-wide uppercase shadow-lg"
                 aria-hidden="true"
               >
                 {plan.badge}
@@ -82,31 +82,37 @@ const plans = [
             <div
               class={`card flex w-full flex-col overflow-hidden shadow-xl ${
                 plan.highlighted
-                  ? 'rounded-3xl bg-neutral pt-6 text-neutral-content ring-2 ring-primary/30 lg:pt-8'
-                  : 'rounded-2xl bg-base-100'
+                  ? 'bg-neutral text-neutral-content ring-primary/30 rounded-3xl pt-6 ring-2 lg:pt-8'
+                  : 'bg-base-200 rounded-2xl lg:mt-8'
               }`}
             >
               {!plan.highlighted && plan.badge && (
-                <div class="bg-primary text-primary-content px-4 py-2 text-center text-sm font-semibold uppercase tracking-wide">
+                <div class="bg-primary text-primary-content px-4 py-2 text-center text-sm font-semibold tracking-wide uppercase">
                   {plan.badge}
                 </div>
               )}
               <div class="card-body flex flex-1 flex-col p-6 md:p-8">
-                <h3 class="font-display card-title text-xl font-bold sm:text-2xl">{plan.name}</h3>
-                <p
-                  class={`mb-6 font-bold ${
-                    plan.highlighted ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'
-                  }`}
-                >
-                  {plan.price}
-                </p>
+                <div class="card-title flex flex-col gap-2">
+                  <p
+                    class={`font-display text-sm ${plan.highlighted ? 'text-primary-content/70' : 'text-base-content/70'}`}
+                  >
+                    {plan.name}
+                  </p>
+                  <h3
+                    class={`mb-6 font-bold ${
+                      plan.highlighted ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'
+                    }`}
+                  >
+                    {plan.price}
+                  </h3>
+                </div>
                 <ul class="space-y-3">
                   {plan.features.map((feature) => (
                     <li class="flex items-start gap-3">
                       <Icon
-                        name="mdi:check-circle"
+                        name="mdi:check"
                         size={22}
-                        class="mt-0.5 shrink-0 text-primary"
+                        class={`${plan.highlighted ? 'text-primary' : 'text-neutral/70'} mt-0.5 shrink-0`}
                         aria-hidden="true"
                       />
                       <span class="text-sm sm:text-base">{feature}</span>
