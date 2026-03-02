@@ -11,7 +11,7 @@ export default function PagoExitoso() {
           </div>
           <h1 className="card-title text-2xl">Pago Exitoso</h1>
           <p className="text-base-content/70">
-            Tu pago fue procesado correctamente. Tu reserva ha sido confirmada.
+            Tu pago fue procesado correctamente. Tu reserva será confirmada en breve.
           </p>
           <div className="card-actions mt-6 flex-wrap justify-center gap-3">
             <Link to="/app/reservas" className="btn btn-primary">
