@@ -133,6 +133,12 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
               // Limpiar pending reservation
               localStorage.removeItem('pendingReservation');
 
+              // Si hay checkoutUrl de Mercado Pago, redirigir allá
+              if (result.checkoutUrl) {
+                window.location.href = result.checkoutUrl;
+                return;
+              }
+
               // Guardar datos para la página de éxito
               localStorage.setItem(
                 'reservation.success',

@@ -29,6 +29,9 @@ import ResetPassword from './auth/resetPassword';
 import ClassMaterial from '@components/content/ClassMaterial';
 import ReservationConfirm from '@components/reservations/ReservationConfirm';
 import RescheduleReservation from '@components/reservations/RescheduleReservation';
+import PagoExitoso from '@components/pago/PagoExitoso';
+import PagoFallido from '@components/pago/PagoFallido';
+import PagoPendiente from '@components/pago/PagoPendiente';
 
 export default function Spa() {
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -117,6 +120,11 @@ export default function Spa() {
 
           {/* Checkout público */}
           <Route path="/checkout" element={<Checkout />} />
+
+          {/* Páginas de resultado de pago (Mercado Pago redirect) */}
+          <Route path="/pago/exitoso" element={<PagoExitoso />} />
+          <Route path="/pago/fallido" element={<PagoFallido />} />
+          <Route path="/pago/pendiente" element={<PagoPendiente />} />
 
           {/* Rutas de profesores */}
           <Route

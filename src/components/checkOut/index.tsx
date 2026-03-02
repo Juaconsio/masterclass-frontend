@@ -127,7 +127,13 @@ export default function CheckoutView(props: CheckoutProps) {
           pricingPlanId: String(selectedPricingPlanId),
         });
 
-        // Guardar datos para la página de éxito
+        // Si hay checkoutUrl de Mercado Pago, redirigir allá
+        if (result.checkoutUrl) {
+          window.location.href = result.checkoutUrl;
+          return;
+        }
+
+        // Fallback: guardar datos para la página de confirmación manual
         localStorage.setItem(
           'reservation.success',
           JSON.stringify({
