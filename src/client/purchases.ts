@@ -25,6 +25,7 @@ export interface CreatePurchaseResult {
   purchase: StudentPlanPurchase;
   payment: { id: number; amount: number; currency: string; status: string };
   reservation?: IReservation;
+  checkoutUrl?: string | null;
 }
 
 export async function getMyPurchases(): Promise<StudentPlanPurchase[]> {
