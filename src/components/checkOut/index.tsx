@@ -149,6 +149,13 @@ export default function CheckoutView(props: CheckoutProps) {
       if (isAuthenticated) {
         const payload = { pricingPlanId: planId, slotId: slotId ? Number(slotId) : undefined };
         const result = await createPurchase(payload);
+
+        // Si hay checkoutUrl de Mercado Pago, redirigir allá
+        if (result.checkoutUrl) {
+          window.location.href = result.checkoutUrl;
+          return;
+        }
+
         localStorage.setItem('purchase.success', JSON.stringify(result));
         navigate('/app/confirmacion-pago');
         return;
