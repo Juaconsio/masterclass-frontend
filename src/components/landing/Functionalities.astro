@@ -6,44 +6,38 @@ const features = [
     title: 'Booking Inteligente',
     desc: 'Reserva tus clases particulares o grupales en segundos. Elige a tu tutor favorito y horario.',
     icon: 'mdi:calendar-clock',
-    iconBg: 'bg-info/15',
-    iconColor: 'text-info',
+    iconColor: 'text-info/20',
   },
   {
     title: 'Biblioteca de Material',
     desc: 'Acceso ilimitado a guías, ejercicios resueltos y resúmenes hechos por expertos.',
     icon: 'mdi:book-open-page-variant',
-    iconBg: 'bg-primary/15',
-    iconColor: 'text-primary',
+    iconColor: 'text-primary/10',
   },
   {
     title: 'Clases Grabadas',
     desc: '¿Te perdiste la clase? No importa. Todas las sesiones quedan grabadas en alta definición.',
     icon: 'mdi:play-circle',
-    iconBg: 'bg-secondary/15',
-    iconColor: 'text-secondary',
+    iconColor: 'text-secondary/10',
   },
   {
     title: 'Notificaciones',
     desc: 'Olvidate del desorden: avisos de horarios, recordatorios y novedades al instante.',
     icon: 'mdi:bell-ring',
-    iconBg: 'bg-warning/15',
-    iconColor: 'text-warning',
+    iconColor: 'text-warning/10',
   },
   {
     title: 'Foro de Dudas',
     desc: 'Un espacio colaborativo donde alumnos y tutores resuelven dudas y comparten tips.',
     icon: 'mdi:account-group',
-    iconBg: 'bg-neutral/15',
-    iconColor: 'text-neutral',
+    iconColor: 'text-neutral/10',
     comingSoon: true,
   },
   {
     title: 'Pagos Automáticos',
     desc: 'Pago seguro con Webpay, transferencia o tarjeta. Sin sorpresas, todo automatizado.',
     icon: 'mdi:credit-card-check',
-    iconBg: 'bg-success/15',
-    iconColor: 'text-success',
+    iconColor: 'text-success/10',
     comingSoon: true,
   },
 ];
@@ -64,32 +58,28 @@ const features = [
     <div class="grid gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
       {
         features.map((item) => (
-          <article class="shadow-base-content/5 relative flex flex-col overflow-hidden rounded-2xl bg-white/80 p-6 shadow-lg transition-shadow hover:shadow-xl sm:p-8">
+          <article class="shadow-base-content/5 relative flex flex-col overflow-hidden rounded-2xl bg-white p-6 shadow-lg transition-shadow hover:shadow-xl sm:p-8">
+            <div
+              class={`pointer-events-none absolute -right-6 -bottom-10 z-0 h-32 w-32 sm:h-40 sm:w-40 ${item.iconColor}`}
+              aria-hidden="true"
+            >
+              <Icon name={item.icon} size={160} class="h-full w-full" />
+            </div>
             {item.comingSoon && (
               <div
                 class="pointer-events-none absolute inset-0 z-20 flex items-center justify-center overflow-hidden"
                 aria-hidden="true"
               >
-                <span class="font-display -rotate-[28deg] text-4xl font-bold tracking-[0.25em] text-base-content opacity-30 select-none sm:text-5xl">
+                <span class="font-display text-base-content -rotate-[28deg] text-4xl font-bold tracking-[0.25em] opacity-30 select-none sm:text-5xl">
                   PRONTO
                 </span>
               </div>
             )}
-            <div
-              class={`relative z-10 flex flex-col ${item.comingSoon ? 'opacity-50' : ''}`}
-            >
-              <header class="mb-5 flex items-center gap-3">
-                <div
-                  class={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl sm:h-14 sm:w-14 ${item.iconBg} ${item.iconColor}`}
-                  aria-hidden="true"
-                >
-                  <Icon name={item.icon} size={28} class="sm:h-8 sm:w-8" />
-                </div>
-              </header>
-              <h3 class="font-display text-base-content mb-3 text-xl font-bold sm:text-2xl">
+            <div class={`relative z-10 flex flex-col ${item.comingSoon ? 'opacity-50' : ''}`}>
+              <h3 class="font-display text-complement mb-3 text-xl font-bold sm:text-2xl">
                 {item.title}
               </h3>
-              <p class="text-base-content/70 text-sm leading-relaxed sm:text-base">{item.desc}</p>
+              <p class="text-base-content text-sm leading-relaxed sm:text-base">{item.desc}</p>
             </div>
           </article>
         ))
