@@ -23,11 +23,28 @@ function buildSlug(acronym: string, title: string) {
   return `${acronym.toLowerCase()}-${slugifyTitle(title)}`;
 }
 
+import course1 from '@/assets/courses/course-1.jpg?url';
+import course2 from '@/assets/courses/course-2.jpg?url';
+import course3 from '@/assets/courses/course-3.jpg?url';
+import course4 from '@/assets/courses/course-4.jpg?url';
+import course5 from '@/assets/courses/course-5.jpg?url';
+import course6 from '@/assets/courses/course-6.jpg?url';
+
+const COURSE_IMAGES: Record<string, string> = {
+  'course-1.jpg': course1,
+  'course-2.jpg': course2,
+  'course-3.jpg': course3,
+  'course-4.jpg': course4,
+  'course-5.jpg': course5,
+  'course-6.jpg': course6,
+};
+
 function mergeCourse(
   baseCourse: PublicCourseSummary,
   marketing?: CollectionEntry<'courseDescriptions'>
 ): CourseListingEntry {
   const data = marketing?.data;
+  const image = data?.image ? COURSE_IMAGES[data.image] : undefined;
 
   return {
     slug: baseCourse.slug,
@@ -41,6 +58,7 @@ function mergeCourse(
       level: data?.level ?? defaultMarketing.level,
       basePrice: data?.basePrice ?? defaultMarketing.basePrice,
       featured: data?.featured ?? defaultMarketing.featured,
+      image,
     },
   };
 }
