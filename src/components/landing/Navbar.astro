@@ -16,7 +16,7 @@ const isActive = (href: string) => href === current;
 
 <!-- Navbar principal: estructura DaisyUI navbar-start | navbar-center | navbar-end -->
 <nav
-  class="navbar h-navbar bg-base-100/80 border-base-300 fixed top-0 z-50 border-b px-3 backdrop-blur sm:px-4 md:px-6 lg:px-8"
+  class="navbar h-navbar bg-accent/80 border-base-300 fixed top-0 z-50 border-b px-3 backdrop-blur sm:px-4 md:px-6 lg:px-8"
 >
   <!-- navbar-start: menú (móvil) + logo (desktop) -->
   <div class="navbar-start">
@@ -83,37 +83,73 @@ const isActive = (href: string) => href === current;
   <input id="main-drawer" type="checkbox" class="drawer-toggle" />
   <div class="drawer-content"></div>
   <div class="drawer-side">
-    <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-    <ul class="menu bg-base-200 min-h-full w-72 p-4 sm:w-80 sm:p-6">
-      <li class="menu-title mb-2">
-        <span class="text-base sm:text-lg">Navegación</span>
-      </li>
-      {
-        links.map((link) => (
-          <li>
-            <a
-              data-navlink
-              data-current={isActive(link.href) ? 'page' : undefined}
-              href={link.href}
-              class="flex justify-between py-3 text-base font-medium sm:py-4 sm:text-lg"
-              aria-current={isActive(link.href) ? 'page' : undefined}
-            >
-              <Icon name={link.icon} size={24} class="sm:h-6 sm:w-6" />
-              <span>{link.label}</span>
-            </a>
-          </li>
-        ))
-      }
-      <div class="mt-4 mr-2 flex-none">
+    <label for="main-drawer" aria-label="Cerrar menú" class="drawer-overlay"></label>
+    <aside
+      class="bg-base-200/95 border-base-300/50 flex min-h-full w-72 flex-col border-r backdrop-blur-sm sm:w-80"
+    >
+      <header
+        class="border-base-300/50 flex shrink-0 items-center gap-3 border-b px-5 py-4 sm:px-6 sm:py-5"
+      >
+        <a
+          href="/"
+          class="flex items-center gap-2"
+          onclick="document.getElementById('main-drawer').click()"
+        >
+          <Image src={Logo} alt="" class="h-10 w-auto sm:h-11" aria-hidden="true" />
+        </a>
+      </header>
+      <nav
+        class="flex-1 overflow-y-auto px-3 py-4 sm:px-4 sm:py-5"
+        aria-label="Navegación principal"
+      >
+        <p
+          class="text-base-content/60 mb-3 px-2 text-xs font-semibold tracking-wider uppercase sm:mb-4 sm:text-sm"
+        >
+          Navegación
+        </p>
+        <ul class="menu gap-1 p-0" role="list">
+          {
+            links.map((link) => {
+              const active = isActive(link.href);
+              return (
+                <li class="[&>a]:rounded-xl">
+                  <a
+                    data-navlink
+                    data-current={active ? 'page' : undefined}
+                    href={link.href}
+                    class={`flex items-center gap-3 py-3 pr-4 pl-3 text-base font-medium transition-colors sm:py-3.5 sm:pl-4 sm:text-[15px] ${active ? 'bg-primary/10 text-primary' : 'text-base-content hover:bg-base-300/60 hover:text-base-content'}`}
+                    aria-current={active ? 'page' : undefined}
+                    onclick="document.getElementById('main-drawer').click()"
+                  >
+                    <span
+                      class={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg sm:h-10 sm:w-10 ${active ? 'bg-primary/20' : 'bg-base-300/70'}`}
+                      aria-hidden="true"
+                    >
+                      <Icon
+                        name={link.icon}
+                        size={22}
+                        class={active ? 'text-primary' : 'text-base-content/80'}
+                      />
+                    </span>
+                    <span>{link.label}</span>
+                  </a>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </nav>
+      <footer class="border-base-300/50 shrink-0 border-t px-4 py-4 sm:px-5 sm:py-5">
         <a
           href="/ingresar"
           aria-label="Iniciar Sesión"
-          class="btn btn-primary btn-wide rounded-xl px-2 lg:px-4"
+          class="btn btn-primary btn-block sm:btn-lg gap-2 rounded-xl"
+          onclick="document.getElementById('main-drawer').click()"
         >
-          <Icon name="mdi:login" size={20} class="sm:h-6 sm:w-6 lg:hidden" />
+          <Icon name="mdi:login" size={20} class="shrink-0" />
           <span>Iniciar Sesión</span>
         </a>
-      </div>
-    </ul>
+      </footer>
+    </aside>
   </div>
 </div>

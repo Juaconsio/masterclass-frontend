@@ -18,17 +18,20 @@ const { departments, levels, courses, idPrefix = '' } = Astro.props;
       <div class="flex flex-col gap-2">
         <h3 class="text-lg font-bold">Filtros</h3>
         <div class="form-control w-full">
+          <label for={`${idPrefix}search-input`} class="sr-only">Buscar por nombre o sigla de curso</label>
           <div class="input-group flex">
             <input
-              type="text"
-              placeholder="Buscar por nombre, sigla..."
+              type="search"
+              placeholder="Buscar por nombre, sigla…"
               class="input input-bordered input-sm sm:input-md min-w-0 flex-1 text-sm sm:text-base"
               id={`${idPrefix}search-input`}
+              autocomplete="off"
             />
             <button
               class="btn btn-square btn-sm sm:btn-md btn-primary ml-2"
               id={`${idPrefix}search-btn`}
               type="button"
+              aria-label="Buscar cursos"
             >
               <svg
                 class="h-4 w-4 sm:h-5 sm:w-5"

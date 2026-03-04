@@ -12,55 +12,78 @@ interface ReviewCardProps {
   };
 }
 
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
+
 export default function ReviewCard({ review }: ReviewCardProps) {
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('');
-  };
+  const hasRating = typeof review.rating === 'number' && review.rating >= 1 && review.rating <= 5;
 
   return (
-    <div className="card bg-base-200 flex h-full flex-col shadow-xl">
-      <div className="card-body flex flex-col p-4 sm:p-5 md:p-6">
-        {/* Course Badge */}
-        <div className="mb-3 sm:mb-4">
-          <div className="badge badge-accent badge-xs sm:badge-sm text-xs">{review.course}</div>
+    <article className="flex h-full flex-col rounded-2xl border border-base-300 bg-base-100 p-4 shadow-lg sm:p-5 md:p-6">
+      <span className="text-base-content/50 mb-3 text-xs font-medium uppercase tracking-wide sm:mb-4">
+        {review.course}
+      </span>
+
+      <div className="relative min-h-[7rem] flex-1 sm:min-h-[8rem]">
+        <span
+          className="text-primary/30 absolute -top-1 left-0 font-serif text-4xl leading-none sm:text-5xl"
+          aria-hidden
+        >
+          "
+        </span>
+        <p className="text-base-content line-clamp-5 pl-4 text-base font-medium leading-relaxed sm:pl-5 sm:text-lg sm:line-clamp-6">
+          {review.comment}
+        </p>
+      </div>
+
+      {hasRating && (
+        <div className="mt-3 flex gap-0.5 sm:mt-4" aria-label={`${review.rating} de 5 estrellas`}>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <span
+              key={star}
+              className={
+                star <= (review.rating ?? 0)
+                  ? 'text-warning'
+                  : 'text-base-300'
+              }
+            >
+              ★
+            </span>
+          ))}
         </div>
-        {/* Review Text */}
-        <div className="mb-4 min-h-0 overflow-y-auto sm:mb-6">
-          <p className="text-sm leading-relaxed italic sm:text-base md:text-lg">
-            &quot;{review.comment}&quot;
+      )}
+
+      <footer className="mt-auto flex items-center gap-3 pt-4 sm:pt-5">
+        {review.image ? (
+          <img
+            src={review.image}
+            alt=""
+            className="h-10 w-10 shrink-0 rounded-full object-cover sm:h-12 sm:w-12"
+          />
+        ) : (
+          <div className="bg-primary text-primary-content flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold sm:h-12 sm:w-12 sm:text-base">
+            {getInitials(review.name)}
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-semibold text-base-content sm:text-base">{review.name}</p>
+          <p className="text-base-content/70 truncate text-xs sm:text-sm">
+            {review.profile}
+            {review.studies && (
+              <>
+                <span className="hidden sm:inline"> · </span>
+                <span className="sm:inline">{review.studies}</span>
+              </>
+            )}
           </p>
         </div>
-
-        {/* Reviewer Info */}
-        <div className="mt-auto flex items-center gap-2 sm:gap-3">
-          <div className="avatar avatar-placeholder shrink-0">
-            {review.image ? (
-              <div className="h-10 w-10 rounded-full sm:h-12 sm:w-12">
-                <img src={review.image} alt={review.name} />
-              </div>
-            ) : (
-              <div className="bg-primary text-primary-content flex h-10 w-10 items-center justify-center rounded-full sm:h-12 sm:w-12">
-                <span className="text-base font-bold sm:text-lg">{getInitials(review.name)}</span>
-              </div>
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-              <h4 className="truncate text-sm font-semibold sm:text-base">{review.name}</h4>
-              {review.date && (
-                <span className="text-base-content/60 shrink-0 text-xs">• {review.date}</span>
-              )}
-            </div>
-            <p className="text-base-content/70 truncate text-xs sm:text-sm">
-              {review.profile}
-              {review.studies && <span className="hidden sm:inline"> • {review.studies}</span>}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+      </footer>
+    </article>
   );
 }

@@ -1,8 +1,7 @@
 ---
 import { Icon } from 'astro-icon/components';
 import Stats from './stats.astro';
-const waMessage = 'Hola, revise el sitio de SalvaRamos y quisieramos saber más.';
-const waUrl = `https://wa.me/56934476377?text=${encodeURIComponent(waMessage)}`;
+import waUrl from '@/lib/waMessage';
 ---
 
 <div class="h-hero flex w-full flex-col gap-12">

@@ -17,6 +17,12 @@ const { course } = Astro.props as { course: CourseListingData };
       <div class="text-xs sm:text-sm opacity-90 mb-4 sm:mb-6">
         * El precio puede variar según la modalidad y duración de las sesiones
       </div>
+      <a
+        href={`/checkout?courseAcronym=${encodeURIComponent(course.acronym)}`}
+        class="btn btn-block btn-sm border-2 border-primary-content bg-transparent text-primary-content hover:bg-primary-content hover:text-primary sm:btn-md"
+      >
+        Ver planes
+      </a>
     </div>
   </div>
 

@@ -41,13 +41,14 @@
 @import '@splidejs/react-splide/css/core';
 
 @plugin "daisyui/theme" {
-  name: 'fantasy';
+  name: 'SalvaRamos';
   default: true;
   prefersdark: false;
   color-scheme: 'light';
-  --color-white: #f9f6ee;
-  --color-base-100: oklch(0.8647 0.0272 80.24);
-  --color-base-200: #f9f6ee;
+  --color-white: oklch(0.9733 0.0111 89.72);
+  --color-black: oklch(0.1766 0.0507 141.75);
+  --color-base-100: oklch(0.9733 0.0111 89.72);
+  --color-base-200: oklch(98% 0 0);
   --color-base-300: oklch(87% 0.006 286.286);
   --color-base-content: oklch(0.2134 0 0);
   --color-primary: oklch(0.3517 0.0489 147.41);
@@ -61,14 +62,14 @@
 
   --color-complement: oklch(58.75% 0.078 62.62);
   --color-dark-blue: oklch(0.2254 0.1392 264.18);
-  --color-info: oklch(72.06% 0.191 231.6);
-  --color-info-content: oklch(0% 0 0);
-  --color-success: oklch(64.8% 0.15 160);
-  --color-success-content: oklch(0% 0 0);
-  --color-warning: oklch(84.71% 0.199 83.87);
-  --color-warning-content: oklch(0% 0 0);
-  --color-error: oklch(71.76% 0.221 22.18);
-  --color-error-content: oklch(0% 0 0);
+  --color-info: oklch(0.48 0.14 250);
+  --color-info-content: oklch(0.98 0.01 250);
+  --color-success: oklch(0.45 0.14 155);
+  --color-success-content: oklch(0.98 0.01 155);
+  --color-warning: oklch(0.62 0.18 78);
+  --color-warning-content: oklch(0.18 0.04 78);
+  --color-error: oklch(0.50 0.20 25);
+  --color-error-content: oklch(0.98 0.01 25);
   --color-nav-link: oklch(0.4216 0.0055 270.74);
   --color-nav-link-active: oklch(0.6924 0.0217 146.65);
   --radius-selector: 1rem;
