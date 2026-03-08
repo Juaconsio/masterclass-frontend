@@ -23,8 +23,8 @@ async function getCourseEnroll(options: {
   slotId?: number;
 }): Promise<{
   course: ICourse;
-  slot: ISlot;
-  reservation: IReservation;
+  slot: ISlot | null;
+  reservation?: IReservation;
   pricingPlans: IPricingPlan[];
 }> {
   const { courseId, courseAcronym, slotId } = options;

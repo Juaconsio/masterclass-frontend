@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getToken, validateToken } from '@client/auth';
-import { createReservation } from '@client/reservations';
+import { createPurchase } from '@client/purchases';
 import { useForm } from 'react-hook-form';
 import { useSessionContext } from '../../context/SessionContext';
 import clsx from 'clsx';
 import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import type { UserRole } from '@/interfaces/enums';
 import { AUTH_ERROR_MESSAGES } from '@/lib/errorMessages';
+import { Info } from 'lucide-react';
 
 interface FormData {
   email: string;
@@ -17,21 +18,27 @@ interface SignInFormProps {
   initialUserRole?: UserRole;
 }
 
-const roleTexts: Record<UserRole, { title: string; subtitle: string; helper?: string }> = {
+const roleUtils: Record<
+  UserRole,
+  { title: string; subtitle: string; helper?: string; portalUrl: string }
+> = {
   user: {
     title: 'Iniciar sesión',
     subtitle: 'Bienvenido de vuelta. Ingresa tus credenciales para continuar.',
     helper: 'Selecciona rol si deseas acceder como profesor o admin.',
+    portalUrl: '/app',
   },
   professor: {
     title: 'Panel Profesor',
     subtitle: 'Acceso para profesores',
     helper: 'Ingresa tus credenciales de profesor.',
+    portalUrl: '/profesor',
   },
   admin: {
     title: 'Panel Admin',
     subtitle: 'Acceso exclusivo para administradores',
     helper: 'Solo cuentas autorizadas pueden acceder.',
+    portalUrl: '/admin',
   },
 };
 
@@ -47,13 +54,14 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
     formState: { errors, isSubmitting },
   } = useForm<FormData>();
   const [feedback, setFeedback] = useState('');
-  const [hasPendingReservation, setHasPendingReservation] = useState(false);
+  const [hasPendingPurchase, setHasPendingPurchase] = useState(false);
 
   const inferredRoleFromPath: UserRole = useMemo(() => {
     // Check query params first
     const typeParam = searchParams.get('type');
     if (typeParam === 'professor') return 'professor';
     if (typeParam === 'admin') return 'admin';
+    if (typeParam === 'user') return 'user';
 
     // Then check path
     const path = location?.pathname || '';
@@ -84,8 +92,7 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
 
         // pasar token al contexto y redirigir según rol
         handleToken(token);
-        const isAdmin = decoded?.role === 'admin' || decoded?.isAdmin === true;
-        navigate(isAdmin ? '/admin' : '/app');
+        navigate(roleUtils[userRole].portalUrl);
       } catch {
         // no hacer nada si falla la verificación
       }
@@ -94,10 +101,9 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
     checkToken();
   }, []);
 
-  // Check for pending reservation on mount
   useEffect(() => {
-    const pending = localStorage.getItem('pendingReservation');
-    setHasPendingReservation(!!pending);
+    const pendingPurchase = localStorage.getItem('pendingPurchase');
+    setHasPendingPurchase(!!pendingPurchase);
   }, []);
 
   const onSubmit = async (data: FormData) => {
@@ -108,69 +114,45 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
         password: data.password,
         accountType: userRole,
       });
+
+      if (!res.ok) {
+        setFeedback(AUTH_ERROR_MESSAGES[res.message || ''] || res.message || 'Error desconocido');
+        return;
+      }
+
       if (res.ok && res.token) {
         handleToken(res.token);
 
         // Decodificar el token para verificar el rol
         const decoded: any = await import('jwt-decode').then((m) => m.jwtDecode(res.token!));
-        const isAdmin = decoded?.role === 'admin' || decoded?.isAdmin === true;
+        const isUser = decoded?.role === 'user';
+        const pendingPurchaseStr = localStorage.getItem('pendingPurchase');
 
-        // Verificar si hay reserva pendiente (solo para usuarios normales)
-        if (!isAdmin && userRole === 'user') {
-          const pendingStr = localStorage.getItem('pendingReservation');
-          if (pendingStr) {
-            let pending;
-            try {
-              pending = JSON.parse(pendingStr);
-
-              // Crear la reserva automáticamente
-              const result = await createReservation({
-                courseId: pending.courseId,
-                slotId: pending.slotId,
-                pricingPlanId: pending.pricingPlanId,
-              });
-
-              // Limpiar pending reservation
-              localStorage.removeItem('pendingReservation');
-
-              // Guardar datos para la página de éxito
-              localStorage.setItem(
-                'reservation.success',
-                JSON.stringify({
-                  reservation: result.reservation,
-                  payment: result.payment,
-                })
-              );
-
-              // Redirigir a página de éxito
-              navigate('/app/confirmacion-pago');
-              return;
-            } catch (resError: any) {
-              console.error('Error creating reservation after login:', resError);
-              // Limpiar pending reservation
-              localStorage.removeItem('pendingReservation');
-
-              // Guardar información del error para mostrar en la página de confirmación
-              localStorage.setItem(
-                'reservation.error',
-                JSON.stringify({
-                  message: resError?.response?.data?.message || 'Error al crear la reserva',
-                  details: resError?.response?.data || {},
-                  pending: pending,
-                })
-              );
-
-              // Redirigir a página de error de confirmación
-              navigate('/app/confirmacion-pago');
-              return;
-            }
-          }
+        if (!isUser || (isUser && !pendingPurchaseStr)) {
+          navigate(roleUtils[userRole].portalUrl);
+          return;
         }
 
-        // Redirigir según el rol (flujo normal)
-        navigate(isAdmin ? '/admin' : '/app');
-      } else {
-        setFeedback(AUTH_ERROR_MESSAGES[res.message || ''] || res.message || 'Error desconocido');
+        if (isUser && pendingPurchaseStr) {
+          try {
+            const payload = JSON.parse(pendingPurchaseStr);
+            const result = await createPurchase(payload);
+            localStorage.removeItem('pendingPurchase');
+            localStorage.setItem('purchase.success', JSON.stringify(result));
+          } catch (purchaseError: any) {
+            console.error('Error creating purchase after login:', purchaseError);
+            localStorage.removeItem('pendingPurchase');
+            localStorage.setItem(
+              'purchase.error',
+              JSON.stringify({
+                message:
+                  purchaseError?.response?.data?.message || 'Error al completar la compra del plan',
+                details: purchaseError?.response?.data || {},
+              })
+            );
+          }
+          navigate('/app/confirmacion-pago');
+        }
       }
     } catch (error: any) {
       setFeedback('Error de red o servidor.' + error.message);
@@ -180,29 +162,17 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
   return (
     <>
       <div className="mb-4">
-        <h2 className="text-primary mb-1 text-3xl font-bold">{roleTexts[userRole].title}</h2>
-        <p className="text-base-content">{roleTexts[userRole].subtitle}</p>
+        <h2 className="text-primary mb-1 text-3xl font-bold">{roleUtils[userRole].title}</h2>
+        <p className="text-base-content">{roleUtils[userRole].subtitle}</p>
       </div>
-      <div className="text-xs opacity-60">{roleTexts[userRole].helper}</div>
+      <div className="text-xs opacity-60">{roleUtils[userRole].helper}</div>
 
-      {hasPendingReservation && userRole === 'user' && (
+      {hasPendingPurchase && userRole === 'user' && (
         <div className="alert alert-success my-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 shrink-0 stroke-current"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
+          <Info className="h-6 w-6 shrink-0 stroke-current" />
           <div>
-            <p className="font-semibold">¡Tienes una reserva esperando!</p>
-            <p className="text-sm">Al iniciar sesión, tu reserva se confirmará automáticamente.</p>
+            <p className="font-semibold">¡Tienes una compra pendiente!</p>
+            <p className="text-sm">Al iniciar sesión, podrás continuar con el proceso de compra.</p>
           </div>
         </div>
       )}
@@ -210,24 +180,21 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
       <div className="join my-2">
         <button
           type="button"
-          className={clsx('btn join-item', userRole === 'user' ? 'btn-secondary' : 'btn-ghost')}
+          className={clsx('btn join-item', userRole === 'user' ? 'btn-neutral' : 'btn-ghost')}
           onClick={() => setUserRole('user')}
         >
           Estudiante
         </button>
         <button
           type="button"
-          className={clsx(
-            'btn join-item',
-            userRole === 'professor' ? 'btn-secondary' : 'btn-ghost'
-          )}
+          className={clsx('btn join-item', userRole === 'professor' ? 'btn-neutral' : 'btn-ghost')}
           onClick={() => setUserRole('professor')}
         >
           Profesor
         </button>
         <button
           type="button"
-          className={clsx('btn join-item', userRole === 'admin' ? 'btn-secondary' : 'btn-ghost')}
+          className={clsx('btn join-item', userRole === 'admin' ? 'btn-neutral' : 'btn-ghost')}
           onClick={() => setUserRole('admin')}
         >
           Admin
@@ -255,7 +222,7 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
             ¿Olvidaste tu contraseña?
           </a>
         </div>
-        <button type="submit" className="btn btn-secondary w-full" disabled={isSubmitting}>
+        <button type="submit" className="btn btn-neutral w-full" disabled={isSubmitting}>
           {isSubmitting ? 'Verificando credenciales...' : 'Ingresar'}
         </button>
       </form>

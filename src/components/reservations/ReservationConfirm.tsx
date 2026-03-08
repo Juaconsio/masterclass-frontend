@@ -1,13 +1,33 @@
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Calendar, Clock, CreditCard, Copy, TriangleAlert } from 'lucide-react';
+import { Calendar, Clock, CreditCard, Copy, TriangleAlert, BookOpen, GraduationCap } from 'lucide-react';
 import type { IReservation, IPayment } from '@/interfaces';
 import { Link } from 'react-router';
 import { showToast } from '@/lib/toast';
-interface StoredReservationData {
-  reservation: IReservation;
+
+interface StoredPurchaseData {
+  purchase: {
+    id: number;
+    pricingPlanId: number;
+    creditsTotal: number;
+    creditsRemaining: number;
+    createdAt?: string;
+    expiresAt?: string | null;
+    pricingPlan?: {
+      id: number;
+      name: string;
+      description?: string | null;
+      price: number;
+      reservationCount: number;
+      courseId?: number | null;
+      course?: { id: number; title: string; acronym: string };
+      allowedClasses?: Array<{ id: number; title: string; orderIndex: number; courseId: number }>;
+    };
+  };
   payment: IPayment;
+  /** Present when the purchase included a slot reservation; absent when plan only. */
+  reservation?: IReservation | null;
 }
 
 const BANK_DATA = {
@@ -19,7 +39,7 @@ const BANK_DATA = {
 };
 
 export default function ReservationConfirm() {
-  const [data, setData] = useState<StoredReservationData | null>(null);
+  const [purchaseData, setPurchaseData] = useState<StoredPurchaseData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<{ message: string; details?: any; pending?: any } | null>(
     null
@@ -42,7 +62,6 @@ Email: ${BANK_DATA.email}
 
   useEffect(() => {
     try {
-      // Primero verificar si hay un error
       const errorStored = localStorage.getItem('reservation.error');
       if (errorStored) {
         const parsedError = JSON.parse(errorStored);
@@ -52,12 +71,11 @@ Email: ${BANK_DATA.email}
         return;
       }
 
-      // Si no hay error, buscar datos de éxito
-      const stored = localStorage.getItem('reservation.success');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setData(parsed);
-        localStorage.removeItem('reservation.success');
+      const purchaseStored = localStorage.getItem('purchase.success');
+      if (purchaseStored) {
+        const parsed = JSON.parse(purchaseStored);
+        setPurchaseData(parsed);
+        localStorage.removeItem('purchase.success');
       }
     } catch (error) {
       console.error('Error loading reservation data:', error);
@@ -74,10 +92,9 @@ Email: ${BANK_DATA.email}
     );
   }
 
-  // Mostrar página de error si hay un error
   if (error) {
     return (
-      <div className="bg-base-100 min-h-screen py-8">
+      <div className="py-8">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-2xl">
             <div className="card border-error/20 border bg-white shadow-2xl">
@@ -130,9 +147,9 @@ Email: ${BANK_DATA.email}
     );
   }
 
-  if (!data) {
+  if (!purchaseData) {
     return (
-      <div className="bg-base-100 min-h-screen">
+      <div className="">
         <div className="container mx-auto px-4 py-16">
           <div className="card mx-auto max-w-md bg-white shadow-xl">
             <div className="card-body text-center">
@@ -152,19 +169,30 @@ Email: ${BANK_DATA.email}
     );
   }
 
-  const { reservation, payment } = data;
-  const slot = reservation.slot;
-  const classInfo = slot?.class;
-  const course = classInfo?.course;
+  const { purchase, payment } = purchaseData;
+  const reservation = purchaseData.reservation ?? null;
+  const plan = purchase.pricingPlan;
+  const slot = reservation?.slot;
+  const slotClass = slot?.class;
+  const course = plan?.course ?? slotClass?.course;
+  const hasReservation = reservation != null && slot != null;
+
+  const copyPaymentReference = () => {
+    navigator.clipboard.writeText(payment.transactionReference).then(() => {
+      showToast.success('Referencia de pago copiada al portapapeles');
+    });
+  };
 
   return (
-    <div className="bg-base-100 min-h-screen pb-8">
+    <div className="py-4">
       <div className="container mx-auto px-4">
         {/* Success Header */}
         <div className="mb-8 text-center">
           <div className="mb-4 flex justify-center"></div>
-          <h1 className="text-primary mb-2 text-3xl font-bold">¡Reserva Confirmada!</h1>
-          <p className="text-base-content/70 text-lg">Tu cupo ha sido reservado exitosamente</p>
+          <h1 className="text-primary mb-2 text-3xl font-bold">¡Plan inscrito!</h1>
+          <p className="text-base-content/70 text-lg">
+            Debes realizar un pago para acceder a los contenidos.
+          </p>
         </div>
 
         <div className="mx-auto grid max-w-4xl gap-8 lg:grid-cols-2">
@@ -173,21 +201,68 @@ Email: ${BANK_DATA.email}
             <div className="card-body">
               <h2 className="card-title text-secondary mb-6 text-xl">
                 <Calendar className="h-6 w-6" />
-                Detalles de la Reserva
+                Detalles del Plan
               </h2>
 
               <div className="space-y-6">
                 <div className="border-base-200 border-b pb-4">
-                  <div className="text-lg font-bold">
-                    {classInfo?.title || 'N/A'}
-                    <div className="text-sm font-normal text-gray-600">
-                      {course?.title || 'N/A'}
+                  <div className="text-lg font-bold">{plan?.name ?? 'N/A'}</div>
+                  {plan?.description && (
+                    <p className="text-base-content/70 mt-1 text-sm">{plan.description}</p>
+                  )}
+                </div>
+
+                {course && (
+                  <div className="border-base-200 border-b pb-4">
+                    <div className="text-base-content/60 mb-2 text-xs font-semibold tracking-wide uppercase">
+                      Curso
                     </div>
+                    <div className="flex items-center gap-2">
+                      <GraduationCap className="text-primary h-5 w-5 shrink-0" />
+                      <span className="font-medium">
+                        {course.title}
+                        {course.acronym ? ` (${course.acronym})` : ''}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="border-base-200 border-b pb-4">
+                  <div className="text-base-content/60 mb-2 text-xs font-semibold tracking-wide uppercase">
+                    Créditos del plan
+                  </div>
+                  <div className="font-medium">
+                    {purchase.creditsRemaining} de {purchase.creditsTotal} disponibles
                   </div>
                 </div>
 
-                {slot && (
+                {purchase.expiresAt && (
+                  <div className="border-base-200 border-b pb-4">
+                    <div className="text-base-content/60 mb-2 text-xs font-semibold tracking-wide uppercase">
+                      Válido hasta
+                    </div>
+                    <div className="font-medium">
+                      {format(new Date(purchase.expiresAt), "d 'de' MMMM, yyyy", { locale: es })}
+                    </div>
+                  </div>
+                )}
+
+                {hasReservation ? (
                   <>
+                    <div className="text-base-content/60 text-xs font-semibold tracking-wide uppercase">
+                      Reserva
+                    </div>
+                    {slotClass?.title && (
+                      <div className="border-base-200 border-b pb-4">
+                        <div className="text-base-content/60 mb-2 text-xs font-semibold tracking-wide uppercase">
+                          Clase
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <BookOpen className="text-primary h-5 w-5 shrink-0" />
+                          <span className="font-medium">{slotClass.title}</span>
+                        </div>
+                      </div>
+                    )}
                     <div className="border-base-200 border-b pb-4">
                       <div className="text-base-content/60 mb-2 text-xs font-semibold tracking-wide uppercase">
                         Fecha y Hora
@@ -236,14 +311,38 @@ Email: ${BANK_DATA.email}
                       </div>
                     </div>
                   </>
+                ) : (
+                  <div className="border-base-200 rounded-lg border border-dashed bg-base-200/50 px-4 py-3">
+                    <p className="text-base-content/70 text-sm">
+                      Sin reserva de horario. Podrás elegir tu clase desde{' '}
+                      <Link to="/app/reservas" className="link link-primary font-medium">
+                        Mis reservas
+                      </Link>
+                      .
+                    </p>
+                  </div>
                 )}
 
                 <div>
                   <div className="text-base-content/60 mb-2 text-xs font-semibold tracking-wide uppercase">
-                    Estado
+                    Estado del pago
                   </div>
-                  <div className="badge badge-warning badge-lg gap-2 font-semibold">
-                    Pendiente de Pago
+                  <div
+                    className={`badge badge-lg gap-2 font-semibold ${
+                      payment.status === 'paid'
+                        ? 'badge-success'
+                        : payment.status === 'failed' || payment.status === 'refunded'
+                          ? 'badge-error'
+                          : 'badge-warning'
+                    }`}
+                  >
+                    {payment.status === 'paid'
+                      ? 'Pagado'
+                      : payment.status === 'failed'
+                        ? 'Fallido'
+                        : payment.status === 'refunded'
+                          ? 'Reembolsado'
+                          : 'Pendiente de pago'}
                   </div>
                 </div>
               </div>
@@ -301,6 +400,17 @@ Email: ${BANK_DATA.email}
 
                   <div className="divider my-2"></div>
 
+                  <div>
+                    <div className="text-base-content/60 mb-1 text-xs font-medium">
+                      Referencia de pago
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-base font-bold">{payment.transactionReference}</div>
+                      <button onClick={copyPaymentReference} className="btn btn-ghost btn-xs">
+                        <Copy className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
                   <div>
                     <div className="text-base-content/60 mb-1 text-xs font-medium">
                       Email de confirmación

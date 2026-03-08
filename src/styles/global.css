@@ -68,7 +68,7 @@
   --color-success-content: oklch(0.98 0.01 155);
   --color-warning: oklch(0.62 0.18 78);
   --color-warning-content: oklch(0.18 0.04 78);
-  --color-error: oklch(0.50 0.20 25);
+  --color-error: oklch(0.5 0.2 25);
   --color-error-content: oklch(0.98 0.01 25);
   --color-nav-link: oklch(0.4216 0.0055 270.74);
   --color-nav-link-active: oklch(0.6924 0.0217 146.65);
@@ -80,6 +80,28 @@
   --border: 1px;
   --depth: 1;
   --noise: 0;
+}
+
+@layer components {
+  .prose-course {
+    @apply prose prose-lg max-w-none;
+    @apply prose-headings:text-primary;
+    @apply prose-h1:text-3xl prose-h1:font-bold prose-h1:mb-6 prose-h1:mt-0;
+    @apply prose-h2:text-2xl prose-h2:font-semibold prose-h2:mb-4 prose-h2:mt-8;
+    @apply prose-h3:text-xl prose-h3:font-medium prose-h3:mb-3 prose-h3:mt-6;
+    @apply prose-p:text-base-content prose-p:leading-relaxed prose-p:mb-4;
+    @apply prose-strong:text-base-content prose-strong:font-semibold;
+    @apply prose-ul:my-4 prose-li:my-2 prose-li:text-base-content;
+    @apply prose-ol:my-4 prose-ol:text-base-content;
+    @apply prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:bg-base-200 prose-blockquote:p-4 prose-blockquote:rounded-r-lg prose-blockquote:my-6;
+    @apply prose-code:bg-base-200 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm prose-code:text-accent-content;
+    @apply prose-pre:bg-base-300 prose-pre:p-4 prose-pre:rounded-lg prose-pre:overflow-x-auto;
+    @apply prose-hr:border-base-300 prose-hr:my-8;
+    @apply prose-table:table-auto prose-table:w-full;
+    @apply prose-th:bg-primary prose-th:text-primary-content prose-th:p-3 prose-th:text-left;
+    @apply prose-td:p-3 prose-td:border-b prose-td:border-base-300;
+    @apply prose-img:rounded-lg prose-img:shadow-lg prose-img:mx-auto;
+  }
 }
 
 @layer utilities {

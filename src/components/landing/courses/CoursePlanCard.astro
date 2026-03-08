@@ -1,0 +1,56 @@
+---
+interface Plan {
+  id: number;
+  name: string;
+  description?: string | null;
+  price: number;
+  reservationCount: number;
+  accessMode: string;
+}
+
+interface Props {
+  plan: Plan;
+  cardClass?: string;
+  courseAcronym: string;
+}
+
+const { plan, courseAcronym, cardClass = '' } = Astro.props;
+
+function sessionsLabel(plan: Plan): string {
+  if (plan.accessMode === 'materials_only') return 'Solo material';
+  return plan.reservationCount === 1 ? '1 sesión' : `${plan.reservationCount} sesiones`;
+}
+
+function formatPrice(price: number): string {
+  return price === 0
+    ? 'Gratis'
+    : new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(price);
+}
+---
+
+<div
+  class={`card border-base-300 bg-base-100 border shadow-sm transition hover:shadow-md ${cardClass}`}
+>
+  <div class="card-body p-4 sm:p-5 flex flex-col">
+    <p class="text-base-content font-semibold text-base mb-1">{sessionsLabel(plan)}</p>
+    <p class="text-primary text-2xl font-bold leading-tight mb-2">
+      {formatPrice(plan.price)}
+    </p>
+    <h4 class="card-title text-base font-semibold mt-0">{plan.name}</h4>
+    {
+      plan.description && (
+        <p class="text-base-content/70 line-clamp-2 text-sm -mt-1">
+          {plan.description}
+        </p>
+      )
+    }
+    <div class="card-actions mt-auto pt-3">
+      <a
+        href={`/checkout?courseAcronym=${encodeURIComponent(courseAcronym)}&planId=${plan.id}`}
+        class="btn btn-primary btn-sm btn-block"
+      >
+        Elegir este plan
+      </a>
+    </div>
+  </div>
+</div>

@@ -1,17 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getCourseEnroll } from '../../client/courses';
-import { createReservation } from '../../client/reservations';
+import { createPurchase } from '@/client/purchases';
 import { useSessionContext } from '../../context/SessionContext';
 import type { IPricingPlan, ISlot, ICourse } from '../../interfaces/models';
-import { TriangleAlert } from 'lucide-react';
+import { ArrowLeft, TriangleAlert } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getHttpErrorMessage } from '@/lib/errorMessages';
 import { clearAuthStorage } from '@client/authStorage';
+import { useNavigate } from 'react-router';
 
 type CheckoutProps = {
   courseId?: string | number;
   courseAcronym?: string;
   slotId?: string | number;
+  planId?: string | number;
 };
 
 function useQueryParams() {
@@ -24,7 +26,6 @@ function useQueryParams() {
   }, []);
 }
 
-/** Limpia credenciales locales y redirige a inicio de sesión. */
 function clearAuthAndGoToLogin() {
   clearAuthStorage();
   window.location.href = '/ingresar?type=user';
@@ -54,14 +55,16 @@ function getReservationUiError(error: any) {
 export default function CheckoutView(props: CheckoutProps) {
   const qp = useQueryParams();
   const { isAuthenticated, isLoading: authLoading, user } = useSessionContext();
-
+  const navigate = useNavigate();
   const courseId = props.courseId ?? qp.courseId;
   const courseAcronym = props.courseAcronym ?? qp.courseAcronym;
   const slotId = props.slotId ?? qp.slotId;
+  const planIdFromQuery = props.planId ?? qp.planId;
 
-  const [error, setError] = useState<{ message: string; action?: 'login' | 'switchAccount' } | null>(
-    null
-  );
+  const [error, setError] = useState<{
+    message: string;
+    action?: 'login' | 'switchAccount';
+  } | null>(null);
   const [pricingPlans, setPricingPlans] = useState<IPricingPlan[]>([]);
   const [selectedPricingPlanId, setSelectedPricingPlanId] = useState<string | number | null>(null);
   const [course, setCourse] = useState<ICourse | null>(null);
@@ -70,7 +73,24 @@ export default function CheckoutView(props: CheckoutProps) {
 
   const role = (user as any)?.role as string | undefined;
   const isStudent = !role || role === 'user';
-  const canSubmit = !!selectedPricingPlanId && !isSubmitting && !authLoading && (!isAuthenticated || isStudent);
+  const hasSlot = slot != null;
+  const hasPlan = planIdFromQuery != null;
+  const selectedPlan = pricingPlans.find((p) => p.id === selectedPricingPlanId);
+  const isMaterialsOnly = selectedPlan?.accessMode === 'materials_only';
+  const canSubmitReservation =
+    !!selectedPricingPlanId &&
+    !!slotId &&
+    !!course &&
+    !isSubmitting &&
+    !authLoading &&
+    (!isAuthenticated || isStudent);
+  const canSubmitPurchase =
+    !!selectedPricingPlanId &&
+    !!course &&
+    !isSubmitting &&
+    !authLoading &&
+    (!isAuthenticated || isStudent);
+  const canSubmit = hasSlot ? canSubmitReservation : canSubmitPurchase;
 
   useEffect(() => {
     let mounted = true;
@@ -87,7 +107,12 @@ export default function CheckoutView(props: CheckoutProps) {
             if (!mounted) return;
             setCourse(res.course);
             setSlot(res.slot);
+            // TODO: filtrar el plan gratis si el usuario ya tiene un plan activo (Tal vez se pueda hacer en el backend aunque no creo porque es publico el endpoint)
             setPricingPlans(res.pricingPlans);
+            if (planIdFromQuery && res.pricingPlans?.length) {
+              const plan = res.pricingPlans.find((p) => String(p.id) === String(planIdFromQuery));
+              if (plan) setSelectedPricingPlanId(plan.id);
+            }
           } catch {}
         }
       } catch (e: any) {
@@ -98,14 +123,15 @@ export default function CheckoutView(props: CheckoutProps) {
     return () => {
       mounted = false;
     };
-  }, [courseId, slotId, courseAcronym]);
+  }, [courseId, slotId, courseAcronym, planIdFromQuery]);
 
-  const handleReserve = async () => {
+  const handleSubmit = async () => {
     if (authLoading) {
       setError({ message: 'Estamos validando tu sesión. Intenta nuevamente en unos segundos.' });
       return;
     }
-    if (!selectedPricingPlanId || !slotId || !course) return;
+    if (!selectedPricingPlanId || !course) return;
+    if (hasSlot && !slotId) return;
     if (isAuthenticated && !isStudent) {
       setError({
         message:
@@ -117,63 +143,28 @@ export default function CheckoutView(props: CheckoutProps) {
 
     setIsSubmitting(true);
     setError(null);
+    const planId = Number(selectedPricingPlanId);
 
     try {
       if (isAuthenticated) {
-        // Usuario autenticado: crear reserva directamente
-        const result = await createReservation({
-          courseId: course.id,
-          slotId: Number(slotId),
-          pricingPlanId: String(selectedPricingPlanId),
-        });
-
-        // Guardar datos para la página de éxito
-        localStorage.setItem(
-          'reservation.success',
-          JSON.stringify({
-            reservation: result.reservation,
-            payment: result.payment,
-          })
-        );
-
-        // Redirigir a página de éxito
-        window.location.href = '/app/confirmacion-pago';
-      } else {
-        // Usuario NO autenticado: guardar intención de reserva
-        const pendingReservation = {
-          courseId: course.id,
-          slotId: Number(slotId),
-          pricingPlanId: selectedPricingPlanId,
-          // Info para mostrar al usuario
-          courseTitle: course.title,
-          slotDate: slot?.startTime,
-          amount: pricingPlans.find((p) => p.id === selectedPricingPlanId)?.price || 0,
-        };
-
-        localStorage.setItem('pendingReservation', JSON.stringify(pendingReservation));
-
-        // Redirigir a registro
-        window.location.href = '/registrar';
+        const payload = { pricingPlanId: planId, slotId: slotId ? Number(slotId) : undefined };
+        const result = await createPurchase(payload);
+        localStorage.setItem('purchase.success', JSON.stringify(result));
+        navigate('/app/confirmacion-pago');
+        return;
+      }
+      if (!isAuthenticated) {
+        const payload = { pricingPlanId: planId, slotId: slotId ? Number(slotId) : undefined };
+        localStorage.setItem('pendingPurchase', JSON.stringify(payload));
+        navigate('/ingresar?type=user');
+        return;
       }
     } catch (e: any) {
-      const uiError = getReservationUiError(e);
-      setError(uiError);
-      if (uiError.action === 'login') {
-        toast.error('Sesión expirada. Vuelve a iniciar sesión.');
-        try {
-          localStorage.removeItem('user');
-          localStorage.removeItem('token');
-        } catch {
-          // noop
-        }
-      } else {
-        toast.error(uiError.message);
-      }
-      setIsSubmitting(false);
+      setError({ message: e?.message ?? 'No se pudo crear la compra' });
     }
   };
 
-  if (!slot || !course || !pricingPlans) {
+  if (!course) {
     return (
       <main className="bg-base-100 min-h-screen">
         <div className="container mx-auto px-4 py-6">
@@ -251,7 +242,11 @@ export default function CheckoutView(props: CheckoutProps) {
               Confirma tu plan y continúa con el registro para finalizar la reserva.
             </p>
           </div>
-          <button className="btn btn-soft btn-primary" onClick={() => window.history.back()}>
+          <button
+            className="btn btn-outline btn-sm flex items-center gap-1 border-0"
+            onClick={() => window.history.back()}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Volver
           </button>
         </div>
@@ -268,38 +263,43 @@ export default function CheckoutView(props: CheckoutProps) {
                     <span className="text-base-content/60">Curso</span>
                     <span className="font-medium">{course?.title || courseId || '—'}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-base-content/60">Clase</span>
-                    <span className="font-medium">{slot?.class.title ?? '—'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-base-content/60">Día</span>
-                    <span className="font-medium">
-                      {new Date(slot.startTime).toLocaleString('es-CL', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      }) ?? '—'}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <span className="text-base-content/60">Horario</span>
-                    <span className="font-medium">
-                      {new Date(slot.startTime).toLocaleString('es-CL', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      }) ?? '—'}{' '}
-                      -{' '}
-                      {new Date(slot.endTime).toLocaleString('es-CL', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      }) ?? '—'}
-                    </span>
-                  </div>
+                  {hasSlot && slot && (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-base-content/60">Clase</span>
+                        <span className="font-medium">{slot.class?.title ?? '—'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-base-content/60">Día</span>
+                        <span className="font-medium">
+                          {new Date(slot.startTime).toLocaleString('es-CL', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-base-content/60">Horario</span>
+                        <span className="font-medium">
+                          {new Date(slot.startTime).toLocaleString('es-CL', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}{' '}
+                          -{' '}
+                          {new Date(slot.endTime).toLocaleString('es-CL', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
                 <div className="divider" />
+
+                {/* TODO: Agregar la card de la reserva si hay slot */}
 
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
@@ -403,7 +403,7 @@ export default function CheckoutView(props: CheckoutProps) {
                     className="grid gap-4 md:grid-cols-2"
                     onSubmit={(e) => {
                       e.preventDefault();
-                      handleReserve();
+                      handleSubmit();
                     }}
                   >
                     {pricingPlans.map((p) => (
@@ -448,7 +448,13 @@ export default function CheckoutView(props: CheckoutProps) {
                             Procesando...
                           </>
                         ) : isAuthenticated ? (
-                          'Reservar ahora'
+                          hasSlot ? (
+                            'Reservar ahora'
+                          ) : isMaterialsOnly ? (
+                            'Comprar plan'
+                          ) : (
+                            'Comprar y elegir horario'
+                          )
                         ) : (
                           'Continuar al registro'
                         )}

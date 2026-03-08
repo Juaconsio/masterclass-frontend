@@ -127,10 +127,14 @@ export interface IAdmin {
   createdAt: string; // ISO date string
 }
 
+export type PricingPlanAccessMode = 'sessions_and_materials' | 'materials_only';
+
 export interface IPricingPlan {
   id: string;
   name: string;
   description?: string | null;
   price: number;
   isActive: boolean;
+  reservationCount?: number;
+  accessMode?: PricingPlanAccessMode;
 }

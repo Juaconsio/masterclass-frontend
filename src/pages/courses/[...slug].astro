@@ -3,9 +3,12 @@ import { getEntry } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import NavBar from '@components/landing/Navbar.astro';
 import Header from '@components/landing/courses/header.astro';
-import Aside from '@components/landing/courses/aside.astro';
-import CourseSessionCalendar from '@/components/landing/islands/CourseSessionCalendar';
+import CourseHelpCard from '@components/landing/courses/CourseHelpCard.astro';
+import CoursePlansSection from '@components/landing/courses/CoursePlansSection.astro';
+import CourseSessionsTab from '@/components/landing/islands/CourseSessionsTab';
+import CourseProfessorsSection from '@/components/landing/islands/CourseProfessorsSection';
 import { getPublicCourseCatalog } from '@/lib/courseCatalog';
+import { fetchPublicCoursePlans } from '@/client/publicCourses';
 import type { CourseListingData } from '@/types/course';
 
 export const prerender = false;
@@ -38,43 +41,25 @@ const descriptionRender = descriptionEntry ? await descriptionEntry.render() : n
 const relatedCourses = catalog
   .filter((entry) => entry.data.department === course.department && entry.slug !== slug)
   .slice(0, 3);
+
+const plansResponse = await fetchPublicCoursePlans(course.acronym);
+const coursePlans = plansResponse?.plans ?? [];
 ---
 
 <Layout title={`${course.acronym} - ${course.title}`}>
   <div>
     <NavBar />
-    <section class="h-hero flex h-fit flex-col">
-      <!-- Breadcrumbs -->
-      <div class="breadcrumbs text-sm">
-        <ul>
-          <li><a href="/" class="link link-hover">Inicio</a></li>
-          <li><a href="/courses" class="link link-hover">Cursos</a></li>
-          <li>
-            <a
-              href={`/courses?department=${encodeURIComponent(course.department)}`}
-              class="link link-hover"
-            >
-              {course.department}
-            </a>
-          </li>
-          <li>{course.acronym}</li>
-        </ul>
-      </div>
+    <section class="min-h-screen">
+      <div class="container mx-auto flex flex-col gap-4 px-4 py-6 md:px-6">
+        <Header course={course} />
 
-      <div class="order-2 flex h-full gap-10">
-        <div class="mx-10 flex flex-col overflow-y-auto md:basis-7/10">
-          <div class="basis-4/10">
-            <Header course={course} />
-          </div>
-
-          <div class="top-16 right-0 h-full w-full p-4 md:sticky md:hidden">
-            <Aside course={course} />
-          </div>
-
-          <!-- Tabbed Content Section -->
-          <div class="mb-6">
-            <!-- Tab Buttons -->
-            <div role="tablist" class="tabs tabs-border mb-4 p-1">
+        <CoursePlansSection
+          course={{ acronym: course.acronym, title: course.title }}
+          plans={coursePlans}
+        />
+        <div class="grid grid-cols-1 gap-8 pt-8 md:grid-cols-7">
+          <div class="flex flex-col gap-6 md:col-span-5">
+            <div role="tablist" class="tabs tabs-border mb-2 p-1">
               <input
                 type="radio"
                 name="course_tabs"
@@ -86,19 +71,19 @@ const relatedCourses = catalog
               <div role="tabpanel" class="tab-content pt-6">
                 {
                   descriptionRender ? (
-                    <div class="card bg-white shadow-xl">
+                    <div class="card bg-base-100 shadow-xl">
                       <div class="card-body">
-                        <div class="prose prose-lg prose-headings:text-primary prose-h1:text-3xl prose-h1:font-bold prose-h1:mb-6 prose-h1:mt-0 prose-h2:text-2xl prose-h2:font-semibold prose-h2:mb-4 prose-h2:mt-8 prose-h2:text-secondary prose-h3:text-xl prose-h3:font-medium prose-h3:mb-3 prose-h3:mt-6 prose-h3:text-secondary prose-p:text-base-content prose-p:leading-relaxed prose-p:mb-4 prose-strong:text-base-content prose-strong:font-semibold prose-ul:my-4 prose-li:my-2 prose-li:text-base-content prose-ol:my-4 prose-ol:text-base-content prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:bg-base-200 prose-blockquote:p-4 prose-blockquote:rounded-r-lg prose-blockquote:my-6 prose-code:bg-base-200 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm prose-code:text-accent-content prose-pre:bg-base-300 prose-pre:p-4 prose-pre:rounded-lg prose-pre:overflow-x-auto prose-hr:border-base-300 prose-hr:my-8 prose-table:table-auto prose-table:w-full prose-th:bg-primary prose-th:text-primary-content prose-th:p-3 prose-th:text-left prose-td:p-3 prose-td:border-b prose-td:border-base-300 prose-img:rounded-lg prose-img:shadow-lg prose-img:mx-auto max-w-none">
+                        <div class="prose-course">
                           <descriptionRender.Content />
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div class="card bg-white shadow-xl">
+                    <div class="card bg-base-100 shadow-xl">
                       <div class="card-body">
                         <p class="text-base-content/70">
-                          Este curso aun no tiene contenido publicado. Puedes reservar una sesion y
-                          un tutor te guiara con el material.
+                          Este curso aun no tiene contenido publicado. Puedes reservar una sesión y
+                          un tutor te guiará con el material.
                         </p>
                       </div>
                     </div>
@@ -115,19 +100,19 @@ const relatedCourses = catalog
               <div role="tabpanel" class="tab-content pt-6">
                 {
                   contentRender ? (
-                    <div class="card bg-white shadow-xl">
+                    <div class="card bg-base-100 shadow-xl">
                       <div class="card-body">
-                        <div class="prose prose-lg prose-headings:text-primary prose-h1:text-3xl prose-h1:font-bold prose-h1:mb-6 prose-h1:mt-0 prose-h2:text-2xl prose-h2:font-semibold prose-h2:mb-4 prose-h2:mt-8 prose-h2:text-secondary prose-h3:text-xl prose-h3:font-medium prose-h3:mb-3 prose-h3:mt-6 prose-h3:text-secondary prose-p:text-base-content prose-p:leading-relaxed prose-p:mb-4 prose-strong:text-base-content prose-strong:font-semibold prose-ul:my-4 prose-li:my-2 prose-li:text-base-content prose-ol:my-4 prose-ol:text-base-content prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:bg-base-200 prose-blockquote:p-4 prose-blockquote:rounded-r-lg prose-blockquote:my-6 prose-code:bg-base-200 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm prose-code:text-accent-content prose-pre:bg-base-300 prose-pre:p-4 prose-pre:rounded-lg prose-pre:overflow-x-auto prose-hr:border-base-300 prose-hr:my-8 prose-table:table-auto prose-table:w-full prose-th:bg-primary prose-th:text-primary-content prose-th:p-3 prose-th:text-left prose-td:p-3 prose-td:border-b prose-td:border-base-300 prose-img:rounded-lg prose-img:shadow-lg prose-img:mx-auto max-w-none">
+                        <div class="prose-course">
                           <contentRender.Content />
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div class="card bg-white shadow-xl">
+                    <div class="card bg-base-100 shadow-xl">
                       <div class="card-body">
                         <p class="text-base-content/70">
-                          Este curso aun no tiene contenido publicado. Puedes reservar una sesion y
-                          un tutor te guiara con el material.
+                          Este curso aun no tiene contenido publicado. Puedes reservar una sesión y
+                          un tutor te guiará con el material.
                         </p>
                       </div>
                     </div>
@@ -135,6 +120,7 @@ const relatedCourses = catalog
                 }
               </div>
               <input
+                id="tab-sessions"
                 type="radio"
                 name="course_tabs"
                 role="tab"
@@ -142,15 +128,28 @@ const relatedCourses = catalog
                 aria-label="Próximas Sesiones"
               />
               <div role="tabpanel" class="tab-content pt-6">
-                <CourseSessionCalendar courseAcronym={course.acronym} client:load />
+                <div class="card bg-base-100 shadow-xl">
+                  <div class="card-body">
+                    <CourseSessionsTab
+                      courseAcronym={course.acronym}
+                      courseTitle={course.title}
+                      client:load
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Related Courses -->
+          <aside class="md:sticky md:top-24 md:col-span-2 md:self-start">
+            <CourseProfessorsSection courseAcronym={course.acronym} client:load />
+          </aside>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 gap-8 pt-8 md:grid-cols-7">
           {
             relatedCourses.length > 0 && (
-              <div class="card mt-6 shadow-xl">
+              <div class="card bg-base-100 shadow-xl md:col-span-5">
                 <div class="card-body">
                   <h3 class="card-title text-base-content/70">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -163,28 +162,23 @@ const relatedCourses = catalog
                     </svg>
                     Cursos Relacionados
                   </h3>
-
-                  <div class="mt-4 flex flex-wrap gap-3 space-y-3">
+                  <div class="mt-4 flex flex-wrap gap-3">
                     {relatedCourses.map((relatedCourse) => (
                       <a
                         href={`/courses/${relatedCourse.slug}`}
-                        class="block w-xs rounded-lg bg-white p-3 shadow-md transition-colors hover:shadow-xl"
+                        class="border-base-300 bg-base-100 block w-xs rounded-lg border p-3 shadow-md transition-colors hover:shadow-xl"
                       >
-                        <div class="flex items-start justify-between">
-                          <div>
-                            <div class="text-base-content/70 font-mono text-sm">
-                              {relatedCourse.data.acronym}
-                            </div>
-                            <div class="line-clamp-2 font-medium">{relatedCourse.data.title}</div>
-                            <div class="text-primary text-sm font-medium">
-                              ${relatedCourse.data.basePrice.toLocaleString('es-CL')}
-                            </div>
-                          </div>
+                        <div class="text-base-content/70 font-mono text-sm">
+                          {relatedCourse.data.acronym}
+                        </div>
+                        <div class="line-clamp-2 font-medium">{relatedCourse.data.title}</div>
+                        <div class="text-primary text-sm font-medium">
+                          ${relatedCourse.data.basePrice.toLocaleString('es-CL')}
                         </div>
                       </a>
                     ))}
                   </div>
-                  <div class="card-actions">
+                  <div class="card-actions mt-2">
                     <a
                       href={`/courses?department=${encodeURIComponent(course.department)}`}
                       class="btn btn-accent btn-sm"
@@ -196,10 +190,9 @@ const relatedCourses = catalog
               </div>
             )
           }
-        </div>
-
-        <div class="top-16 right-0 hidden h-full w-sm p-4 md:sticky md:block md:basis-3/10">
-          <Aside course={course} />
+          <div class={relatedCourses.length > 0 ? 'md:col-span-2' : ''}>
+            <CourseHelpCard course={course} />
+          </div>
         </div>
       </div>
     </section>
@@ -216,7 +209,6 @@ const relatedCourses = catalog
   .tab-content {
     animation: fadeIn 0.3s ease-in-out;
   }
-
   @keyframes fadeIn {
     from {
       opacity: 0;
