@@ -28,6 +28,7 @@ async function getReservationEnroll(options: {
   return res.data;
 }
 
+// TODO: compare to reservations controller POST /reservations
 async function createReservation(payload: {
   courseId?: string | number;
   classId?: string | number;

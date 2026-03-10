@@ -7,6 +7,12 @@ async function fetchCourses() {
   return res.data;
 }
 
+/** Public list of all courses (id, title, acronym, description, isActive). No auth required. */
+async function fetchPublicCourses(): Promise<Pick<ICourse, 'id' | 'title' | 'acronym' | 'description' | 'isActive'>[]> {
+  const res = await httpClient.get('/public/courses');
+  return res.data ?? [];
+}
+
 async function fetchCoursesByCurrentUser() {
   const res = await httpClient.get('/courses/me');
   return res.data;
@@ -42,10 +48,25 @@ async function getSlotsByCourseAcronym(acronym: string) {
   return res.data;
 }
 
+/** Preview for non-enrolled: classes + material titles. Requires auth. No file access. */
+export interface CoursePreviewClass {
+  id: number;
+  title: string;
+  description: string;
+  materials: { filename: string }[];
+}
+
+async function fetchCoursePreview(courseId: number): Promise<{ classes: CoursePreviewClass[] }> {
+  const res = await httpClient.get(`/courses/${courseId}/preview`);
+  return res.data;
+}
+
 export {
   fetchCourses,
+  fetchPublicCourses,
   fetchCoursesByCurrentUser,
   fetchStudentCourseById,
   getSlotsByCourseAcronym,
   getCourseEnroll,
+  fetchCoursePreview,
 };
