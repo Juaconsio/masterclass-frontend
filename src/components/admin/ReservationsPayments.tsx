@@ -5,14 +5,19 @@ import {
   processRefund,
   type ReservationsFilters,
 } from '@/client/admin/reservations';
-import { updatePayment } from '@/client/admin/payments';
-import { updateReservation } from '@/client/reservations';
+import {
+  getPayments,
+  confirmPayment,
+  rejectPayment,
+  type PaymentsFilters,
+  type AdminPayment,
+} from '@/client/admin/payments';
 import type { IReservation } from '@/interfaces';
 import { useTableData } from '@/hooks/useTableData';
 import { Table, type TableColumn, type TableAction } from '@components/UI';
 import { showToast } from '@/lib/toast';
 import { useConfirmAction } from '@/hooks/useConfirmAction';
-import { Receipt, Check, X, RotateCcw, MoreHorizontal } from 'lucide-react';
+import { Receipt, Check, X, RotateCcw } from 'lucide-react';
 
 function formatSlotDateParts(startISO?: string, endISO?: string): { date: string; time: string } {
   if (!startISO || !endISO) return { date: 'N/A', time: 'N/A' };
@@ -74,108 +79,128 @@ function PaymentStatusBadge({ status }: { status: string }) {
   return <div className={`${BADGE_CLASS} ${variants[status] ?? 'badge-ghost'}`}>{label}</div>;
 }
 
-interface ActionsDropdownProps {
+interface PaymentTableActionsProps {
+  payment: AdminPayment;
+  processing: boolean;
+  processingId: number | null;
+  onConfirm: (p: AdminPayment) => void;
+  onReject: (p: AdminPayment) => void;
+}
+
+function PaymentTableActions({
+  payment,
+  processing,
+  processingId,
+  onConfirm,
+  onReject,
+}: PaymentTableActionsProps) {
+  const busy = processing && processingId === payment.id;
+  return (
+    <div className="flex flex-wrap items-center justify-end gap-1">
+      <button
+        type="button"
+        className="btn btn-success btn-xs"
+        disabled={busy}
+        onClick={() => onConfirm(payment)}
+        title="Confirmar pago (activa plan y accesos)"
+      >
+        {busy ? <span className="loading loading-spinner loading-xs" /> : <Check className="h-4 w-4" />}
+      </button>
+      <button
+        type="button"
+        className="btn btn-error btn-xs"
+        disabled={busy}
+        onClick={() => onReject(payment)}
+        title="Rechazar pago"
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
+
+interface ReservationTableActionsProps {
   reservation: IReservation;
   processing: boolean;
+  processingId: number | null;
   onViewDetail: (r: IReservation) => void;
-  onConfirmPayment: (r: IReservation) => void;
-  onRejectPayment: (r: IReservation) => void;
   onProcessRefund: (r: IReservation) => void;
 }
 
-function ActionsDropdown({
+function ReservationTableActions({
   reservation,
   processing,
+  processingId,
   onViewDetail,
-  onConfirmPayment,
-  onRejectPayment,
   onProcessRefund,
-}: ActionsDropdownProps) {
-  const paymentPending = reservation.payment?.status === 'pending';
+}: ReservationTableActionsProps) {
   const canRefund = reservation.status === 'to_refund';
-  const popoverId = `actions-popover-${reservation.id}`;
-  const anchorName = `--anchor-${reservation.id}`;
-
+  const busy = processing && processingId === reservation.id;
   return (
-    <>
+    <div className="flex flex-wrap items-center justify-end gap-1">
       <button
         type="button"
-        className="btn btn-ghost btn-sm btn-square"
-        aria-label="Acciones"
-        popoverTarget={popoverId}
-        style={{ anchorName } as React.CSSProperties}
+        className="btn btn-ghost btn-xs"
+        onClick={() => onViewDetail(reservation)}
+        title="Ver detalle"
       >
-        <MoreHorizontal className="h-4 w-4" />
+        <Receipt className="h-4 w-4" />
       </button>
-      <ul
-        popover="auto"
-        id={popoverId}
-        className="menu dropdown dropdown-end w-48 rounded-box border border-base-300 bg-base-100 p-1 shadow-lg"
-        style={{ positionAnchor: anchorName } as React.CSSProperties}
-      >
-        <li>
-          <button type="button" onClick={() => onViewDetail(reservation)}>
-            <Receipt className="h-4 w-4" />
-            Ver detalle
-          </button>
-        </li>
-        {paymentPending && (
-          <>
-            <li>
-              <button
-                type="button"
-                onClick={() => onConfirmPayment(reservation)}
-                disabled={processing}
-              >
-                <Check className="h-4 w-4" />
-                Confirmar pago
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                onClick={() => onRejectPayment(reservation)}
-                disabled={processing}
-              >
-                <X className="h-4 w-4" />
-                Rechazar pago
-              </button>
-            </li>
-          </>
-        )}
-        {canRefund && (
-          <li>
-            <button
-              type="button"
-              onClick={() => onProcessRefund(reservation)}
-              disabled={processing}
-            >
-              <RotateCcw className="h-4 w-4" />
-              Procesar reembolso
-            </button>
-        </li>
+      {canRefund && (
+        <button
+          type="button"
+          className="btn btn-info btn-xs"
+          disabled={busy}
+          onClick={() => onProcessRefund(reservation)}
+          title="Procesar reembolso"
+        >
+          <RotateCcw className="h-4 w-4" />
+        </button>
       )}
-      </ul>
-    </>
+    </div>
   );
 }
 
 type QuickFilter = 'all' | 'pending_confirm' | 'pending_refund';
+type TabKind = 'payments' | 'reservations';
 
 export default function AdminReservationsPayments() {
+  const [activeTab, setActiveTab] = useState<TabKind>('payments');
   const [quickFilter, setQuickFilter] = useState<QuickFilter>('all');
 
   const {
+    data: payments,
+    loading: paymentsLoading,
+    total: paymentsTotal,
+    filters: paymentsFilters,
+    totalPages: paymentsTotalPages,
+    handleSort: handlePaymentsSort,
+    handlePageChange: handlePaymentsPageChange,
+    handlePageSizeChange: handlePaymentsPageSizeChange,
+    updateFilters: updatePaymentsFilters,
+    reload: reloadPayments,
+  } = useTableData<AdminPayment, PaymentsFilters>({
+    fetchFn: getPayments,
+    initialFilters: {
+      page: 1,
+      limit: 10,
+      sortBy: 'id' as const,
+      sortOrder: 'desc',
+      status: 'pending',
+    } as PaymentsFilters,
+  });
+
+  const {
     data: reservations,
-    loading,
-    total,
-    filters,
-    totalPages,
-    handleSort,
-    handlePageChange,
-    handlePageSizeChange,
-    updateFilters,
-    reload,
+    loading: reservationsLoading,
+    total: reservationsTotal,
+    filters: reservationsFilters,
+    totalPages: reservationsTotalPages,
+    handleSort: handleReservationsSort,
+    handlePageChange: handleReservationsPageChange,
+    handlePageSizeChange: handleReservationsPageSizeChange,
+    updateFilters: updateReservationsFilters,
+    reload: reloadReservations,
   } = useTableData<IReservation, ReservationsFilters>({
     fetchFn: getReservations,
     initialFilters: {
@@ -188,6 +213,7 @@ export default function AdminReservationsPayments() {
 
   const [detailReservation, setDetailReservation] = useState<IReservation | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [processingId, setProcessingId] = useState<number | null>(null);
   const { showConfirmation, ConfirmationModal } = useConfirmAction();
 
   const formatCurrency = useCallback((amount: number) => {
@@ -209,14 +235,77 @@ export default function AdminReservationsPayments() {
     (filter: QuickFilter) => {
       setQuickFilter(filter);
       if (filter === 'pending_confirm') {
-        updateFilters({ paymentStatus: 'pending', status: undefined, page: 1 });
+        updateReservationsFilters({ paymentStatus: 'pending', status: undefined, page: 1 });
       } else if (filter === 'pending_refund') {
-        updateFilters({ status: 'to_refund', paymentStatus: undefined, page: 1 });
+        updateReservationsFilters({ status: 'to_refund', paymentStatus: undefined, page: 1 });
       } else {
-        updateFilters({ status: undefined, paymentStatus: undefined, page: 1 });
+        updateReservationsFilters({ status: undefined, paymentStatus: undefined, page: 1 });
       }
     },
-    [updateFilters]
+    [updateReservationsFilters]
+  );
+
+  const paymentColumns: TableColumn<AdminPayment>[] = useMemo(
+    () => [
+      {
+        key: 'id',
+        label: 'ID',
+        sortable: true,
+        formatter: (value) => <span className="font-mono text-sm">#{value}</span>,
+      },
+      {
+        key: 'student',
+        label: 'Estudiante',
+        className: 'min-w-[12rem]',
+        render: (p) => (
+          <div className="flex min-w-0 flex-col">
+            <div className="truncate font-semibold">{p.student?.name ?? 'N/A'}</div>
+            <div className="text-base-content/60 truncate text-xs">{p.student?.email ?? ''}</div>
+          </div>
+        ),
+      },
+      {
+        key: 'plan',
+        label: 'Plan',
+        className: 'min-w-[11rem]',
+        render: (p) => {
+          const plan = p.studentPlanPurchase?.pricingPlan;
+          const course = plan?.course;
+          if (!plan) return <span className="text-base-content/50 text-sm">—</span>;
+          return (
+            <div className="flex min-w-0 flex-col">
+              <span className="font-medium">{plan.name}</span>
+              {course && (
+                <span className="text-base-content/60 text-xs">
+                  {course.acronym} · {course.title}
+                </span>
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        key: 'amount',
+        label: 'Monto',
+        render: (p) => <span className="font-semibold">{formatCurrency(p.amount)}</span>,
+      },
+      {
+        key: 'transactionReference',
+        label: 'Ref.',
+        className: 'max-w-[8rem]',
+        render: (p) => (
+          <span className="truncate font-mono text-xs" title={p.transactionReference}>
+            {p.transactionReference || '—'}
+          </span>
+        ),
+      },
+      {
+        key: 'status',
+        label: 'Estado',
+        render: (p) => <PaymentStatusBadge status={p.status} />,
+      },
+    ],
+    [formatCurrency]
   );
 
   const columns: TableColumn<IReservation>[] = useMemo(
@@ -319,39 +408,41 @@ export default function AdminReservationsPayments() {
   }, []);
 
   const handleConfirmPayment = useCallback(
-    (r: IReservation) => {
-      if (!r.payment || r.payment.status === 'paid') {
+    (p: AdminPayment) => {
+      if (p.status === 'paid') {
         showToast.error('El pago ya está confirmado');
         return;
       }
+      const planName = p.studentPlanPurchase?.pricingPlan?.name ?? 'plan';
       showConfirmation({
         title: '¿Confirmar pago?',
-        message: `Se confirmará la reserva #${r.id} y el pago asociado.`,
+        message: `Se confirmará el pago #${p.id} del ${planName}. El plan quedará activo y se liberarán acceso a material y reservas.`,
         confirmText: 'Confirmar',
         cancelText: 'Cancelar',
         isDangerous: false,
         onConfirm: async () => {
           setProcessing(true);
+          setProcessingId(p.id);
           try {
-            await updateReservation(r.id, { status: 'confirmed' });
-            await updatePayment(r.payment!.id, { status: 'paid' });
-            showToast.success('Pago confirmado correctamente');
-            setDetailReservation(null);
-            reload();
+            await confirmPayment(p.id);
+            showToast.success('Pago confirmado. Plan activo.');
+            reloadPayments();
+            reloadReservations();
           } catch (err: any) {
             showToast.error(err?.response?.data?.message ?? 'Error al confirmar');
           } finally {
             setProcessing(false);
+            setProcessingId(null);
           }
         },
       });
     },
-    [showConfirmation, reload]
+    [showConfirmation, reloadPayments, reloadReservations]
   );
 
   const handleRejectPayment = useCallback(
-    (r: IReservation) => {
-      if (!r.payment || r.payment.status === 'failed') {
+    (p: AdminPayment) => {
+      if (p.status === 'failed') {
         showToast.error('El pago ya está rechazado');
         return;
       }
@@ -363,20 +454,21 @@ export default function AdminReservationsPayments() {
         isDangerous: true,
         onConfirm: async () => {
           setProcessing(true);
+          setProcessingId(p.id);
           try {
-            await updatePayment(r.payment!.id, { status: 'failed' });
+            await rejectPayment(p.id);
             showToast.success('Pago rechazado');
-            setDetailReservation(null);
-            reload();
+            reloadPayments();
           } catch (err: any) {
             showToast.error(err?.response?.data?.message ?? 'Error al rechazar');
           } finally {
             setProcessing(false);
+            setProcessingId(null);
           }
         },
       });
     },
-    [showConfirmation, reload]
+    [showConfirmation, reloadPayments]
   );
 
   const handleProcessRefund = useCallback(
@@ -393,161 +485,271 @@ export default function AdminReservationsPayments() {
         isDangerous: false,
         onConfirm: async () => {
           setProcessing(true);
+          setProcessingId(r.id);
           try {
             await processRefund(r.id);
             showToast.success('Reembolso procesado correctamente');
             setDetailReservation(null);
-            reload();
+            reloadReservations();
           } catch (err: any) {
             showToast.error(err?.response?.data?.message ?? 'Error al procesar reembolso');
           } finally {
             setProcessing(false);
+            setProcessingId(null);
           }
         },
       });
     },
-    [showConfirmation, reload]
+    [showConfirmation, reloadReservations]
   );
 
-  const actions: TableAction<IReservation>[] = useMemo(
+  const paymentActions: TableAction<AdminPayment>[] = useMemo(
+    () => [
+      {
+        render: (p) => (
+          <PaymentTableActions
+            payment={p}
+            processing={processing}
+            processingId={processingId}
+            onConfirm={handleConfirmPayment}
+            onReject={handleRejectPayment}
+          />
+        ),
+      },
+    ],
+    [handleConfirmPayment, handleRejectPayment, processing, processingId]
+  );
+
+  const reservationActions: TableAction<IReservation>[] = useMemo(
     () => [
       {
         render: (r) => (
-          <ActionsDropdown
+          <ReservationTableActions
             reservation={r}
             processing={processing}
+            processingId={processingId}
             onViewDetail={openDetail}
-            onConfirmPayment={handleConfirmPayment}
-            onRejectPayment={handleRejectPayment}
             onProcessRefund={handleProcessRefund}
           />
         ),
       },
     ],
-    [openDetail, handleConfirmPayment, handleRejectPayment, handleProcessRefund, processing]
+    [openDetail, handleProcessRefund, processing, processingId]
   );
 
   return (
     <div className="space-y-6">
-      <div className="card bg-base-200">
-        <div className="card-body">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-base-content/60 text-sm">Filtrar:</span>
-              {(['all', 'pending_confirm', 'pending_refund'] as const).map((f) => (
-                <button
-                  key={f}
-                  type="button"
-                  className={`btn btn-sm ${
-                    quickFilter === f ? 'btn-primary' : 'btn-ghost'
-                  }`}
-                  onClick={() => applyQuickFilter(f)}
-                >
-                  {f === 'all' && 'Todas'}
-                  {f === 'pending_confirm' && 'Pendientes confirmar'}
-                  {f === 'pending_refund' && 'Pendientes reembolso'}
-                </button>
-              ))}
+      <div className="tabs tabs-boxed bg-base-200 w-fit">
+        <button
+          type="button"
+          className={`tab ${activeTab === 'payments' ? 'tab-active' : ''}`}
+          onClick={() => setActiveTab('payments')}
+        >
+          Pagos pendientes (planes)
+        </button>
+        <button
+          type="button"
+          className={`tab ${activeTab === 'reservations' ? 'tab-active' : ''}`}
+          onClick={() => setActiveTab('reservations')}
+        >
+          Reservas
+        </button>
+      </div>
+
+      {activeTab === 'payments' && (
+        <>
+          <div className="card bg-base-200">
+            <div className="card-body">
+              <div className="flex flex-wrap items-end gap-4">
+                <label className="form-control w-fit">
+                  <span className="text-base-content/60 label-text text-xs">ID pago</span>
+                  <input
+                    type="number"
+                    placeholder="Ej: 123"
+                    className="input input-bordered input-sm w-28"
+                    onChange={(e) =>
+                      updatePaymentsFilters({
+                        id: e.target.value ? Number(e.target.value) : undefined,
+                        page: 1,
+                      })
+                    }
+                  />
+                </label>
+                <label className="form-control w-fit">
+                  <span className="text-base-content/60 label-text text-xs">Ref. pago</span>
+                  <input
+                    type="text"
+                    placeholder="Buscar por referencia..."
+                    className="input input-bordered input-sm w-44"
+                    value={paymentsFilters.transactionReference ?? ''}
+                    onChange={(e) =>
+                      updatePaymentsFilters({
+                        transactionReference: e.target.value.trim() || undefined,
+                        page: 1,
+                      })
+                    }
+                  />
+                </label>
+              </div>
             </div>
-            <div className="flex flex-wrap items-end gap-4">
-              <label className="form-control w-fit">
-                <span className="text-base-content/60 label-text text-xs">ID reserva</span>
-                <input
-                  type="number"
-                  placeholder="Ej: 123"
-                  className="input input-bordered input-sm w-28"
-                  onChange={(e) =>
-                    updateFilters({
-                      id: e.target.value ? Number(e.target.value) : undefined,
-                      page: 1,
-                    })
-                  }
-                />
-              </label>
-              <label className="form-control w-fit">
-                <span className="text-base-content/60 label-text text-xs">Ref. pago</span>
-                <input
-                  type="text"
-                  placeholder="Buscar por referencia..."
-                  className="input input-bordered input-sm w-44"
-                  value={filters.transactionReference ?? ''}
-                  onChange={(e) =>
-                    updateFilters({
-                      transactionReference: e.target.value.trim() || undefined,
-                      page: 1,
-                    })
-                  }
-                />
-              </label>
-              <label className="form-control w-fit">
-                <span className="text-base-content/60 label-text text-xs">Estado</span>
-                <select
-                  className="select select-bordered select-sm w-40"
-                  value={filters.status ?? ''}
-                  onChange={(e) =>
-                    updateFilters({ status: e.target.value || undefined, page: 1 })
-                  }
-                >
-                  <option value="">Todos</option>
-                  {Object.entries(RESERVATION_STATUS_LABELS).map(([v, l]) => (
-                    <option key={v} value={v}>
-                      {l}
-                    </option>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="stat rounded-lg bg-base-200 shadow">
+              <div className="stat-title">Pagos pendientes</div>
+              <div className="stat-value text-warning">{paymentsTotal}</div>
+            </div>
+            <div className="stat rounded-lg bg-base-200 shadow">
+              <div className="stat-title">Monto (página)</div>
+              <div className="stat-value text-success text-lg">
+                {formatCurrency(payments.reduce((s, p) => s + (p.amount ?? 0), 0))}
+              </div>
+            </div>
+          </div>
+
+          <div className="card bg-base-200 shadow-xl">
+            <div className="card-body">
+              <p className="text-base-content/70 mb-2 text-sm">
+                Los pagos están asociados a los planes. Al confirmar un pago se activa el plan y se liberan acceso a material y reservas.
+              </p>
+              <Table
+                columns={paymentColumns}
+                data={payments}
+                actions={paymentActions}
+                loading={paymentsLoading}
+                rowKey="id"
+                onSort={handlePaymentsSort}
+                scroll={{ maxHeight: '60vh' }}
+                pagination={{
+                  currentPage: paymentsFilters.page ?? 1,
+                  totalPages: paymentsTotalPages,
+                  pageSize: paymentsFilters.limit ?? 10,
+                  totalItems: paymentsTotal,
+                  onPageChange: handlePaymentsPageChange,
+                  onPageSizeChange: handlePaymentsPageSizeChange,
+                }}
+                emptyMessage="No hay pagos pendientes"
+              />
+            </div>
+          </div>
+        </>
+      )}
+
+      {activeTab === 'reservations' && (
+        <>
+          <div className="card bg-base-200">
+            <div className="card-body">
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-base-content/60 text-sm">Filtrar:</span>
+                  {(['all', 'pending_confirm', 'pending_refund'] as const).map((f) => (
+                    <button
+                      key={f}
+                      type="button"
+                      className={`btn btn-sm ${quickFilter === f ? 'btn-primary' : 'btn-ghost'}`}
+                      onClick={() => applyQuickFilter(f)}
+                    >
+                      {f === 'all' && 'Todas'}
+                      {f === 'pending_confirm' && 'Pendientes confirmar'}
+                      {f === 'pending_refund' && 'Pendientes reembolso'}
+                    </button>
                   ))}
-                </select>
-              </label>
+                </div>
+                <div className="flex flex-wrap items-end gap-4">
+                  <label className="form-control w-fit">
+                    <span className="text-base-content/60 label-text text-xs">ID reserva</span>
+                    <input
+                      type="number"
+                      placeholder="Ej: 123"
+                      className="input input-bordered input-sm w-28"
+                      onChange={(e) =>
+                        updateReservationsFilters({
+                          id: e.target.value ? Number(e.target.value) : undefined,
+                          page: 1,
+                        })
+                      }
+                    />
+                  </label>
+                  <label className="form-control w-fit">
+                    <span className="text-base-content/60 label-text text-xs">Ref. pago</span>
+                    <input
+                      type="text"
+                      placeholder="Buscar por referencia..."
+                      className="input input-bordered input-sm w-44"
+                      value={reservationsFilters.transactionReference ?? ''}
+                      onChange={(e) =>
+                        updateReservationsFilters({
+                          transactionReference: e.target.value.trim() || undefined,
+                          page: 1,
+                        })
+                      }
+                    />
+                  </label>
+                  <label className="form-control w-fit">
+                    <span className="text-base-content/60 label-text text-xs">Estado</span>
+                    <select
+                      className="select select-bordered select-sm w-40"
+                      value={reservationsFilters.status ?? ''}
+                      onChange={(e) =>
+                        updateReservationsFilters({ status: e.target.value || undefined, page: 1 })
+                      }
+                    >
+                      <option value="">Todos</option>
+                      {Object.entries(RESERVATION_STATUS_LABELS).map(([v, l]) => (
+                        <option key={v} value={v}>
+                          {l}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="stat rounded-lg bg-base-200 shadow">
-          <div className="stat-title">Total</div>
-          <div className="stat-value text-primary">{total}</div>
-        </div>
-        <div className="stat rounded-lg bg-base-200 shadow">
-          <div className="stat-title">Pendientes confirmar</div>
-          <div className="stat-value text-warning">
-            {reservations.filter((r) => r.payment?.status === 'pending').length}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div className="stat rounded-lg bg-base-200 shadow">
+              <div className="stat-title">Total reservas</div>
+              <div className="stat-value text-primary">{reservationsTotal}</div>
+            </div>
+            <div className="stat rounded-lg bg-base-200 shadow">
+              <div className="stat-title">Pendientes reembolso</div>
+              <div className="stat-value text-info">
+                {reservations.filter((r) => r.status === 'to_refund').length}
+              </div>
+            </div>
+            <div className="stat rounded-lg bg-base-200 shadow">
+              <div className="stat-title">Monto (página)</div>
+              <div className="stat-value text-success text-lg">
+                {formatCurrency(reservations.reduce((s, r) => s + (r.payment?.amount ?? 0), 0))}
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="stat rounded-lg bg-base-200 shadow">
-          <div className="stat-title">Pendientes reembolso</div>
-          <div className="stat-value text-info">
-            {reservations.filter((r) => r.status === 'to_refund').length}
-          </div>
-        </div>
-        <div className="stat rounded-lg bg-base-200 shadow">
-          <div className="stat-title">Monto (página)</div>
-          <div className="stat-value text-success text-lg">
-            {formatCurrency(reservations.reduce((s, r) => s + (r.payment?.amount ?? 0), 0))}
-          </div>
-        </div>
-      </div>
 
-      <div className="card bg-base-200 shadow-xl">
-        <div className="card-body">
-          <Table
-            columns={columns}
-            data={reservations}
-            actions={actions}
-            loading={loading}
-            rowKey="id"
-            onSort={handleSort}
-            scroll={{ maxHeight: '60vh' }}
-            pagination={{
-              currentPage: filters.page ?? 1,
-              totalPages,
-              pageSize: filters.limit ?? 10,
-              totalItems: total,
-              onPageChange: handlePageChange,
-              onPageSizeChange: handlePageSizeChange,
-            }}
-            emptyMessage="No se encontraron reservas"
-          />
-        </div>
-      </div>
+          <div className="card bg-base-200 shadow-xl">
+            <div className="card-body">
+              <Table
+                columns={columns}
+                data={reservations}
+                actions={reservationActions}
+                loading={reservationsLoading}
+                rowKey="id"
+                onSort={handleReservationsSort}
+                scroll={{ maxHeight: '60vh' }}
+                pagination={{
+                  currentPage: reservationsFilters.page ?? 1,
+                  totalPages: reservationsTotalPages,
+                  pageSize: reservationsFilters.limit ?? 10,
+                  totalItems: reservationsTotal,
+                  onPageChange: handleReservationsPageChange,
+                  onPageSizeChange: handleReservationsPageSizeChange,
+                }}
+                emptyMessage="No se encontraron reservas"
+              />
+            </div>
+          </div>
+        </>
+      )}
 
       {detailReservation && (
         <dialog open className="modal modal-open modal-bottom sm:modal-middle z-30">
@@ -633,24 +835,9 @@ export default function AdminReservationsPayments() {
 
               <section className="flex flex-wrap gap-2 border-t border-base-300 pt-4">
                 {detailReservation.payment?.status === 'pending' && (
-                  <>
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      disabled={processing}
-                      onClick={() => handleConfirmPayment(detailReservation)}
-                    >
-                      Confirmar pago
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-sm"
-                      disabled={processing}
-                      onClick={() => handleRejectPayment(detailReservation)}
-                    >
-                      Rechazar pago
-                    </button>
-                  </>
+                  <p className="text-base-content/60 text-sm">
+                    Para confirmar o rechazar este pago usa la pestaña &quot;Pagos pendientes (planes)&quot;.
+                  </p>
                 )}
                 {detailReservation.status === 'to_refund' && (
                   <button

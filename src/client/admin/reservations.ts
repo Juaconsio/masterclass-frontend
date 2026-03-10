@@ -37,3 +37,13 @@ export async function processRefund(id: number): Promise<IReservation> {
   const response = await httpClient.post(`/admin/reservations/${id}/process-refund`);
   return response.data;
 }
+
+export async function confirmReservationPayment(id: number): Promise<IReservation> {
+  const response = await httpClient.post(`/admin/reservations/${id}/confirm-payment`);
+  return response.data;
+}
+
+export async function rejectReservationPayment(id: number): Promise<IReservation> {
+  const response = await httpClient.post(`/admin/reservations/${id}/reject-payment`);
+  return response.data;
+}
