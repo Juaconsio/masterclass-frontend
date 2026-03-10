@@ -87,7 +87,7 @@ const Drawer = forwardRef<DrawerRef, DrawerProps>(
     };
 
     return (
-      <div className={`drawer ${side === 'right' ? 'drawer-end' : ''} z-50`}>
+      <div className={`drawer ${side === 'right' ? 'drawer-end' : ''} z-50 overflow-x-hidden`}>
         <input
           id={drawerId}
           type="checkbox"
@@ -106,7 +106,7 @@ const Drawer = forwardRef<DrawerRef, DrawerProps>(
         <div className="drawer-content" />
 
         {/* Drawer Side */}
-        <div className="drawer-side">
+        <div className="drawer-side overflow-hidden">
           <label
             htmlFor={drawerId}
             aria-label="close sidebar"
@@ -115,23 +115,25 @@ const Drawer = forwardRef<DrawerRef, DrawerProps>(
           />
 
           <div
-            className={`bg-base-200 ${widthClasses[width]} max-w-[100vw] h-[100dvh] flex flex-col overflow-x-hidden`}
+            className={`bg-base-200 ${widthClasses[width]} flex h-[100dvh] min-w-0 max-w-[100vw] flex-col overflow-hidden p-4`}
           >
-            <div className="flex h-full flex-col p-4">
+            <div className="flex min-h-0 w-full flex-1 flex-col">
               {/* Header */}
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-base-content text-xl font-bold">{title}</h2>
+              <div className="mb-4 flex shrink-0 items-center justify-between">
+                <h2 className="text-base-content min-w-0 truncate text-xl font-bold">{title}</h2>
                 {showCloseButton && (
-                  <label htmlFor={drawerId} className="btn btn-circle btn-ghost btn-sm">
+                  <label htmlFor={drawerId} className="btn btn-circle btn-ghost btn-sm shrink-0">
                     ✕
                   </label>
                 )}
               </div>
 
-              <div className="divider my-2" />
+              <div className="divider my-2 shrink-0" />
 
-              {/* Content */}
-              <div className="flex-1 overflow-y-auto">{children}</div>
+              {/* Content: padding so content is not clipped by overflow; min-w-0 + overflow allow vertical scroll only */}
+              <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden px-2">
+                {children}
+              </div>
 
               {/* Actions */}
               {actions.length > 0 && (
