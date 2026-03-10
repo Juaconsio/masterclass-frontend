@@ -29,6 +29,8 @@ import ResetPassword from './auth/resetPassword';
 import ClassMaterial from '@components/content/ClassMaterial';
 import ReservationConfirm from '@components/reservations/ReservationConfirm';
 import RescheduleReservation from '@components/reservations/RescheduleReservation';
+import MyPlans from '@components/plans/MyPlans';
+import ChooseSlotForPlan from '@components/plans/ChooseSlotForPlan';
 
 export default function Spa() {
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -100,6 +102,8 @@ export default function Spa() {
             }
           >
             <Route index element={<Home />} />
+            <Route path="planes" element={<MyPlans />} />
+            <Route path="elegir-horario" element={<ChooseSlotForPlan />} />
             <Route path="reservas" element={<Reservations />} />
             <Route path="reservas/:reservationId/reagendar" element={<RescheduleReservation />} />
             <Route path="confirmacion-pago" element={<ReservationConfirm />} />
