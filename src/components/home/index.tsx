@@ -1,16 +1,37 @@
+import { useEffect, useState } from 'react';
 import { useSessionContext } from '../../context/SessionContext';
 import { Link } from 'react-router';
 import Greetings from './Greetings';
-import { BookOpen, Calendar, Users, BookMarked, AlertCircle } from 'lucide-react';
-import { useRef } from 'react';
-import { showToast } from '@/lib/toast';
+import { Package } from 'lucide-react';
+import { getMyPurchases } from '@/client/purchases';
+import { fetchReservations } from '@/client/reservations';
+import type { StudentPlanPurchase } from '@/client/purchases';
+import type { IReservation } from '@/interfaces';
+import { WeekCalendar } from './WeekCalendar';
+import { UpcomingSessionsList } from './UpcomingSessionsList';
 
 function Home() {
-  const { isLoading } = useSessionContext();
+  const { isLoading, user } = useSessionContext();
+  const [purchasesWithCredits, setPurchasesWithCredits] = useState<StudentPlanPurchase[]>([]);
+  const [reservations, setReservations] = useState<IReservation[]>([]);
+  const [loadingReservations, setLoadingReservations] = useState(true);
+  const [selectedWeekDate, setSelectedWeekDate] = useState<string | null>(() => {
+    const t = new Date();
+    return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+  });
 
-  const ShowSoonDialog = () => {
-    showToast.error('¡Próximamente! Esta funcionalidad estará disponible en futuras actualizaciones.');
-  };
+  useEffect(() => {
+    getMyPurchases()
+      .then((list) => setPurchasesWithCredits((list ?? []).filter((p) => p.creditsRemaining > 0)))
+      .catch(() => setPurchasesWithCredits([]));
+  }, []);
+
+  useEffect(() => {
+    fetchReservations()
+      .then((data) => setReservations(data ?? []))
+      .catch(() => setReservations([]))
+      .finally(() => setLoadingReservations(false));
+  }, []);
 
   if (isLoading) {
     return (
@@ -23,154 +44,106 @@ function Home() {
 
   return (
     <div className="flex min-h-screen">
-      {/* Main Content */}
-      <main className="bg-base-100 flex-1 overflow-y-auto">
-        <div className="container mx-auto space-y-8 p-6">
-          <div className="mb-8">
-            <Greetings />
-            <p className="text-base-content/70 mt-2">
+      <main className="flex-1 overflow-y-auto">
+        <div className="container mx-auto px-6">
+          <div className="mb-6">
+            <Greetings name={user?.name} />
+            <p className="text-base-content/80 mt-2">
               Bienvenido a tu panel de control. Aquí puedes gestionar todas tus actividades
               académicas.
             </p>
           </div>
 
-          {/* Main Features Grid */}
-          <div>
-            <h2 className="mb-4 text-2xl font-bold">Funcionalidades Principales</h2>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {/* Cursos */}
-              <div className="card border bg-black/5 shadow-xl transition-shadow hover:shadow-2xl">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div className="space-y-6 lg:col-span-2">
+              <section className="card border shadow-xl">
                 <div className="card-body">
-                  <div className="mb-3 flex items-center gap-3">
-                    <div className="bg-secondary/10 rounded-lg p-3">
-                      <BookOpen className="text-secondary h-6 w-6" />
-                    </div>
-                    <h2 className="card-title">Cursos</h2>
-                  </div>
-                  <p className="text-base-content/70 text-sm">
-                    Explora y matricúlate en cursos disponibles. Accede a materiales, tareas y sigue
-                    tu progreso académico en tiempo real.
-                  </p>
-                  <div className="divider my-2"></div>
-                  <ul className="text-base-content/60 mb-3 space-y-1 text-xs">
-                    <li>• Catálogo completo de cursos</li>
-                    {/* <li>• Materiales descargables</li> */}
-                    {/* <li>• Seguimiento de progreso</li> */}
-                  </ul>
-                  <div className="card-actions justify-end">
-                    <Link to="cursos" className="btn btn-secondary btn-sm">
-                      Ver Cursos
+                  <div className="flex items-center justify-between">
+                    <h2 className="card-title flex items-center gap-2">
+                      <Package className="text-primary h-6 w-6" />
+                      Cursos con planes activos
+                    </h2>
+                    <Link to="/app/planes" className="link link-primary link-hover text-sm">
+                      Ver todos en Planes y pagos
                     </Link>
                   </div>
-                </div>
-              </div>
-
-              {/* Reservas */}
-              <div className="card border bg-green-500/5 shadow-xl transition-shadow hover:shadow-2xl">
-                <div className="card-body">
-                  <div className="mb-3 flex items-center gap-3">
-                    <div className="bg-secondary/10 rounded-lg p-3">
-                      <Calendar className="text-secondary h-6 w-6" />
-                    </div>
-                    <h2 className="card-title">Reservas</h2>
-                  </div>
-                  <p className="text-base-content/70 text-sm">
-                    Revisa y gestiona tus reservas de clases. Asiste a las sesiones que necesitas
-                    para avanzar en tu aprendizaje.
+                  <p className="text-base-content/80 text-sm">
+                    Planes con créditos disponibles o reservas activas.
                   </p>
-                  <div className="divider my-2"></div>
-                  <ul className="text-base-content/60 mb-3 space-y-1 text-xs">
-                    <li>• Calendario de reservas</li>
-                    <li>• Gestion de pagos</li>
-                  </ul>
-                  <div className="card-actions justify-end">
-                    <Link to="reservas" className="btn btn-secondary btn-sm">
-                      Ver Reservas
-                    </Link>
-                  </div>
+                  {purchasesWithCredits.length > 0 ? (
+                    <>
+                      <ul className="mt-2 space-y-3">
+                        {purchasesWithCredits.map((p) => {
+                          const courseId = p.pricingPlan?.course?.id;
+                          const courseAcronym = p.pricingPlan?.course?.acronym;
+                          const courseTitle = p.pricingPlan?.course?.title ?? '';
+                          return (
+                            <li
+                              key={p.id}
+                              className="border-base-300 flex flex-wrap items-center justify-between gap-3 rounded-lg border-2 p-3"
+                            >
+                              <div>
+                                <p className="font-medium">{p.pricingPlan?.name ?? 'Plan'}</p>
+                                <p className="text-base-content/80 text-sm">
+                                  {courseTitle && `${courseTitle} · `}
+                                  {p.creditsTotal - p.creditsRemaining} de {p.creditsTotal} sesiones
+                                  utilizadas
+                                </p>
+                              </div>
+                              <div className="flex gap-2">
+                                {courseId != null && (
+                                  <Link
+                                    to={`/app/cursos/${courseId}`}
+                                    className="btn btn-ghost btn-sm"
+                                  >
+                                    Ver curso
+                                  </Link>
+                                )}
+                                {courseAcronym && (
+                                  <Link
+                                    to={`/app/elegir-horario?purchaseId=${p.id}&courseAcronym=${encodeURIComponent(courseAcronym)}`}
+                                    className="btn btn-primary btn-sm"
+                                  >
+                                    Canjear sesión
+                                  </Link>
+                                )}
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </>
+                  ) : (
+                    <p className="text-base-content/80 text-sm">
+                      No tienes planes con sesiones por canjear.{' '}
+                      <Link to="/app/planes" className="link link-primary">
+                        Ver planes y pagos
+                      </Link>{' '}
+                      o{' '}
+                      <a href="/checkout" className="link link-primary">
+                        comprar un plan
+                      </a>
+                      .
+                    </p>
+                  )}
                 </div>
-              </div>
+              </section>
+            </div>
 
-              {/* Pagos */}
-              {/* <div className="card border bg-green-500/5 shadow-xl transition-shadow hover:shadow-2xl">
-                <div className="card-body">
-                  <div className="mb-3 flex items-center gap-3">
-                    <div className="rounded-lg bg-green-500/10 p-3">
-                      <CreditCard className="h-6 w-6 text-green-500" />
-                    </div>
-                    <h2 className="card-title">Pagos</h2>
-                  </div>
-                  <p className="text-base-content/70 text-sm">
-                    Administra tus pagos y facturas. Revisa el historial de transacciones y mantén
-                    tus métodos de pago actualizados.
-                  </p>
-                  <div className="divider my-2"></div>
-                  <ul className="text-base-content/60 mb-3 space-y-1 text-xs">
-                    <li>• Historial de transacciones</li>
-                    <li>• Pagos seguros y encriptados</li>
-                    <li>• Métodos de pago flexibles</li>
-                  </ul>
-                  <div className="card-actions justify-end">
-                    <button onClick={ShowSoonDialog} className="btn btn-warning btn-sm">
-                      Ver Pagos
-                    </button>
-                  </div>
-                </div>
-              </div> */}
-
-              {/* Profesores */}
-              {/* <div className="card border bg-blue-500/5 shadow-xl transition-shadow hover:shadow-2xl">
-                <div className="card-body">
-                  <div className="mb-3 flex items-center gap-3">
-                    <div className="bg-info/10 rounded-lg p-3">
-                      <Users className="text-info h-6 w-6" />
-                    </div>
-                    <h2 className="card-title">Profesores</h2>
-                  </div>
-                  <p className="text-base-content/70 text-sm">
-                    Conoce a nuestro equipo docente. Revisa perfiles, especialidades, horarios
-                    disponibles y valoraciones de otros estudiantes.
-                  </p>
-                  <div className="divider my-2"></div>
-                  <ul className="text-base-content/60 mb-3 space-y-1 text-xs">
-                    <li>• Perfiles detallados de profesores</li>
-                    <li>• Especialidades y certificaciones</li>
-                    <li>• Reseñas de estudiantes</li>
-                  </ul>
-                  <div className="card-actions justify-end">
-                    <button onClick={ShowSoonDialog} className="btn btn-warning btn-sm">
-                      Ver Profesores
-                    </button>
-                  </div>
-                </div>
-              </div> */}
-
-              {/* Blog */}
-              {/* <div className="card border bg-yellow-500/5 shadow-xl transition-shadow hover:shadow-2xl">
-                <div className="card-body">
-                  <div className="mb-3 flex items-center gap-3">
-                    <div className="bg-warning/10 rounded-lg p-3">
-                      <BookMarked className="text-warning h-6 w-6" />
-                    </div>
-                    <h2 className="card-title">Blog</h2>
-                  </div>
-                  <p className="text-base-content/70 text-sm">
-                    Lee artículos y guías sobre técnicas de estudio, consejos académicos y novedades
-                    educativas para mejorar tu rendimiento.
-                  </p>
-                  <div className="divider my-2"></div>
-                  <ul className="text-base-content/60 mb-3 space-y-1 text-xs">
-                    <li>• Artículos semanales</li>
-                    <li>• Tips de estudio</li>
-                    <li>• Recursos educativos</li>
-                  </ul>
-                  <div className="card-actions justify-end">
-                    <button onClick={ShowSoonDialog} className="btn btn-warning btn-sm">
-                      Leer Blog
-                    </button>
-                  </div>
-                </div>
-              </div> */}
+            <div className="space-y-4">
+              {!loadingReservations && (
+                <>
+                  <WeekCalendar
+                    reservations={reservations}
+                    selectedDate={selectedWeekDate}
+                    onSelectDate={setSelectedWeekDate}
+                  />
+                  <UpcomingSessionsList
+                    reservations={reservations}
+                    selectedDate={selectedWeekDate}
+                  />
+                </>
+              )}
             </div>
           </div>
         </div>

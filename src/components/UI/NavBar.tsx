@@ -10,11 +10,13 @@ import {
   CreditCard,
   Menu,
   X,
+  Package,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { Link, useLocation } from 'react-router';
 import { useSessionContext } from '@/context/SessionContext';
 import { clearAuthStorage } from '@client/authStorage';
+import imagotipoUrl from '@/assets/imagotipo.svg?url';
 
 type NavLink = {
   label: string;
@@ -69,6 +71,7 @@ const NavBar: React.FC = () => {
     } else {
       return [
         { label: 'Inicio', href: '/app', icon: <Home className="h-5 w-5" /> },
+        { label: 'Planes y pagos', href: '/app/planes', icon: <Package className="h-5 w-5" /> },
         { label: 'Cursos', href: '/app/cursos', icon: <BookOpen className="h-5 w-5" /> },
         { label: 'Reservas', href: '/app/reservas', icon: <Calendar className="h-5 w-5" /> },
       ];
@@ -93,45 +96,30 @@ const NavBar: React.FC = () => {
     setIsDrawerOpen(false);
   };
 
+  console.log(user ? user : 'Nada');
+  const displayName = user?.name || user?.email || 'Usuario';
+  const profilePath = isAdmin ? '/admin/perfil' : isProfessor ? '/profesor/perfil' : '/app/perfil';
+
   const NavContent = () => (
     <div className="flex h-full flex-col">
-      {/* Logo/Header */}
-      <div>
-        <a href="/" className="flex items-center gap-2 px-4 py-6">
-          <div className="avatar">
-            <div className="h-16 rounded-lg">
-              <img
-                src="/images/LOGO_FONDO_AZUL.png"
-                alt="Logo de Salva Ramos"
-                className="size-full rounded-lg object-cover"
-              />
-            </div>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold">Salva Ramos</h2>
-            <p className="text-base-content/60 text-xs">
-              {isAdmin ? 'Panel de administración' : 'Plataforma de estudio'}
-            </p>
-          </div>
+      {/* Logo */}
+      <div className="w-full px-3 py-5">
+        <a href="/" className="block w-full" aria-label="Salva Ramos - Inicio">
+          <img
+            src={imagotipoUrl}
+            alt="Salva Ramos"
+            className="h-auto w-full min-w-0 object-contain object-center"
+          />
         </a>
-        <div className="divider"></div>
       </div>
 
-      <div className="p-2">
-        <div className="bg-base-300 mb-4 rounded-lg px-4 py-2">
-          <p className="text-sm font-semibold">{user?.email || 'Usuario'}</p>
-          <div className="badge badge-primary badge-sm mt-2">
-            {USER_ROLE_LABEL[user?.role as keyof typeof USER_ROLE_LABEL] || ''}
-          </div>
-        </div>
-      </div>
+      <div className="divider my-0" />
 
       {/* Navegación */}
-      <nav aria-label="Menu de navegación" className="flex-1 space-y-1">
+      <nav aria-label="Menu de navegación" className="flex-1 space-y-1 px-2 py-4">
         <ul className="menu menu-lg gap-1">
           {links.map((link) => {
             const active = isActive(link.href);
-
             return (
               <li key={link.href}>
                 <Link
@@ -152,30 +140,44 @@ const NavBar: React.FC = () => {
         </ul>
       </nav>
 
-      <div className="divider"></div>
+      <div className="divider my-0" />
 
-      {/* Opciones adicionales */}
-      <ul className="menu">
-        <li>
-          <Link to="/app/perfil" onClick={closeDrawer} className="text-sm">
-            <User className="h-4 w-4" />
-            Mi Perfil
-          </Link>
-        </li>
-        <li>
-          <button onClick={handleLogout} className="text-error text-sm">
-            <LogOut className="h-4 w-4" />
-            Cerrar sesión
-          </button>
-        </li>
-      </ul>
+      {/* Usuario: nombre, rol, perfil y cerrar sesión */}
+      <div className="p-3">
+        <div className="border-base-300 bg-base-200 rounded-lg border p-3 shadow-sm">
+          <p className="truncate text-sm font-semibold">
+            {displayName} - {user?.email}
+          </p>
+          <div className="bg-primary/10 text-primary mt-1.5 rounded-md px-2 py-1.5 text-sm font-medium">
+            {USER_ROLE_LABEL[user?.role as keyof typeof USER_ROLE_LABEL] || ''}
+          </div>
+          <div className="border-base-300 mt-3 flex flex-col gap-1 border-t pt-3">
+            <Link
+              to={profilePath}
+              onClick={closeDrawer}
+              className="hover:bg-base-200 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm"
+            >
+              <User className="h-4 w-4" />
+              Mi Perfil
+            </Link>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="text-error hover:bg-error/10 flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm"
+            >
+              <LogOut className="h-4 w-4" />
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 
   return (
     <>
       {/* Mobile Header with Menu Button */}
-      <div className="navbar bg-base-200 border-base-300 sticky top-0 z-50 border-b lg:hidden">
+      <div className="navbar bg-base-100 border-base-300 sticky top-0 z-50 border-b lg:hidden">
         <div className="flex-none">
           <button
             onClick={() => setIsDrawerOpen(true)}
@@ -185,29 +187,17 @@ const NavBar: React.FC = () => {
             <Menu className="h-6 w-6" />
           </button>
         </div>
-        <div className="flex-1 justify-center">
-          <div className="text-center">
-            <h2 className="text-xl font-bold">Salva Ramos</h2>
-            <p className="text-base-content/60 text-xs">
-              {isAdmin && !isStudentView ? 'Panel de administración' : 'Plataforma de estudio'}
-            </p>
-          </div>
-        </div>
-        <Link to={isAdmin ? '/admin' : '/app'} className="flex-none">
-          <div className="avatar">
-            <div className="h-16 rounded-lg">
-              <img
-                src="/images/logo.png"
-                alt="Logo de Salva Ramos"
-                className="size-full rounded-lg object-cover"
-              />
-            </div>
-          </div>
+        <Link
+          to={isAdmin ? '/admin' : isProfessor ? '/profesor' : '/app'}
+          className="flex flex-1 justify-center px-2"
+        >
+          <img src={imagotipoUrl} alt="Salva Ramos" className="h-8 max-w-[180px] object-contain" />
         </Link>
+        <div className="w-10 flex-none" />
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className="bg-base-200 text-base-content border-base-300 sticky top-0 hidden h-screen w-fit shrink-0 flex-col overflow-y-auto border-r px-4 pb-4 lg:flex">
+      <aside className="bg-base-100 text-base-content border-base-300 sticky top-0 hidden h-screen w-64 min-w-64 shrink-0 flex-col overflow-y-auto border-r px-3 pb-4 lg:flex">
         <NavContent />
       </aside>
 
@@ -224,7 +214,7 @@ const NavBar: React.FC = () => {
 
         {/* Drawer */}
         <aside
-          className={`bg-base-200 text-base-content fixed top-0 left-0 z-50 flex h-screen w-80 flex-col overflow-y-auto p-4 shadow-xl transition-transform duration-300 ease-in-out lg:hidden ${
+          className={`bg-base-100 text-base-content fixed top-0 left-0 z-50 flex h-screen w-80 flex-col overflow-y-auto p-4 shadow-xl transition-transform duration-300 ease-in-out lg:hidden ${
             isDrawerOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >

@@ -73,12 +73,36 @@ export function BreadCrumb({ homePath = '/app' }: BreadCrumbProps) {
     return items;
   }, [location.pathname]);
 
+  const isAtHome = location.pathname === homePath || location.pathname === homePath + '/';
+
   if (breadcrumbItems.length === 0) {
-    return <div className="p-4" />;
+    return (
+      <div className="flex items-center justify-between gap-4 px-4 pt-4 pb-2">
+        <nav className="flex flex-1 items-center space-x-1">
+          {isAtHome ? (
+            <div className="flex items-center gap-1.5 rounded-md px-3 py-1.5">
+              <Home className="text-base-content/60 h-4 w-4" />
+              <span className="text-primary rounded-md px-3 py-1.5 text-sm font-medium">
+                Inicio
+              </span>
+            </div>
+          ) : (
+            <Link
+              to={homePath}
+              className="hover:bg-base-200 flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-colors"
+            >
+              <Home className="text-base-content/60 h-4 w-4" />
+              <span className="text-base-content/80 text-sm">Inicio</span>
+            </Link>
+          )}
+        </nav>
+        <NavButton />
+      </div>
+    );
   }
 
   return (
-    <div className="bg-base-100 flex items-center justify-between gap-4 p-4">
+    <div className="flex items-center justify-between gap-4 p-4">
       <nav className="flex flex-1 items-center space-x-1">
         <Link
           to={homePath}

@@ -83,6 +83,9 @@
 }
 
 @layer components {
+  .card {
+    @apply border-base-300 bg-base-100;
+  }
   .prose-course {
     @apply prose prose-lg max-w-none;
     @apply prose-headings:text-primary;

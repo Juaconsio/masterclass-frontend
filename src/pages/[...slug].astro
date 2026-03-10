@@ -6,4 +6,8 @@ export const prerender = false;
 import Spa from '@components/App.tsx';
 ---
 
-<Layout title="Salva Ramos - Portal"><Spa client:only /></Layout>
+<Layout title="Salva Ramos - Portal">
+  <div class="bg-base-100">
+    <Spa client:only />
+  </div>
+</Layout>
