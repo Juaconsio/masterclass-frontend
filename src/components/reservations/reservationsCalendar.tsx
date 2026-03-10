@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, CalendarIcon } from 'lucide-react';
 import { ReservationCard } from './';
-import type { IEvent, IReservation } from '@/interfaces';
+import type { IReservation } from '@/interfaces';
 import { Link } from 'react-router';
 
 type ReservationsCalendarProps = {
@@ -119,19 +119,30 @@ export function ReservationsCalendar({
 
             {selectedReservations?.map((reservation: any) => {
               const isDeleting = deletingId === reservation.id;
+              const courseId = reservation.slot?.class?.courseId;
+              const classId = reservation.slot?.class?.id;
+              const hasMaterial = courseId != null && classId != null;
 
               return (
                 <ReservationCard
                   key={reservation.id}
                   reservation={reservation}
                   action={
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
+                      {['confirmed', 'attended'].includes(reservation.status) && hasMaterial && (
+                        <Link
+                          to={`/app/cursos/${courseId}/clases/${classId}`}
+                          className="btn btn-primary btn-sm"
+                        >
+                          Ver material
+                        </Link>
+                      )}
                       {reservation.status === 'confirmed' && reservation.slot?.link && (
                         <a
                           href={`https://meet.jit.si/${reservation.slot.link}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="btn btn-primary btn-sm"
+                          className="btn btn-outline btn-sm"
                         >
                           Ver clase
                         </a>
@@ -178,10 +189,10 @@ export function ReservationsCalendar({
         <p className="text-base-content/70">Aquí puedes ver y administrar tus sesiones</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         {/* Calendar Section */}
-        <div className="lg:col-span-1">
-          <div className="card border bg-white shadow-xl">
+        <div className="lg:col-span-3">
+          <div className="card border shadow-xl">
             <div className="card-body p-6">
               <div className="mb-6 flex items-center justify-between pt-1.5">
                 <h3 className="text-base-content flex items-center gap-2 text-xl font-semibold">
@@ -229,8 +240,8 @@ export function ReservationsCalendar({
                       className={`relative flex aspect-square cursor-pointer flex-col items-center justify-center rounded-lg text-sm font-medium transition-all duration-200 ${
                         isSelected
                           ? 'bg-primary text-primary-content ring-primary ring-2 ring-offset-2'
-                          : 'text-base-content bg-gray-100 hover:bg-gray-200'
-                      } ${isToday && !isSelected ? 'ring-accent ring-2 ring-offset-2' : ''} `}
+                          : 'text-base-content border-base-content hover:bg-base-300 border-1'
+                      } ${isToday && !isSelected ? 'ring-accent bg-primary/20 ring-2 ring-offset-2' : ''} `}
                     >
                       <span>{day}</span>
                       {reservation && reservation.length > 0 && (
@@ -256,7 +267,7 @@ export function ReservationsCalendar({
                   <span>Seleccionado</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="ring-accent h-4 w-4 rounded bg-gray-100 ring-2 ring-offset-2 ring-offset-white" />
+                  <div className="ring-accent bg-primary/20 h-4 w-4 rounded ring-2 ring-offset-2" />
                   <span>Hoy</span>
                 </div>
                 <div className="flex items-center gap-2">

@@ -1,7 +1,8 @@
-import { Calendar, CheckCircle, Clock, Trash2, XCircle } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, Trash2, XCircle, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useState, useRef } from 'react';
+import { Link } from 'react-router';
 import type { IReservation } from '@/interfaces';
 import { deleteReservation } from '@/client/reservations';
 import { ConfirmActionModal, type ConfirmActionModalRef } from '@/components/UI/ConfirmActionModal';
@@ -36,9 +37,16 @@ export function MyReservations({
       showToast.success('Reserva cancelada correctamente');
       modalRef.current?.close();
       onReservationDeleted?.();
-    } catch (error) {
-      console.error('Error al cancelar reserva:', error);
-      showToast.error('Error al cancelar la reserva');
+    } catch (error: unknown) {
+      const data = (error as { response?: { data?: { code?: string; message?: string } } })?.response?.data;
+      const code = data?.code;
+      const message = data?.message;
+      if (code === 'CANCELLATION_DEADLINE_PASSED' || code === 'PLAN_DOES_NOT_ALLOW_RESCHEDULE') {
+        showToast.error(message ?? 'No se puede desinscribir en este momento');
+      } else {
+        console.error('Error al cancelar reserva:', error);
+        showToast.error('Error al cancelar la reserva');
+      }
     } finally {
       setIsDeleting(false);
       setSelectedReservationId(null);
@@ -70,9 +78,9 @@ export function MyReservations({
         <div className="card-body items-center text-center">
           <Calendar className="text-base-content/40 h-8 w-8" />
           <p className="text-base-content/70 mb-4">No tienes reservas aún.</p>
-          <a href="/courses" className="btn btn-primary">
+          <Link to="/app/cursos" className="btn btn-primary">
             Explorar cursos
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -189,8 +197,8 @@ export function MyReservations({
             </div>
           )}
 
-          {reservation.status === 'pending' && (
-            <div className="card-actions mt-4 justify-end">
+          <div className="card-actions mt-4 flex-wrap justify-end gap-2">
+            {['confirmed', 'pending'].includes(reservation.status) && (
               <button
                 className="btn btn-sm btn-ghost btn-error gap-2"
                 onClick={() => handleDeleteClick(reservation.id)}
@@ -198,19 +206,28 @@ export function MyReservations({
                 <Trash2 className="h-4 w-4" />
                 Cancelar reserva
               </button>
-            </div>
-          )}
+            )}
+            {['confirmed', 'attended'].includes(reservation.status) &&
+              classInfo?.courseId != null &&
+              classInfo?.id != null && (
+                <Link
+                  to={`/app/cursos/${classInfo.courseId}/clases/${classInfo.id}`}
+                  className="btn btn-primary btn-sm gap-1"
+                >
+                  <FileText className="h-4 w-4" />
+                  Ver material
+                </Link>
+              )}
 
-          {reservation.status === 'reschedule_pending' && (
-            <div className="card-actions mt-4 justify-end">
-              <a
+            {reservation.status === 'reschedule_pending' && (
+              <Link
+                to={`/app/reservas/${reservation.id}/reagendar`}
                 className="btn btn-sm btn-outline"
-                href={`/app/reservas/${reservation.id}/reagendar`}
               >
                 Reagendar o reembolso
-              </a>
-            </div>
-          )}
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     );
