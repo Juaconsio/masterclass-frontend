@@ -3,6 +3,7 @@ department: "Matemática"
 level: "Plan Común"
 basePrice: 15_000
 featured: true
+image: "course-2.jpg"
 ---
 
 ## Descripción del Curso

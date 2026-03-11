@@ -82,7 +82,7 @@ export default function ReservationCard({
       {/* Header: Título y estado de reserva */}
       <div className="mb-3 flex items-start justify-between">
         <div className="flex-1">
-          <h3 className="text-lg font-bold text-gray-900">
+          <h3 className="truncate text-lg font-bold text-gray-900">
             {slot.class?.title || `Clase ${slot.classId}`}
           </h3>
 

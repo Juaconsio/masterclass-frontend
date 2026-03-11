@@ -1,51 +1,56 @@
 ---
 import { Icon } from 'astro-icon/components';
 import { Image } from 'astro:assets';
-import Logo from '/src/assets/logo.webp';
+import Logo from '/src/assets/imagotipo.svg';
+
 const links = [
   { href: '/', label: 'Inicio', icon: 'mdi:home' },
   { href: '/courses', label: 'Cursos', icon: 'mdi:book' },
+  { href: '/equipo', label: 'Equipo', icon: 'mdi:account-group' },
   { href: '/#contact', label: 'Contacto', icon: 'mdi:contact-mail' },
 ];
+
+const current = Astro.url.pathname + (Astro.url.hash ?? '');
+const isActive = (href: string) => href === current;
 ---
 
-<!-- Navbar principal -->
+<!-- Navbar principal: estructura DaisyUI navbar-start | navbar-center | navbar-end -->
 <nav
-  class="navbar h-navbar px-3 sm:px-4 md:px-8 lg:px-12 fixed top-0 bg-secondary backdrop-blur border-b border-base-300 z-50 flex justify-between"
+  class="navbar h-navbar bg-accent/80 border-base-300 fixed top-0 z-50 border-b px-3 backdrop-blur sm:px-4 md:px-6 lg:px-8"
 >
-  <!-- Mobile: Botón menú principal (izquierda) -->
-  <div class="flex-none lg:hidden">
+  <!-- navbar-start: menú (móvil) + logo (desktop) -->
+  <div class="navbar-start">
     <label
       for="main-drawer"
-      aria-label="open main menu"
-      class="btn btn-navbar btn-square btn-sm sm:btn-md"
+      aria-label="Abrir menú"
+      class="btn btn-square btn-ghost btn-sm sm:btn-md lg:hidden"
     >
-      <Icon name="mdi:menu" size={28} class="sm:w-8 sm:h-8" />
+      <Icon name="mdi:menu" size={28} class="sm:h-8 sm:w-8" />
     </label>
-  </div>
-
-  <!-- Logo/título -->
-  <div class="flex-1 lg:flex-none">
     <a
       href="/"
-      class="flex justify-center items-center normal-case text-lg sm:text-xl font-bold tracking-wide gap-1 sm:gap-2 hover:bg-transparent hover:border-0 px-1 sm:px-2"
+      class="hidden items-center gap-1 px-1 text-lg font-bold tracking-wide normal-case hover:bg-transparent sm:gap-2 sm:px-2 sm:text-xl lg:flex lg:px-0"
     >
-      <div class="avatar">
-        <div class="w-10 h-20 sm:w-12 sm:h-24 rounded-full">
-          <Image src={Logo} alt="Salva Ramos Logo" />
-        </div>
-      </div>
-      <span class="hidden sm:inline text-white">Salva Ramos</span>
+      <Image src={Logo} alt="Salva Ramos Logo" class="h-12 w-auto" />
     </a>
   </div>
 
-  <!-- Desktop: Menú de navegación (centro) -->
-  <div class="hidden lg:flex lg:flex-1 lg:justify-center">
-    <ul class="menu menu-horizontal gap-1">
+  <!-- navbar-center: logo (móvil, centrado) + enlaces (desktop) -->
+  <div class="navbar-center flex w-full flex-1 justify-center lg:flex-initial">
+    <a href="/" class="flex min-w-28 items-center px-1 lg:hidden">
+      <Image src={Logo} alt="Salva Ramos Logo" class="h-12 w-auto" />
+    </a>
+    <ul class="menu menu-horizontal hidden gap-1 px-1 lg:flex">
       {
         links.map((link) => (
           <li>
-            <a data-navlink href={link.href} class="text-lg font-medium text-secondary-content ">
+            <a
+              data-navlink
+              data-current={isActive(link.href) ? 'page' : undefined}
+              href={link.href}
+              class="text-sm font-medium"
+              aria-current={isActive(link.href) ? 'page' : undefined}
+            >
               {link.label}
             </a>
           </li>
@@ -54,64 +59,97 @@ const links = [
     </ul>
   </div>
 
-  <!-- Botón Iniciar Sesión -->
-  <div class="flex-none">
+  <!-- navbar-end: Iniciar sesión + CTA -->
+  <div class="navbar-end gap-1 sm:gap-2">
     <a
       href="/ingresar"
       aria-label="Iniciar Sesión"
-      class="btn btn-square btn-primary btn-sm sm:btn-md btn-outline lg:btn-wide lg:px-2"
+      class="btn btn-ghost btn-sm hidden lg:inline-flex"
     >
-      <Icon name="mdi:login" size={20} class="sm:w-6 sm:h-6 lg:hidden" />
-      <span class="hidden lg:inline text-lg font-medium">Iniciar Sesión</span>
+      Iniciar Sesión
+    </a>
+    <a
+      href="/courses"
+      aria-label="Ver cursos"
+      class="btn btn-primary btn-sm sm:btn-md rounded-xl sm:px-4"
+    >
+      Empezar <span class="hidden sm:inline">ahora</span>
     </a>
   </div>
 </nav>
 
-<!-- Drawer 1: Menú principal -->
+<!-- Drawer: Menú principal (móvil) -->
 <div class="drawer z-60">
   <input id="main-drawer" type="checkbox" class="drawer-toggle" />
   <div class="drawer-content"></div>
   <div class="drawer-side">
-    <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-    <ul class="menu bg-base-200 min-h-full w-72 sm:w-80 p-4 sm:p-6">
-      <li class="menu-title mb-2">
-        <span class="text-base sm:text-lg">Navegación</span>
-      </li>
-      {
-        links.map((link) => (
-          <li>
-            <a
-              data-navlink
-              href={link.href}
-              class="text-base sm:text-lg font-medium flex justify-between py-3 sm:py-4"
-            >
-              <Icon name={link.icon} size={24} class="sm:w-6 sm:h-6" />
-              <span>{link.label}</span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <label for="main-drawer" aria-label="Cerrar menú" class="drawer-overlay"></label>
+    <aside
+      class="bg-base-200/95 border-base-300/50 flex min-h-full w-72 flex-col border-r backdrop-blur-sm sm:w-80"
+    >
+      <header
+        class="border-base-300/50 flex shrink-0 items-center gap-3 border-b px-5 py-4 sm:px-6 sm:py-5"
+      >
+        <a
+          href="/"
+          class="flex items-center gap-2"
+          onclick="document.getElementById('main-drawer').click()"
+        >
+          <Image src={Logo} alt="" class="h-10 w-auto sm:h-11" aria-hidden="true" />
+        </a>
+      </header>
+      <nav
+        class="flex-1 overflow-y-auto px-3 py-4 sm:px-4 sm:py-5"
+        aria-label="Navegación principal"
+      >
+        <p
+          class="text-base-content/60 mb-3 px-2 text-xs font-semibold tracking-wider uppercase sm:mb-4 sm:text-sm"
+        >
+          Navegación
+        </p>
+        <ul class="menu gap-1 p-0" role="list">
+          {
+            links.map((link) => {
+              const active = isActive(link.href);
+              return (
+                <li class="[&>a]:rounded-xl">
+                  <a
+                    data-navlink
+                    data-current={active ? 'page' : undefined}
+                    href={link.href}
+                    class={`flex items-center gap-3 py-3 pr-4 pl-3 text-base font-medium transition-colors sm:py-3.5 sm:pl-4 sm:text-[15px] ${active ? 'bg-primary/10 text-primary' : 'text-base-content hover:bg-base-300/60 hover:text-base-content'}`}
+                    aria-current={active ? 'page' : undefined}
+                    onclick="document.getElementById('main-drawer').click()"
+                  >
+                    <span
+                      class={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg sm:h-10 sm:w-10 ${active ? 'bg-primary/20' : 'bg-base-300/70'}`}
+                      aria-hidden="true"
+                    >
+                      <Icon
+                        name={link.icon}
+                        size={22}
+                        class={active ? 'text-primary' : 'text-base-content/80'}
+                      />
+                    </span>
+                    <span>{link.label}</span>
+                  </a>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </nav>
+      <footer class="border-base-300/50 shrink-0 border-t px-4 py-4 sm:px-5 sm:py-5">
+        <a
+          href="/ingresar"
+          aria-label="Iniciar Sesión"
+          class="btn btn-primary btn-block sm:btn-lg gap-2 rounded-xl"
+          onclick="document.getElementById('main-drawer').click()"
+        >
+          <Icon name="mdi:login" size={20} class="shrink-0" />
+          <span>Iniciar Sesión</span>
+        </a>
+      </footer>
+    </aside>
   </div>
 </div>
-
-<!-- Drawer 2: Menú de autenticación -->
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const currentPath = window.location.pathname;
-    const currentHash = window.location.hash;
-    const current = currentPath.concat(currentHash);
-    const links = document.querySelectorAll('[data-navlink]');
-    links.forEach((el) => {
-      const href = el.getAttribute('href');
-      if (href === current) {
-        el.classList.add('active');
-        el.setAttribute('aria-current', 'page');
-      } else {
-        el.classList.remove('active');
-        el.removeAttribute('aria-current');
-      }
-    });
-  });
-</script>

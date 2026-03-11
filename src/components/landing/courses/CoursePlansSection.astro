@@ -1,0 +1,366 @@
+---
+import CoursePlanCard from './CoursePlanCard.astro';
+import { Icon } from 'astro-icon/components';
+
+interface CourseInfo {
+  acronym: string;
+  title: string;
+}
+
+interface Plan {
+  id: number;
+  name: string;
+  description?: string | null;
+  price: number;
+  reservationCount: number;
+  accessMode: string;
+}
+
+interface Props {
+  course: CourseInfo;
+  plans: Plan[];
+}
+
+const { course, plans } = Astro.props;
+
+function sortPlans(list: Plan[]): Plan[] {
+  return [...list].sort((a, b) => {
+    if (a.price !== b.price) return a.price - b.price;
+    return b.reservationCount - a.reservationCount;
+  });
+}
+
+const sortedPlans = sortPlans(plans);
+const useCarousel = plans.length > 3;
+---
+
+<div id="course-plans-data" data-plans={JSON.stringify(sortedPlans)} class="hidden" aria-hidden="true" />
+
+<div class="course-plans-section space-y-4">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h3 class="text-base-content/70 text-sm font-semibold tracking-wider uppercase">
+      Planes disponibles
+    </h3>
+    {
+      plans.length > 0 && (
+        <label class="flex items-center gap-2">
+          <span class="text-base-content/70 text-xs font-medium sr-only sm:not-sr-only">Filtrar por</span>
+          <select
+            id="plans-filter"
+            class="select select-bordered select-sm text-sm max-w-[180px]"
+            aria-label="Filtrar planes: Todos, Solo material, Con clases, Plan gratis"
+          >
+            <option value="all">Todos</option>
+            <option value="materials_only">Solo material</option>
+            <option value="sessions_and_materials">Con clases</option>
+            <option value="free">Plan gratis</option>
+          </select>
+        </label>
+      )
+    }
+  </div>
+
+  <div id="plans-no-results" class="border-base-300 bg-base-200 hidden rounded-lg border p-4 text-center">
+    <p class="text-base-content/70 text-sm">Ningún plan coincide con el filtro.</p>
+  </div>
+
+  {
+    plans.length === 0 ? (
+      <div class="border-base-300 bg-base-200 rounded-lg border p-4 text-center">
+        <p class="text-base-content/70 text-sm">
+          No hay planes disponibles para este curso en este momento.
+        </p>
+      </div>
+    ) : useCarousel ? (
+      <div class="plans-carousel-wrapper relative" id="plans-container">
+        <button
+          type="button"
+          class="plans-carousel-prev btn btn-circle btn-sm btn-ghost bg-primary/40 hover:bg-primary/60 absolute left-1 z-10 h-8 min-h-0 w-8 shrink-0 shadow-sm"
+          style="top: calc(50% - 1rem)"
+          aria-label="Anterior"
+        >
+          <Icon name="mdi:chevron-left" size={24} />
+        </button>
+
+        <div
+          class="plans-carousel carousel carousel-center rounded-box w-full space-x-4 overflow-x-auto scroll-smooth px-10 py-4"
+          role="region"
+          aria-label="Planes del curso"
+        >
+          {sortedPlans.map((plan) => (
+            <div
+              class="carousel-item plan-filter-item plans-carousel-item w-full max-w-sm min-w-[280px] flex-shrink-0"
+              data-plan-id={plan.id}
+              data-access-mode={plan.accessMode}
+              data-price={plan.price}
+              data-reservation-count={plan.reservationCount}
+            >
+              <CoursePlanCard plan={plan} cardClass="w-full" courseAcronym={course.acronym} />
+            </div>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          class="plans-carousel-next btn btn-circle btn-sm btn-ghost bg-primary/40 hover:bg-primary/60 absolute right-1 z-10 h-8 min-h-0 w-8 shrink-0 shadow-sm"
+          style="top: calc(40% - 1rem)"
+          aria-label="Siguiente"
+        >
+          <Icon name="mdi:chevron-right" size={24} />
+        </button>
+
+        <div
+          class="plans-carousel-dots flex justify-center gap-1.5 py-2"
+          role="tablist"
+          aria-label="Posición en el carrusel"
+        />
+      </div>
+    ) : (
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3" id="plans-container">
+        {sortedPlans.map((plan) => (
+          <div
+            class="plan-filter-item"
+            data-plan-id={plan.id}
+            data-access-mode={plan.accessMode}
+            data-price={plan.price}
+            data-reservation-count={plan.reservationCount}
+          >
+            <CoursePlanCard plan={plan} courseAcronym={course.acronym} />
+          </div>
+        ))}
+      </div>
+    )
+  }
+</div>
+
+<script>
+  type PlanRecord = { id: number; accessMode: string; price: number; reservationCount: number };
+
+  function sortPlansClient(list: PlanRecord[]): PlanRecord[] {
+    return [...list].sort((a, b) => {
+      if (a.price !== b.price) return a.price - b.price;
+      return b.reservationCount - a.reservationCount;
+    });
+  }
+
+  function applyPlansFilter() {
+    const dataEl = document.getElementById('course-plans-data');
+    const wrapper = document.getElementById('plans-container');
+    const filterSelect = document.getElementById('plans-filter') as HTMLSelectElement | null;
+    const noResults = document.getElementById('plans-no-results');
+    if (!dataEl || !wrapper || !filterSelect) return;
+
+    const track = wrapper.querySelector('.plans-carousel');
+    const container = (track ?? wrapper) as HTMLElement;
+
+    const plans: PlanRecord[] = JSON.parse(dataEl.getAttribute('data-plans') || '[]');
+    const value = filterSelect.value;
+
+    const filtered = plans.filter((p) => {
+      if (value === 'all') return true;
+      if (value === 'materials_only') return p.accessMode === 'materials_only';
+      if (value === 'sessions_and_materials') return p.accessMode === 'sessions_and_materials';
+      if (value === 'free') return p.price === 0;
+      return true;
+    });
+
+    const sorted = sortPlansClient(filtered);
+    const sortedIds = new Set(sorted.map((p) => p.id));
+    const items = Array.from(container.querySelectorAll<HTMLElement>('.plan-filter-item'));
+    const byId = new Map(items.map((el) => [parseInt(el.dataset.planId ?? '0', 10), el]));
+
+    sorted.forEach((p) => {
+      const el = byId.get(p.id);
+      if (el) {
+        el.classList.remove('hidden');
+        container.appendChild(el);
+      }
+    });
+    plans.forEach((p) => {
+      if (!sortedIds.has(p.id)) {
+        const el = byId.get(p.id);
+        if (el) {
+          el.classList.add('hidden');
+          container.appendChild(el);
+        }
+      }
+    });
+
+    if (noResults) noResults.classList.toggle('hidden', sorted.length > 0);
+    wrapper.classList.toggle('hidden', sorted.length === 0);
+
+    if (wrapper.classList.contains('plans-carousel-wrapper')) {
+      wrapper.dispatchEvent(new CustomEvent('plansFilterChanged'));
+    }
+  }
+
+  function initPlansFilter() {
+    const filterSelect = document.getElementById('plans-filter');
+    if (!filterSelect) return;
+    filterSelect.addEventListener('change', applyPlansFilter);
+  }
+
+  function initPlansCarousels() {
+    document.querySelectorAll('.plans-carousel-wrapper').forEach((wrapperEl) => {
+      const wrapper = wrapperEl as HTMLElement & {
+        _scrollEnd?: ReturnType<typeof setTimeout>;
+        _swipeTimer?: ReturnType<typeof setTimeout>;
+        _resizeTimer?: ReturnType<typeof setTimeout>;
+      };
+      const track = wrapper.querySelector('.plans-carousel') as HTMLElement;
+
+      function getVisibleItems(): HTMLElement[] {
+        return Array.from(wrapper.querySelectorAll<HTMLElement>('.plans-carousel-item')).filter(
+          (el) => !el.classList.contains('hidden')
+        );
+      }
+
+      let items = getVisibleItems();
+      let total = items.length;
+
+      const prevBtn = wrapper.querySelector('.plans-carousel-prev') as HTMLElement | null;
+      const nextBtn = wrapper.querySelector('.plans-carousel-next') as HTMLElement | null;
+      const dotsContainer = wrapper.querySelector('.plans-carousel-dots') as HTMLElement;
+
+      if (!track || !items.length) return;
+
+      let currentPage = 0;
+      let isScrolling = false;
+
+      function itemWidth() {
+        const gap = parseFloat(getComputedStyle(track).gap) || 16;
+        return items[0].offsetWidth + gap;
+      }
+
+      function visibleCount() {
+        const w = itemWidth();
+        return w > 0 ? Math.max(1, Math.floor((track.clientWidth + 16) / w)) : 1;
+      }
+
+      function totalPages() {
+        return Math.ceil(total / visibleCount());
+      }
+
+      function rebuildDots() {
+        dotsContainer.innerHTML = '';
+        const pages = totalPages();
+        for (let i = 0; i < pages; i++) {
+          const dot = document.createElement('span');
+          dot.className = [
+            'plans-carousel-dot h-2 w-2 rounded-full transition-all duration-200 cursor-pointer',
+            i === currentPage ? 'bg-primary scale-125' : 'bg-primary/50',
+          ].join(' ');
+          dot.dataset.index = String(i);
+          dot.addEventListener('click', () => goToPage(i));
+          dotsContainer.appendChild(dot);
+        }
+      }
+
+      function updateDots() {
+        dotsContainer.querySelectorAll('.plans-carousel-dot').forEach((dot, i) => {
+          const active = i === currentPage;
+          dot.classList.toggle('bg-primary', active);
+          dot.classList.toggle('scale-125', active);
+          dot.classList.toggle('bg-primary/50', !active);
+        });
+      }
+
+      function updateButtons() {
+        const pages = totalPages();
+        const atStart = currentPage <= 0;
+        const atEnd = currentPage >= pages - 1;
+
+        if (prevBtn) {
+          prevBtn.style.visibility = atStart ? 'hidden' : 'visible';
+          prevBtn.style.pointerEvents = atStart ? 'none' : 'auto';
+        }
+        if (nextBtn) {
+          nextBtn.style.visibility = atEnd ? 'hidden' : 'visible';
+          nextBtn.style.pointerEvents = atEnd ? 'none' : 'auto';
+        }
+      }
+
+      function goToPage(page: number) {
+        const pages = totalPages();
+        currentPage = Math.max(0, Math.min(pages - 1, page));
+
+        updateDots();
+        updateButtons();
+
+        isScrolling = true;
+        const targetLeft = currentPage * visibleCount() * itemWidth();
+        track.scrollTo({ left: targetLeft, behavior: 'smooth' });
+
+        clearTimeout(wrapper._scrollEnd);
+        wrapper._scrollEnd = setTimeout(() => {
+          isScrolling = false;
+        }, 450);
+      }
+
+      prevBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        goToPage(currentPage - 1);
+      });
+
+      nextBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        goToPage(currentPage + 1);
+      });
+
+      track.addEventListener('scroll', () => {
+        if (isScrolling) return;
+        clearTimeout(wrapper._swipeTimer);
+        wrapper._swipeTimer = setTimeout(() => {
+          const iw = itemWidth();
+          const vc = visibleCount();
+          if (iw > 0 && vc > 0) {
+            const itemIdx = Math.round(track.scrollLeft / iw);
+            currentPage = Math.floor(itemIdx / vc);
+            updateDots();
+            updateButtons();
+          }
+        }, 120);
+      });
+
+      window.addEventListener('resize', () => {
+        clearTimeout(wrapper._resizeTimer);
+        wrapper._resizeTimer = setTimeout(() => {
+          currentPage = 0;
+          rebuildDots();
+          updateButtons();
+          track.scrollTo({ left: 0, behavior: 'instant' });
+        }, 150);
+      });
+
+      wrapper.addEventListener('plansFilterChanged', () => {
+        items = getVisibleItems();
+        total = items.length;
+        currentPage = 0;
+        if (total === 0) {
+          dotsContainer.innerHTML = '';
+          if (prevBtn) prevBtn.style.visibility = 'hidden';
+          if (nextBtn) nextBtn.style.visibility = 'hidden';
+          track.scrollTo({ left: 0, behavior: 'instant' });
+          return;
+        }
+        rebuildDots();
+        updateButtons();
+        track.scrollTo({ left: 0, behavior: 'instant' });
+      });
+
+      rebuildDots();
+      updateButtons();
+    });
+  }
+
+  function init() {
+    initPlansFilter();
+    initPlansCarousels();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+</script>

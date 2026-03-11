@@ -103,7 +103,7 @@ export default function AdminDashboard() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="stats shadow">
+        <div className="stats bg-base-100 shadow">
           <div className="stat">
             <div className="stat-figure text-primary">
               <span className="text-4xl">📚</span>
@@ -116,7 +116,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="stats shadow">
+        <div className="stats bg-base-100 shadow">
           <div className="stat">
             <div className="stat-figure text-secondary">
               <span className="text-4xl">🎓</span>
@@ -127,7 +127,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="stats shadow">
+        <div className="stats bg-base-100 shadow">
           <div className="stat">
             <div className="stat-figure text-success">
               <span className="text-4xl">📅</span>
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="stats shadow">
+        <div className="stats bg-base-100 shadow">
           <div className="stat">
             <div className="stat-figure text-warning">
               <span className="text-4xl">💰</span>

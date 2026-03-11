@@ -28,11 +28,13 @@ async function getReservationEnroll(options: {
   return res.data;
 }
 
+// TODO: compare to reservations controller POST /reservations
 async function createReservation(payload: {
-  courseId: string | number;
+  courseId?: string | number;
   classId?: string | number;
-  slotId?: string | number;
+  slotId: string | number;
   pricingPlanId?: string;
+  studentPlanPurchaseId?: number;
 }): Promise<{ course: ICourse; reservation: IReservation; payment: IPayment; slot: ISlot }> {
   const res = await httpClient.post('/reservations', payload);
 

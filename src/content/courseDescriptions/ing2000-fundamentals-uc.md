@@ -3,6 +3,7 @@ department: "Ingeniería"
 level: "Plan Común"
 basePrice: 12_500
 featured: true
+image: "course-5.jpg"
 ---
 
 ¿Complicado con el Fundamentals? La prueba del plan común de Ingeniería UC exige dominio de muchas áreas a la vez: cálculo, álgebra, ecuaciones diferenciales, probabilidad y estadística, y las ciencias de base (dinámica, termodinámica, química, electricidad y magnetismo). Sabemos exactamente cómo viene la prueba y hemos diseñado una preparación pensada como el examen:

@@ -1,0 +1,111 @@
+---
+import type { CourseListingData } from '@/types/course';
+import type { PublicCoursePlan } from '@/client/publicCourses';
+
+interface Props {
+  course: CourseListingData;
+  plans: PublicCoursePlan[];
+}
+
+const { course, plans } = Astro.props;
+---
+
+<div class="flex flex-col sm:flex-row md:flex-col gap-4 sm:gap-6">
+  <div class="w-full sm:flex-1 md:w-full space-y-4">
+    <h3 class="text-sm font-semibold uppercase tracking-wider text-base-content/70">Planes disponibles</h3>
+    {plans.length === 0 ? (
+      <div class="rounded-lg border border-base-300 bg-base-200 p-4 text-center">
+        <p class="text-base-content/70 text-sm">No hay planes disponibles para este curso en este momento.</p>
+      </div>
+    ) : (
+      <ul class="flex flex-col gap-3">
+        {plans.map((plan) => {
+          const isMaterialsOnly = plan.accessMode === 'materials_only';
+          const sessionsLabel = isMaterialsOnly
+            ? 'Solo material'
+            : plan.reservationCount === 1
+              ? '1 sesión'
+              : `${plan.reservationCount} sesiones`;
+          const checkoutHref = `/checkout?courseAcronym=${encodeURIComponent(course.acronym)}`;
+          return (
+            <li>
+              <div class="card border border-base-300 bg-base-100 shadow-sm transition hover:shadow-md">
+                <div class="card-body p-4 sm:p-5">
+                  <h4 class="card-title text-base">{plan.name}</h4>
+                  {plan.description && (
+                    <p class="text-base-content/70 text-sm line-clamp-2">{plan.description}</p>
+                  )}
+                  <p class="text-primary text-lg font-bold">
+                    {plan.price === 0 ? 'Gratis' : new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(plan.price)}
+                  </p>
+                  <p class="text-base-content/60 text-xs font-medium">{sessionsLabel}</p>
+                  <div class="card-actions mt-2">
+                    <a href={checkoutHref} class="btn btn-primary btn-sm btn-block">
+                      Comprar plan
+                    </a>
+                    {!isMaterialsOnly && (
+                      <a href="#tab-sessions" class="btn btn-ghost btn-sm btn-block text-sm">
+                        Ver horarios
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    )}
+  </div>
+
+  <div class="card shadow-xl w-full sm:flex-1 md:w-full h-fit">
+    <div class="card-body p-4 sm:p-6">
+      <h3 class="card-title text-info text-base sm:text-lg">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        ¿Tienes Dudas?
+      </h3>
+      <p class="text-xs sm:text-sm text-base-content/70 mb-3 sm:mb-4">
+        Nuestros coordinadores académicos pueden ayudarte a elegir el tutor ideal para este curso.
+      </p>
+      <div class="card-actions">
+        <a
+          href={`https://wa.me/56934476377?text=${encodeURIComponent(`Hola, tengo dudas sobre el curso ${course.acronym} - ${course.title}. ¿Me pueden ayudar?`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-info btn-outline btn-xs sm:btn-sm btn-block"
+        >
+          <svg
+            class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            />
+          </svg>
+          Contactar
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

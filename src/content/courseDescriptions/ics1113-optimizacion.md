@@ -3,6 +3,7 @@ department: "Industrial"
 level: "Major"
 basePrice: 11_000
 featured: true
+image: "course-6.jpg"
 ---
 
 ## Descripción del Curso

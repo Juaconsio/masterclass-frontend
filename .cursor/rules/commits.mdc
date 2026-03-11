@@ -1,0 +1,21 @@
+---
+description: Conventional Commits - mensajes de commit concisos y estándar
+alwaysApply: true
+---
+
+# Conventional Commits
+
+Al proponer o generar mensajes de commit, usar **Conventional Commits**:
+
+- **Formato**: `tipo: descripción breve` (máx. ~72 caracteres en la primera línea).
+- **Tipos**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `build`, `ci`.
+- **Una idea por commit**: una sola acción o cambio concreto, sin listar varios cambios en un solo mensaje.
+
+## Ejemplos
+
+- `feat: add slot selection for plan purchase`
+- `fix: reservation card overflow on mobile`
+- `refactor: simplify course catalog state`
+- `chore: update dependencies`
+
+Evitar mensajes largos o múltiples acciones: no "Add X and enhance Y and fix Z".

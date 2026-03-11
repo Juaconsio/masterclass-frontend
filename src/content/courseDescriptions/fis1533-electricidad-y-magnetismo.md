@@ -3,6 +3,7 @@ department: "Física"
 level: "Plan Común"
 basePrice: 15_000
 featured: true
+image: "course-4.jpg"
 ---
 
 ## Descripción del Curso

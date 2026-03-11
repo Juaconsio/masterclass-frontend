@@ -127,10 +127,31 @@ export interface IAdmin {
   createdAt: string; // ISO date string
 }
 
+export type PricingPlanAccessMode = 'sessions_and_materials' | 'materials_only';
+
 export interface IPricingPlan {
-  id: string;
+  id: string | number;
   name: string;
   description?: string | null;
   price: number;
   isActive: boolean;
+  reservationCount?: number;
+  courseId?: number | null;
+  allowReschedule?: boolean;
+  accessMode?: PricingPlanAccessMode;
+  allowedModalities?: string[];
+  allowedStudentsGroups?: string[];
+  allowedClasses?: { id: number; title?: string; courseId?: number }[];
+}
+
+export interface IStudentPlanPurchase {
+  id: number;
+  studentId: number;
+  pricingPlanId: number;
+  creditsTotal: number;
+  creditsRemaining: number;
+  createdAt: string;
+  expiresAt?: string | null;
+  pricingPlan?: IPricingPlan;
+  payments?: { id: number; status: string }[];
 }
