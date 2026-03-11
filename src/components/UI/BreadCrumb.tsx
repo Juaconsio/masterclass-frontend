@@ -1,11 +1,14 @@
 import { ChevronRight, Home } from 'lucide-react';
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation, useParams } from 'react-router';
 import { useMemo } from 'react';
 import NavButton from './NavButton';
+import { useBreadCrumbRoute } from '@/context/BreadCrumbRouteContext';
 
 interface BreadCrumbItem {
   label: string;
   path?: string;
+  title?: string;
+  truncate?: boolean;
 }
 
 interface BreadCrumbProps {
@@ -13,33 +16,37 @@ interface BreadCrumbProps {
 }
 
 const ROUTE_LABELS: Record<string, string> = {
-  // App routes
   app: 'Inicio',
-  cursos: 'Mis Cursos',
-  perfil: 'Mi Perfil',
-  reservas: 'Gestión de Horarios',
-
-  // Admin routes
-  admin: 'Dashboard Admin',
-  profesores: 'Gestión de Profesores',
-  estudiantes: 'Gestión de Estudiantes',
-  pagos: 'Gestión de Pagos',
-
-  // Professor routes
-  profesor: 'Dashboard Profesor',
-  'confirmacion-pago': 'Confirmación de Pago',
+  planes: 'Planes y pagos',
+  'elegir-horario': 'Elegir horario',
+  reservas: 'Reservas',
+  'confirmacion-pago': 'Confirmación de pago',
+  cursos: 'Cursos',
+  clases: 'Clase',
+  perfil: 'Mi perfil',
+  admin: 'Dashboard',
+  estudiantes: 'Estudiantes',
+  profesores: 'Profesores',
+  pagos: 'Pagos y reservas',
+  profesor: 'Dashboard',
+  horarios: 'Mis horarios',
+  reagendar: 'Reagendar reserva',
 };
 
 const DETAIL_LABELS: Record<string, string> = {
-  cursos: 'Detalles del Curso',
-  profesores: 'Detalles del Profesor',
-  estudiantes: 'Detalles del Estudiante',
-  pagos: 'Detalles del Pago',
-  reservas: 'Detalles de la Reserva',
+  cursos: 'Curso',
+  profesores: 'Profesor',
+  estudiantes: 'Estudiante',
+  clases: 'Material',
+  reservas: 'Reserva',
 };
+
+const MAX_CRUMB_CHARS = 28;
 
 export function BreadCrumb({ homePath = '/app' }: BreadCrumbProps) {
   const location = useLocation();
+  const params = useParams<{ courseId?: string; classId?: string }>();
+  const routeContext = useBreadCrumbRoute();
 
   const breadcrumbItems = useMemo(() => {
     const path = location.pathname;
@@ -51,27 +58,44 @@ export function BreadCrumb({ homePath = '/app' }: BreadCrumbProps) {
 
     for (let i = startIndex; i < segments.length; i++) {
       const segment = segments[i];
-      const label = ROUTE_LABELS[segment] || segment;
+      const isNumeric = /^\d+$/.test(segment);
+      const parentSegment = i > startIndex ? segments[i - 1] : null;
 
-      if (i < segments.length - 1) {
-        const pathSegments = segments.slice(0, i + 1);
-        items.push({
-          label,
-          path: '/' + pathSegments.join('/'),
-        });
+      let label: string;
+      let truncate = false;
+      let fullTitle: string | undefined;
+
+      if (isNumeric && parentSegment === 'cursos' && routeContext?.course?.id === Number(segment)) {
+        label = routeContext.course.acronym;
+      } else if (
+        isNumeric &&
+        parentSegment === 'clases' &&
+        routeContext?.class?.id === Number(segment)
+      ) {
+        label = routeContext.class.title;
+        fullTitle = routeContext.class.title;
+        truncate = label.length > MAX_CRUMB_CHARS;
+        if (truncate) label = label.slice(0, MAX_CRUMB_CHARS).trim() + '…';
+      } else if (isNumeric && parentSegment) {
+        label = DETAIL_LABELS[parentSegment] || segment;
       } else {
-        if (/^\d+$/.test(segment)) {
-          const parentSegment = segments[i - 1];
-          const detailLabel = DETAIL_LABELS[parentSegment] || 'Detalles';
-          items.push({ label: detailLabel });
+        label = ROUTE_LABELS[segment] || segment;
+      }
+
+      const item: BreadCrumbItem = { label, truncate: truncate || undefined, title: fullTitle };
+      if (i < segments.length - 1) {
+        const prefix = segments[0];
+        if (segment === 'clases' && parentSegment && /^\d+$/.test(parentSegment)) {
+          item.path = `/${prefix}/cursos/${parentSegment}?tab=classes`;
         } else {
-          items.push({ label });
+          item.path = '/' + segments.slice(0, i + 1).join('/');
         }
       }
+      items.push(item);
     }
 
     return items;
-  }, [location.pathname]);
+  }, [location.pathname, params.courseId, params.classId, routeContext?.course, routeContext?.class]);
 
   const isAtHome = location.pathname === homePath || location.pathname === homePath + '/';
 
@@ -115,26 +139,35 @@ export function BreadCrumb({ homePath = '/app' }: BreadCrumbProps) {
 
         {breadcrumbItems.map((item, index) => {
           const isLast = index === breadcrumbItems.length - 1;
+          const labelEl = (
+            <span
+              className={item.truncate ? 'max-w-[10rem] truncate inline-block' : undefined}
+              title={item.title}
+            >
+              {item.label}
+            </span>
+          );
 
           return (
-            <div key={index} className="flex items-center space-x-1">
+            <div key={index} className="flex min-w-0 shrink items-center space-x-1">
               {item.path && !isLast ? (
                 <Link
                   to={item.path}
                   className="hover:bg-base-200 text-base-content/80 rounded-md px-3 py-1.5 text-sm transition-colors"
+                  title={item.title}
                 >
-                  {item.label}
+                  {labelEl}
                 </Link>
               ) : (
                 <span
                   className={`rounded-md px-3 py-1.5 text-sm ${
                     isLast ? 'bg-primary/10 text-primary font-medium' : 'text-base-content/60'
-                  }`}
+                  } ${item.truncate ? 'min-w-0' : ''}`}
                 >
-                  {item.label}
+                  {labelEl}
                 </span>
               )}
-              {!isLast && <ChevronRight className="text-base-content/40 h-4 w-4" />}
+              {!isLast && <ChevronRight className="text-base-content/40 h-4 shrink-0" />}
             </div>
           );
         })}
