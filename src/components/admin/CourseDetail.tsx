@@ -22,16 +22,21 @@ import type { IProfessor } from '@/interfaces/models';
 import { makeUploadUrl, uploadFileToBucket, confirmUpload } from '@/client/admin/material';
 import { deleteMaterial, requestReplaceUrl, confirmReplaceMaterial } from '@/client/materials';
 import clsx from 'clsx';
-import { FileText, FolderOpen, Pencil, RefreshCw, Trash2, UserPlus } from 'lucide-react';
+import { FileText, FolderOpen, Pencil, Plus, Trash2, UserPlus, RotateCw } from 'lucide-react';
 import { useConfirmAction } from '@/hooks/useConfirmAction';
 import { showToast } from '@/lib/toast';
+import {
+  adminPricingPlansClient,
+  type AdminPricingPlanListItem,
+  type CreatePricingPlanPayload,
+} from '@/client/admin/pricingPlans';
 
 export default function CourseDetail() {
   const [course, setCourse] = useState<AdminCourseDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'classes' | 'professors' | 'students'>(
-    'overview'
-  );
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'classes' | 'professors' | 'students' | 'plans'
+  >('overview');
   const courseId = Number(useParams<{ courseId: string }>().courseId);
   const navigate = useNavigate();
   const drawerRef = useRef<DrawerRef>(null);
@@ -40,6 +45,26 @@ export default function CourseDetail() {
   const materialsDrawerRef = useRef<DrawerRef>(null);
   const materialsDrawerClassIdRef = useRef<number | null>(null);
   const professorDrawerRef = useRef<DrawerRef>(null);
+  const planDrawerRef = useRef<DrawerRef>(null);
+  const [pricingPlans, setPricingPlans] = useState<AdminPricingPlanListItem[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(false);
+  const [editingPlan, setEditingPlan] = useState<AdminPricingPlanListItem | null>(null);
+  const [submittingPlan, setSubmittingPlan] = useState(false);
+  const [planFormData, setPlanFormData] = useState<
+    CreatePricingPlanPayload & { classIds?: number[] }
+  >({
+    name: '',
+    description: '',
+    price: 0,
+    isActive: true,
+    reservationCount: 1,
+    courseId: null,
+    allowReschedule: true,
+    accessMode: 'sessions_and_materials',
+    allowedModalities: [],
+    allowedStudentsGroups: [],
+    classIds: [],
+  });
   const [editingClass, setEditingClass] = useState<Class | null>(null);
   const [descriptionModalClass, setDescriptionModalClass] = useState<Class | null>(null);
   const [materialsDrawerClass, setMaterialsDrawerClass] = useState<Class | null>(null);
@@ -75,6 +100,24 @@ export default function CourseDetail() {
     const updated = course.classes.find((c) => c.id === materialsDrawerClass.id);
     if (updated) setMaterialsDrawerClass(updated);
   }, [course, materialsDrawerClass?.id]);
+
+  useEffect(() => {
+    if (activeTab === 'plans' && courseId) loadPlans();
+  }, [activeTab, courseId]);
+
+  const loadPlans = async () => {
+    try {
+      setLoadingPlans(true);
+      const res = await adminPricingPlansClient.list({ courseId, pageSize: 100 });
+      setPricingPlans(res.data || []);
+    } catch (e) {
+      console.error('Error loading pricing plans:', e);
+      setPricingPlans([]);
+      showToast.error('Error al cargar planes');
+    } finally {
+      setLoadingPlans(false);
+    }
+  };
 
   const loadProfessors = async () => {
     try {
@@ -353,6 +396,125 @@ export default function CourseDetail() {
       },
     });
   };
+
+  const resetPlanForm = () => {
+    setPlanFormData({
+      name: '',
+      description: '',
+      price: 0,
+      isActive: true,
+      reservationCount: 1,
+      courseId: courseId,
+      allowReschedule: true,
+      accessMode: 'sessions_and_materials',
+      allowedModalities: [],
+      allowedStudentsGroups: [],
+      classIds: [],
+    });
+    setEditingPlan(null);
+  };
+
+  const handleOpenNewPlan = () => {
+    resetPlanForm();
+    setPlanFormData((prev) => ({ ...prev, courseId: courseId }));
+    planDrawerRef.current?.open();
+  };
+
+  const handleOpenEditPlan = (plan: AdminPricingPlanListItem) => {
+    setEditingPlan(plan);
+    setPlanFormData({
+      name: plan.name,
+      description: plan.description ?? '',
+      price: plan.price,
+      isActive: plan.isActive,
+      reservationCount: plan.reservationCount,
+      courseId: plan.courseId ?? courseId,
+      allowReschedule: plan.allowReschedule,
+      accessMode:
+        plan.accessMode === 'materials_only' ? 'materials_only' : 'sessions_and_materials',
+      allowedModalities: plan.allowedModalities ?? [],
+      allowedStudentsGroups: plan.allowedStudentsGroups ?? [],
+      classIds: (plan.allowedClasses ?? []).map((c) => c.id),
+    });
+    planDrawerRef.current?.open();
+  };
+
+  const handleSubmitPlan = async () => {
+    const isMaterialsOnly = planFormData.accessMode === 'materials_only';
+    const needsCredits =
+      !isMaterialsOnly &&
+      (planFormData.reservationCount === undefined || planFormData.reservationCount === null);
+    if (!planFormData.name || planFormData.price === undefined || needsCredits) {
+      showToast.error(
+        isMaterialsOnly
+          ? 'Nombre y precio son obligatorios'
+          : 'Nombre, precio y créditos son obligatorios'
+      );
+      return;
+    }
+    try {
+      setSubmittingPlan(true);
+      const payload = {
+        name: planFormData.name,
+        description: planFormData.description ?? '',
+        price: Number(planFormData.price),
+        isActive: planFormData.isActive,
+        reservationCount: isMaterialsOnly ? 0 : Number(planFormData.reservationCount),
+        courseId: courseId,
+        allowReschedule: isMaterialsOnly ? false : planFormData.allowReschedule,
+        accessMode: planFormData.accessMode,
+        allowedModalities: isMaterialsOnly ? [] : (planFormData.allowedModalities ?? []),
+        allowedStudentsGroups: isMaterialsOnly ? [] : (planFormData.allowedStudentsGroups ?? []),
+        classIds: planFormData.classIds ?? [],
+      };
+      if (editingPlan) {
+        await adminPricingPlansClient.update(editingPlan.id, {
+          name: payload.name,
+          description: payload.description,
+          price: payload.price,
+          isActive: payload.isActive,
+          reservationCount: payload.reservationCount,
+          allowReschedule: payload.allowReschedule,
+          accessMode: payload.accessMode,
+          allowedModalities: payload.allowedModalities,
+          allowedStudentsGroups: payload.allowedStudentsGroups,
+          classIds: payload.classIds,
+        });
+        showToast.success('Plan actualizado correctamente');
+      } else {
+        await adminPricingPlansClient.create(payload);
+        showToast.success('Plan creado correctamente');
+      }
+      planDrawerRef.current?.close();
+      resetPlanForm();
+      await loadPlans();
+    } catch (error: any) {
+      console.error('Error saving plan:', error);
+      showToast.error(error?.response?.data?.message ?? 'Error al guardar el plan');
+    } finally {
+      setSubmittingPlan(false);
+    }
+  };
+
+  const handleDeletePlan = (plan: AdminPricingPlanListItem) => {
+    showConfirmation({
+      title: '¿Eliminar plan?',
+      message: `Se eliminará el plan "${plan.name}". Esta acción no se puede deshacer.`,
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      isDangerous: true,
+      onConfirm: async () => {
+        try {
+          await adminPricingPlansClient.delete(plan.id);
+          showToast.success('Plan eliminado');
+          await loadPlans();
+        } catch (e: any) {
+          showToast.error(e?.response?.data?.message ?? 'Error al eliminar');
+        }
+      },
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -496,6 +658,60 @@ export default function CourseDetail() {
     },
   ];
 
+  const planColumns: TableColumn<AdminPricingPlanListItem>[] = [
+    {
+      key: 'name',
+      label: 'Nombre',
+      sortable: true,
+      formatter: (v) => <span className="font-semibold">{v}</span>,
+    },
+    {
+      key: 'price',
+      label: 'Precio',
+      formatter: (v) =>
+        new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(Number(v)),
+    },
+    {
+      key: 'reservationCount',
+      label: 'Créditos',
+      formatter: (v, row) => (row.accessMode === 'materials_only' ? '—' : String(v ?? '—')),
+    },
+    {
+      key: 'allowReschedule',
+      label: 'Reagenda',
+      formatter: (v) => (v ? 'Sí' : 'No'),
+    },
+    {
+      key: 'accessMode',
+      label: 'Acceso',
+      formatter: (v) => (v === 'materials_only' ? 'Solo materiales' : 'Sesiones y materiales'),
+    },
+    {
+      key: 'allowedClasses',
+      label: 'Clases',
+      formatter: (_, row) => {
+        const classes = row.allowedClasses ?? [];
+        if (classes.length === 0) return <span className="text-base-content/60">Todas</span>;
+        return <span>{classes.map((c) => c.title ?? c.id).join(', ')}</span>;
+      },
+    },
+  ];
+
+  const planActions: TableAction<AdminPricingPlanListItem>[] = [
+    {
+      label: 'Editar',
+      icon: <Pencil className="h-4 w-4" />,
+      variant: 'primary',
+      onClick: (row) => handleOpenEditPlan(row),
+    },
+    {
+      label: 'Eliminar',
+      icon: <Trash2 className="h-4 w-4" />,
+      variant: 'danger',
+      onClick: (row) => handleDeletePlan(row),
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -609,6 +825,12 @@ export default function CourseDetail() {
         >
           Estudiantes ({course.students.length})
         </button>
+        <button
+          className={`tab ${activeTab === 'plans' ? 'tab-active' : ''}`}
+          onClick={() => setActiveTab('plans')}
+        >
+          Planes ({pricingPlans.length})
+        </button>
       </div>
 
       {/* Tab Content */}
@@ -700,6 +922,31 @@ export default function CourseDetail() {
                 rowKey="id"
                 emptyMessage="No hay estudiantes inscritos en este curso"
               />
+            </div>
+          )}
+
+          {activeTab === 'plans' && (
+            <div>
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-xl font-semibold">Planes de precios</h3>
+                <button className="btn btn-primary btn-sm gap-2" onClick={handleOpenNewPlan}>
+                  <Plus className="h-4 w-4" />
+                  Crear plan
+                </button>
+              </div>
+              {loadingPlans ? (
+                <div className="flex justify-center py-8">
+                  <span className="loading loading-spinner loading-md"></span>
+                </div>
+              ) : (
+                <Table
+                  columns={planColumns}
+                  data={pricingPlans}
+                  actions={planActions}
+                  rowKey="id"
+                  emptyMessage="No hay planes de precios. Crea uno para este curso."
+                />
+              )}
             </div>
           )}
         </div>
@@ -823,6 +1070,233 @@ export default function CourseDetail() {
                 {formData.professorIds.length} profesor(es) seleccionado(s)
               </p>
             )}
+          </div>
+        </form>
+      </Drawer>
+
+      {/* Drawer para crear/editar plan de precios */}
+      <Drawer
+        ref={planDrawerRef}
+        title={editingPlan ? 'Editar plan' : 'Crear plan de precios'}
+        width="lg"
+        actions={[
+          { label: 'Cancelar', variant: 'ghost', onClick: () => planDrawerRef.current?.close() },
+          {
+            label: editingPlan ? 'Guardar' : 'Crear plan',
+            variant: 'primary',
+            onClick: handleSubmitPlan,
+            loading: submittingPlan,
+            disabled:
+              !planFormData.name ||
+              planFormData.price === undefined ||
+              (planFormData.accessMode !== 'materials_only' &&
+                (planFormData.reservationCount === undefined ||
+                  planFormData.reservationCount === null)),
+          },
+        ]}
+      >
+        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-semibold">Nombre *</span>
+            </label>
+            <input
+              type="text"
+              className="input input-bordered w-full"
+              value={planFormData.name}
+              onChange={(e) => setPlanFormData({ ...planFormData, name: e.target.value })}
+              placeholder="Ej: Pack 5 clases"
+            />
+          </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-semibold">Descripción</span>
+            </label>
+            <textarea
+              className="textarea textarea-bordered w-full"
+              value={planFormData.description ?? ''}
+              onChange={(e) => setPlanFormData({ ...planFormData, description: e.target.value })}
+              placeholder="Descripción opcional"
+            />
+          </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-semibold">Tipo de paquete</span>
+            </label>
+            <select
+              className="select select-bordered w-full"
+              value={planFormData.accessMode}
+              onChange={(e) => {
+                const mode = e.target.value as 'sessions_and_materials' | 'materials_only';
+                setPlanFormData({
+                  ...planFormData,
+                  accessMode: mode,
+                  ...(mode === 'materials_only'
+                    ? {
+                        reservationCount: 0,
+                        allowReschedule: false,
+                        allowedModalities: [],
+                        allowedStudentsGroups: [],
+                      }
+                    : {}),
+                });
+              }}
+            >
+              <option value="sessions_and_materials">Sesiones y materiales</option>
+              <option value="materials_only">Solo materiales</option>
+            </select>
+          </div>
+          <div
+            className={planFormData.accessMode === 'materials_only' ? '' : 'grid grid-cols-2 gap-4'}
+          >
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-semibold">Precio (CLP) *</span>
+              </label>
+              <input
+                type="number"
+                min={0}
+                step={1}
+                className="input input-bordered w-full"
+                value={planFormData.price === 0 ? '' : planFormData.price}
+                onChange={(e) =>
+                  setPlanFormData({ ...planFormData, price: Number(e.target.value) || 0 })
+                }
+              />
+            </div>
+            {planFormData.accessMode === 'sessions_and_materials' && (
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-semibold">Créditos (sesiones) *</span>
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  className="input input-bordered w-full"
+                  value={planFormData.reservationCount}
+                  onChange={(e) =>
+                    setPlanFormData({
+                      ...planFormData,
+                      reservationCount: Number(e.target.value) || 1,
+                    })
+                  }
+                />
+              </div>
+            )}
+          </div>
+          <div className="form-control">
+            <label className="label cursor-pointer justify-start gap-3">
+              <input
+                type="checkbox"
+                className="toggle toggle-primary"
+                checked={planFormData.isActive}
+                onChange={(e) => setPlanFormData({ ...planFormData, isActive: e.target.checked })}
+              />
+              <span className="label-text font-semibold">Plan activo</span>
+            </label>
+          </div>
+          {planFormData.accessMode === 'sessions_and_materials' && (
+            <>
+              <div className="form-control">
+                <label className="label cursor-pointer justify-start gap-3">
+                  <input
+                    type="checkbox"
+                    className="toggle toggle-primary"
+                    checked={planFormData.allowReschedule}
+                    onChange={(e) =>
+                      setPlanFormData({ ...planFormData, allowReschedule: e.target.checked })
+                    }
+                  />
+                  <span className="label-text font-semibold">Permitir reagenda</span>
+                </label>
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-semibold">Modalidades permitidas</span>
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {['remote', 'onsite'].map((mod) => (
+                    <label key={mod} className="label cursor-pointer gap-2">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-sm"
+                        checked={(planFormData.allowedModalities ?? []).includes(mod)}
+                        onChange={(e) => {
+                          const arr = planFormData.allowedModalities ?? [];
+                          setPlanFormData({
+                            ...planFormData,
+                            allowedModalities: e.target.checked
+                              ? [...arr, mod]
+                              : arr.filter((m) => m !== mod),
+                          });
+                        }}
+                      />
+                      <span className="label-text">
+                        {mod === 'remote' ? 'Remoto' : 'Presencial'}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-semibold">Grupos permitidos</span>
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {['group', 'private'].map((gr) => (
+                    <label key={gr} className="label cursor-pointer gap-2">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-sm"
+                        checked={(planFormData.allowedStudentsGroups ?? []).includes(gr)}
+                        onChange={(e) => {
+                          const arr = planFormData.allowedStudentsGroups ?? [];
+                          setPlanFormData({
+                            ...planFormData,
+                            allowedStudentsGroups: e.target.checked
+                              ? [...arr, gr]
+                              : arr.filter((g) => g !== gr),
+                          });
+                        }}
+                      />
+                      <span className="label-text">{gr === 'group' ? 'Grupal' : 'Privado'}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-semibold">Clases permitidas (vacío = todas)</span>
+            </label>
+            <div className="border-base-300 max-h-40 space-y-2 overflow-y-auto rounded-lg border p-2">
+              {course.classes.map((cls) => (
+                <label
+                  key={cls.id}
+                  className="hover:bg-base-200 flex cursor-pointer items-center gap-2 rounded p-2"
+                >
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-sm"
+                    checked={(planFormData.classIds ?? []).includes(cls.id)}
+                    onChange={(e) => {
+                      const ids = planFormData.classIds ?? [];
+                      setPlanFormData({
+                        ...planFormData,
+                        classIds: e.target.checked
+                          ? [...ids, cls.id]
+                          : ids.filter((id) => id !== cls.id),
+                      });
+                    }}
+                  />
+                  <span className="label-text">{cls.title}</span>
+                </label>
+              ))}
+              {course.classes.length === 0 && (
+                <p className="text-base-content/60 text-sm">No hay clases en este curso</p>
+              )}
+            </div>
           </div>
         </form>
       </Drawer>
@@ -1065,7 +1539,7 @@ export default function CourseDetail() {
                                 className="btn btn-outline btn-sm gap-1.5"
                                 title="Reemplazar material"
                               >
-                                <RefreshCw className="h-3.5 w-3.5" />
+                                <RotateCw className="h-3.5 w-3.5" />
                               </button>
                             }
                           />
