@@ -73,6 +73,7 @@ export async function getSlotsForPurchase(purchaseId: number): Promise<SlotsForP
 export async function createPurchase(payload: {
   pricingPlanId: number;
   slotId?: number;
+  paymentMethod?: 'mercadopago' | 'manual';
 }): Promise<CreatePurchaseResult> {
   const res = await httpClient.post<CreatePurchaseResult>('/students/me/purchases', payload);
   return res.data;

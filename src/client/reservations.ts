@@ -35,6 +35,7 @@ async function createReservation(payload: {
   slotId: string | number;
   pricingPlanId?: string;
   studentPlanPurchaseId?: number;
+  paymentMethod?: 'mercadopago' | 'manual';
 }): Promise<{
   course: ICourse;
   reservation: IReservation;
