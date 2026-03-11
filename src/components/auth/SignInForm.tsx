@@ -142,6 +142,7 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
                 courseId: pending.courseId,
                 slotId: pending.slotId,
                 pricingPlanId: pending.pricingPlanId,
+                paymentMethod: pending.paymentMethod || 'mercadopago',
               });
 
               // Limpiar pending reservation
