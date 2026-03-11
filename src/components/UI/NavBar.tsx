@@ -18,6 +18,17 @@ import { useSessionContext } from '@/context/SessionContext';
 import { clearAuthStorage } from '@client/authStorage';
 import imagotipoUrl from '@/assets/imagotipo.svg?url';
 
+const Logo = React.memo<{ className?: string }>(function Logo({ className }) {
+  return (
+    <img
+      src={imagotipoUrl}
+      alt="Salva Ramos"
+      className={className}
+      loading="eager"
+    />
+  );
+});
+
 type NavLink = {
   label: string;
   href: string;
@@ -96,20 +107,19 @@ const NavBar: React.FC = () => {
     setIsDrawerOpen(false);
   };
 
-  console.log(user ? user : 'Nada');
   const displayName = user?.name || user?.email || 'Usuario';
   const profilePath = isAdmin ? '/admin/perfil' : isProfessor ? '/profesor/perfil' : '/app/perfil';
 
   const NavContent = () => (
     <div className="flex h-full flex-col">
-      {/* Logo */}
-      <div className="w-full px-3 py-5">
-        <a href="/" className="block w-full" aria-label="Salva Ramos - Inicio">
-          <img
-            src={imagotipoUrl}
-            alt="Salva Ramos"
-            className="h-auto w-full min-w-0 object-contain object-center"
-          />
+      {/* Logo: aspect-ratio reserva espacio y evita que el nav se mueva si la imagen hace flash */}
+      <div className="w-full shrink-0 px-3 py-5">
+        <a
+          href="/"
+          className="block w-full min-h-[3.5rem] [aspect-ratio:505.65/218.97]"
+          aria-label="Salva Ramos - Inicio"
+        >
+          <Logo className="h-full w-full min-w-0 object-contain object-center" />
         </a>
       </div>
 
@@ -189,9 +199,9 @@ const NavBar: React.FC = () => {
         </div>
         <Link
           to={isAdmin ? '/admin' : isProfessor ? '/profesor' : '/app'}
-          className="flex flex-1 justify-center px-2"
+          className="flex min-h-8 flex-1 items-center justify-center px-2"
         >
-          <img src={imagotipoUrl} alt="Salva Ramos" className="h-8 max-w-[180px] object-contain" />
+          <Logo className="h-8 w-[180px] max-w-[180px] object-contain object-center" />
         </Link>
         <div className="w-10 flex-none" />
       </div>
