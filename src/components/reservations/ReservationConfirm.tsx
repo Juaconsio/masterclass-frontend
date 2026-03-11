@@ -14,15 +14,16 @@ interface StoredPurchaseData {
     creditsRemaining: number;
     createdAt?: string;
     expiresAt?: string | null;
-    pricingPlan?: {
+      pricingPlan?: {
       id: number;
       name: string;
       description?: string | null;
       price: number;
       reservationCount: number;
+      accessMode?: 'sessions_and_materials' | 'materials_only';
       courseId?: number | null;
       course?: { id: number; title: string; acronym: string };
-      allowedClasses?: Array<{ id: number; title: string; orderIndex: number; courseId: number }>;
+      allowedClasses?: Array<{ id: number; title?: string; orderIndex?: number; courseId?: number }>;
     };
   };
   payment: IPayment;
@@ -176,6 +177,9 @@ Email: ${BANK_DATA.email}
   const slotClass = slot?.class;
   const course = plan?.course ?? slotClass?.course;
   const hasReservation = reservation != null && slot != null;
+  const isMaterialsOnly =
+    plan?.accessMode === 'materials_only' || (purchase.creditsTotal === 0 && !hasReservation);
+  const allowedClasses = plan?.allowedClasses ?? [];
 
   const copyPaymentReference = () => {
     navigator.clipboard.writeText(payment.transactionReference).then(() => {
@@ -191,7 +195,9 @@ Email: ${BANK_DATA.email}
           <div className="mb-4 flex justify-center"></div>
           <h1 className="text-primary mb-2 text-3xl font-bold">¡Plan inscrito!</h1>
           <p className="text-base-content/70 text-lg">
-            Debes realizar un pago para acceder a los contenidos.
+            {isMaterialsOnly
+              ? 'Debes realizar un pago para acceder a los materiales.'
+              : 'Debes realizar un pago para acceder a los contenidos.'}
           </p>
         </div>
 
@@ -227,14 +233,16 @@ Email: ${BANK_DATA.email}
                   </div>
                 )}
 
-                <div className="border-base-200 border-b pb-4">
-                  <div className="text-base-content/60 mb-2 text-xs font-semibold tracking-wide uppercase">
-                    Créditos del plan
+                {!isMaterialsOnly && (
+                  <div className="border-base-200 border-b pb-4">
+                    <div className="text-base-content/60 mb-2 text-xs font-semibold tracking-wide uppercase">
+                      Créditos del plan
+                    </div>
+                    <div className="font-medium">
+                      {purchase.creditsRemaining} de {purchase.creditsTotal} disponibles
+                    </div>
                   </div>
-                  <div className="font-medium">
-                    {purchase.creditsRemaining} de {purchase.creditsTotal} disponibles
-                  </div>
-                </div>
+                )}
 
                 {purchase.expiresAt && (
                   <div className="border-base-200 border-b pb-4">
@@ -311,6 +319,32 @@ Email: ${BANK_DATA.email}
                       </div>
                     </div>
                   </>
+                ) : isMaterialsOnly ? (
+                  <div className="border-base-200 border-b pb-4">
+                    <div className="text-base-content/60 mb-2 text-xs font-semibold tracking-wide uppercase">
+                      Clases incluidas en el paquete
+                    </div>
+                    <p className="text-base-content/70 mb-2 text-sm">
+                      Este plan te da acceso a los materiales de las siguientes clases:
+                    </p>
+                    {allowedClasses.length > 0 ? (
+                      <ul className="space-y-1">
+                        {allowedClasses
+                          .slice()
+                          .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+                          .map((c) => (
+                            <li key={c.id} className="flex items-center gap-2">
+                              <BookOpen className="text-primary h-4 w-4 shrink-0" />
+                              <span className="font-medium">{c.title ?? `Clase ${c.id}`}</span>
+                            </li>
+                          ))}
+                      </ul>
+                    ) : (
+                      <p className="text-base-content/70 text-sm">
+                        Todas las clases del curso.
+                      </p>
+                    )}
+                  </div>
                 ) : (
                   <div className="border-base-200 rounded-lg border border-dashed bg-base-200/50 px-4 py-3">
                     <p className="text-base-content/70 text-sm">
@@ -436,7 +470,7 @@ Email: ${BANK_DATA.email}
                       >
                         {BANK_DATA.email}
                       </a>{' '}
-                      para confirmar tu reserva.
+                      {isMaterialsOnly ? 'para activar tu acceso a los materiales.' : 'para confirmar tu reserva.'}
                     </div>
                   </div>
                 </div>

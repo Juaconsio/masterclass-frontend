@@ -2,30 +2,37 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
 import { getMyClassMaterials } from '@client/student/materials';
 import type React from 'react';
+import { useBreadCrumbRoute } from '@/context/BreadCrumbRouteContext';
 import { MATERIAL_LABELS, type MaterialByType, MATERIAL_ICONS } from './MaterialLabels';
 import PDFViewer from './PDFViewer';
 
 export default function ClassMaterial() {
   const { courseId, classId } = useParams<{ courseId: string; classId: string }>();
   const navigate = useNavigate();
+  const setBreadCrumbRoute = useBreadCrumbRoute()?.setBreadCrumbRoute;
 
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [accessErrorCode, setAccessErrorCode] = useState<string | undefined>();
+  const [accessErrorCourseId, setAccessErrorCourseId] = useState<number | undefined>();
   const [materialsByType, setMaterialsByType] = useState<MaterialByType[]>([]);
   const [selectedType, setSelectedType] = useState<string>('contenido');
 
   useEffect(() => {
-    async function loadMaterial() {
-      if (!courseId || !classId) {
-        navigate('/app');
-        return;
-      }
+    if (!courseId || !classId) {
+      navigate('/app');
+      return;
+    }
 
+    let cancelled = false;
+
+    async function loadMaterial() {
       setIsLoading(true);
       setErrorMessage('');
 
       try {
         const data = await getMyClassMaterials(Number(classId));
+        if (cancelled) return;
 
         const nextMaterials = data.materials.map((mat) => ({
           type: mat.filename,
@@ -38,23 +45,39 @@ export default function ClassMaterial() {
         setSelectedType((prev) =>
           nextMaterials.some((m) => m.type === prev) ? prev : nextMaterials[0]?.type || prev
         );
+
+        if (setBreadCrumbRoute && data.course && data.class) {
+          setBreadCrumbRoute(
+            {
+              id: data.course.id,
+              acronym: data.course.acronym ?? '',
+              title: data.course.title ?? '',
+            },
+            { id: data.class.id, title: data.class.title ?? '' }
+          );
+        }
       } catch (error: any) {
+        if (cancelled) return;
         console.error('Error loading material:', error);
         if (error.response?.status === 403) {
-          setErrorMessage(
-            error.response?.data?.message ||
-              'No tienes acceso a estos materiales. Debes tener una reserva confirmada y pagada para esta clase.'
-          );
+          const data = error.response?.data || {};
+          setErrorMessage(data.message || 'No tienes acceso a estos materiales.');
+          setAccessErrorCode(data.code);
+          setAccessErrorCourseId(data.courseId);
         } else {
           setErrorMessage('Error al cargar el material');
         }
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     }
 
     loadMaterial();
-  }, [classId, courseId, navigate]);
+    return () => {
+      cancelled = true;
+      setBreadCrumbRoute?.(null, null);
+    };
+  }, [classId, courseId, navigate, setBreadCrumbRoute]);
 
   if (isLoading) {
     return (
@@ -65,18 +88,51 @@ export default function ClassMaterial() {
   }
 
   if (errorMessage) {
+    const isPlanNotPaid = accessErrorCode === 'PLAN_NOT_PAID';
+    const isNoAccess = accessErrorCode === 'NO_ACCESS';
+    const checkoutUrl =
+      accessErrorCourseId != null
+        ? `/checkout?courseId=${accessErrorCourseId}`
+        : courseId
+          ? `/checkout?courseId=${courseId}`
+          : '/checkout';
+
     return (
       <div className="bg-base-200 min-h-screen">
         <div className="container mx-auto px-4 py-16">
-          <div className="alert alert-error mx-auto max-w-2xl shadow-lg">
-            <div>
-              <h3 className="font-bold">Acceso Denegado</h3>
-              <div className="text-sm">{errorMessage}</div>
-            </div>
-            <div>
-              <Link to="/app" className="btn btn-sm btn-ghost">
-                Volver al Portal
-              </Link>
+          <div
+            className={`alert mx-auto max-w-2xl shadow-lg ${
+              isPlanNotPaid ? 'alert-warning' : isNoAccess ? 'alert-info' : 'alert-error'
+            }`}
+          >
+            <div className="flex flex-1 flex-col gap-3">
+              <h3 className="font-bold">
+                {isPlanNotPaid ? 'Plan pendiente de pago' : isNoAccess ? 'Sin acceso' : 'Acceso denegado'}
+              </h3>
+              <p className="text-sm">{errorMessage}</p>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  to={courseId ? `/app/cursos/${courseId}` : '/app'}
+                  className="btn btn-sm btn-ghost"
+                >
+                  Volver al curso
+                </Link>
+                {isPlanNotPaid && (
+                  <span className="text-sm text-base-content/70">
+                    Completa el pago con los datos que recibiste por email para activar el acceso.
+                  </span>
+                )}
+                {isNoAccess && (
+                  <Link to={checkoutUrl} className="btn btn-primary btn-sm">
+                    Comprar un plan del curso
+                  </Link>
+                )}
+                {!isPlanNotPaid && !isNoAccess && (
+                  <Link to="/app" className="btn btn-sm btn-ghost">
+                    Volver al portal
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         </div>
