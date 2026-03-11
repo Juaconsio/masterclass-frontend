@@ -28,6 +28,7 @@ type EventUpdatePayload = Partial<
     | 'endTime'
     | 'modality'
     | 'status'
+    | 'studentsGroup'
     | 'minStudents'
     | 'maxStudents'
   >
@@ -63,6 +64,7 @@ export default function EventDetailsModal({
         | 'endTime'
         | 'modality'
         | 'status'
+        | 'studentsGroup'
         | 'minStudents'
         | 'maxStudents'
       >
@@ -94,6 +96,7 @@ export default function EventDetailsModal({
 
     if (form.modality !== original.modality) payload.modality = form.modality;
     if (form.status !== original.status) payload.status = form.status;
+    if (form.studentsGroup !== original.studentsGroup) payload.studentsGroup = form.studentsGroup;
 
     const formMin = form.minStudents === undefined ? null : form.minStudents;
     const originalMin = original.minStudents === undefined ? null : original.minStudents;

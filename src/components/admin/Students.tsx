@@ -1,17 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   getStudents,
   deleteStudent,
   toggleStudentStatus,
   promoteStudent,
   getStudentEnrollmentProgress,
+  updateStudent,
 } from '@/client/admin/students';
 import type { Student, StudentFilters, StudentEnrollmentProgress } from '@/client/admin/students';
-import { Table, type TableColumn, type TableAction } from '@components/UI';
+import { Table, type TableColumn, type TableAction, Drawer, type DrawerRef } from '@components/UI';
 import { useTableData } from '@/hooks/useTableData';
 import { showToast } from '@/lib/toast';
 import { useConfirmAction } from '@/hooks/useConfirmAction';
-import { CheckCircle, Circle } from 'lucide-react';
+import { CheckCircle, Circle, Pencil } from 'lucide-react';
+import { formatRutInput } from '@/lib/rut';
 
 function StudentEnrollmentProgressContent({ studentId }: { studentId: number }) {
   const [progress, setProgress] = useState<StudentEnrollmentProgress | null>(null);
@@ -107,6 +109,11 @@ function AdminUsers() {
     },
   });
   const { showConfirmation, ConfirmationModal } = useConfirmAction();
+  const editDrawerRef = useRef<DrawerRef>(null);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [editForm, setEditForm] = useState({ name: '', email: '', rut: '', phone: '', address: '' });
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
 
   const handleDelete = async (id: number) => {
     showConfirmation({
@@ -159,6 +166,44 @@ function AdminUsers() {
     });
   };
 
+  const handleOpenEdit = (student: Student) => {
+    setEditingStudent(student);
+    setEditForm({
+      name: student.name,
+      email: student.email,
+      rut: student.rut,
+      phone: student.phone ?? '',
+      address: (student as Student & { address?: string }).address ?? '',
+    });
+    setEditError(null);
+    editDrawerRef.current?.open();
+  };
+
+  const handleEditSubmit = async () => {
+    if (!editingStudent) return;
+    setEditError(null);
+    try {
+      setEditSubmitting(true);
+      await updateStudent(editingStudent.id, {
+        name: editForm.name,
+        email: editForm.email,
+        rut: editForm.rut,
+        phone: editForm.phone || null,
+        address: editForm.address || null,
+      });
+      showToast.success('Estudiante actualizado correctamente');
+      editDrawerRef.current?.close();
+      setEditingStudent(null);
+      loadUsers();
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || error?.message || 'Error al actualizar estudiante';
+      setEditError(msg);
+      showToast.error(msg);
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
   const columns: TableColumn<Student>[] = [
     {
       key: 'name',
@@ -195,15 +240,24 @@ function AdminUsers() {
     },
   ];
 
+  const studentActions: TableAction<Student>[] = [
+    {
+      label: 'Editar',
+      icon: <Pencil className="h-4 w-4" />,
+      variant: 'secondary',
+      onClick: handleOpenEdit,
+    },
+  ];
+
   return (
     <div className="mt-6 space-y-6">
-      {/* Tabla */}
       <Table
         columns={columns}
         data={users}
         loading={loading}
         rowKey="id"
         onSort={handleSort}
+        actions={studentActions}
         expandableRow={{
           render: (student) => <StudentEnrollmentProgressContent studentId={student.id} />,
         }}
@@ -217,6 +271,82 @@ function AdminUsers() {
         }}
         emptyMessage="No se encontraron estudiantes"
       />
+
+      <Drawer
+        ref={editDrawerRef}
+        title="Editar estudiante"
+        width="lg"
+        onClose={() => setEditingStudent(null)}
+        actions={[
+          {
+            label: 'Cancelar',
+            variant: 'ghost',
+            onClick: () => editDrawerRef.current?.close(),
+          },
+          {
+            label: 'Guardar',
+            variant: 'primary',
+            onClick: handleEditSubmit,
+            disabled: editSubmitting,
+            loading: editSubmitting,
+          },
+        ]}
+      >
+        {editingStudent && (
+          <div className="flex flex-col gap-4">
+            {editError && (
+              <p className="text-error text-sm">{editError}</p>
+            )}
+            <label className="form-control w-full">
+              <span className="label-text">Nombre</span>
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                value={editForm.name}
+                onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+              />
+            </label>
+            <label className="form-control w-full">
+              <span className="label-text">Correo</span>
+              <input
+                type="email"
+                className="input input-bordered w-full"
+                value={editForm.email}
+                onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
+              />
+            </label>
+            <label className="form-control w-full">
+              <span className="label-text">RUT</span>
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                value={editForm.rut}
+                onChange={(e) =>
+                  setEditForm((f) => ({ ...f, rut: formatRutInput(e.target.value) }))
+                }
+              />
+            </label>
+            <label className="form-control w-full">
+              <span className="label-text">Teléfono</span>
+              <input
+                type="tel"
+                className="input input-bordered w-full"
+                value={editForm.phone}
+                onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))}
+              />
+            </label>
+            <label className="form-control w-full">
+              <span className="label-text">Dirección (opcional)</span>
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                value={editForm.address}
+                onChange={(e) => setEditForm((f) => ({ ...f, address: e.target.value }))}
+              />
+            </label>
+          </div>
+        )}
+      </Drawer>
 
       <ConfirmationModal />
     </div>

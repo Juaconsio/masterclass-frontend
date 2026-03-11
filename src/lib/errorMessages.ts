@@ -12,6 +12,8 @@ export const AUTH_ERROR_MESSAGES: Record<string, string> = {
     'Esta cuenta no tiene una contraseña configurada. Contacta al administrador.',
   'Email, password, RUT and name required': 'Correo, contraseña, RUT y nombre son obligatorios.',
   'Email already registered': 'Este correo ya está registrado.',
+  'RUT already registered':
+    'Este RUT ya está registrado. Si ingresaste mal tu correo, contacta al administrador para que lo corrija.',
   'Registration failed': 'Error al registrar. Por favor intenta nuevamente.',
   'Error al registrar usuario': 'No se pudo completar el registro. Por favor intenta más tarde.',
   'Invalid token or token has expired': 'El enlace de recuperación es inválido o ha expirado.',
