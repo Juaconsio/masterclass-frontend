@@ -1,5 +1,13 @@
 import { httpClient } from '../config';
 import type { IPayment, TableResponse } from '@/interfaces';
+import { buildQueryString } from '@/lib/queryParams';
+
+export interface AdminCourseFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: 'all' | 'active' | 'inactive';
+}
 
 export interface AdminCourse {
   id: number;
@@ -83,10 +91,29 @@ export type IPlainCourse = {
   professors: Pick<Professor, 'id' | 'name'>[];
 };
 
+interface CoursesApiResponse {
+  data: AdminCourse[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 export const adminCoursesClient = {
-  async getAll(): Promise<TableResponse<AdminCourse>> {
-    const response = await httpClient.get('/admin/courses');
-    return response.data;
+  async getAll(filters?: AdminCourseFilters): Promise<TableResponse<AdminCourse>> {
+    const params = filters
+      ? { ...filters, ...(filters.status === 'all' && { status: undefined }) }
+      : undefined;
+    const query = buildQueryString(params);
+    const response = await httpClient.get<CoursesApiResponse>(`/admin/courses${query}`);
+    const r = response.data;
+    return {
+      data: r.data,
+      total: r.total,
+      page: r.page,
+      limit: r.pageSize,
+      totalPages: r.totalPages,
+    };
   },
 
   async getAllPlain(): Promise<IPlainCourse[]> {
