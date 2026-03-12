@@ -294,68 +294,75 @@ export default function Table<T extends Record<string, any>>({
       {/* Pagination */}
       {pagination && !loading && data.length > 0 && (
         <div className="mt-4 flex flex-col items-center justify-between gap-4 px-2 sm:flex-row">
-          {/* Items info */}
           <div className="text-base-content/60 text-sm">
             Mostrando{' '}
-            <span className="font-medium">
+            <span className="font-medium text-base-content">
               {(pagination.currentPage - 1) * pagination.pageSize + 1}
             </span>{' '}
             -{' '}
-            <span className="font-medium">
+            <span className="font-medium text-base-content">
               {Math.min(pagination.currentPage * pagination.pageSize, pagination.totalItems)}
             </span>{' '}
-            de <span className="font-medium">{pagination.totalItems}</span> resultados
+            de <span className="font-medium text-base-content">{pagination.totalItems}</span>{' '}
+            resultados
           </div>
 
-          {/* Pagination controls */}
-          <div className="flex items-center gap-2">
-            {/* Page size selector */}
+          <div className="flex items-center gap-3">
             {pagination.onPageSizeChange && (
-              <select
-                className="select select-bordered select-sm"
-                value={pagination.pageSize}
-                onChange={(e) => pagination.onPageSizeChange?.(Number(e.target.value))}
-              >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
+              <div className="flex items-center gap-2">
+                <span className="text-base-content/70 text-sm">Filas:</span>
+                <select
+                  className="select select-bordered select-sm h-8 min-h-8 rounded-md border-base-300 bg-base-100 text-sm"
+                  value={pagination.pageSize}
+                  onChange={(e) => pagination.onPageSizeChange?.(Number(e.target.value))}
+                >
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
             )}
 
-            {/* Page buttons */}
-            <div className="join">
+            <div className="flex items-center gap-0.5 rounded-lg border border-base-300 bg-base-100 p-0.5">
               <button
-                className="join-item btn btn-sm"
+                type="button"
+                className="btn btn-ghost btn-sm h-8 min-h-8 w-8 rounded-md px-2 disabled:opacity-40 disabled:pointer-events-none hover:bg-base-200"
                 onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
                 disabled={pagination.currentPage === 1}
+                aria-label="Primera página"
               >
                 «
               </button>
 
-              {/* Show pages */}
               {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
-                .filter((page) => {
-                  // Show first, last, current, and adjacent pages
-                  return (
+                .filter(
+                  (page) =>
                     page === 1 ||
                     page === pagination.totalPages ||
                     Math.abs(page - pagination.currentPage) <= 1
-                  );
-                })
+                )
                 .map((page, index, array) => {
-                  // Add ellipsis if there's a gap
                   const prevPage = array[index - 1];
-                  const showEllipsis = prevPage && page - prevPage > 1;
+                  const showEllipsis = prevPage != null && page - prevPage > 1;
+                  const isActive = pagination.currentPage === page;
 
                   return (
-                    <div key={page} className="join-item flex">
-                      {showEllipsis && <button className="btn btn-sm btn-disabled">...</button>}
+                    <div key={page} className="flex items-center gap-0.5">
+                      {showEllipsis && (
+                        <span className="flex h-8 w-8 items-center justify-center text-base-content/50 text-sm">
+                          …
+                        </span>
+                      )}
                       <button
-                        className={`join-item btn btn-sm ${
-                          pagination.currentPage === page ? 'btn-active' : ''
+                        type="button"
+                        className={`btn btn-sm h-8 min-h-8 w-8 rounded-md px-2 ${
+                          isActive
+                            ? 'btn-primary text-primary-content'
+                            : 'btn-ghost hover:bg-base-200'
                         }`}
                         onClick={() => pagination.onPageChange(page)}
+                        aria-current={isActive ? 'page' : undefined}
                       >
                         {page}
                       </button>
@@ -364,9 +371,11 @@ export default function Table<T extends Record<string, any>>({
                 })}
 
               <button
-                className="join-item btn btn-sm"
+                type="button"
+                className="btn btn-ghost btn-sm h-8 min-h-8 w-8 rounded-md px-2 disabled:opacity-40 disabled:pointer-events-none hover:bg-base-200"
                 onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
                 disabled={pagination.currentPage === pagination.totalPages}
+                aria-label="Última página"
               >
                 »
               </button>
