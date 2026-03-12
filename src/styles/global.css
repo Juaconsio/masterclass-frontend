@@ -143,7 +143,11 @@
 }
 
 @utility h-navbar {
-  height: 4.5rem;
+  height: var(--navbar-height);
+}
+
+[id] {
+  scroll-margin-top: var(--navbar-height);
 }
 
 @utility h-hero {
@@ -160,6 +164,7 @@
 
 :root {
   --app-dvh: 100vh;
+  --navbar-height: 4.5rem;
 }
 @supports (height: 100dvh) {
   :root {
