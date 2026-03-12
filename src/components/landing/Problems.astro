@@ -3,31 +3,30 @@ import { Icon } from 'astro-icon/components';
 
 const cards = [
   {
-    title: 'El profe solo relee la presentación.',
-    description: 'Clases monótonas donde sales con más dudas de las que entraste.',
-    icon: 'mdi:emoticon-sad-outline',
+    title: 'No logras manter el ritmo de clases',
+    description: 'El profesor avanza rápido, la materia y las dudas se acumulan cada clase.',
+    icon: 'mdi:run-fast',
     bgClass: 'bg-primary/10',
     iconClass: 'text-primary',
   },
   {
-    title: 'Material sin foco en el examen',
-    description: 'Guías que no se parecen a la prueba o sin solución a los ejercicios.',
-    icon: 'mdi:archive',
+    title: 'No sabes cómo enfrentar la prueba',
+    description: 'No es claro qué es importante para la evaluación.',
+    icon: 'mdi:target-arrow',
     bgClass: 'bg-secondary/10',
     iconClass: 'text-secondary',
   },
   {
-    title: 'No hay apoyo',
-    description:
-      'No tienes a quién preguntarle, no hay ayudante ni profesor para resolver tus dudas.',
-    icon: 'mdi:clock-alert-outline',
+    title: 'No encuentras los recursos',
+    description: 'No hay guías, material o videos apropiados que te ayuden a estudiar.',
+    icon: 'mdi:archive-search',
     bgClass: 'bg-info/10',
     iconClass: 'text-info',
   },
   {
-    title: 'Soledad absoluta',
-    description: 'Sentir que eres el único que no entiende, sin un grupo de apoyo real.',
-    icon: 'mdi:home',
+    title: 'No encuentras apoyo',
+    description: 'Ni el profesor ni el ayudante ni compañeros disponibles para ayudarte.',
+    icon: 'mdi:user-help',
     bgClass: 'bg-neutral/10',
     iconClass: 'text-neutral',
   },
@@ -43,10 +42,13 @@ const cards = [
       Identificamos los dolores reales que te quitan el sueño y los resolvemos de raíz.
     </p>
 
-    <div class="mt-10 grid gap-6 sm:mt-14 sm:grid-cols-2 lg:grid-cols-4">
+    <ul
+      class="mt-10 grid gap-6 sm:mt-14 sm:grid-cols-2 lg:grid-cols-4"
+      data-usal="split-item split-fade-r split-delay-100"
+    >
       {
         cards.map(({ title, description, icon, bgClass, iconClass }) => (
-          <div
+          <li
             class={`flex flex-col items-center rounded-2xl p-6 text-center sm:rounded-3xl sm:p-8 ${bgClass}`}
           >
             <div
@@ -56,9 +58,9 @@ const cards = [
             </div>
             <h3 class="font-display mb-2 text-lg font-bold sm:text-xl">{title}</h3>
             <p class="text-base-content/70 text-sm sm:text-base">{description}</p>
-          </div>
+          </li>
         ))
       }
-    </div>
+    </ul>
   </div>
 </section>

@@ -7,12 +7,13 @@ import { Icon } from 'astro-icon/components';
   <section
     class="flex flex-col items-center justify-around gap-6 rounded-2xl px-4 py-8 sm:gap-8 sm:px-6 sm:py-12 lg:pt-4 lg:pb-8"
   >
-    <div
-      class="flex w-full max-w-6xl flex-col justify-around gap-8 sm:gap-10 lg:flex-row lg:gap-12"
+    <ul
+      class="grid w-full max-w-6xl grid-cols-2 gap-8 sm:gap-10 lg:grid-cols-4 lg:gap-4"
+      data-usal="split-item split-fade-r split-delay-100"
     >
-      <div class="flex items-center justify-center gap-3 sm:gap-4" data-usal="fade-l">
+      <li class="flex items-center justify-center gap-3 sm:gap-4">
         <div class="flex h-full items-center gap-3 py-2 sm:gap-4 sm:py-4">
-          <Icon name="mdi:book-open-variant" size={48} class="text-primary sm:h-16 sm:w-16" />
+          <Icon name="mdi:school" size={48} class="text-primary sm:h-16 sm:w-16" />
         </div>
         <div>
           <div class="text-2xl font-bold sm:text-3xl">
@@ -20,21 +21,21 @@ import { Icon } from 'astro-icon/components';
           </div>
           <div class="w-28 text-sm sm:w-32 sm:text-base">de experiencia</div>
         </div>
-      </div>
+      </li>
 
-      <div class="flex items-center justify-center gap-3 sm:gap-4" data-usal="fade-u delay-[200]">
+      <li class="flex items-center justify-center gap-3 sm:gap-4">
         <div class="flex h-full items-center gap-3">
           <Icon name="mdi:user-group" size={48} class="text-primary sm:h-16 sm:w-16" />
         </div>
         <div>
           <div class="text-2xl font-bold sm:text-3xl">
-            + <span data-usal="count-[500]">500</span>
+            + <span data-usal="count-[750]">750</span>
           </div>
           <div class="w-28 text-sm sm:w-32 sm:text-base">Estudiantes acompañados</div>
         </div>
-      </div>
+      </li>
 
-      <div class="flex items-center justify-center gap-3 sm:gap-4" data-usal="fade-r delay-[400]">
+      <li class="flex items-center justify-center gap-3 sm:gap-4">
         <div class="flex h-full items-center gap-3">
           <Icon name="mdi:refresh-circle" size={48} class="text-primary sm:h-16 sm:w-16" />
         </div>
@@ -42,7 +43,16 @@ import { Icon } from 'astro-icon/components';
           <div class="text-2xl font-bold sm:text-3xl">~<span data-usal="count-[80]">80</span>%</div>
           <div class="w-28 text-sm sm:w-32 sm:text-base">Volvió a confiar en nosotros</div>
         </div>
-      </div>
-    </div>
+      </li>
+      <li class="flex items-center justify-center gap-3 sm:gap-4">
+        <div class="flex h-full items-center gap-3">
+          <Icon name="mdi:book-open-variant" size={48} class="text-primary sm:h-16 sm:w-16" />
+        </div>
+        <div>
+          <div class="text-2xl font-bold sm:text-3xl">+<span data-usal="count-[10]">10</span></div>
+          <div class="w-28 text-sm sm:w-32 sm:text-base">Cursos STEAM disponibles</div>
+        </div>
+      </li>
+    </ul>
   </section>
 </div>

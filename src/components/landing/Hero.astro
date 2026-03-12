@@ -1,6 +1,6 @@
 ---
 import { Icon } from 'astro-icon/components';
-import Stats from './stats.astro';
+import Stats from './Stats.astro';
 import waUrl from '@/lib/waMessage';
 ---
 
@@ -42,11 +42,15 @@ import waUrl from '@/lib/waMessage';
         href={waUrl}
         target="_blank"
         rel="noopener noreferrer"
-        class="btn sm:btn-wide sm:btn-lg btn-ghost h-auto w-full px-6 py-3 text-base sm:px-8 sm:py-4 sm:text-lg"
+        class="btn sm:btn-wide sm:btn-lg link-hover btn-link h-auto w-full border-0 px-2 py-3 sm:px-4 sm:py-4 sm:text-lg"
       >
         Habla con nosotros
+        <Icon name="mdi:whatsapp" size={24} class="text-primary" />
       </a>
     </div>
+    <a href="#reviews" class="link-hover text-base-content/70 mt-2 text-sm sm:mt-3">
+      ¿Dudas? Lee los testimonios de estudiantes de semestres anteriores
+    </a>
   </section>
   <Stats />
 </div>
