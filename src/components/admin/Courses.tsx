@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import {
   Table,
   type TableColumn,
@@ -8,9 +8,12 @@ import {
   type DrawerRef,
   DescriptionModal,
 } from '@components/UI';
-import { adminCoursesClient, type AdminCourse } from '../../client/admin/courses';
+import {
+  adminCoursesClient,
+  type AdminCourse,
+  type AdminCourseFilters,
+} from '../../client/admin/courses';
 import { useTableData } from '@/hooks/useTableData';
-import { useLocalFilter } from '@/hooks/useLocalFilter';
 import { useNavigate } from 'react-router';
 import { fetchProfessors } from '@/client/admin/professors';
 import type { IProfessor } from '@/interfaces/models';
@@ -35,9 +38,19 @@ export default function AdminCourses() {
   const {
     data: courses,
     loading,
+    total,
+    totalPages,
+    filters,
+    updateFilters,
     reload,
-  } = useTableData<AdminCourse>({
+    handlePageChange,
+    handlePageSizeChange,
+  } = useTableData<AdminCourse, AdminCourseFilters>({
     fetchFn: adminCoursesClient.getAll,
+    initialFilters: {
+      page: 1,
+      limit: 10,
+    },
   });
 
   useEffect(() => {
@@ -87,25 +100,6 @@ export default function AdminCourses() {
         : [...prev.professorIds, professorId],
     }));
   };
-
-  // Apply local filters - memoize filterFn to prevent re-renders
-  const filterFn = useCallback((course: AdminCourse, filters: Record<string, any>) => {
-    if (filters.status === 'active') return course.isActive;
-    if (filters.status === 'inactive') return !course.isActive;
-    return true;
-  }, []);
-
-  const {
-    filteredData: filteredCourses,
-    searchTerm,
-    setSearchTerm,
-    filters,
-    setFilter,
-  } = useLocalFilter({
-    data: courses,
-    searchKeys: ['title', 'acronym'] as (keyof AdminCourse)[],
-    filterFn,
-  });
 
   // Table columns definition - memoize to prevent re-renders
   const columns: TableColumn<AdminCourse>[] = useMemo(
@@ -193,13 +187,18 @@ export default function AdminCourses() {
               type="text"
               placeholder="Buscar curso..."
               className="input input-bordered flex-1"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={filters.search ?? ''}
+              onChange={(e) => updateFilters({ search: e.target.value || undefined, page: 1 })}
             />
             <select
               className="select select-bordered w-full md:w-auto"
-              value={filters.status || 'all'}
-              onChange={(e) => setFilter('status', e.target.value)}
+              value={filters.status ?? 'all'}
+              onChange={(e) =>
+                updateFilters({
+                  status: (e.target.value as 'all' | 'active' | 'inactive') || undefined,
+                  page: 1,
+                })
+              }
             >
               <option value="all">Todos los estados</option>
               <option value="active">Activos</option>
@@ -221,11 +220,19 @@ export default function AdminCourses() {
         <div className="card-body">
           <Table
             columns={columns}
-            data={filteredCourses}
+            data={courses}
             actions={actions}
             loading={loading}
             rowKey="id"
             emptyMessage="No se encontraron cursos"
+            pagination={{
+              currentPage: filters.page ?? 1,
+              totalPages,
+              pageSize: filters.limit ?? 10,
+              totalItems: total,
+              onPageChange: handlePageChange,
+              onPageSizeChange: handlePageSizeChange,
+            }}
           />
         </div>
       </div>
