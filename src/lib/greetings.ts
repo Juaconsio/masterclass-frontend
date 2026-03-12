@@ -34,7 +34,7 @@ const greetings = [
 ];
 
 export function getGreeting(name: string) {
-  const userName = name?.trim() || 'estudiante';
+  const userName = name?.split(' ')[0]?.trim() || 'estudiante';
   const greetingTemplate = greetings[Math.floor(Math.random() * greetings.length)];
   return greetingTemplate.replace(/{name}/g, userName);
 }
