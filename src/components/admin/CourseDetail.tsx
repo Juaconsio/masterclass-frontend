@@ -39,6 +39,8 @@ import {
   RotateCw,
   ChevronDown,
   ChevronRight,
+  Check,
+  X,
 } from 'lucide-react';
 import { useConfirmAction } from '@/hooks/useConfirmAction';
 import { showToast } from '@/lib/toast';
@@ -106,6 +108,9 @@ export default function CourseDetail() {
   const [newModuleTitle, setNewModuleTitle] = useState('');
   const [submittingModule, setSubmittingModule] = useState(false);
   const [expandedModuleIds, setExpandedModuleIds] = useState<Set<number>>(new Set());
+  const [editingModuleId, setEditingModuleId] = useState<number | null>(null);
+  const [editingModuleTitle, setEditingModuleTitle] = useState('');
+  const [submittingModuleEdit, setSubmittingModuleEdit] = useState(false);
   const { showConfirmation, ConfirmationModal } = useConfirmAction();
 
   const isVideoMaterialType = (type: string) => type === 'videos' || type === 'grabacion_clase';
@@ -286,6 +291,38 @@ export default function CourseDetail() {
         }
       },
     });
+  };
+
+  const handleStartEditModule = (mod: ClassModule) => {
+    setEditingModuleId(mod.id);
+    setEditingModuleTitle(mod.title);
+  };
+
+  const handleCancelEditModule = () => {
+    setEditingModuleId(null);
+    setEditingModuleTitle('');
+  };
+
+  const handleSaveModuleTitle = async () => {
+    if (editingModuleId == null || !editingModuleTitle.trim()) return;
+    setSubmittingModuleEdit(true);
+    try {
+      await updateModule(editingModuleId, { title: editingModuleTitle.trim() });
+      showToast.success('Módulo actualizado');
+      setEditingModuleId(null);
+      setEditingModuleTitle('');
+      const data = await loadCourse();
+      if (data && materialsDrawerClassIdRef.current != null) {
+        const updated = data.classes.find((c) => c.id === materialsDrawerClassIdRef.current);
+        if (updated) setMaterialsDrawerClass(updated);
+        setTimeout(() => materialsDrawerRef.current?.open(), 0);
+      }
+    } catch (e) {
+      console.error(e);
+      showToast.error('Error al actualizar el módulo');
+    } finally {
+      setSubmittingModuleEdit(false);
+    }
   };
 
   const handleReplaceMaterial = async (
@@ -1606,6 +1643,7 @@ export default function CourseDetail() {
                       <div
                         className="hover:bg-base-300/50 flex cursor-pointer items-center gap-2 px-3 py-2"
                         onClick={() =>
+                          editingModuleId !== mod.id &&
                           setExpandedModuleIds((prev) => {
                             const next = new Set(prev);
                             if (next.has(mod.id)) next.delete(mod.id);
@@ -1620,23 +1658,81 @@ export default function CourseDetail() {
                           <ChevronRight className="h-4 w-4 shrink-0" />
                         )}
 
-                        <span className="font-medium">
-                          {mod.orderIndex + 1}. {mod.title}
-                        </span>
-                        <span className="badge badge-ghost badge-sm">
-                          {materials.length} materiales
-                        </span>
-                        <button
-                          type="button"
-                          className="btn btn-ghost btn-xs text-error hover:bg-error/10 ml-auto"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteModule(mod);
-                          }}
-                          title="Eliminar módulo"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
+                        {editingModuleId === mod.id ? (
+                          <>
+                            <input
+                              type="text"
+                              className="input input-bordered input-sm flex-1 min-w-0"
+                              value={editingModuleTitle}
+                              onChange={(e) => setEditingModuleTitle(e.target.value)}
+                              onClick={(e) => e.stopPropagation()}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleSaveModuleTitle();
+                                if (e.key === 'Escape') handleCancelEditModule();
+                              }}
+                              placeholder="Nombre del módulo"
+                              autoFocus
+                            />
+                            <button
+                              type="button"
+                              className="btn btn-ghost btn-xs text-success hover:bg-success/10"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSaveModuleTitle();
+                              }}
+                              disabled={!editingModuleTitle.trim() || submittingModuleEdit}
+                              title="Guardar"
+                            >
+                              {submittingModuleEdit ? (
+                                <span className="loading loading-spinner loading-xs" />
+                              ) : (
+                                <Check className="h-3.5 w-3.5" />
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-ghost btn-xs"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCancelEditModule();
+                              }}
+                              title="Cancelar"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <span className="font-medium min-w-0 flex-1 truncate">
+                              {mod.orderIndex + 1}. {mod.title}
+                            </span>
+                            <span className="badge badge-ghost badge-sm shrink-0">
+                              {materials.length} materiales
+                            </span>
+                            <button
+                              type="button"
+                              className="btn btn-ghost btn-xs shrink-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStartEditModule(mod);
+                              }}
+                              title="Editar nombre"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-ghost btn-xs text-error hover:bg-error/10 shrink-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteModule(mod);
+                              }}
+                              title="Eliminar módulo"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </>
+                        )}
                       </div>
                       {isExpanded && (
                         <div className="border-base-300 bg-base-100/50 space-y-1 border-t p-2">
