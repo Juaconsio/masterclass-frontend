@@ -58,7 +58,11 @@ export default function ClassMaterial() {
         if (firstMod) setExpandedModuleIds(new Set([firstMod.id]));
         if (setBreadCrumbRoute && data.course && data.class) {
           setBreadCrumbRoute(
-            { id: data.course.id, acronym: data.course.acronym ?? '', title: data.course.title ?? '' },
+            {
+              id: data.course.id,
+              acronym: data.course.acronym ?? '',
+              title: data.course.title ?? '',
+            },
             { id: data.class.id, title: data.class.title ?? '' }
           );
         }
@@ -113,15 +117,22 @@ export default function ClassMaterial() {
           >
             <div className="flex flex-1 flex-col gap-3">
               <h3 className="font-bold">
-                {isPlanNotPaid ? 'Plan pendiente de pago' : isNoAccess ? 'Sin acceso' : 'Acceso denegado'}
+                {isPlanNotPaid
+                  ? 'Plan pendiente de pago'
+                  : isNoAccess
+                    ? 'Sin acceso'
+                    : 'Acceso denegado'}
               </h3>
               <p className="text-sm">{errorMessage}</p>
               <div className="flex flex-wrap gap-2">
-                <Link to={courseId ? `/app/cursos/${courseId}` : '/app'} className="btn btn-sm btn-ghost">
+                <Link
+                  to={courseId ? `/app/cursos/${courseId}` : '/app'}
+                  className="btn btn-sm btn-ghost"
+                >
                   Volver al curso
                 </Link>
                 {isPlanNotPaid && (
-                  <span className="text-sm text-base-content/70">
+                  <span className="text-base-content/70 text-sm">
                     Completa el pago con los datos que recibiste por email para activar el acceso.
                   </span>
                 )}
@@ -155,8 +166,8 @@ export default function ClassMaterial() {
             <div>
               <h3 className="font-bold">Sin Materiales</h3>
               <div className="text-sm">
-                Esta clase aún no tiene materiales disponibles. Los materiales serán publicados por el profesor
-                próximamente.
+                Esta clase aún no tiene materiales disponibles. Los materiales serán publicados por
+                el profesor próximamente.
               </div>
             </div>
             <div>
@@ -194,7 +205,7 @@ export default function ClassMaterial() {
           isSelected ? 'bg-primary/15 text-primary' : 'hover:bg-base-300/70'
         }`}
       >
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-base-300 text-base-content/70">
+        <span className="bg-base-300 text-base-content/70 flex h-8 w-8 shrink-0 items-center justify-center rounded">
           {MATERIAL_ICONS[mat.filename] ?? MATERIAL_ICONS.extras}
         </span>
         <span className="min-w-0 flex-1 truncate text-sm font-medium">{label}</span>
@@ -206,7 +217,7 @@ export default function ClassMaterial() {
     const mat = fullscreenMaterial ?? selectedMaterial;
     if (!mat?.downloadUrl) {
       return (
-        <div className="flex flex-1 flex-col items-center justify-center gap-2 bg-base-200/50 text-base-content/50">
+        <div className="bg-base-200/50 text-base-content/50 flex flex-1 flex-col items-center justify-center gap-2">
           <p className="text-sm">Selecciona un material para previsualizar</p>
         </div>
       );
@@ -237,7 +248,7 @@ export default function ClassMaterial() {
 
     return (
       <div className="flex flex-1 flex-col">
-        <div className="flex shrink-0 items-center justify-between border-b border-base-300 bg-base-100 px-2 py-1">
+        <div className="border-base-300 bg-base-100 flex shrink-0 items-center justify-between border-b px-2 py-1">
           <span className="truncate text-sm font-medium">{label}</span>
           {selectedMaterial && (
             <button
@@ -256,13 +267,13 @@ export default function ClassMaterial() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-base-200">
-      <div className="shrink-0 border-b border-base-300 bg-base-100 px-4 py-3">
+    <div className="bg-base-200 flex min-h-screen flex-col">
+      <div className="border-base-300 bg-base-100 shrink-0 border-b px-4 py-3">
         <h1 className="text-primary text-xl font-bold">Material de Clase</h1>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-        <aside className="flex w-full flex-col border-b border-base-300 bg-base-100 md:w-72 md:border-b-0 md:border-r md:overflow-y-auto">
+        <aside className="border-base-300 bg-base-100 flex w-full flex-col border-b md:w-72 md:overflow-y-auto md:border-r md:border-b-0">
           <div className="p-2">
             {(modulesData.modules ?? []).map((mod) => {
               const isExpanded = expandedModuleIds.has(mod.id);
@@ -272,7 +283,7 @@ export default function ClassMaterial() {
                   <button
                     type="button"
                     onClick={() => toggleModule(mod.id)}
-                    className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left font-medium hover:bg-base-300/70"
+                    className="hover:bg-base-300/70 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left font-medium"
                   >
                     {isExpanded ? (
                       <ChevronDown className="h-4 w-4 shrink-0" />
@@ -283,7 +294,7 @@ export default function ClassMaterial() {
                     <span className="badge badge-ghost badge-sm">{materials.length}</span>
                   </button>
                   {isExpanded && (
-                    <div className="ml-3 mt-0.5 space-y-0.5 border-l border-base-300 pl-2">
+                    <div className="border-base-300 mt-0.5 ml-3 space-y-0.5 border-l pl-2">
                       {materials.map((mat) => renderMaterialItem(mat))}
                     </div>
                   )}
@@ -291,8 +302,8 @@ export default function ClassMaterial() {
               );
             })}
             {(modulesData.materialsWithoutModule?.length ?? 0) > 0 && (
-              <div className="mb-1 mt-2">
-                <p className="px-2 py-1 text-xs font-medium text-base-content/60">Sin módulo</p>
+              <div className="mt-2 mb-1">
+                <p className="text-base-content/60 px-2 py-1 text-xs font-medium">Sin módulo</p>
                 <div className="mt-0.5 space-y-0.5">
                   {modulesData.materialsWithoutModule.map((mat) => renderMaterialItem(mat))}
                 </div>
@@ -301,9 +312,7 @@ export default function ClassMaterial() {
           </div>
         </aside>
 
-        <main className="min-h-0 flex-1 flex flex-col">
-          {renderPreview()}
-        </main>
+        <main className="flex min-h-0 flex-1 flex-col">{renderPreview()}</main>
       </div>
 
       {fullscreenMaterial && (
@@ -313,10 +322,10 @@ export default function ClassMaterial() {
           onClose={() => setFullscreenMaterial(null)}
         >
           <div
-            className="modal-box max-w-none w-full h-full flex flex-col bg-base-100"
+            className="modal-box bg-base-100 flex h-full w-full max-w-none flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-base-300 px-2 py-1">
+            <div className="border-base-300 flex items-center justify-between border-b px-2 py-1">
               <span className="font-medium">{getDisplayLabel(fullscreenMaterial)}</span>
               <button
                 type="button"
@@ -326,7 +335,7 @@ export default function ClassMaterial() {
                 Cerrar
               </button>
             </div>
-            <div className="min-h-0 flex-1 flex flex-col">
+            <div className="flex min-h-0 flex-1 flex-col">
               {fullscreenMaterial.mimeType === 'video/mp4' ? (
                 <video
                   className="h-full w-full"
