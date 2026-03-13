@@ -31,16 +31,16 @@ export async function uploadFileToBucket(
   });
 }
 
-export async function confirmUpload(
-  classId: string,
-  filename: string,
-  key: string,
-  contentType: string
-): Promise<void> {
-  await httpClient.post('/admin/materials/confirm-upload', {
-    classId,
-    filename,
-    key,
-    contentType,
-  });
+export interface ConfirmUploadPayload {
+  classId: string;
+  filename: string;
+  key: string;
+  contentType: string;
+  moduleId?: number;
+  displayName?: string;
+  orderIndex?: number;
+}
+
+export async function confirmUpload(payload: ConfirmUploadPayload): Promise<void> {
+  await httpClient.post('/admin/materials/confirm-upload', payload);
 }
