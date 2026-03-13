@@ -2,27 +2,28 @@ import React, { useState, useRef } from 'react';
 import type { DragEvent } from 'react';
 import { Paperclip, CloudUpload, XCircle } from 'lucide-react';
 import clsx from 'clsx';
-import { MATERIAL_LABELS } from './MaterialLabels';
+
+/** Backend expects a material "type" (filename) for validation; we derive it from the file when not replacing. */
+function materialTypeFromFile(file: File): string {
+  return file.type.startsWith('video/') ? 'videos' : 'contenido';
+}
 
 interface FileInputProps {
   acceptedFileTypes: string[];
-  onFileUpload: (file: File, type: string) => Promise<void>;
+  /** Receives file, type (derived or fixed), and display name. */
+  onFileUpload: (file: File, type: string, displayName: string) => Promise<void>;
   maxSizeMB?: number;
   buttonText?: string;
   modalTitle?: string;
-  customButton?: React.ReactNode;
+  /** Initial value for the "Nombre para mostrar" field (e.g. when replacing). */
+  initialDisplayName?: string;
+  /** When replacing, the existing material type is passed so the backend receives the same type. */
   fixedType?: string;
+  customButton?: React.ReactNode;
 }
 
 /**
- * File upload component with drag and drop functionality and modal interface
- * @param acceptedFileTypes - Array of accepted MIME types (e.g., ['image/*', 'application/pdf'])
- * @param onFileUpload - Callback function when a file is selected
- * @param maxSizeMB - Maximum file size in megabytes (default: 10MB)
- * @param buttonText - Text for the trigger button (default: "Upload File")
- * @param modalTitle - Title for the modal (default: "Upload File")
- * @param customButton - Custom button component to trigger the modal
- * @param fixedType - If provided, skips type selection and uses this value
+ * File upload component with drag and drop and modal. User must enter a display name for the material (Material.displayName).
  */
 export default function FileInput({
   acceptedFileTypes,
@@ -30,6 +31,7 @@ export default function FileInput({
   maxSizeMB = 10,
   buttonText = 'Upload File',
   modalTitle = 'Upload File',
+  initialDisplayName = '',
   customButton,
   fixedType,
 }: FileInputProps) {
@@ -38,6 +40,7 @@ export default function FileInput({
   const [error, setError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(fixedType || null);
+  const [displayName, setDisplayName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -46,16 +49,12 @@ export default function FileInput({
 
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
-  const materialTypes = Object.entries(MATERIAL_LABELS).map(([value, label]) => ({
-    value,
-    label,
-  }));
-
   const openModal = () => {
     setIsOpen(true);
     setError(null);
     setSelectedFile(null);
     setSelectedType(fixedType || null);
+    setDisplayName(initialDisplayName);
     modalRef.current?.showModal();
   };
 
@@ -64,6 +63,7 @@ export default function FileInput({
     setError(null);
     setSelectedFile(null);
     setSelectedType(null);
+    setDisplayName('');
     setIsLoading(false);
     setLoadingMessage('');
     dragCounterRef.current = 0;
@@ -108,6 +108,7 @@ export default function FileInput({
 
     if (validateFile(file)) {
       setSelectedFile(file);
+      if (!fixedType) setSelectedType(materialTypeFromFile(file));
     }
 
     setIsLoading(false);
@@ -151,6 +152,7 @@ export default function FileInput({
 
     if (validateFile(file)) {
       setSelectedFile(file);
+      if (!fixedType) setSelectedType(materialTypeFromFile(file));
     }
 
     setIsLoading(false);
@@ -158,14 +160,19 @@ export default function FileInput({
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile || !selectedType) return;
+    const trimmedName = displayName.trim();
+    if (!trimmedName) {
+      setError('Escribe un nombre para mostrar del material.');
+      return;
+    }
 
     try {
       setIsLoading(true);
       setLoadingMessage('Subiendo archivo...');
       setError(null);
 
-      await onFileUpload(selectedFile, selectedType!);
+      await onFileUpload(selectedFile, selectedType, trimmedName);
       closeModal();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al subir el archivo');
@@ -197,37 +204,30 @@ export default function FileInput({
             <div className="bg-base-100/80 absolute inset-0 z-50 flex size-full flex-col items-center justify-center rounded-lg backdrop-blur-sm">
               <div className="flex flex-col items-center">
                 <span className="loading loading-spinner loading-lg text-primary" />
-                <p className="mt-4 border text-sm font-medium">{loadingMessage}</p>
+                <p className="mt-4 text-sm font-medium">{loadingMessage}</p>
               </div>
             </div>
           )}
 
           <h3 className="mb-4 text-lg font-bold">{modalTitle}</h3>
 
-          {/* Material Type Select - Only show if no fixedType */}
-          {!fixedType && (
-            <div className="fieldset mb-4">
-              <label className="label" htmlFor="material-type">
-                <span className="label-text font-semibold">Tipo de Material</span>
-              </label>
-              <select
-                value={selectedType || ''}
-                id="material-type"
-                className="select select-primary w-full"
-                onChange={(e) => setSelectedType(e.target.value)}
-                disabled={isLoading}
-              >
-                <option value="" disabled>
-                  Escoge el tipo de material
-                </option>
-                {materialTypes.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+          <div className="fieldset mb-4">
+            <label className="label" htmlFor="material-display-name">
+              <span className="label-text font-semibold">Nombre para mostrar</span>
+            </label>
+            <input
+              id="material-display-name"
+              type="text"
+              placeholder="Ej: Guía de ejercicios, Apuntes tema 1..."
+              className="input input-bordered w-full"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              disabled={isLoading}
+            />
+            <p className="text-base-content/60 label-text-alt mt-1">
+              Este nombre se mostrará a los estudiantes en lugar del nombre del archivo.
+            </p>
+          </div>
 
           <div
             onDragEnter={handleDragEnter}
@@ -292,7 +292,7 @@ export default function FileInput({
             <button
               type="button"
               onClick={handleUpload}
-              disabled={!selectedFile || !selectedType || isLoading}
+              disabled={!selectedFile || !selectedType || !displayName.trim() || isLoading}
               className="btn btn-primary"
             >
               {isLoading ? (
