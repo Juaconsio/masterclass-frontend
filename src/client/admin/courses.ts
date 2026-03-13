@@ -60,6 +60,19 @@ export interface Material {
   type?: string;
   filename?: string;
   classId: number;
+  moduleId?: number | null;
+  displayName?: string | null;
+  orderIndex?: number;
+  mimeType?: string;
+  bucketKey?: string;
+}
+
+export interface ClassModule {
+  id: number;
+  classId: number;
+  title: string;
+  orderIndex: number;
+  materials: Material[];
 }
 
 export interface Class {
@@ -70,6 +83,7 @@ export interface Class {
   orderIndex: number;
   courseId: number;
   slots: Slot[];
+  modules?: ClassModule[];
   materials: Material[];
 }
 

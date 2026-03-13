@@ -6,7 +6,10 @@ export interface CourseMaterial {
   mimeType: string;
   filename: string;
   bucketKey: string;
-  downloadUrl: string;
+  downloadUrl?: string;
+  displayName?: string | null;
+  orderIndex?: number;
+  moduleId?: number | null;
 }
 
 /**
@@ -42,10 +45,24 @@ export async function confirmReplaceMaterial(
     filename: string;
     newKey: string;
     contentType: string;
+    moduleId?: number | null;
+    displayName?: string;
+    orderIndex?: number;
   }
 ) {
   const response = await httpClient.post(
     `/admin/materials/${materialId}/confirm-replace`,
+    data
+  );
+  return response.data;
+}
+
+export async function updateMaterialMetadata(
+  materialId: number,
+  data: { moduleId?: number | null; displayName?: string; orderIndex?: number }
+) {
+  const response = await httpClient.patch(
+    `/admin/materials/${materialId}`,
     data
   );
   return response.data;
