@@ -4,6 +4,7 @@ import {
   adminCoursesClient,
   type AdminCourseDetail,
   type Class,
+  type ClassModule,
   type Material,
 } from '../../client/admin/courses';
 import { adminProfessorsClient } from '@/client/admin/professors';
@@ -20,9 +21,25 @@ import { FileInput, MATERIAL_ICONS, MATERIAL_LABELS } from '@components/content'
 import { fetchProfessors } from '@/client/admin/professors';
 import type { IProfessor } from '@/interfaces/models';
 import { makeUploadUrl, uploadFileToBucket, confirmUpload } from '@/client/admin/material';
-import { deleteMaterial, requestReplaceUrl, confirmReplaceMaterial } from '@/client/materials';
+import { createModule, updateModule, deleteModule } from '@/client/admin/modules';
+import {
+  deleteMaterial,
+  requestReplaceUrl,
+  confirmReplaceMaterial,
+  updateMaterialMetadata,
+} from '@/client/materials';
 import clsx from 'clsx';
-import { FileText, FolderOpen, Pencil, Plus, Trash2, UserPlus, RotateCw } from 'lucide-react';
+import {
+  FileText,
+  FolderOpen,
+  Pencil,
+  Plus,
+  Trash2,
+  UserPlus,
+  RotateCw,
+  ChevronDown,
+  ChevronRight,
+} from 'lucide-react';
 import { useConfirmAction } from '@/hooks/useConfirmAction';
 import { showToast } from '@/lib/toast';
 import {
@@ -86,6 +103,9 @@ export default function CourseDetail() {
   const [selectedProfessorId, setSelectedProfessorId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submittingClass, setSubmittingClass] = useState(false);
+  const [newModuleTitle, setNewModuleTitle] = useState('');
+  const [submittingModule, setSubmittingModule] = useState(false);
+  const [expandedModuleIds, setExpandedModuleIds] = useState<Set<number>>(new Set());
   const { showConfirmation, ConfirmationModal } = useConfirmAction();
 
   const isVideoMaterialType = (type: string) => type === 'videos' || type === 'grabacion_clase';
@@ -147,7 +167,12 @@ export default function CourseDetail() {
     }
   };
 
-  const handleFileUpload = async (file: File, classId: number, filename: string) => {
+  const handleFileUpload = async (
+    file: File,
+    classId: number,
+    filename: string,
+    options?: { moduleId?: number; displayName?: string; orderIndex?: number }
+  ) => {
     const id = Number(classId);
     if (!id || Number.isNaN(id)) {
       showToast.error('Clase no válida. Cierra el panel de materiales y vuelve a abrirlo.');
@@ -166,7 +191,16 @@ export default function CourseDetail() {
         ext,
       });
       await uploadFileToBucket(uploadUrl, file, requestedContentType);
-      await confirmUpload(String(id), filename, key, contentType);
+      await confirmUpload({
+        classId: String(id),
+        filename,
+        key,
+        contentType,
+        ...(options?.moduleId != null && { moduleId: options.moduleId }),
+        ...(options?.displayName != null &&
+          options.displayName !== '' && { displayName: options.displayName }),
+        ...(options?.orderIndex != null && { orderIndex: options.orderIndex }),
+      });
       showToast.success('Material subido exitosamente');
       const data = await loadCourse();
       if (data && materialsDrawerClassIdRef.current != null) {
@@ -208,7 +242,58 @@ export default function CourseDetail() {
     });
   };
 
-  const handleReplaceMaterial = async (materialId: number, file: File, filename: string) => {
+  const handleCreateModule = async () => {
+    if (!materialsDrawerClass || !newModuleTitle.trim()) return;
+    setSubmittingModule(true);
+    try {
+      await createModule(materialsDrawerClass.id, { title: newModuleTitle.trim() });
+      setNewModuleTitle('');
+      showToast.success('Módulo creado');
+      const data = await loadCourse();
+      if (data && materialsDrawerClassIdRef.current != null) {
+        const updated = data.classes.find((c) => c.id === materialsDrawerClassIdRef.current);
+        if (updated) setMaterialsDrawerClass(updated);
+        setTimeout(() => materialsDrawerRef.current?.open(), 0);
+      }
+    } catch (e) {
+      console.error(e);
+      showToast.error('Error al crear el módulo');
+    } finally {
+      setSubmittingModule(false);
+    }
+  };
+
+  const handleDeleteModule = (mod: ClassModule) => {
+    showConfirmation({
+      title: '¿Eliminar módulo?',
+      message: `Se eliminará el módulo "${mod.title}". Los materiales quedarán sin módulo.`,
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      isDangerous: true,
+      onConfirm: async () => {
+        try {
+          await deleteModule(mod.id);
+          showToast.success('Módulo eliminado');
+          const data = await loadCourse();
+          if (data && materialsDrawerClassIdRef.current != null) {
+            const updated = data.classes.find((c) => c.id === materialsDrawerClassIdRef.current);
+            if (updated) setMaterialsDrawerClass(updated);
+            setTimeout(() => materialsDrawerRef.current?.open(), 0);
+          }
+        } catch (e) {
+          console.error(e);
+          showToast.error('Error al eliminar el módulo');
+        }
+      },
+    });
+  };
+
+  const handleReplaceMaterial = async (
+    materialId: number,
+    file: File,
+    filename: string,
+    displayName: string
+  ) => {
     try {
       const ext = (file.name.split('.').pop() || '').toLowerCase();
       const requestedContentType = isVideoMaterialType(filename)
@@ -227,6 +312,7 @@ export default function CourseDetail() {
         filename,
         newKey,
         contentType,
+        displayName: displayName.trim() || undefined,
       });
 
       showToast.success('Material reemplazado exitosamente');
@@ -556,12 +642,12 @@ export default function CourseDetail() {
       label: 'Materiales',
       formatter: (value, row) => {
         const materials = value || [];
+        const modules = (row as Class).modules ?? [];
         const count = materials.length;
-        const total = allMaterialTypes.length;
         return (
           <div className="flex flex-wrap items-center gap-2">
-            <span className={clsx('badge', count >= total ? 'badge-success' : 'badge-ghost')}>
-              {count}/{total}
+            <span className="badge badge-ghost">
+              {modules.length} módulos · {count} archivos
             </span>
             <button
               type="button"
@@ -1478,66 +1564,213 @@ export default function CourseDetail() {
       >
         {materialsDrawerClass && (
           <div className="space-y-4">
-            <p className="text-base-content/60 text-sm">
-              Administra los archivos por tipo de material.
-            </p>
-            <div className="flex flex-col gap-2">
-              {allMaterialTypes.map((type) => {
-                const materials = materialsDrawerClass.materials || [];
-                const material = materials.find((m: Material) => m.filename === type);
-                const exists = !!material;
-                const acceptedFileTypes = isVideoMaterialType(type)
-                  ? (['video/mp4', '.mp4'] as const)
-                  : (['image/*', 'application/pdf'] as const);
-                const maxSizeMB = isVideoMaterialType(type) ? 500 : 5;
+            <div className="border-base-300 bg-base-200/50 flex flex-wrap items-end gap-2 rounded-xl border p-3">
+              <div className="form-control min-w-[140px] flex-1">
+                <label className="label py-0">
+                  <span className="label-text text-sm">Nuevo módulo</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Título del módulo"
+                  className="input input-bordered input-sm w-full"
+                  value={newModuleTitle}
+                  onChange={(e) => setNewModuleTitle(e.target.value)}
+                />
+              </div>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={handleCreateModule}
+                disabled={!newModuleTitle.trim() || submittingModule}
+              >
+                {submittingModule ? (
+                  <span className="loading loading-spinner loading-sm" />
+                ) : (
+                  <Plus className="h-4 w-4" />
+                )}
+                Crear módulo
+              </button>
+            </div>
 
-                return (
-                  <div
-                    key={type}
-                    className={clsx(
-                      'flex items-center justify-between gap-4 rounded-xl border px-4 py-3 transition-colors',
-                      exists
-                        ? 'border-success/40 bg-success/5 dark:bg-success/10'
-                        : 'border-base-300 bg-base-200/50'
-                    )}
-                  >
-                    <div className="flex min-w-0 flex-1 items-center gap-3">
-                      <span
-                        className={clsx(
-                          'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
-                          exists ? 'bg-success/20 text-success' : 'bg-base-300 text-base-content/50'
-                        )}
+            {(materialsDrawerClass.modules ?? []).length > 0 && (
+              <div className="space-y-2">
+                <p className="text-base-content/60 text-sm font-medium">Módulos</p>
+                {(materialsDrawerClass.modules ?? []).map((mod: ClassModule) => {
+                  const materials = mod.materials ?? [];
+                  const isExpanded = expandedModuleIds.has(mod.id);
+                  return (
+                    <div
+                      key={mod.id}
+                      className="border-base-300 bg-base-200/30 overflow-hidden rounded-xl border"
+                    >
+                      <div
+                        className="hover:bg-base-300/50 flex cursor-pointer items-center gap-2 px-3 py-2"
+                        onClick={() =>
+                          setExpandedModuleIds((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(mod.id)) next.delete(mod.id);
+                            else next.add(mod.id);
+                            return next;
+                          })
+                        }
                       >
-                        {MATERIAL_ICONS[type]}
-                      </span>
-                      <p
-                        className={clsx(
-                          'font-medium',
-                          exists ? 'text-base-content' : 'text-base-content/70'
+                        {isExpanded ? (
+                          <ChevronDown className="h-4 w-4 shrink-0" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4 shrink-0" />
                         )}
-                        title={MATERIAL_LABELS[type]}
-                      >
-                        {MATERIAL_LABELS[type]}
-                      </p>
+
+                        <span className="font-medium">
+                          {mod.orderIndex + 1}. {mod.title}
+                        </span>
+                        <span className="badge badge-ghost badge-sm">
+                          {materials.length} materiales
+                        </span>
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-xs text-error hover:bg-error/10 ml-auto"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteModule(mod);
+                          }}
+                          title="Eliminar módulo"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                      {isExpanded && (
+                        <div className="border-base-300 bg-base-100/50 space-y-1 border-t p-2">
+                          {materials.map((mat: Material) => {
+                            const type = mat.filename ?? '';
+                            const acceptedFileTypes = isVideoMaterialType(type)
+                              ? (['video/mp4', '.mp4'] as const)
+                              : (['image/*', 'application/pdf'] as const);
+                            const maxSizeMB = isVideoMaterialType(type) ? 500 : 5;
+                            const displayLabel = mat.displayName || MATERIAL_LABELS[type] || type;
+                            return (
+                              <div
+                                key={mat.id}
+                                className="border-base-300 bg-base-200/50 flex items-center justify-between gap-2 rounded-lg border px-3 py-2"
+                              >
+                                <span className="bg-base-300 text-base-content/70 flex h-8 w-8 shrink-0 items-center justify-center rounded">
+                                  {MATERIAL_ICONS[type]}
+                                </span>
+                                <span
+                                  className="min-w-0 flex-1 truncate font-medium"
+                                  title={displayLabel}
+                                >
+                                  {displayLabel}
+                                </span>
+                                <div className="flex shrink-0 items-center gap-1">
+                                  <FileInput
+                                    acceptedFileTypes={[...acceptedFileTypes]}
+                                    onFileUpload={async (file, _, displayName) =>
+                                      handleReplaceMaterial(mat.id, file, type, displayName)
+                                    }
+                                    maxSizeMB={maxSizeMB}
+                                    buttonText=""
+                                    modalTitle={`Reemplazar ${displayLabel}`}
+                                    initialDisplayName={displayLabel}
+                                    fixedType={type}
+                                    customButton={
+                                      <button
+                                        type="button"
+                                        className="btn btn-ghost btn-xs"
+                                        title="Reemplazar"
+                                      >
+                                        <RotateCw className="h-3.5 w-3.5" />
+                                      </button>
+                                    }
+                                  />
+                                  <button
+                                    type="button"
+                                    className="btn btn-ghost btn-xs text-error"
+                                    onClick={() => handleDeleteMaterial(mat.id, type)}
+                                    title="Eliminar"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                          <div className="pt-1">
+                            <FileInput
+                              acceptedFileTypes={[
+                                'image/*',
+                                'application/pdf',
+                                'video/mp4',
+                                '.mp4',
+                              ]}
+                              onFileUpload={async (file, type, displayName) => {
+                                const classId =
+                                  materialsDrawerClassIdRef.current ?? materialsDrawerClass.id;
+                                await handleFileUpload(file, classId, type, {
+                                  moduleId: mod.id,
+                                  orderIndex: materials.length,
+                                  displayName,
+                                });
+                              }}
+                              maxSizeMB={500}
+                              buttonText="Añadir material"
+                              modalTitle="Añadir material al módulo"
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
+                  );
+                })}
+              </div>
+            )}
 
-                    <div className="flex shrink-0 items-center gap-2">
-                      {exists && material?.id ? (
-                        <>
+            {((
+              (materialsDrawerClass.materials ?? []).filter(
+                (m: Material) => !m.moduleId
+              ) as Material[]
+            ).length > 0 ||
+              (materialsDrawerClass.modules ?? []).length === 0) && (
+              <div className="space-y-2">
+                <p className="text-base-content/60 text-sm font-medium">Materiales sin módulo</p>
+                <div className="flex flex-col gap-1">
+                  {(
+                    (materialsDrawerClass.materials ?? []).filter(
+                      (m: Material) => !m.moduleId
+                    ) as Material[]
+                  ).map((material: Material) => {
+                    const type = material.filename ?? '';
+                    const acceptedFileTypes = isVideoMaterialType(type)
+                      ? (['video/mp4', '.mp4'] as const)
+                      : (['image/*', 'application/pdf'] as const);
+                    const maxSizeMB = isVideoMaterialType(type) ? 500 : 5;
+                    const displayLabel = material.displayName || MATERIAL_LABELS[type] || type;
+                    return (
+                      <div
+                        key={material.id}
+                        className="border-base-300 bg-base-200/50 flex items-center justify-between gap-2 rounded-xl border px-3 py-2"
+                      >
+                        <span className="bg-base-300 text-base-content/70 flex h-8 w-8 shrink-0 items-center justify-center rounded">
+                          {MATERIAL_ICONS[type]}
+                        </span>
+                        <span className="min-w-0 flex-1 truncate font-medium" title={displayLabel}>
+                          {displayLabel}
+                        </span>
+                        <div className="flex shrink-0 items-center gap-1">
                           <FileInput
                             acceptedFileTypes={[...acceptedFileTypes]}
-                            onFileUpload={async (file) => {
-                              await handleReplaceMaterial(material.id, file, type);
-                            }}
+                            onFileUpload={async (file, _, displayName) =>
+                              handleReplaceMaterial(material.id, file, type, displayName)
+                            }
                             maxSizeMB={maxSizeMB}
                             buttonText=""
-                            modalTitle={`Reemplazar ${MATERIAL_LABELS[type]}`}
+                            modalTitle={`Reemplazar ${displayLabel}`}
+                            initialDisplayName={displayLabel}
                             fixedType={type}
                             customButton={
                               <button
                                 type="button"
-                                className="btn btn-outline btn-sm gap-1.5"
-                                title="Reemplazar material"
+                                className="btn btn-ghost btn-xs"
+                                title="Reemplazar"
                               >
                                 <RotateCw className="h-3.5 w-3.5" />
                               </button>
@@ -1545,43 +1778,44 @@ export default function CourseDetail() {
                           />
                           <button
                             type="button"
-                            className="btn btn-outline btn-sm text-error hover:bg-error/10 gap-1.5"
+                            className="btn btn-ghost btn-xs text-error"
                             onClick={() => handleDeleteMaterial(material.id, type)}
-                            title="Eliminar material"
+                            title="Eliminar"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
-                        </>
-                      ) : exists && !material?.id ? (
-                        <span className="text-error text-sm">Error: ID no disponible</span>
-                      ) : (
-                        <FileInput
-                          acceptedFileTypes={[...acceptedFileTypes]}
-                          onFileUpload={async (file) => {
-                            const classId =
-                              materialsDrawerClassIdRef.current ?? materialsDrawerClass.id;
-                            await handleFileUpload(file, classId, type);
-                          }}
-                          maxSizeMB={maxSizeMB}
-                          buttonText="Subir"
-                          modalTitle={`Subir ${MATERIAL_LABELS[type]}`}
-                          fixedType={type}
-                          customButton={
-                            <button
-                              type="button"
-                              className="btn btn-primary btn-sm gap-1.5"
-                              title="Subir material"
-                            >
-                              Subir
-                            </button>
-                          }
-                        />
-                      )}
-                    </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <div className="pt-1">
+                    <FileInput
+                      acceptedFileTypes={['image/*', 'application/pdf', 'video/mp4', '.mp4']}
+                      onFileUpload={async (file, type, displayName) => {
+                        const classId =
+                          materialsDrawerClassIdRef.current ?? materialsDrawerClass.id;
+                        await handleFileUpload(file, classId, type, { displayName });
+                      }}
+                      maxSizeMB={500}
+                      buttonText="Añadir material (sin módulo)"
+                      modalTitle="Subir material"
+                    />
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              </div>
+            )}
+
+            {(materialsDrawerClass.modules ?? []).length === 0 &&
+              (
+                (materialsDrawerClass.materials ?? []).filter(
+                  (m: Material) => !m.moduleId
+                ) as Material[]
+              ).length === 0 && (
+                <p className="text-base-content/50 text-sm">
+                  Crea un módulo y añade materiales, o sube archivos y asígnalos después a un
+                  módulo.
+                </p>
+              )}
           </div>
         )}
       </Drawer>
