@@ -1,10 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
-import { getMyClassMaterials } from '@client/student/materials';
+import { getMyClassModules } from '@client/student/materials';
 import type React from 'react';
 import { useBreadCrumbRoute } from '@/context/BreadCrumbRouteContext';
-import { MATERIAL_LABELS, type MaterialByType, MATERIAL_ICONS } from './MaterialLabels';
+import { MATERIAL_LABELS, MATERIAL_ICONS } from './MaterialLabels';
 import PDFViewer from './PDFViewer';
+import { ChevronDown, ChevronRight, Maximize2 } from 'lucide-react';
+import type { ClassModuleWithMaterials } from '@client/student/materials';
+import type { MaterialWithUrl } from '@client/student/materials';
+
+function getDisplayLabel(mat: MaterialWithUrl): string {
+  return mat.displayName ?? MATERIAL_LABELS[mat.filename] ?? mat.filename ?? 'Material';
+}
 
 export default function ClassMaterial() {
   const { courseId, classId } = useParams<{ courseId: string; classId: string }>();
@@ -15,8 +22,15 @@ export default function ClassMaterial() {
   const [errorMessage, setErrorMessage] = useState('');
   const [accessErrorCode, setAccessErrorCode] = useState<string | undefined>();
   const [accessErrorCourseId, setAccessErrorCourseId] = useState<number | undefined>();
-  const [materialsByType, setMaterialsByType] = useState<MaterialByType[]>([]);
-  const [selectedType, setSelectedType] = useState<string>('contenido');
+  const [modulesData, setModulesData] = useState<{
+    modules: ClassModuleWithMaterials[];
+    materialsWithoutModule: MaterialWithUrl[];
+    class: { id: number; title: string };
+    course: { id: number; acronym: string; title: string };
+  } | null>(null);
+  const [expandedModuleIds, setExpandedModuleIds] = useState<Set<number>>(new Set());
+  const [selectedMaterial, setSelectedMaterial] = useState<MaterialWithUrl | null>(null);
+  const [fullscreenMaterial, setFullscreenMaterial] = useState<MaterialWithUrl | null>(null);
 
   useEffect(() => {
     if (!courseId || !classId) {
@@ -26,42 +40,34 @@ export default function ClassMaterial() {
 
     let cancelled = false;
 
-    async function loadMaterial() {
+    async function load() {
       setIsLoading(true);
       setErrorMessage('');
-
       try {
-        const data = await getMyClassMaterials(Number(classId));
+        const data = await getMyClassModules(Number(classId));
         if (cancelled) return;
-
-        const nextMaterials = data.materials.map((mat) => ({
-          type: mat.filename,
-          url: mat.downloadUrl,
-          mimeType: mat.mimeType,
-          filename: mat.filename,
-        }));
-
-        setMaterialsByType(nextMaterials);
-        setSelectedType((prev) =>
-          nextMaterials.some((m) => m.type === prev) ? prev : nextMaterials[0]?.type || prev
-        );
-
+        setModulesData({
+          modules: data.modules,
+          materialsWithoutModule: data.materialsWithoutModule ?? [],
+          class: data.class,
+          course: data.course,
+        });
+        const firstMod = data.modules?.[0];
+        const firstMat = firstMod?.materials?.[0] ?? data.materialsWithoutModule?.[0];
+        if (firstMat) setSelectedMaterial(firstMat);
+        if (firstMod) setExpandedModuleIds(new Set([firstMod.id]));
         if (setBreadCrumbRoute && data.course && data.class) {
           setBreadCrumbRoute(
-            {
-              id: data.course.id,
-              acronym: data.course.acronym ?? '',
-              title: data.course.title ?? '',
-            },
+            { id: data.course.id, acronym: data.course.acronym ?? '', title: data.course.title ?? '' },
             { id: data.class.id, title: data.class.title ?? '' }
           );
         }
       } catch (error: any) {
         if (cancelled) return;
-        console.error('Error loading material:', error);
+        console.error('Error loading modules:', error);
         if (error.response?.status === 403) {
           const data = error.response?.data || {};
-          setErrorMessage(data.message || 'No tienes acceso a estos materiales.');
+          setErrorMessage(data.message ?? 'No tienes acceso a estos materiales.');
           setAccessErrorCode(data.code);
           setAccessErrorCourseId(data.courseId);
         } else {
@@ -72,7 +78,7 @@ export default function ClassMaterial() {
       }
     }
 
-    loadMaterial();
+    load();
     return () => {
       cancelled = true;
       setBreadCrumbRoute?.(null, null);
@@ -82,7 +88,7 @@ export default function ClassMaterial() {
   if (isLoading) {
     return (
       <div className="bg-base-200 flex min-h-screen items-center justify-center">
-        <span className="loading loading-spinner loading-lg text-primary"></span>
+        <span className="loading loading-spinner loading-lg text-primary" />
       </div>
     );
   }
@@ -111,10 +117,7 @@ export default function ClassMaterial() {
               </h3>
               <p className="text-sm">{errorMessage}</p>
               <div className="flex flex-wrap gap-2">
-                <Link
-                  to={courseId ? `/app/cursos/${courseId}` : '/app'}
-                  className="btn btn-sm btn-ghost"
-                >
+                <Link to={courseId ? `/app/cursos/${courseId}` : '/app'} className="btn btn-sm btn-ghost">
                   Volver al curso
                 </Link>
                 {isPlanNotPaid && (
@@ -140,7 +143,11 @@ export default function ClassMaterial() {
     );
   }
 
-  if (!isLoading && materialsByType.length === 0) {
+  const totalMaterials =
+    (modulesData?.modules?.reduce((acc, m) => acc + (m.materials?.length ?? 0), 0) ?? 0) +
+    (modulesData?.materialsWithoutModule?.length ?? 0);
+
+  if (!modulesData || totalMaterials === 0) {
     return (
       <div className="bg-base-200 min-h-screen">
         <div className="container mx-auto px-4 py-16">
@@ -148,8 +155,8 @@ export default function ClassMaterial() {
             <div>
               <h3 className="font-bold">Sin Materiales</h3>
               <div className="text-sm">
-                Esta clase aún no tiene materiales disponibles. Los materiales serán publicados por
-                el profesor próximamente.
+                Esta clase aún no tiene materiales disponibles. Los materiales serán publicados por el profesor
+                próximamente.
               </div>
             </div>
             <div>
@@ -163,66 +170,186 @@ export default function ClassMaterial() {
     );
   }
 
-  return (
-    <div className="flex min-h-screen flex-col">
-      <div className="px-4 py-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-primary text-2xl font-bold">Material de Clase</h1>
-          {materialsByType.length > 0 && (
-            <>
-              <div role="tablist" className="tabs tabs-border px-4 pt-4">
-                {materialsByType.map((material) => (
-                  <label key={material.type} className="tab">
-                    <input
-                      type="radio"
-                      name="material_tabs"
-                      role="tab"
-                      aria-label={MATERIAL_LABELS[material.type]}
-                      checked={selectedType === material.type}
-                      onChange={() => setSelectedType(material.type)}
-                    />
-                    {MATERIAL_ICONS[material.type]}
-                    {MATERIAL_LABELS[material.type]}
-                  </label>
-                ))}
-              </div>
-            </>
+  const toggleModule = (id: number) => {
+    setExpandedModuleIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const renderMaterialItem = (mat: MaterialWithUrl) => {
+    const label = getDisplayLabel(mat);
+    const url = mat.downloadUrl ?? '';
+    const isVideo = mat.mimeType === 'video/mp4';
+    const isSelected = selectedMaterial?.id === mat.id;
+
+    return (
+      <button
+        key={mat.id}
+        type="button"
+        onClick={() => setSelectedMaterial(mat)}
+        className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors ${
+          isSelected ? 'bg-primary/15 text-primary' : 'hover:bg-base-300/70'
+        }`}
+      >
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-base-300 text-base-content/70">
+          {MATERIAL_ICONS[mat.filename] ?? MATERIAL_ICONS.extras}
+        </span>
+        <span className="min-w-0 flex-1 truncate text-sm font-medium">{label}</span>
+      </button>
+    );
+  };
+
+  const renderPreview = () => {
+    const mat = fullscreenMaterial ?? selectedMaterial;
+    if (!mat?.downloadUrl) {
+      return (
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 bg-base-200/50 text-base-content/50">
+          <p className="text-sm">Selecciona un material para previsualizar</p>
+        </div>
+      );
+    }
+
+    const label = getDisplayLabel(mat);
+    const isVideo = mat.mimeType === 'video/mp4';
+
+    const content = isVideo ? (
+      <video
+        key={mat.id}
+        className="h-full w-full flex-1"
+        controls
+        playsInline
+        preload="metadata"
+        disablePictureInPicture
+        disableRemotePlayback
+        onContextMenu={(e) => e.preventDefault()}
+        controlsList="nodownload noplaybackrate noremoteplayback"
+      >
+        <source src={mat.downloadUrl} type={mat.mimeType} />
+      </video>
+    ) : (
+      <div className="h-full min-h-0 flex-1">
+        <PDFViewer pdfUrl={mat.downloadUrl} title={label} />
+      </div>
+    );
+
+    return (
+      <div className="flex flex-1 flex-col">
+        <div className="flex shrink-0 items-center justify-between border-b border-base-300 bg-base-100 px-2 py-1">
+          <span className="truncate text-sm font-medium">{label}</span>
+          {selectedMaterial && (
+            <button
+              type="button"
+              className="btn btn-ghost btn-xs gap-1"
+              onClick={() => setFullscreenMaterial(fullscreenMaterial ? null : selectedMaterial)}
+              title={fullscreenMaterial ? 'Salir de pantalla completa' : 'Pantalla completa'}
+            >
+              <Maximize2 className="h-3.5 w-3.5" />
+            </button>
           )}
         </div>
+        <div className="min-h-0 flex-1">{content}</div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="flex min-h-screen flex-col bg-base-200">
+      <div className="shrink-0 border-b border-base-300 bg-base-100 px-4 py-3">
+        <h1 className="text-primary text-xl font-bold">Material de Clase</h1>
       </div>
 
-      <div className="flex flex-1 flex-col">
-        {materialsByType.find((m) => m.type === selectedType) && (() => {
-          const selected = materialsByType.find((m) => m.type === selectedType)!;
-
-          if (selected.mimeType === 'video/mp4') {
-            const videoAttrs: React.VideoHTMLAttributes<HTMLVideoElement> = {
-              controls: true,
-              playsInline: true,
-              preload: 'metadata',
-              disablePictureInPicture: true,
-              disableRemotePlayback: true,
-              onContextMenu: (e) => e.preventDefault(),
-            };
-
-            return (
-              <div className="flex h-screen w-full flex-col">
-                <video
-                  className="h-full w-full flex-1"
-                  {...videoAttrs}
-                  {...({
-                    controlsList: 'nodownload noplaybackrate noremoteplayback',
-                  } as any)}
-                >
-                  <source src={selected.url} type={selected.mimeType} />
-                </video>
+      <div className="flex min-h-0 flex-1 flex-col md:flex-row">
+        <aside className="flex w-full flex-col border-b border-base-300 bg-base-100 md:w-72 md:border-b-0 md:border-r md:overflow-y-auto">
+          <div className="p-2">
+            {(modulesData.modules ?? []).map((mod) => {
+              const isExpanded = expandedModuleIds.has(mod.id);
+              const materials = mod.materials ?? [];
+              return (
+                <div key={mod.id} className="mb-1">
+                  <button
+                    type="button"
+                    onClick={() => toggleModule(mod.id)}
+                    className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left font-medium hover:bg-base-300/70"
+                  >
+                    {isExpanded ? (
+                      <ChevronDown className="h-4 w-4 shrink-0" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 shrink-0" />
+                    )}
+                    <span className="min-w-0 flex-1 truncate">{mod.title}</span>
+                    <span className="badge badge-ghost badge-sm">{materials.length}</span>
+                  </button>
+                  {isExpanded && (
+                    <div className="ml-3 mt-0.5 space-y-0.5 border-l border-base-300 pl-2">
+                      {materials.map((mat) => renderMaterialItem(mat))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {(modulesData.materialsWithoutModule?.length ?? 0) > 0 && (
+              <div className="mb-1 mt-2">
+                <p className="px-2 py-1 text-xs font-medium text-base-content/60">Sin módulo</p>
+                <div className="mt-0.5 space-y-0.5">
+                  {modulesData.materialsWithoutModule.map((mat) => renderMaterialItem(mat))}
+                </div>
               </div>
-            );
-          }
+            )}
+          </div>
+        </aside>
 
-          return <PDFViewer pdfUrl={selected.url} title={MATERIAL_LABELS[selectedType]} />;
-        })()}
+        <main className="min-h-0 flex-1 flex flex-col">
+          {renderPreview()}
+        </main>
       </div>
+
+      {fullscreenMaterial && (
+        <dialog
+          className="modal modal-open bg-black/90"
+          onClick={() => setFullscreenMaterial(null)}
+          onClose={() => setFullscreenMaterial(null)}
+        >
+          <div
+            className="modal-box max-w-none w-full h-full flex flex-col bg-base-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-base-300 px-2 py-1">
+              <span className="font-medium">{getDisplayLabel(fullscreenMaterial)}</span>
+              <button
+                type="button"
+                className="btn btn-sm btn-ghost"
+                onClick={() => setFullscreenMaterial(null)}
+              >
+                Cerrar
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 flex flex-col">
+              {fullscreenMaterial.mimeType === 'video/mp4' ? (
+                <video
+                  className="h-full w-full"
+                  controls
+                  autoPlay
+                  playsInline
+                  src={fullscreenMaterial.downloadUrl}
+                />
+              ) : (
+                <PDFViewer
+                  pdfUrl={fullscreenMaterial.downloadUrl!}
+                  title={getDisplayLabel(fullscreenMaterial)}
+                />
+              )}
+            </div>
+          </div>
+          <form method="dialog" className="modal-backdrop">
+            <button type="button" onClick={() => setFullscreenMaterial(null)}>
+              Cerrar
+            </button>
+          </form>
+        </dialog>
+      )}
     </div>
   );
 }
