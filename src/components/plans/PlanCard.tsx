@@ -46,7 +46,7 @@ export function PlanCard({ purchase }: PlanCardProps) {
           >
             {isActive ? 'ACTIVO' : 'PENDIENTE'}
           </span>
-          <div className="flex items-center gap-1.5 text-base-content/60 text-sm">
+          <div className="text-base-content/60 flex items-center gap-1.5 text-sm">
             <Package className="h-4 w-4" aria-hidden />
             <span>
               {creditsRedeemed} de {purchase.creditsTotal}
@@ -54,11 +54,11 @@ export function PlanCard({ purchase }: PlanCardProps) {
           </div>
         </div>
 
-        <h3 className="card-title text-lg mt-2">{courseTitle || 'Curso'}</h3>
+        <h3 className="card-title mt-2 text-lg">{courseTitle || 'Curso'}</h3>
         <p className="text-base-content/70 text-sm">{planName}</p>
 
         <div className="mt-2">
-          <p className="text-base-content/60 text-xs font-medium uppercase tracking-wider">
+          <p className="text-base-content/60 text-xs font-medium tracking-wider uppercase">
             Clases canjeadas
           </p>
           <progress
@@ -70,13 +70,13 @@ export function PlanCard({ purchase }: PlanCardProps) {
         </div>
 
         <div className="mt-3">
-          <p className="text-base-content/60 text-xs font-semibold uppercase tracking-wider mb-2">
+          <p className="text-base-content/60 mb-2 text-xs font-semibold tracking-wider uppercase">
             Incluye
           </p>
           <ul className="space-y-1">
             {includedItems.map((item) => (
               <li key={item.label} className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-success flex-shrink-0" aria-hidden />
+                <Check className="text-success h-4 w-4 flex-shrink-0" aria-hidden />
                 <span>{item.label}</span>
               </li>
             ))}
@@ -93,12 +93,9 @@ export function PlanCard({ purchase }: PlanCardProps) {
             </Link>
           )}
           {courseId && isActive && (
-            <Link
-              to={`/app/cursos/${courseId}`}
-              className="btn btn-sm btn-outline gap-1"
-            >
+            <Link to={`/app/cursos/${courseId}`} className="btn btn-sm btn-outline gap-1">
               <FileText className="h-4 w-4" aria-hidden />
-              Ver material
+              Ver curso
             </Link>
           )}
         </div>
