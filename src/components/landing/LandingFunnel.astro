@@ -15,17 +15,15 @@ import { getCollection } from 'astro:content';
 import { getPublicCourseCatalog } from '@/lib/courseCatalog';
 
 const allCourses = await getPublicCourseCatalog();
-const allReviews = await getCollection('reviews');
+const currentSemesterReviews = await getCollection('reviews', ({ id }) => {
+  return id.startsWith('2025-2/');
+});
 
 const featuredCourses = allCourses.filter((course) => course.data.featured);
 const coursesToShow =
   featuredCourses.length >= 3 ? featuredCourses.slice(0, 3) : allCourses.slice(0, 3);
 
-const featuredReviewsFiltered = allReviews.filter((review) => review.data.featured);
-const reviewsToShow =
-  featuredReviewsFiltered.length >= 6
-    ? featuredReviewsFiltered.slice(0, 6)
-    : allReviews.slice(0, 6);
+const reviewsToShow = currentSemesterReviews.slice(0, 6);
 
 const reviewsData = reviewsToShow.map((review) => ({
   id: review.data.id,

@@ -31,5 +31,14 @@ const { reviews } = Astro.props;
       </p>
     </section>
     <ReviewsCarousel reviews={reviews} client:load />
+    <div class="mt-8 text-center">
+      <a
+        href="/testimonios"
+        class="text-base-content/70 hover:text-primary text-sm font-medium transition-colors inline-flex items-center gap-1"
+      >
+        Tenemos muchas más historias
+        <span class="text-primary">→</span>
+      </a>
+    </div>
   </div>
 </div>
