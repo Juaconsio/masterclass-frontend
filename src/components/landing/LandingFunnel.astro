@@ -9,6 +9,7 @@ import Functionalities from './Functionalities.astro';
 import HowItWorks from './HowItWorks.astro';
 import Pricing from './Pricing.astro';
 import CommunityBlog from './CommunityBlog.astro';
+import FAQ from './FAQ.astro';
 import CTA from './CTA.astro';
 import Footer from './footer.astro';
 import { getCollection } from 'astro:content';
@@ -58,6 +59,7 @@ const reviewsData = reviewsToShow.map((review) => ({
   <Pricing />
   <ReviewsSection reviews={reviewsData} />
   <CommunityBlog />
+  <FAQ />
 
   <CTA />
   <Footer />
