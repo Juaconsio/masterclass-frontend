@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
 import { getMyClassModules } from '@client/student/materials';
+import { getMyClassModules } from '@client/student/materials';
 import type React from 'react';
 import { useBreadCrumbRoute } from '@/context/BreadCrumbRouteContext';
+import { MATERIAL_LABELS, MATERIAL_ICONS } from './MaterialLabels';
 import { MATERIAL_LABELS, MATERIAL_ICONS } from './MaterialLabels';
 import PDFViewer from './PDFViewer';
 import VideoPlayer from './VideoPlayer';
@@ -41,11 +43,23 @@ export default function ClassMaterial() {
     let cancelled = false;
 
     async function load() {
+    async function load() {
       setIsLoading(true);
       setErrorMessage('');
       try {
         const data = await getMyClassModules(Number(classId));
+        const data = await getMyClassModules(Number(classId));
         if (cancelled) return;
+        setModulesData({
+          modules: data.modules,
+          materialsWithoutModule: data.materialsWithoutModule ?? [],
+          class: data.class,
+          course: data.course,
+        });
+        const firstMod = data.modules?.[0];
+        const firstMat = firstMod?.materials?.[0] ?? data.materialsWithoutModule?.[0];
+        if (firstMat) setSelectedMaterial(firstMat);
+        if (firstMod) setExpandedModuleIds(new Set([firstMod.id]));
         setModulesData({
           modules: data.modules,
           materialsWithoutModule: data.materialsWithoutModule ?? [],
@@ -69,8 +83,10 @@ export default function ClassMaterial() {
       } catch (error: any) {
         if (cancelled) return;
         console.error('Error loading modules:', error);
+        console.error('Error loading modules:', error);
         if (error.response?.status === 403) {
           const data = error.response?.data || {};
+          setErrorMessage(data.message ?? 'No tienes acceso a estos materiales.');
           setErrorMessage(data.message ?? 'No tienes acceso a estos materiales.');
           setAccessErrorCode(data.code);
           setAccessErrorCourseId(data.courseId);
@@ -83,6 +99,7 @@ export default function ClassMaterial() {
     }
 
     load();
+    load();
     return () => {
       cancelled = true;
       setBreadCrumbRoute?.(null, null);
@@ -92,6 +109,7 @@ export default function ClassMaterial() {
   if (isLoading) {
     return (
       <div className="bg-base-200 flex min-h-screen items-center justify-center">
+        <span className="loading loading-spinner loading-lg text-primary" />
         <span className="loading loading-spinner loading-lg text-primary" />
       </div>
     );
@@ -122,6 +140,11 @@ export default function ClassMaterial() {
                   : isNoAccess
                     ? 'Sin acceso'
                     : 'Acceso denegado'}
+                {isPlanNotPaid
+                  ? 'Plan pendiente de pago'
+                  : isNoAccess
+                    ? 'Sin acceso'
+                    : 'Acceso denegado'}
               </h3>
               <p className="text-sm">{errorMessage}</p>
               <div className="flex flex-wrap gap-2">
@@ -132,6 +155,7 @@ export default function ClassMaterial() {
                   Volver al curso
                 </Link>
                 {isPlanNotPaid && (
+                  <span className="text-base-content/70 text-sm">
                   <span className="text-base-content/70 text-sm">
                     Completa el pago con los datos que recibiste por email para activar el acceso.
                   </span>
@@ -154,6 +178,11 @@ export default function ClassMaterial() {
     );
   }
 
+  const totalMaterials =
+    (modulesData?.modules?.reduce((acc, m) => acc + (m.materials?.length ?? 0), 0) ?? 0) +
+    (modulesData?.materialsWithoutModule?.length ?? 0);
+
+  if (!modulesData || totalMaterials === 0) {
   const totalMaterials =
     (modulesData?.modules?.reduce((acc, m) => acc + (m.materials?.length ?? 0), 0) ?? 0) +
     (modulesData?.materialsWithoutModule?.length ?? 0);
@@ -289,7 +318,53 @@ export default function ClassMaterial() {
         </aside>
 
         <main className="flex min-h-0 flex-1 flex-col">{renderPreview()}</main>
+        <main className="flex min-h-0 flex-1 flex-col">{renderPreview()}</main>
       </div>
+
+      {fullscreenMaterial && (
+        <dialog
+          className="modal modal-open bg-black/90"
+          onClick={() => setFullscreenMaterial(null)}
+          onClose={() => setFullscreenMaterial(null)}
+        >
+          <div
+            className="modal-box bg-base-100 flex h-full w-full max-w-none flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="border-base-300 flex items-center justify-between border-b px-2 py-1">
+              <span className="font-medium">{getDisplayLabel(fullscreenMaterial)}</span>
+              <button
+                type="button"
+                className="btn btn-sm btn-ghost"
+                onClick={() => setFullscreenMaterial(null)}
+              >
+                Cerrar
+              </button>
+            </div>
+            <div className="flex min-h-0 flex-1 flex-col">
+              {fullscreenMaterial.mimeType === 'video/mp4' ? (
+                <video
+                  className="h-full w-full"
+                  controls
+                  autoPlay
+                  playsInline
+                  src={fullscreenMaterial.downloadUrl}
+                />
+              ) : (
+                <PDFViewer
+                  pdfUrl={fullscreenMaterial.downloadUrl!}
+                  title={getDisplayLabel(fullscreenMaterial)}
+                />
+              )}
+            </div>
+          </div>
+          <form method="dialog" className="modal-backdrop">
+            <button type="button" onClick={() => setFullscreenMaterial(null)}>
+              Cerrar
+            </button>
+          </form>
+        </dialog>
+      )}
     </div>
   );
 }
