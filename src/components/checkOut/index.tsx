@@ -70,6 +70,7 @@ export default function CheckoutView(props: CheckoutProps) {
   const [course, setCourse] = useState<ICourse | null>(null);
   const [slot, setSlot] = useState<ISlot | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'mercadopago' | 'manual'>('mercadopago');
 
   const role = (user as any)?.role as string | undefined;
   const isStudent = !role || role === 'user';
@@ -147,14 +148,21 @@ export default function CheckoutView(props: CheckoutProps) {
 
     try {
       if (isAuthenticated) {
-        const payload = { pricingPlanId: planId, slotId: slotId ? Number(slotId) : undefined };
+        const payload = { pricingPlanId: planId, slotId: slotId ? Number(slotId) : undefined, paymentMethod };
         const result = await createPurchase(payload);
+
+        // Si hay checkoutUrl de Mercado Pago, redirigir allá
+        if (result.checkoutUrl) {
+          window.location.href = result.checkoutUrl;
+          return;
+        }
+
         localStorage.setItem('purchase.success', JSON.stringify(result));
         navigate('/app/confirmacion-pago');
         return;
       }
       if (!isAuthenticated) {
-        const payload = { pricingPlanId: planId, slotId: slotId ? Number(slotId) : undefined };
+        const payload = { pricingPlanId: planId, slotId: slotId ? Number(slotId) : undefined, paymentMethod };
         localStorage.setItem('pendingPurchase', JSON.stringify(payload));
         navigate('/ingresar?type=user');
         return;
@@ -436,6 +444,51 @@ export default function CheckoutView(props: CheckoutProps) {
                         </div>
                       </label>
                     ))}
+                    {/* Payment method selector */}
+                    <div className="md:col-span-2">
+                      <h3 className="mb-3 text-lg font-semibold">Método de pago</h3>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <label
+                          className={`card bg-base-100 border ${paymentMethod === 'mercadopago' ? 'border-primary ring-primary/30 ring-2' : 'border-base-300'} cursor-pointer shadow-sm transition hover:shadow-md`}
+                        >
+                          <div className="card-body flex-row items-center gap-3 p-4">
+                            <input
+                              type="radio"
+                              name="paymentMethod"
+                              className="radio radio-primary"
+                              checked={paymentMethod === 'mercadopago'}
+                              onChange={() => setPaymentMethod('mercadopago')}
+                            />
+                            <div>
+                              <p className="font-semibold">Mercado Pago</p>
+                              <p className="text-base-content/60 text-xs">
+                                Paga con tarjeta, débito o transferencia vía Mercado Pago
+                              </p>
+                            </div>
+                          </div>
+                        </label>
+                        <label
+                          className={`card bg-base-100 border ${paymentMethod === 'manual' ? 'border-primary ring-primary/30 ring-2' : 'border-base-300'} cursor-pointer shadow-sm transition hover:shadow-md`}
+                        >
+                          <div className="card-body flex-row items-center gap-3 p-4">
+                            <input
+                              type="radio"
+                              name="paymentMethod"
+                              className="radio radio-primary"
+                              checked={paymentMethod === 'manual'}
+                              onChange={() => setPaymentMethod('manual')}
+                            />
+                            <div>
+                              <p className="font-semibold">Transferencia manual</p>
+                              <p className="text-base-content/60 text-xs">
+                                Realiza una transferencia bancaria y envía el comprobante
+                              </p>
+                            </div>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+
                     <div className="mt-2 flex justify-end md:col-span-2">
                       <button
                         type="submit"

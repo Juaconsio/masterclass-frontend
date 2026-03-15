@@ -25,6 +25,7 @@ export interface CreatePurchaseResult {
   purchase: StudentPlanPurchase;
   payment: { id: number; amount: number; currency: string; status: string };
   reservation?: IReservation;
+  checkoutUrl?: string | null;
 }
 
 export async function getMyPurchases(): Promise<StudentPlanPurchase[]> {
@@ -72,6 +73,7 @@ export async function getSlotsForPurchase(purchaseId: number): Promise<SlotsForP
 export async function createPurchase(payload: {
   pricingPlanId: number;
   slotId?: number;
+  paymentMethod?: 'mercadopago' | 'manual';
 }): Promise<CreatePurchaseResult> {
   const res = await httpClient.post<CreatePurchaseResult>('/students/me/purchases', payload);
   return res.data;

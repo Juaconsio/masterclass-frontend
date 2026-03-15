@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getToken, validateToken } from '@client/auth';
 import { createPurchase } from '@client/purchases';
+import { createReservation } from '@client/reservations';
 import { useForm } from 'react-hook-form';
 import { useSessionContext } from '../../context/SessionContext';
 import clsx from 'clsx';
@@ -127,6 +128,65 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
         const decoded: any = await import('jwt-decode').then((m) => m.jwtDecode(res.token!));
         const isUser = decoded?.role === 'user';
         const pendingPurchaseStr = localStorage.getItem('pendingPurchase');
+
+        // Verificar si hay reserva pendiente (solo para usuarios normales)
+        if (isUser) {
+          const pendingStr = localStorage.getItem('pendingReservation');
+          if (pendingStr) {
+            let pending;
+            try {
+              pending = JSON.parse(pendingStr);
+
+              // Crear la reserva automáticamente
+              const result = await createReservation({
+                courseId: pending.courseId,
+                slotId: pending.slotId,
+                pricingPlanId: pending.pricingPlanId,
+                paymentMethod: pending.paymentMethod || 'mercadopago',
+              });
+
+              // Limpiar pending reservation
+              localStorage.removeItem('pendingReservation');
+
+              // Si hay checkoutUrl de Mercado Pago, redirigir allá
+              if (result.checkoutUrl) {
+                window.location.href = result.checkoutUrl;
+                return;
+              }
+
+              // Guardar datos para la página de éxito
+              localStorage.setItem(
+                'reservation.success',
+                JSON.stringify({
+                  reservation: result.reservation,
+                  payment: result.payment,
+                })
+              );
+
+              // Redirigir a página de éxito
+              navigate('/app/confirmacion-pago');
+              return;
+            } catch (resError: any) {
+              console.error('Error creating reservation after login:', resError);
+              // Limpiar pending reservation
+              localStorage.removeItem('pendingReservation');
+
+              // Guardar información del error para mostrar en la página de confirmación
+              localStorage.setItem(
+                'reservation.error',
+                JSON.stringify({
+                  message: resError?.response?.data?.message || 'Error al crear la reserva',
+                  details: resError?.response?.data || {},
+                  pending: pending,
+                })
+              );
+
+              // Redirigir a página de error de confirmación
+              navigate('/app/confirmacion-pago');
+              return;
+            }
+          }
+        }
 
         if (!isUser || (isUser && !pendingPurchaseStr)) {
           navigate(roleUtils[userRole].portalUrl);
