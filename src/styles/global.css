@@ -86,6 +86,53 @@
   .card {
     @apply border-base-300 bg-base-100;
   }
+
+  /* PDF Viewer Integration */
+  .rpv-core__viewer {
+    @apply bg-base-100;
+  }
+
+  .rpv-core__inner-pages {
+    @apply bg-base-100;
+  }
+
+  .rpv-default-layout__container {
+    @apply bg-base-100 border-base-300;
+  }
+
+  .rpv-default-layout__toolbar {
+    @apply bg-base-200 border-base-300;
+  }
+
+  .rpv-core__button {
+    @apply text-base-content hover:bg-base-300;
+  }
+
+  .rpv-core__button--active {
+    @apply bg-primary text-primary-content;
+  }
+
+  .rpv-core__input {
+    @apply bg-base-100 border-base-300 text-base-content;
+  }
+
+  .rpv-full-screen__target {
+    @apply bg-base-100;
+  }
+
+  /* Video Player Integration */
+  .react-player {
+    @apply bg-black;
+  }
+
+  .react-player__preview {
+    @apply bg-base-200;
+  }
+
+  .react-player__shadow {
+    @apply bg-base-300/50;
+  }
+
   .prose-course {
     @apply prose prose-lg max-w-none;
     @apply prose-headings:text-primary;

@@ -5,7 +5,8 @@ import type React from 'react';
 import { useBreadCrumbRoute } from '@/context/BreadCrumbRouteContext';
 import { MATERIAL_LABELS, MATERIAL_ICONS } from './MaterialLabels';
 import PDFViewer from './PDFViewer';
-import { ChevronDown, ChevronRight, Maximize2 } from 'lucide-react';
+import VideoPlayer from './VideoPlayer';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import type { ClassModuleWithMaterials } from '@client/student/materials';
 import type { MaterialWithUrl } from '@client/student/materials';
 
@@ -30,7 +31,6 @@ export default function ClassMaterial() {
   } | null>(null);
   const [expandedModuleIds, setExpandedModuleIds] = useState<Set<number>>(new Set());
   const [selectedMaterial, setSelectedMaterial] = useState<MaterialWithUrl | null>(null);
-  const [fullscreenMaterial, setFullscreenMaterial] = useState<MaterialWithUrl | null>(null);
 
   useEffect(() => {
     if (!courseId || !classId) {
@@ -214,8 +214,7 @@ export default function ClassMaterial() {
   };
 
   const renderPreview = () => {
-    const mat = fullscreenMaterial ?? selectedMaterial;
-    if (!mat?.downloadUrl) {
+    if (!selectedMaterial?.downloadUrl) {
       return (
         <div className="bg-base-200/50 text-base-content/50 flex flex-1 flex-col items-center justify-center gap-2">
           <p className="text-sm">Selecciona un material para previsualizar</p>
@@ -223,26 +222,16 @@ export default function ClassMaterial() {
       );
     }
 
-    const label = getDisplayLabel(mat);
-    const isVideo = mat.mimeType === 'video/mp4';
+    const label = getDisplayLabel(selectedMaterial);
+    const isVideo = selectedMaterial.mimeType === 'video/mp4';
 
     const content = isVideo ? (
-      <video
-        key={mat.id}
-        className="h-full w-full flex-1"
-        controls
-        playsInline
-        preload="metadata"
-        disablePictureInPicture
-        disableRemotePlayback
-        onContextMenu={(e) => e.preventDefault()}
-        controlsList="nodownload noplaybackrate noremoteplayback"
-      >
-        <source src={mat.downloadUrl} type={mat.mimeType} />
-      </video>
+      <div className="h-full min-h-0 flex-1">
+        <VideoPlayer url={selectedMaterial.downloadUrl} title={label} />
+      </div>
     ) : (
       <div className="h-full min-h-0 flex-1">
-        <PDFViewer pdfUrl={mat.downloadUrl} title={label} />
+        <PDFViewer pdfUrl={selectedMaterial.downloadUrl} title={label} />
       </div>
     );
 
@@ -250,16 +239,6 @@ export default function ClassMaterial() {
       <div className="flex flex-1 flex-col">
         <div className="border-base-300 bg-base-100 flex shrink-0 items-center justify-between border-b px-2 py-1">
           <span className="truncate text-sm font-medium">{label}</span>
-          {selectedMaterial && (
-            <button
-              type="button"
-              className="btn btn-ghost btn-xs gap-1"
-              onClick={() => setFullscreenMaterial(fullscreenMaterial ? null : selectedMaterial)}
-              title={fullscreenMaterial ? 'Salir de pantalla completa' : 'Pantalla completa'}
-            >
-              <Maximize2 className="h-3.5 w-3.5" />
-            </button>
-          )}
         </div>
         <div className="min-h-0 flex-1">{content}</div>
       </div>
@@ -275,6 +254,11 @@ export default function ClassMaterial() {
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
         <aside className="border-base-300 bg-base-100 flex w-full flex-col border-b md:w-72 md:overflow-y-auto md:border-r md:border-b-0">
           <div className="p-2">
+            {(modulesData.materialsWithoutModule?.length ?? 0) > 0 && (
+              <div className="mb-2 space-y-0.5">
+                {modulesData.materialsWithoutModule.map((mat) => renderMaterialItem(mat))}
+              </div>
+            )}
             {(modulesData.modules ?? []).map((mod) => {
               const isExpanded = expandedModuleIds.has(mod.id);
               const materials = mod.materials ?? [];
@@ -301,64 +285,11 @@ export default function ClassMaterial() {
                 </div>
               );
             })}
-            {(modulesData.materialsWithoutModule?.length ?? 0) > 0 && (
-              <div className="mt-2 mb-1">
-                <p className="text-base-content/60 px-2 py-1 text-xs font-medium">Sin módulo</p>
-                <div className="mt-0.5 space-y-0.5">
-                  {modulesData.materialsWithoutModule.map((mat) => renderMaterialItem(mat))}
-                </div>
-              </div>
-            )}
           </div>
         </aside>
 
         <main className="flex min-h-0 flex-1 flex-col">{renderPreview()}</main>
       </div>
-
-      {fullscreenMaterial && (
-        <dialog
-          className="modal modal-open bg-black/90"
-          onClick={() => setFullscreenMaterial(null)}
-          onClose={() => setFullscreenMaterial(null)}
-        >
-          <div
-            className="modal-box bg-base-100 flex h-full w-full max-w-none flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="border-base-300 flex items-center justify-between border-b px-2 py-1">
-              <span className="font-medium">{getDisplayLabel(fullscreenMaterial)}</span>
-              <button
-                type="button"
-                className="btn btn-sm btn-ghost"
-                onClick={() => setFullscreenMaterial(null)}
-              >
-                Cerrar
-              </button>
-            </div>
-            <div className="flex min-h-0 flex-1 flex-col">
-              {fullscreenMaterial.mimeType === 'video/mp4' ? (
-                <video
-                  className="h-full w-full"
-                  controls
-                  autoPlay
-                  playsInline
-                  src={fullscreenMaterial.downloadUrl}
-                />
-              ) : (
-                <PDFViewer
-                  pdfUrl={fullscreenMaterial.downloadUrl!}
-                  title={getDisplayLabel(fullscreenMaterial)}
-                />
-              )}
-            </div>
-          </div>
-          <form method="dialog" className="modal-backdrop">
-            <button type="button" onClick={() => setFullscreenMaterial(null)}>
-              Cerrar
-            </button>
-          </form>
-        </dialog>
-      )}
     </div>
   );
 }
