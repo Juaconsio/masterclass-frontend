@@ -105,11 +105,6 @@ export default function VideoPlayer({
         light={false}
         playIcon={<button type="button" className="btn btn-circle btn-primary">▶</button>}
       />
-      {title && (
-        <div className="absolute top-0 left-0 right-0 bg-black/50 px-2 py-1 text-sm text-white">
-          {title}
-        </div>
-      )}
     </div>
   );
 }
