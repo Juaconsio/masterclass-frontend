@@ -1,0 +1,57 @@
+---
+import { Icon } from 'astro-icon/components';
+
+const faqItems = [
+  {
+    question: '¿Qué es SalvaRamos?',
+    answer:
+      'SalvaRamos es un proyecto de apoyo académico para estudiantes universitarios que cursan ramos STEM. Combinamos profesores con experiencia, material digital y acompañamiento académico para ofrecer una preparación integral para cada evaluación. Nuestro enfoque se basa en cuatro pilares: excelencia, metodología, herramientas digitales y comunidad.',
+  },
+  {
+    question: '¿Qué incluye el curso?',
+    answer:
+      'Cada curso está organizado en clases que cubren los distintos temas del ramo. Cada clase incluye: cápsulas de teoría con explicación de los conceptos, cápsulas de ejercicios resueltos paso a paso, notas en PDF, guía de ejercicios, solución detallada de la guía, formulario resumen y quiz de evaluación.',
+  },
+  {
+    question: '¿Para quién está pensado este curso?',
+    answer:
+      'Estos cursos están pensados para estudiantes que están cursando ramos STEM en las principales universidades de Chile y necesitan reforzar conceptos, practicar ejercicios y prepararse mejor para sus evaluaciones.',
+  },
+];
+---
+
+<section id="faq" class="py-12 sm:py-16 md:py-20">
+  <div class="container mx-auto px-4 sm:px-6">
+    <div class="mb-10 text-center sm:mb-14 md:mb-16">
+      <h2 class="font-display mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl md:text-5xl">
+        Preguntas frecuentes
+      </h2>
+      <p class="text-base-content/70 mx-auto max-w-2xl text-base sm:text-lg">
+        Resolvemos las dudas más comunes sobre nuestros cursos y metodología.
+      </p>
+    </div>
+
+    <div class="mx-auto max-w-3xl space-y-4">
+      {
+        faqItems.map((item, index) => (
+          <div class="collapse-plus bg-base-200 collapse rounded-2xl shadow-lg">
+            <input type="checkbox" id={`faq-${index}`} />
+            <div class="collapse-title text-base-content text-lg font-semibold sm:text-xl">
+              {item.question}
+            </div>
+            <div class="collapse-content">
+              <p class="text-base-content/80 pt-2 text-base leading-relaxed">{item.answer}</p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="mt-10 text-center sm:mt-12">
+      <a href="/nosotros#faq-completo" class="link link-primary text-base font-medium">
+        Ver todas las preguntas frecuentes
+        <Icon name="mdi:arrow-right" size={20} class="ml-1 inline-block" />
+      </a>
+    </div>
+  </div>
+</section>

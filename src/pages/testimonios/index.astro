@@ -1,0 +1,95 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import Navbar from '@components/landing/Navbar.astro';
+import Footer from '@components/landing/footer.astro';
+import TestimoniosTabs from '@components/landing/testimonios/TestimoniosTabs';
+
+const allReviews = await getCollection('reviews');
+
+const reviewsBySubcollection = allReviews.reduce(
+  (acc, review) => {
+    const subcollection = review.id.includes('/') ? review.id.split('/')[0] : 'Sin subcolección';
+    if (!acc[subcollection]) acc[subcollection] = [];
+    acc[subcollection].push(review);
+    return acc;
+  },
+  {} as Record<string, typeof allReviews>
+);
+
+const sortedSubcollections = Object.keys(reviewsBySubcollection).sort((a, b) => {
+  if (a === 'Sin subcolección') return 1;
+  if (b === 'Sin subcolección') return -1;
+  const [yearA, semA] = a.split('-').map(Number);
+  const [yearB, semB] = b.split('-').map(Number);
+  if (yearA !== yearB) return yearB - yearA;
+  return semB - semA;
+});
+
+const reviewsDataBySubcollection = sortedSubcollections.map((subcollection) => {
+  const subcollectionReviews = reviewsBySubcollection[subcollection];
+
+  return {
+    subcollection,
+    reviews: subcollectionReviews.map((review) => ({
+      id: review.data.id,
+      name: review.data.name,
+      profile: review.data.profile,
+      studies: review.data.studies,
+      comment: review.data.comment,
+      course: review.data.course,
+      rating: review.data.rating,
+      image: review.data.image,
+      date: review.data.date,
+    })),
+  };
+});
+
+function formatSubcollectionLabel(subcollection: string): string {
+  if (subcollection === 'Sin subcolección') return 'Testimonios';
+  const [year, sem] = subcollection.split('-');
+  return `${year} - Semestre ${sem}`;
+}
+
+function getSubcollectionId(subcollection: string): string {
+  return subcollection === 'Sin subcolección'
+    ? 'sin-subcoleccion'
+    : `subcollection-${subcollection.replace(/-/g, '-')}`;
+}
+---
+
+<Layout title="Testimonios - Salva Ramos">
+  <Navbar />
+
+  <div class="from-primary/90 via-primary to-primary/90 bg-gradient-to-br">
+    <div class="relative mt-(--navbar-height) overflow-hidden">
+      <section class="relative mt-8 px-4 py-12">
+        <div class="grid items-center gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+          <div class="max-w-3xl">
+            <p class="text-sm tracking-widest text-white uppercase">Testimonios</p>
+            <h1 class="mt-2 text-4xl font-extrabold text-white md:text-5xl">
+              Lo que dicen nuestros estudiantes
+            </h1>
+            <p class="mt-4 text-white/70">
+              Conoce las experiencias de quienes han confiado en nosotros para alcanzar sus metas
+              académicas.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="pb-12">
+      <TestimoniosTabs
+        subcollections={reviewsDataBySubcollection.map(({ subcollection, reviews }) => ({
+          subcollection,
+          subcollectionLabel: formatSubcollectionLabel(subcollection),
+          subcollectionId: getSubcollectionId(subcollection),
+          reviews,
+        }))}
+        client:load
+      />
+    </section>
+  </div>
+</Layout>
+<Footer />
