@@ -1,46 +1,56 @@
 ---
 import { Icon } from 'astro-icon/components';
 
+const planFeatures = {
+  digital: [
+    'Acceso completo a todas las clases en video',
+    'Material digital completo: resúmenes, guías y formularios',
+    'Canal de consultas vía WhatsApp',
+  ],
+  hibrido: [
+    'Clases de repaso masivo antes de la evaluación',
+    'Clase de resolución de dudas generales',
+  ],
+  premium: [
+    'Preparación guiada en vivo durante las semanas previas',
+    '4 clases en vivo (grupos reducidos) o clases particulares',
+  ],
+};
+
 const plans = [
   {
-    name: 'Clase Individual',
-    price: 'Desde $15.000',
-    features: [
-      'Acceso a 1 clase en vivo',
-      'Grabación de la sesión',
-      'Material de apoyo PDF',
-      'Resolución de dudas',
-    ],
+    name: 'Plan Digital',
+    price: { grupal: '$24.990', particular: '$24.990' },
+    id: 'digital',
     cta: 'Ver cursos',
     highlighted: false,
     href: '/courses',
+    description: 'Estudio autónomo con material claro y bien estructurado',
+    includesPrevious: null,
+    hasModality: false,
   },
   {
-    name: 'Pack Interrogación',
-    price: 'Desde $40.000',
-    features: [
-      'Todas las clases de la interrogación',
-      'Acceso ilimitado a grabaciones',
-      'Guías de ejercicios resueltos',
-      'Soporte prioritario 24/7',
-      'Ensayos de certámenes',
-    ],
+    name: 'Plan Híbrido',
+    price: { grupal: '$34.990', particular: '$44.990' },
+    id: 'hibrido',
+    cta: 'Ver cursos',
+    highlighted: false,
+    href: '/courses',
+    description: 'Estudio autónomo con instancias en vivo para reforzar',
+    includesPrevious: 'Plan Digital',
+    hasModality: true,
+  },
+  {
+    name: 'Plan Premium',
+    price: { grupal: '$54.990', particular: '$99.990' },
+    id: 'premium',
     cta: 'Ver cursos',
     highlighted: true,
     badge: 'MÁS ELEGIDO',
     href: '/courses',
-  },
-  {
-    name: 'Solo Material',
-    price: 'Desde $20.000',
-    features: [
-      'Guías teóricas completas',
-      'Ejercicios resueltos paso a paso',
-      'Acceso a plataforma 24/7',
-    ],
-    cta: 'Ver cursos',
-    highlighted: false,
-    href: '/courses',
+    description: 'Preparación más guiada y acompañada durante el proceso',
+    includesPrevious: 'Plan Híbrido',
+    hasModality: true,
   },
 ];
 ---
@@ -49,27 +59,25 @@ const plans = [
   <div class="container mx-auto px-4 sm:px-6">
     <div class="mb-10 text-center sm:mb-14 md:mb-16">
       <h2 class="font-display mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl md:text-5xl">
-        Planes diseñados para salvarte
+        Preparación completa para la prueba
       </h2>
       <p class="text-base-content/70 mx-auto max-w-2xl text-base sm:text-lg">
-        Los precios varían según el ramo y la universidad. Elige el que mejor te funcione.
+        Cada nivel agrega mayor acompañamiento académico. Elige el plan que mejor se adapte a tu
+        forma de estudiar.
       </p>
     </div>
 
-    <div class="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-3">
+    <div
+      class="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-3"
+      data-usal-trigger="50%"
+      data-usal="split-item split-fade-r split-delay-100"
+    >
       {
         plans.map((plan, i) => (
           <div
             class={`relative mx-auto flex w-full max-w-md ${
               plan.highlighted ? 'lg:-mx-2 lg:max-w-none lg:scale-[1.02] xl:scale-105' : ''
             }`}
-            data-usal={
-              plan.highlighted
-                ? 'fade-u delay-400 duration-600'
-                : i === 0
-                  ? 'fade-l duration-500'
-                  : 'fade-r duration-500'
-            }
           >
             {plan.highlighted && plan.badge && (
               <div
@@ -82,8 +90,8 @@ const plans = [
             <div
               class={`card flex w-full flex-col overflow-hidden shadow-xl ${
                 plan.highlighted
-                  ? 'bg-neutral text-neutral-content ring-primary/30 rounded-3xl pt-6 ring-2 lg:pt-8'
-                  : 'bg-base-200 rounded-2xl lg:mt-8'
+                  ? 'ring-primary/30 rounded-3xl pt-6 ring-2 lg:pt-8'
+                  : 'rounded-2xl lg:mt-8'
               }`}
             >
               {!plan.highlighted && plan.badge && (
@@ -93,21 +101,63 @@ const plans = [
               )}
               <div class="card-body flex flex-1 flex-col p-6 md:p-8">
                 <div class="card-title flex flex-col gap-2">
-                  <p
-                    class={`font-display text-sm ${plan.highlighted ? 'text-primary-content/70' : 'text-base-content/70'}`}
-                  >
-                    {plan.name}
-                  </p>
-                  <h3
-                    class={`mb-6 font-bold ${
-                      plan.highlighted ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'
+                  <p class={`font-display text-base-content/50 text-sm`}>{plan.name}</p>
+                  {plan.hasModality && (
+                    <div class="mb-2 flex items-center justify-center gap-2">
+                      <span class="text-base-content/70 text-xs font-medium">Grupal</span>
+                      <input
+                        type="checkbox"
+                        class={`toggle toggle-sm ${plan.highlighted ? 'toggle-primary' : 'toggle-neutral'}`}
+                        data-plan-toggle={plan.id}
+                      />
+                      <span class="text-base-content/70 text-xs font-medium">Particular</span>
+                    </div>
+                  )}
+                  <div class="mb-2 flex flex-col">
+                    <h3
+                      class={`font-bold ${
+                        plan.highlighted ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'
+                      }`}
+                      data-plan-price={plan.id}
+                      data-price-grupal={plan.price.grupal}
+                      data-price-particular={plan.price.particular}
+                      data-has-modality={plan.hasModality}
+                    >
+                      {plan.price.grupal}
+                    </h3>
+                    {plan.hasModality && (
+                      <span
+                        class="text-base-content/40 w-full text-right text-xs"
+                        data-plan-per-student={plan.id}
+                      >
+                        por estudiante
+                      </span>
+                    )}
+                  </div>
+                  {plan.description && (
+                    <p
+                      class={`mb-4 text-sm ${plan.highlighted ? 'text-base-content/80' : 'text-base-content/60'}`}
+                    >
+                      {plan.description}
+                    </p>
+                  )}
+                </div>
+                {plan.includesPrevious && (
+                  <div
+                    class={`mb-4 rounded-lg border px-3 py-2 text-xs ${
+                      plan.highlighted
+                        ? 'border-primary/30 bg-primary/10 text-base-content/80'
+                        : 'border-base-content/20 bg-base-300/50 text-base-content/70'
                     }`}
                   >
-                    {plan.price}
-                  </h3>
-                </div>
+                    <span class="font-semibold">
+                      <Icon name="mdi:check" size={12} class="text-primary mr-1 inline-block" />{' '}
+                      Incluye todo el {plan.includesPrevious}
+                    </span>
+                  </div>
+                )}
                 <ul class="space-y-3">
-                  {plan.features.map((feature) => (
+                  {planFeatures[plan.id as keyof typeof planFeatures].map((feature: string) => (
                     <li class="flex items-start gap-3">
                       <Icon
                         name="mdi:check"
@@ -119,21 +169,172 @@ const plans = [
                     </li>
                   ))}
                 </ul>
-                <div class="card-actions mt-auto pt-6">
-                  <a
-                    href={plan.href}
-                    class={`btn w-full rounded-2xl ${
-                      plan.highlighted ? 'btn-primary' : 'btn-neutral'
-                    } ${plan.highlighted ? 'btn-lg' : 'btn-md sm:btn-lg'}`}
-                  >
-                    {plan.cta}
-                  </a>
-                </div>
               </div>
             </div>
           </div>
         ))
       }
     </div>
+
+    <div class="mt-12 text-center sm:mt-16">
+      <a href="/courses" class="btn btn-primary btn-lg rounded-2xl px-8 sm:px-12">
+        Ver todos los cursos
+      </a>
+    </div>
+
+    <div class="mt-12 sm:mt-16">
+      <div class="collapse-plus bg-primary/70 collapse rounded-2xl shadow-xl">
+        <input type="checkbox" id="additional-options-collapse" />
+        <div class="collapse-title text-primary-content text-lg font-bold sm:text-xl">
+          ¿Quieres probar antes de comprometerte con un plan? Otras opciones
+        </div>
+        <div class="collapse-content">
+          <div class="grid grid-cols-1 gap-6 pt-6 md:gap-8 lg:grid-cols-2">
+            <div class="card bg-base-200 shadow-xl">
+              <div class="card-body p-6 md:p-8">
+                <div class="card-title flex flex-col gap-2">
+                  <p class="font-display text-base-content/50 text-sm">Clase de Prueba Gratis</p>
+                  <h3 class="mb-2 text-2xl font-bold sm:text-3xl">Gratis</h3>
+                  <p class="text-base-content/60 mb-4 text-sm">
+                    Prueba una clase completa sin compromiso. Una vez por cuenta.
+                  </p>
+                </div>
+                <ul class="mb-6 space-y-3">
+                  <li class="flex items-start gap-3">
+                    <Icon
+                      name="mdi:check"
+                      size={22}
+                      class="text-neutral/70 mt-0.5 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span class="text-sm sm:text-base">Acceso a una clase completa en vivo</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <Icon
+                      name="mdi:check"
+                      size={22}
+                      class="text-neutral/70 mt-0.5 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span class="text-sm sm:text-base">Material de apoyo de la clase</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <Icon
+                      name="mdi:check"
+                      size={22}
+                      class="text-neutral/70 mt-0.5 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span class="text-sm sm:text-base">Sin compromiso ni tarjeta de crédito</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <Icon
+                      name="mdi:check"
+                      size={22}
+                      class="text-neutral/70 mt-0.5 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span class="text-sm sm:text-base">Ideal para conocer nuestra metodología</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="card bg-base-200 shadow-xl">
+              <div class="card-body p-6 md:p-8">
+                <div class="card-title flex flex-col gap-2">
+                  <p class="font-display text-base-content/50 text-sm">Clase Masiva</p>
+                  <h3 class="mb-2 text-2xl font-bold sm:text-3xl">$12.500</h3>
+                  <p class="text-base-content/60 mb-4 text-sm">
+                    Clase masiva antes de la prueba. Perfecta para preparación de última hora.
+                  </p>
+                </div>
+                <ul class="mb-6 space-y-3">
+                  <li class="flex items-start gap-3">
+                    <Icon
+                      name="mdi:check"
+                      size={22}
+                      class="text-neutral/70 mt-0.5 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span class="text-sm sm:text-base">Clase masiva con muchos estudiantes</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <Icon
+                      name="mdi:check"
+                      size={22}
+                      class="text-neutral/70 mt-0.5 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span class="text-sm sm:text-base">Repaso intensivo antes de la evaluación</span
+                    >
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <Icon
+                      name="mdi:check"
+                      size={22}
+                      class="text-neutral/70 mt-0.5 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span class="text-sm sm:text-base"
+                      >Precio accesible para preparación rápida</span
+                    >
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <Icon
+                      name="mdi:check"
+                      size={22}
+                      class="text-neutral/70 mt-0.5 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span class="text-sm sm:text-base">Ideal para primera vez o refuerzo final</span
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
+
+<script>
+  const toggles = document.querySelectorAll('[data-plan-toggle]') as NodeListOf<HTMLInputElement>;
+
+  const updatePlanModality = (toggle: HTMLInputElement) => {
+    const planId = toggle.getAttribute('data-plan-toggle');
+    const isParticular = toggle.checked;
+
+    if (planId) {
+      const priceElement = document.querySelector(
+        `[data-plan-price="${planId}"]`
+      ) as HTMLElement | null;
+
+      const perStudentElement = document.querySelector(
+        `[data-plan-per-student="${planId}"]`
+      ) as HTMLElement | null;
+
+      if (priceElement) {
+        const price = isParticular
+          ? priceElement.getAttribute('data-price-particular')
+          : priceElement.getAttribute('data-price-grupal');
+        if (price) {
+          priceElement.textContent = price;
+        }
+      }
+
+      if (perStudentElement) {
+        perStudentElement.style.display = isParticular ? 'none' : 'block';
+      }
+    }
+  };
+
+  toggles.forEach((toggle) => {
+    toggle.addEventListener('change', (e) => {
+      const target = e.target as HTMLInputElement;
+      updatePlanModality(target);
+    });
+  });
+</script>
