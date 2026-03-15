@@ -1,64 +1,82 @@
----
----
-## Contenidos Principales
+# MAT1610 – Cálculo I
 
-### Módulo 1: Límites y Continuidad
-- Concepto intuitivo y formal de límite
-- Cálculo de límites mediante técnicas algebraicas
-- Límites laterales y límites al infinito
-- Continuidad de funciones
-- Teorema del Valor Intermedio
+## Contenidos del curso
 
-### Módulo 2: Derivadas
-- Definición de derivada como límite
-- Interpretación geométrica y física
-- Reglas de derivación: potencia, producto, cuociente
-- Regla de la cadena
-- Derivación implícita
-- Derivadas de funciones trigonométricas, exponenciales y logarítmicas
+## Interrogación 1
 
-### Módulo 3: Aplicaciones de las Derivadas
-- Análisis de funciones: crecimiento y decrecimiento
-- Máximos y mínimos relativos y absolutos
-- Problemas de optimización
-- Teorema de Rolle y del Valor Medio
-- Regla de L'Hôpital
-- Análisis de concavidad y puntos de inflexión
+**Clase 1 — Introducción al concepto de límite**
+Límite gráfico y numérico
+Cálculo de límites
+Existencia o inexistencia de límite
+Límites laterales
+Asíntotas verticales
+Leyes de los límites
 
-### Módulo 4: Introducción a las Integrales
-- Antiderivadas e integrales indefinidas
-- Teorema Fundamental del Cálculo
-- Integrales definidas y su interpretación geométrica
-- Técnicas básicas de integración
+**Clase 2 — Límites notables y al infinito**
+Repaso de trigonometría y funciones
+Límites notables
+Teorema del sándwich
+Límites al infinito
+Asíntotas horizontales
 
-## Metodología
+**Clase 3 — Continuidad**
+Tipos de discontinuidad
+Continuidad en intervalos
+Teorema del valor intermedio
+## Interrogación 2
 
-### Clases Teóricas
-- Explicación clara de conceptos fundamentales
-- Demostración de teoremas principales
-- Ejemplos resueltos paso a paso
+**Clase 4 — Introducción a la derivada**
+Recta tangente
+Derivabilidad
+Derivadas polinomiales
+Derivadas exponenciales
+Derivadas trigonométricas
 
-### Clases Prácticas
-- Resolución de ejercicios tipo
-- Aplicaciones en problemas reales
-- Preparación para certámenes y exámenes
+**Clase 5 — Reglas de derivación**
+Regla del producto
+Regla del cociente
+Regla de la cadena
+Derivadas exponenciales y trigonométricas
 
-### Apoyo Personalizado
-- Sesiones de consulta individuales
-- Revisión de ejercicios específicos
-- Estrategias de estudio personalizadas
+**Clase 6 — Derivada logarítmica, implícita e inversa**
+Derivadas logarítmicas
+Derivada implícita
+Derivada de la función inversa
 
-## Recursos Incluidos
+**Clase 7 — Mínimos, máximos y aplicaciones**
+Máximos y mínimos locales y absolutos
+Razones de cambio
+Aproximación lineal
+## Interrogación 3
 
-- Guías de ejercicios progresivas
-- Formularios y tablas de referencia
-- Acceso a grabaciones de sesiones
-- Material complementario digital
-- Simulacros de certámenes
+**Clase 8 — Concavidad y monotonía**
+Derivada en forma gráfica
+Crecimiento y decrecimiento
+Asíntotas oblicuas
+Teorema del valor medio (TVM)
 
-## Evaluación y Seguimiento
+**Clase 9 — Optimización y regla de L’Hôpital**
+Problemas de optimización
+Formas indeterminadas
+Regla de L’Hôpital
 
-- Evaluaciones periódicas de progreso
-- Feedback personalizado continuo
-- Simulacros de certámenes reales
-- Seguimiento de objetivos académicos
+**Clase 10 — Introducción al cálculo integral**
+Antiderivadas
+Sumatorias
+Sumas de Riemann
+Integral definida
+Teorema Fundamental del Cálculo
+Valor promedio
+Examen
+
+**Clase 11 — Métodos de integración I**
+Integración por partes
+Método de sustitución
+
+**Clase 12 — Métodos de integración II**
+Sustitución trigonométrica
+Fracciones parciales
+
+**Clase 13 — Aplicaciones de la integral**
+Área entre curvas
+Cálculo de volumen de sólidos
