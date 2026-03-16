@@ -1601,32 +1601,78 @@ export default function CourseDetail() {
       >
         {materialsDrawerClass && (
           <div className="space-y-4">
-            <div className="border-base-300 bg-base-200/50 flex flex-wrap items-end gap-2 rounded-xl border p-3">
-              <div className="form-control min-w-[140px] flex-1">
-                <label className="label py-0">
-                  <span className="label-text text-sm">Nuevo módulo</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Título del módulo"
-                  className="input input-bordered input-sm w-full"
-                  value={newModuleTitle}
-                  onChange={(e) => setNewModuleTitle(e.target.value)}
-                />
+            <div className="space-y-2">
+              <p className="text-base-content/60 text-sm font-medium">Materiales sin módulo</p>
+              <div className="flex flex-col gap-1">
+                {(
+                  (materialsDrawerClass.materials ?? []).filter(
+                    (m: Material) => !m.moduleId
+                  ) as Material[]
+                ).map((material: Material) => {
+                  const type = material.filename ?? '';
+                  const acceptedFileTypes = isVideoMaterialType(type)
+                    ? (['video/mp4', '.mp4'] as const)
+                    : (['image/*', 'application/pdf'] as const);
+                  const maxSizeMB = isVideoMaterialType(type) ? 500 : 5;
+                  const displayLabel = material.displayName || MATERIAL_LABELS[type] || type;
+                  return (
+                    <div
+                      key={material.id}
+                      className="border-base-300 bg-base-200/50 flex items-center justify-between gap-2 rounded-xl border px-3 py-2"
+                    >
+                      <span className="bg-base-300 text-base-content/70 flex h-8 w-8 shrink-0 items-center justify-center rounded">
+                        {MATERIAL_ICONS[type]}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate font-medium" title={displayLabel}>
+                        {displayLabel}
+                      </span>
+                      <div className="flex shrink-0 items-center gap-1">
+                        <FileInput
+                          acceptedFileTypes={[...acceptedFileTypes]}
+                          onFileUpload={async (file, _, displayName) =>
+                            handleReplaceMaterial(material.id, file, type, displayName)
+                          }
+                          maxSizeMB={maxSizeMB}
+                          buttonText=""
+                          modalTitle={`Reemplazar ${displayLabel}`}
+                          initialDisplayName={displayLabel}
+                          fixedType={type}
+                          customButton={
+                            <button
+                              type="button"
+                              className="btn btn-ghost btn-xs"
+                              title="Reemplazar"
+                            >
+                              <RotateCw className="h-3.5 w-3.5" />
+                            </button>
+                          }
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-xs text-error"
+                          onClick={() => handleDeleteMaterial(material.id, type)}
+                          title="Eliminar"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+                <div className="pt-1">
+                  <FileInput
+                    acceptedFileTypes={['image/*', 'application/pdf', 'video/mp4', '.mp4']}
+                    onFileUpload={async (file, type, displayName) => {
+                      const classId =
+                        materialsDrawerClassIdRef.current ?? materialsDrawerClass.id;
+                      await handleFileUpload(file, classId, type, { displayName });
+                    }}
+                    maxSizeMB={500}
+                    buttonText="Añadir material (sin módulo)"
+                    modalTitle="Subir material"
+                  />
+                </div>
               </div>
-              <button
-                type="button"
-                className="btn btn-primary btn-sm"
-                onClick={handleCreateModule}
-                disabled={!newModuleTitle.trim() || submittingModule}
-              >
-                {submittingModule ? (
-                  <span className="loading loading-spinner loading-sm" />
-                ) : (
-                  <Plus className="h-4 w-4" />
-                )}
-                Crear módulo
-              </button>
             </div>
 
             {(materialsDrawerClass.modules ?? []).length > 0 && (
@@ -1820,98 +1866,33 @@ export default function CourseDetail() {
               </div>
             )}
 
-            {((
-              (materialsDrawerClass.materials ?? []).filter(
-                (m: Material) => !m.moduleId
-              ) as Material[]
-            ).length > 0 ||
-              (materialsDrawerClass.modules ?? []).length === 0) && (
-              <div className="space-y-2">
-                <p className="text-base-content/60 text-sm font-medium">Materiales sin módulo</p>
-                <div className="flex flex-col gap-1">
-                  {(
-                    (materialsDrawerClass.materials ?? []).filter(
-                      (m: Material) => !m.moduleId
-                    ) as Material[]
-                  ).map((material: Material) => {
-                    const type = material.filename ?? '';
-                    const acceptedFileTypes = isVideoMaterialType(type)
-                      ? (['video/mp4', '.mp4'] as const)
-                      : (['image/*', 'application/pdf'] as const);
-                    const maxSizeMB = isVideoMaterialType(type) ? 500 : 5;
-                    const displayLabel = material.displayName || MATERIAL_LABELS[type] || type;
-                    return (
-                      <div
-                        key={material.id}
-                        className="border-base-300 bg-base-200/50 flex items-center justify-between gap-2 rounded-xl border px-3 py-2"
-                      >
-                        <span className="bg-base-300 text-base-content/70 flex h-8 w-8 shrink-0 items-center justify-center rounded">
-                          {MATERIAL_ICONS[type]}
-                        </span>
-                        <span className="min-w-0 flex-1 truncate font-medium" title={displayLabel}>
-                          {displayLabel}
-                        </span>
-                        <div className="flex shrink-0 items-center gap-1">
-                          <FileInput
-                            acceptedFileTypes={[...acceptedFileTypes]}
-                            onFileUpload={async (file, _, displayName) =>
-                              handleReplaceMaterial(material.id, file, type, displayName)
-                            }
-                            maxSizeMB={maxSizeMB}
-                            buttonText=""
-                            modalTitle={`Reemplazar ${displayLabel}`}
-                            initialDisplayName={displayLabel}
-                            fixedType={type}
-                            customButton={
-                              <button
-                                type="button"
-                                className="btn btn-ghost btn-xs"
-                                title="Reemplazar"
-                              >
-                                <RotateCw className="h-3.5 w-3.5" />
-                              </button>
-                            }
-                          />
-                          <button
-                            type="button"
-                            className="btn btn-ghost btn-xs text-error"
-                            onClick={() => handleDeleteMaterial(material.id, type)}
-                            title="Eliminar"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  <div className="pt-1">
-                    <FileInput
-                      acceptedFileTypes={['image/*', 'application/pdf', 'video/mp4', '.mp4']}
-                      onFileUpload={async (file, type, displayName) => {
-                        const classId =
-                          materialsDrawerClassIdRef.current ?? materialsDrawerClass.id;
-                        await handleFileUpload(file, classId, type, { displayName });
-                      }}
-                      maxSizeMB={500}
-                      buttonText="Añadir material (sin módulo)"
-                      modalTitle="Subir material"
-                    />
-                  </div>
-                </div>
+            <div className="border-base-300 bg-base-200/50 flex flex-wrap items-end gap-2 rounded-xl border p-3">
+              <div className="form-control min-w-[140px] flex-1">
+                <label className="label py-0">
+                  <span className="label-text text-sm">Nuevo módulo</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Título del módulo"
+                  className="input input-bordered input-sm w-full"
+                  value={newModuleTitle}
+                  onChange={(e) => setNewModuleTitle(e.target.value)}
+                />
               </div>
-            )}
-
-            {(materialsDrawerClass.modules ?? []).length === 0 &&
-              (
-                (materialsDrawerClass.materials ?? []).filter(
-                  (m: Material) => !m.moduleId
-                ) as Material[]
-              ).length === 0 && (
-                <p className="text-base-content/50 text-sm">
-                  Crea un módulo y añade materiales, o sube archivos y asígnalos después a un
-                  módulo.
-                </p>
-              )}
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={handleCreateModule}
+                disabled={!newModuleTitle.trim() || submittingModule}
+              >
+                {submittingModule ? (
+                  <span className="loading loading-spinner loading-sm" />
+                ) : (
+                  <Plus className="h-4 w-4" />
+                )}
+                Crear módulo
+              </button>
+            </div>
           </div>
         )}
       </Drawer>
