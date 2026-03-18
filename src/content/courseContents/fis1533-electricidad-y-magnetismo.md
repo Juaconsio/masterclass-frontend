@@ -1,5 +1,5 @@
 # Contenidos del Curso
-FIS1533 — Electricidad y Magnetismo
+Electricidad y Magnetismo
 
 ## Interrogación 1
 

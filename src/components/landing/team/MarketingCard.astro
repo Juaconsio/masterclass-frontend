@@ -1,0 +1,23 @@
+---
+import TeamCard from './TeamCard.astro';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  members: { name: string; image: ImageMetadata }[];
+  extraCount?: number;
+}
+
+const { members, extraCount = 2 } = Astro.props;
+---
+
+<TeamCard
+  titlePrefix="#"
+  title="Equipo"
+  titleSuffix="Marketing"
+  description="Estrategia y comunicación para conectar con estudiantes"
+  members={members}
+  extraCount={extraCount}
+  ariaLabel="Ver todo el equipo de marketing"
+  showIsotipo={true}
+  variant="neutral"
+/>

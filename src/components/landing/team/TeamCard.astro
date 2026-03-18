@@ -1,0 +1,92 @@
+---
+import { Icon } from 'astro-icon/components';
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import IsotipoOutlined from '/src/assets/Isotipo Verde Outlined.svg';
+
+interface Member {
+  name: string;
+  image: ImageMetadata;
+}
+
+interface Props {
+  titlePrefix?: string;
+  title: string;
+  titleSuffix?: string;
+  description: string;
+  members: Member[];
+  extraCount: number;
+  ariaLabel: string;
+  showIsotipo?: boolean;
+  variant: 'neutral' | 'accent' | 'secondary';
+}
+
+const {
+  titlePrefix,
+  title,
+  titleSuffix,
+  description,
+  members,
+  extraCount,
+  ariaLabel,
+  showIsotipo = true,
+  variant,
+} = Astro.props;
+---
+
+<a
+  href="/nosotros#equipo"
+  class={`group relative flex min-w-0 h-full flex-col justify-between overflow-hidden rounded-2xl p-3 transition-all hover:shadow-lg sm:p-4 md:p-5 bg-${variant} hover:bg-${variant}/90`}
+  aria-label={ariaLabel}
+>
+  {
+    showIsotipo && (
+      <div
+        class="pointer-events-none absolute top-[25%] -right-[60%] z-0 opacity-[0.2]"
+        aria-hidden="true"
+      >
+        <Image src={IsotipoOutlined} alt="" class="h-5/8 w-5/8 object-contain object-right" />
+      </div>
+    )
+  }
+  <div>
+    <h3 class={`font-display text-${variant}-content text-xl font-bold`}>
+      {
+        titlePrefix && (
+          <span class={`font-display text-xl italic text-${variant}-content`}>{titlePrefix}</span>
+        )
+      }
+      {title}
+      {
+        titleSuffix && (
+          <span class={`font-gebuk text-2xl text-${variant}-content`}>{titleSuffix}</span>
+        )
+      }
+    </h3>
+    <p class={`text-${variant}-content/70 text-sm`}>{description}</p>
+  </div>
+  <div class="avatar-group -space-x-6">
+    {
+      members.map((p) => (
+        <div class="avatar">
+          <div class={`w-12 bg-${variant}`}>
+            <Image src={p.image} alt={p.name} class={`h-full w-full object-cover`} format="svg" />
+          </div>
+        </div>
+      ))
+    }
+    <div class="avatar avatar-placeholder">
+      <div class={`w-12 bg-${variant} text-${variant}-content`}>
+        <span>+{extraCount}</span>
+      </div>
+    </div>
+  </div>
+  <div
+    class="mt-3 flex items-end justify-end gap-2 transition-all duration-300 group-hover:translate-x-1 group-hover:translate-y-1 group-hover:underline"
+  >
+    <span class={`text-${variant}-content/80 inline-flex items-center gap-1 text-sm font-medium`}>
+      Ver todo el equipo
+      <Icon name="mdi:arrow-right" size={16} aria-hidden="true" />
+    </span>
+  </div>
+</a>

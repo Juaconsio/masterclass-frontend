@@ -1,0 +1,64 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  slug: string;
+  name: string;
+  degree: string;
+  description: string;
+  image?: string;
+  courses: { slug: string; acronym: string }[];
+  classesCount?: number;
+}
+
+const { slug, name, degree, image, courses } = Astro.props;
+
+const getInitials = (name: string) =>
+  name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+---
+
+<a
+  href={`/nosotros/${slug}`}
+  class="group relative flex min-w-0 flex-col overflow-hidden rounded-2xl bg-secondary transition-all hover:shadow-xl"
+  aria-label={`Ver perfil de ${name}`}
+>
+  <div class="relative aspect-[3/4] overflow-hidden bg-base-300">
+    {image ? (
+      <img
+        src={image}
+        alt={name}
+        class="h-full w-full object-cover object-top transition-all duration-300 group-hover:scale-105"
+        loading="lazy"
+      />
+    ) : (
+      <div class="bg-primary text-primary-content flex h-full w-full items-center justify-center text-4xl font-bold">
+        {getInitials(name)}
+      </div>
+    )}
+    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+    <div class="absolute right-0 bottom-0 left-0 pt-4">
+      <div class="rounded-lg bg-black/50 px-3 py-2 shadow-lg">
+        <p class="font-display font-bold text-white">{name}</p>
+        <p class="line-clamp-2 text-sm text-white/80">{degree}</p>
+        {courses.length > 0 && (
+          <p class="mt-1 line-clamp-1 text-xs text-white/60">
+            {courses.map((c) => c.acronym).join(' · ')}
+          </p>
+        )}
+      </div>
+    </div>
+  </div>
+  <div class="absolute top-3 right-3 text-white/90">
+    <Icon
+      name="mdi:arrow-top-right"
+      class="transition-all duration-300 group-hover:-translate-x-1 group-hover:translate-y-1"
+      size={24}
+      aria-hidden="true"
+    />
+  </div>
+</a>

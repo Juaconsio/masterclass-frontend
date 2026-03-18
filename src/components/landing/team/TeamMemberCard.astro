@@ -1,13 +1,16 @@
 ---
+import { Icon } from 'astro-icon/components';
+
 interface Props {
   slug: string;
   name: string;
   role: string;
   description: string;
   image?: string;
+  studies?: string;
 }
 
-const { slug, name, role, description, image } = Astro.props;
+const { slug, name, role, image } = Astro.props;
 
 const getInitials = (name: string) =>
   name
@@ -20,29 +23,36 @@ const getInitials = (name: string) =>
 
 <a
   href={`/nosotros/${slug}`}
-  class="card flex h-full flex-col bg-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+  class="group relative flex min-w-0 flex-col overflow-hidden rounded-2xl bg-neutral transition-all hover:shadow-xl"
   aria-label={`Ver perfil de ${name}`}
 >
-  <div class="card-body flex flex-col items-center p-4 text-center sm:p-5 md:p-6">
-    <div class="avatar mb-3 sm:mb-4">
-      <div class="h-20 w-20 rounded-full sm:h-24 sm:w-24">
-        {
-          image ? (
-            <img src={image} alt={name} loading="lazy" />
-          ) : (
-            <div class="bg-primary text-primary-content flex h-full w-full items-center justify-center text-xl font-bold sm:text-2xl">
-              {getInitials(name)}
-            </div>
-          )
-        }
+  <div class="relative aspect-[3/4] overflow-hidden bg-base-300">
+    {image ? (
+      <img
+        src={image}
+        alt={name}
+        class="h-full w-full object-cover object-top transition-all duration-300 group-hover:scale-105"
+        loading="lazy"
+      />
+    ) : (
+      <div class="bg-primary text-primary-content flex h-full w-full items-center justify-center text-4xl font-bold">
+        {getInitials(name)}
+      </div>
+    )}
+    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+    <div class="absolute right-0 bottom-0 left-0 pt-4">
+        <div class="rounded-lg bg-black/50 px-3 py-2 shadow-lg">
+        <p class="font-display font-bold text-white">{name}</p>
+        <p class="line-clamp-2 text-sm text-white/80">{role}</p>
       </div>
     </div>
-    <h3 class="font-gebuk text-lg font-bold sm:text-xl">{name}</h3>
-    <p class="text-primary mb-2 text-lg font-semibold">{role}</p>
-    <p
-      class="text-base-content/80 line-clamp-2 min-h-0 text-sm leading-relaxed text-balance sm:text-base"
-    >
-      {description}
-    </p>
+  </div>
+  <div class="absolute top-3 right-3 text-white/90">
+    <Icon
+      name="mdi:arrow-top-right"
+      class="transition-all duration-300 group-hover:-translate-x-1 group-hover:translate-y-1"
+      size={24}
+      aria-hidden="true"
+    />
   </div>
 </a>

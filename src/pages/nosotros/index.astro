@@ -1,0 +1,109 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import Navbar from '@components/landing/Navbar.astro';
+import NosotrosHero from '@components/landing/NosotrosHero.astro';
+import MissionVision from '@components/landing/MissionVision.astro';
+import PilaresSection from '@components/landing/PilaresSection.astro';
+import TeamMemberCard from '@components/landing/team/TeamMemberCard.astro';
+import ProfessorCard from '@components/landing/team/ProfessorCard.astro';
+import FAQComplete from '@components/landing/FAQComplete.astro';
+import CTA from '@components/landing/CTA.astro';
+import Footer from '@components/landing/footer.astro';
+import { getPublicCourseCatalog } from '@/lib/courseCatalog';
+
+function excerpt(body: string, max = 160): string {
+  const plain = body.replace(/\n/g, ' ').replace(/#{1,6}\s/g, '').trim();
+  return plain.length > max ? plain.slice(0, max) + '…' : plain;
+}
+
+const catalog = await getPublicCourseCatalog({ includeInactive: true });
+const teamEntries = await getCollection('team');
+
+const hasCourseSlugs = (e: (typeof teamEntries)[0]) => (e.data.courseSlugs?.length ?? 0) > 0;
+
+const teamLeaders = teamEntries.filter((e) => !hasCourseSlugs(e));
+const professors = teamEntries.filter(hasCourseSlugs);
+---
+
+<Layout
+  title="Nosotros - Salva Ramos"
+  description="Conoce a Salva Ramos: nuestra misión, visión, valores, equipo y más información sobre nuestro proyecto."
+>
+  <Navbar />
+  <div class="mt-16">
+    <NosotrosHero />
+
+    <MissionVision useFullText={true} />
+
+    <PilaresSection />
+
+    <div class="container mx-auto px-4 py-16 sm:px-6 sm:py-20 md:py-24">
+      <section id="equipo" class="mb-24 rounded-2xl bg-base-200/50 py-12 md:mb-32 md:py-16">
+        <div class="mb-12 text-center sm:mb-16">
+          <h2 class="font-display mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">
+            El equipo detrás de Salva Ramos
+          </h2>
+          <p class="text-base-content/70 mx-auto max-w-xl text-base leading-relaxed sm:text-lg">
+            Estudiantes y profesionales que conocen de primera mano los desafíos universitarios. Creemos que aprender es más fácil cuando alguien te explica bien y te acompaña.
+          </p>
+        </div>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+          {
+            teamLeaders.map((entry) => {
+              const desc = entry.body ? excerpt(entry.body) : '';
+              return (
+                <TeamMemberCard
+                  slug={entry.slug}
+                  name={entry.data.name}
+                  role={entry.data.degree}
+                  description={desc}
+                  image={entry.data.image}
+                  studies={entry.data.studies}
+                />
+              );
+            })
+          }
+        </div>
+      </section>
+
+      <section class="rounded-2xl bg-base-200/30 py-12 md:py-16">
+        <div class="mb-12 text-center sm:mb-16">
+          <h2 class="font-display mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">
+            Nuestros profesores
+          </h2>
+          <p class="text-base-content/70 mx-auto max-w-xl text-base leading-relaxed sm:text-lg">
+            Profesores que dominan la materia y saben enseñarla. Ex ayudantes y estudiantes destacados.
+          </p>
+        </div>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+          {
+            professors.map((entry) => {
+              const courseSlugs = entry.data.courseSlugs ?? [];
+              const courses = courseSlugs
+                .map((slug) => catalog.find((c) => c.slug === slug))
+                .filter(Boolean)
+                .map((c) => ({ slug: c!.slug, acronym: c!.data.acronym }));
+              const desc = entry.body ? excerpt(entry.body) : '';
+              return (
+                <ProfessorCard
+                  slug={entry.slug}
+                  name={entry.data.name}
+                  degree={entry.data.degree}
+                  description={desc}
+                  image={entry.data.image}
+                  courses={courses}
+                  classesCount={entry.data.classesCount}
+                />
+              );
+            })
+          }
+        </div>
+      </section>
+    </div>
+
+    <FAQComplete />
+    <CTA />
+    <Footer />
+  </div>
+</Layout>

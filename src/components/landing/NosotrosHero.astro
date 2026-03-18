@@ -1,0 +1,117 @@
+---
+import { Icon } from 'astro-icon/components';
+import { pilares } from '@/data/pilares';
+import MemberCard from './team/MemberCard.astro';
+import ProfesoresCard from './team/ProfesoresCard.astro';
+import MarketingCard from './team/MarketingCard.astro';
+import PilarCard from './PilarCard.astro';
+import CarlosImg from '/src/assets/team/Carlos.svg';
+import FelipeImg from '/src/assets/team/Felipe Santos.svg';
+import IgnacioImg from '/src/assets/team/Ignacio Quezada.svg';
+import JoaquinImg from '/src/assets/team/Joaquin Concha.svg';
+
+const board = [
+  {
+    name: 'Carlos Saez',
+    role: 'CEO',
+    image: CarlosImg,
+    degree: 'Ingeniero Civil Industrial, Diploma en Ingeniería Electrica',
+  },
+  {
+    name: 'Ignacio Quezada',
+    role: 'CMO',
+    image: IgnacioImg,
+    degree: 'Ingeniero Civil Industrial, Diploma en Ingeniería Electrica',
+  },
+  {
+    name: 'Joaquin Concha',
+    role: 'CMO',
+    image: JoaquinImg,
+    degree: 'Ingeniero Civil Industrial, Diploma en Ingeniería en Computación',
+  },
+];
+
+const profesores = [
+  { name: 'Felipe Santos', role: 'Profesor', image: FelipeImg },
+  { name: 'Joaquin Concha', role: 'Profesor', image: JoaquinImg },
+];
+
+const marketingTeam = board.filter((b) => b.role === 'CMO');
+---
+
+<div class="relative overflow-hidden">
+  <div class="grid lg:grid-cols-[3fr_4fr]">
+    <div
+      class="bg-primary text-primary-content flex flex-col justify-center px-4 py-16 sm:px-6 sm:py-20 md:px-8 md:py-24 lg:px-12"
+    >
+      <div class="mx-auto w-full max-w-xl" data-usal="fade-up" data-usal-delay="0">
+        <div class="mb-4 inline-block text-xs font-semibold tracking-widest uppercase sm:text-sm">
+          Ex alumnos, estudiantes y nuevos estudiantes
+        </div>
+        <h1
+          class="font-display mb-6 text-3xl leading-tight font-bold sm:text-4xl md:text-5xl lg:text-6xl"
+        >
+          Salva <span class="font-gebuk text-3xl sm:text-4xl md:text-5xl lg:text-6xl">Ramos</span>
+        </h1>
+        <p class="text-neutral-content/80 mb-8 max-w-md text-base leading-relaxed sm:text-lg">
+          No somos solo tutores. Somos la red de apoyo que transforma la frustración académica en
+          éxito universitario a través de tecnología, cercanía y excelencia.
+        </p>
+        <a
+          href="#pilares"
+          class="btn btn-neutral text-neutral-content hover:btn-neutral/90 inline-flex w-fit items-center gap-2 border-none font-semibold"
+        >
+          Conoce más del proyecto
+          <Icon name="mdi:arrow-down" size={20} aria-hidden="true" />
+        </a>
+      </div>
+    </div>
+
+    <div class="bg-primary flex items-center overflow-x-hidden p-4 sm:p-6">
+      <div
+        class="grid w-full grid-cols-3 gap-2 sm:gap-3 md:grid-cols-3 md:gap-4"
+        data-usal="fade-up"
+        data-usal-delay="150"
+      >
+        <div class="min-w-0 md:col-start-1 md:row-start-1">
+          <MemberCard
+            name={board[0].name}
+            role={board[0].role}
+            image={board[0].image}
+            degree={board[0].degree}
+            variant="neutral"
+          />
+        </div>
+        <div class="min-w-0 md:col-start-3 md:row-start-1">
+          <MemberCard
+            name={board[1].name}
+            role={board[1].role}
+            image={board[1].image}
+            variant="accent"
+          />
+        </div>
+        <div class="min-w-0 md:col-start-2 md:row-start-2">
+          <MemberCard
+            name={board[2].name}
+            role={board[2].role}
+            image={board[2].image}
+            variant="secondary"
+          />
+        </div>
+        <div class="col-span-3 flex gap-2 sm:gap-3 md:contents">
+          <div class="min-w-0 flex-1 md:col-start-1 md:row-start-2">
+            <ProfesoresCard members={profesores} extraCount={10} />
+          </div>
+          <div class="min-w-0 flex-1 md:col-start-3 md:row-start-2">
+            <MarketingCard members={marketingTeam} extraCount={2} />
+          </div>
+        </div>
+        <div
+          class="col-span-3 grid min-w-0 grid-cols-2 grid-rows-2 gap-2 md:col-span-1 md:col-start-2 md:row-start-1"
+        >
+          {pilares.map((p) => <PilarCard item={p} grid />)}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

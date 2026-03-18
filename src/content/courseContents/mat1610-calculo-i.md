@@ -1,4 +1,4 @@
-# MAT1610 – Cálculo I
+# Cálculo I
 
 ## Contenidos del curso
 

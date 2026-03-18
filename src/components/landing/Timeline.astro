@@ -1,0 +1,79 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface TimelineEvent {
+  year: string;
+  title: string;
+  description: string;
+}
+
+interface Props {
+  events?: TimelineEvent[];
+}
+
+const defaultEvents: TimelineEvent[] = [
+  {
+    year: '2024',
+    title: 'Inicio del proyecto',
+    description: 'Nacimiento de SalvaRamos como respuesta a la necesidad de apoyo académico estructurado para estudiantes STEM.',
+  },
+  {
+    year: '2025',
+    title: 'Expansión y crecimiento',
+    description: 'Ampliación de la comunidad y consolidación de la metodología de enseñanza.',
+  },
+];
+
+const { events = defaultEvents } = Astro.props;
+---
+
+<section id="timeline" class="py-12 sm:py-16 md:py-20">
+  <div class="container mx-auto px-4 sm:px-6">
+    <div class="mb-10 text-center sm:mb-14 md:mb-16">
+      <h2 class="font-display mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl md:text-5xl">
+        Nuestra historia
+      </h2>
+      <p class="text-base-content/70 mx-auto max-w-2xl text-base sm:text-lg">
+        Conoce los hitos que han marcado nuestro camino hacia la excelencia académica.
+      </p>
+    </div>
+
+    <div class="relative mx-auto max-w-4xl">
+      <div
+        class="bg-primary/30 absolute left-1/2 top-0 hidden h-full w-1 -translate-x-1/2 sm:block"
+        aria-hidden="true"
+      ></div>
+
+      <div class="space-y-12 sm:space-y-16">
+        {
+          events.map((event, index) => {
+            const isEven = index % 2 === 0;
+            return (
+              <div
+                class={`flex flex-col gap-4 sm:flex-row sm:gap-8 ${isEven ? 'sm:flex-row-reverse' : ''}`}
+                data-usal="fade-up"
+                data-usal-delay={index * 100}
+              >
+                <div class="flex-1 sm:text-right" class:sm:text-left={!isEven}>
+                  <div
+                    class="bg-primary text-primary-content relative z-10 mx-auto flex h-16 w-16 items-center justify-center rounded-full text-xl font-bold shadow-lg sm:mx-0"
+                  >
+                    {event.year}
+                  </div>
+                </div>
+                <div class="flex-1 pb-8 sm:pb-0">
+                  <div
+                    class={`bg-base-200 rounded-2xl p-6 shadow-lg sm:p-8 ${isEven ? 'sm:text-right' : ''}`}
+                  >
+                    <h3 class="font-display mb-2 text-xl font-bold sm:text-2xl">{event.title}</h3>
+                    <p class="text-base-content/80 text-base leading-relaxed">{event.description}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        }
+      </div>
+    </div>
+  </div>
+</section>

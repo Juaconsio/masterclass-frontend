@@ -67,6 +67,7 @@ const teamSchema = z.object({
   professorId: z.number().optional(),
   courseSlugs: z.array(z.string()).optional(),
   classesCount: z.number().optional(),
+  studies: z.string().optional(),
 });
 
 const teamCollection = defineCollection({

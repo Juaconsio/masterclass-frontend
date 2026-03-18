@@ -125,14 +125,12 @@ const plans = [
                     >
                       {plan.price.grupal}
                     </h3>
-                    {plan.hasModality && (
-                      <span
-                        class="text-base-content/40 w-full text-right text-xs"
-                        data-plan-per-student={plan.id}
-                      >
-                        por estudiante
-                      </span>
-                    )}
+                    <span
+                      class="text-base-content/40 w-full text-right text-xs"
+                      data-plan-per-student={plan.id}
+                    >
+                      por estudiante
+                    </span>
                   </div>
                   {plan.description && (
                     <p
@@ -160,7 +158,7 @@ const plans = [
                   {planFeatures[plan.id as keyof typeof planFeatures].map((feature: string) => (
                     <li class="flex items-start gap-3">
                       <Icon
-                        name="mdi:check"
+                        name="mdi:plus-circle-outline"
                         size={22}
                         class={`${plan.highlighted ? 'text-primary' : 'text-neutral/70'} mt-0.5 shrink-0`}
                         aria-hidden="true"

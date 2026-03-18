@@ -1,0 +1,76 @@
+---
+import { Icon } from 'astro-icon/components';
+
+const mission = {
+  title: 'Nuestra misión',
+  icon: 'mdi:target',
+  fullText:
+    'Ayudar a estudiantes universitarios a comprender mejor sus ramos mediante clases claras, acompañamiento real y material de estudio de calidad. Queremos que estudiar deje de sentirse como una lucha solitaria y pase a ser un proceso guiado, donde siempre tengas apoyo cuando lo necesites.',
+  synthesis:
+    'Clases claras, acompañamiento real y material de calidad para que estudiar sea un proceso guiado.',
+};
+
+const vision = {
+  title: 'Nuestra visión',
+  icon: 'mdi:eye',
+  fullText:
+    'Convertirnos en una plataforma referente de apoyo académico universitario  combinando tecnología, buenos profesores y una experiencia de aprendizaje diseñada para estudiantes de hoy.',
+  synthesis: 'Ser la plataforma referente de apoyo académico universitario.',
+};
+
+interface Props {
+  useFullText?: boolean;
+}
+
+const { useFullText = true } = Astro.props;
+---
+
+<section id="mission-vision" class="py-20 sm:py-24 md:py-28">
+  <div class="container mx-auto px-4 sm:px-6">
+    <div class="mb-14 text-center sm:mb-16 md:mb-20">
+      <h2 class="font-display mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">
+        Misión y visión
+      </h2>
+      <p class="text-base-content/70 mx-auto max-w-xl text-base leading-relaxed sm:text-lg">
+        Los principios que guían nuestro trabajo.
+      </p>
+    </div>
+
+    <div class="grid gap-8 md:grid-cols-2 lg:gap-12">
+      <div
+        class="bg-primary/5 border-primary/20 rounded-2xl border p-6 shadow-lg sm:p-8"
+        data-usal="fade-up"
+      >
+        <div class="mb-4 flex items-center gap-3">
+          <div
+            class="bg-primary text-primary-content flex h-12 w-12 items-center justify-center rounded-xl"
+          >
+            <Icon name={mission.icon} size={28} />
+          </div>
+          <h3 class="font-display text-2xl font-bold sm:text-3xl">{mission.title}</h3>
+        </div>
+        <p class="text-base-content/90 text-base leading-relaxed sm:text-lg">
+          {useFullText ? mission.fullText : mission.synthesis}
+        </p>
+      </div>
+
+      <div
+        class="bg-secondary/5 border-secondary/20 rounded-2xl border p-6 shadow-lg sm:p-8"
+        data-usal="fade-up"
+        data-usal-delay="100"
+      >
+        <div class="mb-4 flex items-center gap-3">
+          <div
+            class="bg-secondary text-secondary-content flex h-12 w-12 items-center justify-center rounded-xl"
+          >
+            <Icon name={vision.icon} size={28} />
+          </div>
+          <h3 class="font-display text-2xl font-bold sm:text-3xl">{vision.title}</h3>
+        </div>
+        <p class="text-base-content/90 text-base leading-relaxed sm:text-lg">
+          {useFullText ? vision.fullText : vision.synthesis}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
