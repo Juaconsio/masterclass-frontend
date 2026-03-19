@@ -1,14 +1,29 @@
 ---
-import { getEntry, getCollection } from 'astro:content';
+export const prerender = false;
+import { getEntry } from 'astro:content';
+import { Image } from 'astro:assets';
 import Layout from '@layouts/Layout.astro';
 import Navbar from '@components/landing/Navbar.astro';
 import Footer from '@components/landing/footer.astro';
 import { Icon } from 'astro-icon/components';
 import { getPublicCourseCatalog } from '@/lib/courseCatalog';
+import { fetchProfessorCourses, professorCoursesToSlugs } from '@/client/publicProfessors';
 
-export async function getStaticPaths() {
-  const team = await getCollection('team');
-  return team.map((entry) => ({ params: { slug: entry.slug } }));
+const teamAssetImages = import.meta.glob<{ default: import('astro').ImageMetadata }>(
+  '/src/assets/team/*.{svg,png,jpg,jpeg,webp}',
+  { eager: true }
+);
+
+function resolveImage(imagePath: string | undefined) {
+  if (!imagePath) return null;
+  if (imagePath.startsWith('/') && !imagePath.includes('src/'))
+    return { type: 'url' as const, src: imagePath };
+  if (imagePath.startsWith('http')) return { type: 'url' as const, src: imagePath };
+  const filename = imagePath.split('/').pop() ?? '';
+  const key = Object.keys(teamAssetImages).find((k) => k.endsWith(filename));
+  if (key && teamAssetImages[key]?.default)
+    return { type: 'asset' as const, src: teamAssetImages[key].default };
+  return { type: 'url' as const, src: imagePath.startsWith('/') ? imagePath : `/${imagePath}` };
 }
 
 const { slug } = Astro.params;
@@ -25,12 +40,18 @@ try {
 }
 
 const catalog = await getPublicCourseCatalog({ includeInactive: true });
-const courseSlugs = teamEntry.data.courseSlugs ?? [];
+const courseSlugs =
+  teamEntry.data.professorId != null
+    ? professorCoursesToSlugs(await fetchProfessorCourses(teamEntry.data.professorId))
+    : [];
 const specialties = courseSlugs.map((s) => catalog.find((c) => c.slug === s)).filter(Boolean);
 
 const sobreMiRender = await teamEntry.render();
 const academicRender = academicEntry ? await academicEntry.render() : null;
 const { name, degree, image, classesCount } = teamEntry.data;
+const resolvedImage = resolveImage(image);
+const hasCourses = specialties.length > 0;
+const catalogHref = hasCourses ? `/courses?professor=${slug}` : '/courses';
 ---
 
 <Layout title={`${name} - Nosotros Salva Ramos`} description={`Perfil de ${name}. ${degree}.`}>
@@ -49,10 +70,26 @@ const { name, degree, image, classesCount } = teamEntry.data;
       <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,340px)_1fr] lg:gap-6">
         <aside class="flex flex-col gap-6">
           <div class="avatar flex justify-center lg:block">
-            <div class="h-48 w-48 rounded-2xl sm:h-56 sm:w-56 lg:h-64 lg:w-64">
+            <div
+              class="bg-primary h-48 w-48 overflow-hidden rounded-2xl sm:h-56 sm:w-56 lg:h-64 lg:w-64"
+            >
               {
-                image ? (
-                  <img src={image} alt={name} class="h-full w-full object-cover" />
+                resolvedImage ? (
+                  resolvedImage.type === 'asset' ? (
+                    <Image
+                      src={resolvedImage.src}
+                      alt={name}
+                      class="h-full w-full object-cover object-top"
+                      loading="eager"
+                    />
+                  ) : (
+                    <img
+                      src={resolvedImage.src}
+                      alt={name}
+                      class="h-full w-full object-cover object-top"
+                      loading="eager"
+                    />
+                  )
                 ) : (
                   <div class="bg-complement text-primary-content flex h-full w-full items-center justify-center text-5xl font-bold lg:text-6xl">
                     {name
@@ -133,8 +170,8 @@ const { name, degree, image, classesCount } = teamEntry.data;
             <p class="text-neutral-content/90 mt-2">
               Agenda tu sesión y revisa la disponibilidad para reservar con este tutor.
             </p>
-            <a href="/courses" class="btn btn-primary btn-lg mt-4 rounded-full">
-              Ver disponibilidad
+            <a href={catalogHref} class="btn btn-primary btn-lg mt-4 rounded-full">
+              {hasCourses ? 'Ver cursos de ' + name.split(' ')[0] : 'Ver catálogo'}
             </a>
           </div>
         </main>

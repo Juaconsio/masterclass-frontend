@@ -1,4 +1,5 @@
 ---
+export const prerender = false;
 import { getCollection } from 'astro:content';
 import Layout from '@layouts/Layout.astro';
 import Navbar from '@components/landing/Navbar.astro';
@@ -12,6 +13,7 @@ import FAQComplete from '@components/landing/FAQComplete.astro';
 import CTA from '@components/landing/CTA.astro';
 import Footer from '@components/landing/footer.astro';
 import { getPublicCourseCatalog } from '@/lib/courseCatalog';
+import { fetchProfessorCourses, professorCoursesToSlugs } from '@/client/publicProfessors';
 
 function excerpt(body: string, max = 160): string {
   const plain = body
@@ -24,13 +26,13 @@ function excerpt(body: string, max = 160): string {
 const catalog = await getPublicCourseCatalog({ includeInactive: true });
 const teamEntries = await getCollection('team');
 
-const hasCourseSlugs = (e: (typeof teamEntries)[0]) => (e.data.courseSlugs?.length ?? 0) > 0;
+const hasProfessorId = (e: (typeof teamEntries)[0]) => e.data.professorId != null;
 
 const boardEntries = teamEntries
   .filter((e) => e.data.type === 'board')
   .sort((a, b) => (a.data.heroOrder ?? 99) - (b.data.heroOrder ?? 99));
 const professorEntries = teamEntries.filter(
-  (e) => e.data.type === 'professor' || hasCourseSlugs(e)
+  (e) => e.data.type === 'professor' || hasProfessorId(e)
 );
 const marketingEntries = teamEntries.filter((e) => e.data.type === 'marketing');
 
@@ -52,7 +54,22 @@ const marketingForHero = marketingEntries.slice(0, 3).map((e) => ({
 }));
 
 const teamLeaders = teamEntries.filter((e) => e.data.type === 'board');
-const professors = teamEntries.filter((e) => e.data.type === 'professor' || hasCourseSlugs(e));
+const professorEntriesFiltered = teamEntries.filter(
+  (e) => e.data.type === 'professor' || hasProfessorId(e)
+);
+const professors = await Promise.all(
+  professorEntriesFiltered.map(async (entry) => {
+    const slugs =
+      entry.data.professorId != null
+        ? professorCoursesToSlugs(await fetchProfessorCourses(entry.data.professorId))
+        : [];
+    const courses = slugs
+      .map((slug) => catalog.find((c) => c.slug === slug))
+      .filter(Boolean)
+      .map((c) => ({ slug: c!.slug, acronym: c!.data.acronym }));
+    return { entry, courses };
+  })
+);
 ---
 
 <Layout
@@ -135,12 +152,7 @@ const professors = teamEntries.filter((e) => e.data.type === 'professor' || hasC
           class="mx-auto grid max-w-5xl grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 lg:gap-6"
         >
           {
-            professors.map((entry) => {
-              const courseSlugs = entry.data.courseSlugs ?? [];
-              const courses = courseSlugs
-                .map((slug) => catalog.find((c) => c.slug === slug))
-                .filter(Boolean)
-                .map((c) => ({ slug: c!.slug, acronym: c!.data.acronym }));
+            professors.map(({ entry, courses }) => {
               const desc = entry.body ? excerpt(entry.body) : '';
               return (
                 <ProfessorCard

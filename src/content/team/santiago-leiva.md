@@ -4,6 +4,7 @@ degree: "Ingeniería Civil en Minería UC · Subespecialidad Investigación Oper
 image: "/team/santiago-leiva.jpg"
 role: "Equipo de Marketing"
 type: marketing
+professorId: 1
 ---
 
 **Equipo de Marketing**

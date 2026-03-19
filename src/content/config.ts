@@ -68,7 +68,6 @@ const teamSchema = z.object({
   type: z.enum(['board', 'professor', 'marketing']).optional(),
   heroOrder: z.number().optional(),
   professorId: z.number().optional(),
-  courseSlugs: z.array(z.string()).optional(),
   classesCount: z.number().optional(),
   studies: z.string().optional(),
 });

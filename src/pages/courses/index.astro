@@ -1,17 +1,36 @@
 ---
 export const prerender = false;
+import { getEntry } from 'astro:content';
 import Layout from '@layouts/Layout.astro';
 import Navbar from '@components/landing/Navbar.astro';
 import CourseCard from '@components/landing/courses/CourseCard.astro';
 import CourseFilters from '@components/landing/courses/CourseFilters.astro';
 import { Icon } from 'astro-icon/components';
 import { getPublicCourseCatalog } from '@/lib/courseCatalog';
-const courses = await getPublicCourseCatalog();
 
+const allCourses = await getPublicCourseCatalog();
+const professorSlug = Astro.url.searchParams.get('professor');
+
+let filteredCourses = allCourses;
+let professorName: string | null = null;
+
+if (professorSlug) {
+  const teamEntry = await getEntry('team', professorSlug);
+  const professorId = teamEntry?.data?.professorId;
+  if (professorId != null) {
+    const { fetchProfessorCourses, professorCoursesToSlugs } = await import(
+      '@/client/publicProfessors'
+    );
+    const slugs = new Set(professorCoursesToSlugs(await fetchProfessorCourses(professorId)));
+    filteredCourses = allCourses.filter((c) => slugs.has(c.slug));
+    professorName = teamEntry?.data?.name ?? null;
+  }
+}
+
+const courses = filteredCourses;
 const departments = [...new Set(courses.map((course) => course.data.department))];
 const levels = [...new Set(courses.map((course) => course.data.level))];
 
-// Sort courses: featured first, then by department
 const sortedCourses = [...courses].sort((a, b) => {
   if (a.data.featured && !b.data.featured) return -1;
   if (!a.data.featured && b.data.featured) return 1;
@@ -21,14 +40,18 @@ const sortedCourses = [...courses].sort((a, b) => {
 const catalogUnavailable = courses.length === 0;
 ---
 
-<Layout title="Cursos Disponibles - Tutoría Universitaria">
+<Layout title={professorName ? `Cursos con ${professorName} - Salva Ramos` : 'Cursos Disponibles - Tutoría Universitaria'}>
   <Navbar />
   <!-- Hero Section -->
   <div class="container mx-auto mt-16 px-4 py-12">
     <div class="mb-12 text-center">
-      <h1 class="mb-4 text-xl font-bold sm:text-3xl md:text-4xl">Nuestros Cursos</h1>
+      <h1 class="mb-4 text-xl font-bold sm:text-3xl md:text-4xl">
+        {professorName ? `Cursos con ${professorName}` : 'Nuestros Cursos'}
+      </h1>
       <p class="text-base-content/70 text-lg sm:text-xl md:text-2xl">
-        Encuentra el curso que buscas y el impulso que necesitas.
+        {professorName
+          ? `Cursos que imparte ${professorName.split(' ')[0]}.`
+          : 'Encuentra el curso que buscas y el impulso que necesitas.'}
       </p>
     </div>
 
