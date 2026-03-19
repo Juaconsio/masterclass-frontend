@@ -1,7 +1,12 @@
 ---
 import { Icon } from 'astro-icon/components';
 import AboutImage from '/src/assets/team.webp';
+import ClassImage from '/src/assets/teamHero.png';
+import ClassImage2 from '/src/assets/ganadores-01.webp';
+import ClassImage3 from '/src/assets/teamOnField.jpg';
+import ClassImage4 from '/src/assets/asado-01.webp';
 import { Image } from 'astro:assets';
+
 const benefits = [
   {
     title: 'Red de estudiantes',
@@ -28,25 +33,25 @@ const statSuffix = 'estudiantes acompañados';
 <div class="from-primary to-primary/75 bg-gradient-to-br from-60% to-100%">
   <section id="about" class="min-h-0 py-8 sm:py-10 md:py-12 lg:py-14">
     <div class="container mx-auto px-4 sm:px-6">
-      <div class="grid items-center gap-8 lg:grid-cols-[1fr_minmax(280px,40%)] lg:gap-12 xl:gap-16">
+      <div class="grid items-center gap-8 lg:grid-cols-[1fr_minmax(400px,50%)] lg:gap-12 xl:gap-16">
         <div class="flex flex-col justify-center">
           <div
             class="border-accent/50 bg-accent/15 text-accent mb-4 inline-flex w-fit rounded-md border px-3 py-1.5 text-xs font-semibold tracking-wide uppercase sm:text-sm"
           >
-            De estudiantes, para estudiantes
+            DE PROFESIONALES Y ESTUDIANTES, PARA ESTUDIANTES
           </div>
           <h2
             class="font-display text-primary-content mb-4 text-3xl font-bold text-balance sm:mb-6 sm:text-4xl md:text-5xl"
           >
             Salva <span class="font-gebuk">Ramos</span>,<br />
-            <span class="font-display">tu comunidad de apoyo</span>
+            <span class="font-display">tu comunidad de aprendizaje</span>
           </h2>
           <p
             class="text-primary-content/85 mb-8 max-w-xl text-base leading-relaxed text-pretty sm:text-lg"
           >
-            No somos solo una plataforma de clases. Somos una comunidad hecha para que no vuelvas a
-            estudiar solo. Conectamos tu necesidad con la experiencia de quienes ya pasaron por lo
-            mismo y salvaron el ramo.
+            Somos más que una plataforma de clases, vamos más allá. Somos una comunidad hecha para
+            que no vuelvas a estudiar solo. Conectamos tu necesidad con la experiencia de quienes ya
+            pasaron por lo mismo y salvaron el ramo.
           </p>
           <div class="grid gap-6 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-8">
             {
@@ -72,26 +77,66 @@ const statSuffix = 'estudiantes acompañados';
           </div>
         </div>
 
-        <div class="relative flex justify-center lg:justify-end">
+        <div class="relative flex shrink-0 justify-center lg:justify-end">
           <div
-            class="border-neutral-content/10 relative w-full max-w-md overflow-hidden rounded-2xl border shadow-xl sm:rounded-3xl lg:max-w-none"
+            class="grid aspect-[4/3] w-full max-w-sm grid-cols-2 gap-2 sm:max-w-md sm:gap-3 lg:aspect-[1] lg:w-full lg:max-w-none lg:grid-cols-4 lg:grid-rows-[2fr_1fr_1fr] lg:gap-4"
           >
-            <Image
-              src={AboutImage}
-              alt="Comunidad SalvaRamos: estudiantes y tutores en un entorno de apoyo"
-              class="w-full object-contain"
-              width="1024"
-              height="1024"
-              fetchpriority="low"
-            />
             <div
-              class="bg-primary/70 border-primary text-primary-content absolute top-4 right-4 rounded-xl border-2 px-4 py-3 shadow-lg drop-shadow-xl backdrop-blur sm:top-6 sm:right-6 sm:px-5 sm:py-4"
-              aria-hidden="true"
+              class="relative col-span-3 row-span-2 min-h-0 overflow-hidden rounded-xl sm:rounded-2xl"
             >
-              <span class="block text-2xl font-bold sm:text-3xl">{statLabel}</span>
-              <span class="text-sm font-medium tracking-wide uppercase opacity-95 sm:text-base">
-                {statSuffix}
-              </span>
+              <Image
+                src={AboutImage}
+                alt="Comunidad SalvaRamos"
+                class="size-full object-cover"
+                width={600}
+                height={600}
+                fetchpriority="low"
+              />
+              <div
+                class="bg-primary/70 border-primary text-primary-content absolute top-3 right-3 rounded-lg border-2 px-3 py-2 shadow-lg backdrop-blur sm:top-4 sm:right-4 sm:px-4 sm:py-3"
+                aria-hidden="true"
+              >
+                <span class="block text-xl font-bold sm:text-2xl">{statLabel}</span>
+                <span class="text-xs font-medium tracking-wide uppercase opacity-95 sm:text-sm">
+                  {statSuffix}
+                </span>
+              </div>
+            </div>
+            <div class="min-h-0 overflow-hidden rounded-xl sm:rounded-2xl">
+              <Image
+                src={ClassImage3}
+                alt="Equipo SalvaRamos en terreno"
+                class="size-full object-cover"
+                width={400}
+                height={300}
+              />
+            </div>
+            <div class="min-h-0 overflow-hidden rounded-xl sm:rounded-2xl">
+              <Image
+                src={ClassImage}
+                alt="Clase en vivo SalvaRamos"
+                class="size-full object-cover"
+                width={400}
+                height={300}
+              />
+            </div>
+            <div class="col-span-1 min-h-0 overflow-hidden rounded-xl sm:rounded-2xl lg:col-span-2">
+              <Image
+                src={ClassImage4}
+                alt="Asado SalvaRamos"
+                class="size-full object-cover"
+                width={600}
+                height={300}
+              />
+            </div>
+            <div class="col-span-1 min-h-0 overflow-hidden rounded-xl sm:rounded-2xl lg:col-span-2">
+              <Image
+                src={ClassImage2}
+                alt="Estudiantes destacados"
+                class="size-full object-cover"
+                width={600}
+                height={300}
+              />
             </div>
           </div>
         </div>
