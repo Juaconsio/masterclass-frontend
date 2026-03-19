@@ -2,6 +2,8 @@
 name: "Martin Bauerle"
 degree: "Ingeniería Civil Industrial UC · Major Mecánica (est.)"
 image: "/team/martin-bauerle.jpg"
+role: "Profesor Titular"
+type: professor
 ---
 
 **Profesor Titular**

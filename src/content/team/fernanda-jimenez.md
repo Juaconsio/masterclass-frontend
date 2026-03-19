@@ -2,6 +2,8 @@
 name: "Fernanda Jiménez"
 degree: "Ingeniería Comercial Universidad de Chile · Magíster en Gestión de Personas (est.)"
 image: "/team/fernanda-jimenez.jpg"
+role: "Equipo de Marketing"
+type: marketing
 ---
 
 **Equipo de Marketing**

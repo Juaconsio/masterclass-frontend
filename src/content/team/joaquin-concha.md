@@ -1,9 +1,10 @@
 ---
-name: "Joaquin Echeverria"
-degree: "Ingeniero Civil Mecánico UC · Magíster en Ciencias de la Ingeniería UC"
-image: "/team/joaquin-echeverria.jpg"
-role: "Profesor Titular"
-type: professor
+name: "Joaquin Concha"
+degree: "Ingeniero Civil Industrial UC · Diploma en Ingenieria en Computación"
+image: "src/assets/team/Joaquin Concha.svg"
+role: CTO
+type: board
+heroOrder: 3
 ---
 
 **Profesor Titular**

@@ -2,6 +2,8 @@
 name: "Santiago Leiva Rojas"
 degree: "Ingeniería Civil en Minería UC · Subespecialidad Investigación Operativa y Geociencia"
 image: "/team/santiago-leiva.jpg"
+role: "Equipo de Marketing"
+type: marketing
 ---
 
 **Equipo de Marketing**

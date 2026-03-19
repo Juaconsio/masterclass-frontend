@@ -1,7 +1,10 @@
 ---
 name: "Ignacio Quezada"
 degree: "Ingeniería Civil Industrial UC · MSc. Políticas Públicas UC (est.)"
-image: "/team/ignacio-quezada.jpg"
+image: "src/assets/team/Ignacio Quezada.svg"
+role: "CMO"
+type: board
+heroOrder: 2
 ---
 
 **Co-Founder / CMO**

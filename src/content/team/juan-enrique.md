@@ -2,6 +2,8 @@
 name: "Juan Enrique Hurtado"
 degree: "Ingeniería Civil Industrial UC (est.)"
 image: "/team/juan-enrique-hurtado.jpg"
+role: "Profesor Titular"
+type: professor
 ---
 
 **Profesor Titular**

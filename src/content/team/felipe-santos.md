@@ -1,7 +1,9 @@
 ---
 name: "Felipe Santos"
 degree: "Licenciado en Ciencias de la Ingeniería UC · Estudiante de Medicina UC"
-image: "/team/felipe-santos.jpg"
+image: "src/assets/team/Felipe Santos.svg"
+role: "Profesor Titular"
+type: professor
 ---
 
 **Profesor Titular**
