@@ -1,4 +1,5 @@
 ---
+import { Icon } from 'astro-icon/components';
 import ReviewsCarousel from './reviews/ReviewsCarousel.tsx';
 
 export interface ReviewItem {
@@ -21,7 +22,10 @@ const { reviews } = Astro.props;
 ---
 
 <div class="bg-base-200">
-  <div id="reviews" class="container mx-auto px-4 pt-12 pb-12 sm:px-6 sm:pt-16 sm:pb-16 md:pt-20 md:pb-20">
+  <div
+    id="reviews"
+    class="container mx-auto px-4 pt-12 pb-12 sm:px-6 sm:pt-16 sm:pb-16 md:pt-20 md:pb-20"
+  >
     <section class="mb-8 text-center sm:mb-12 md:mb-16">
       <h2 class="font-display mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl md:text-5xl">
         Que te lo cuenten ellas y ellos
@@ -34,10 +38,10 @@ const { reviews } = Astro.props;
     <div class="mt-8 text-center">
       <a
         href="/testimonios"
-        class="text-base-content/70 hover:text-primary text-sm font-medium transition-colors inline-flex items-center gap-1"
+        class="text-base-content/70 hover:text-primary inline-flex items-center gap-1 text-sm font-medium transition-colors"
       >
-        Tenemos muchas más historias
-        <span class="text-primary">→</span>
+        Tenemos muchas más historias, revisalas aquí
+        <Icon name="mdi:arrow-right" size={16} class="shrink-0" aria-hidden="true" />
       </a>
     </div>
   </div>
