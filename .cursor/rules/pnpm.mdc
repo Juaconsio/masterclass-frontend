@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+# Package Manager
+
+Este proyecto usa **pnpm** como gestor de paquetes. Siempre usa `pnpm` en lugar de `npm` o `yarn` para:
+- Instalar dependencias: `pnpm install` o `pnpm add <package>`
+- Ejecutar scripts: `pnpm run <script>`
+- Actualizar dependencias: `pnpm update`
