@@ -13,6 +13,16 @@ export interface PublicCoursePlan {
   name: string;
   description?: string | null;
   price: number;
+  listPrice?: number;
+  finalPrice?: number;
+  discountAmount?: number;
+  discountPercent?: number;
+  hasActiveDiscount?: boolean;
+  campaignLabel?: string | null;
+  campaignDiscountPercent?: number | null;
+  campaignStartsAt?: string | null;
+  campaignEndsAt?: string | null;
+  planType?: 'digital' | 'hybrid' | 'premium' | 'free_trial' | 'massive';
   reservationCount: number;
   accessMode: 'sessions_and_materials' | 'materials_only';
   allowReschedule: boolean;

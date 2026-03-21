@@ -1,11 +1,21 @@
 ---
+import { getPricingPlanPresentation } from '@/lib/pricingPlanPresentation';
+
 interface Plan {
   id: number;
   name: string;
   description?: string | null;
   price: number;
+  listPrice?: number;
+  finalPrice?: number;
+  discountPercent?: number;
+  hasActiveDiscount?: boolean;
+  campaignLabel?: string | null;
+  planType?: string;
   reservationCount: number;
-  accessMode: string;
+  accessMode: 'sessions_and_materials' | 'materials_only';
+  allowedModalities?: string[];
+  allowedStudentsGroups?: string[];
 }
 
 interface Props {
@@ -15,35 +25,45 @@ interface Props {
 }
 
 const { plan, courseAcronym, cardClass = '' } = Astro.props;
-
-function sessionsLabel(plan: Plan): string {
-  if (plan.accessMode === 'materials_only') return 'Solo material';
-  return plan.reservationCount === 1 ? '1 sesión' : `${plan.reservationCount} sesiones`;
-}
-
-function formatPrice(price: number): string {
-  return price === 0
-    ? 'Gratis'
-    : new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(price);
-}
+const presentation = getPricingPlanPresentation(plan);
 ---
 
 <div
   class={`card border-base-300 bg-base-100 border shadow-sm transition hover:shadow-md ${cardClass}`}
 >
   <div class="card-body p-4 sm:p-5 flex flex-col">
-    <p class="text-base-content font-semibold text-base mb-1">{sessionsLabel(plan)}</p>
-    <p class="text-primary text-2xl font-bold leading-tight mb-2">
-      {formatPrice(plan.price)}
-    </p>
-    <h4 class="card-title text-base font-semibold mt-0">{plan.name}</h4>
+    <div class="mb-1 flex items-center justify-between gap-2">
+      <p class="text-base-content/70 text-xs font-semibold uppercase tracking-wide">
+        {presentation.planTypeLabel}
+      </p>
+      <p class="text-base-content text-sm font-semibold">{presentation.sessionsLabel}</p>
+    </div>
+    <div class="mb-2">
+      {presentation.pricing.hasDiscount && (
+        <p class="text-base-content/50 text-xs line-through">{presentation.pricing.listPriceLabel}</p>
+      )}
+      <p class="text-primary text-2xl font-bold leading-tight">{presentation.pricing.finalPriceLabel}</p>
+      {presentation.pricing.discountLabel && (
+        <p class="text-success text-xs font-medium">{presentation.pricing.discountLabel}</p>
+      )}
+    </div>
+    <h4 class="card-title text-base font-semibold mt-0">{presentation.name}</h4>
     {
-      plan.description && (
+      presentation.description && (
         <p class="text-base-content/70 line-clamp-2 text-sm -mt-1">
-          {plan.description}
+          {presentation.description}
         </p>
       )
     }
+    <ul class="text-base-content/70 mt-1 space-y-1 text-xs">
+      {presentation.features.slice(0, 2).map((feature) => (
+        <li>{feature}</li>
+      ))}
+    </ul>
+    <div class="text-base-content/60 mt-2 text-xs">
+      <p>Modalidad: {presentation.constraints.modalityText}</p>
+      <p>Grupo: {presentation.constraints.groupText}</p>
+    </div>
     <div class="card-actions mt-auto pt-3">
       <a
         href={`/checkout?courseAcronym=${encodeURIComponent(courseAcronym)}&planId=${plan.id}`}
