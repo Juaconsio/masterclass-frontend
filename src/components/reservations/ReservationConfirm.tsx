@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Calendar, Clock, CreditCard, Copy, TriangleAlert, BookOpen, GraduationCap } from 'lucide-react';
+import {
+  Calendar,
+  Clock,
+  CreditCard,
+  Copy,
+  TriangleAlert,
+  BookOpen,
+  GraduationCap,
+} from 'lucide-react';
 import type { IReservation, IPayment } from '@/interfaces';
 import { Link } from 'react-router';
 import { showToast } from '@/lib/toast';
@@ -14,7 +22,7 @@ interface StoredPurchaseData {
     creditsRemaining: number;
     createdAt?: string;
     expiresAt?: string | null;
-      pricingPlan?: {
+    pricingPlan?: {
       id: number;
       name: string;
       description?: string | null;
@@ -23,7 +31,12 @@ interface StoredPurchaseData {
       accessMode?: 'sessions_and_materials' | 'materials_only';
       courseId?: number | null;
       course?: { id: number; title: string; acronym: string };
-      allowedClasses?: Array<{ id: number; title?: string; orderIndex?: number; courseId?: number }>;
+      allowedClasses?: Array<{
+        id: number;
+        title?: string;
+        orderIndex?: number;
+        courseId?: number;
+      }>;
     };
   };
   payment: IPayment;
@@ -33,9 +46,10 @@ interface StoredPurchaseData {
 
 const BANK_DATA = {
   accountHolder: 'Carlos Sáez',
-  bankName: 'Banco estado',
-  accountType: 'Cuenta RUT',
+  bankName: 'Banco Falabella',
+  accountType: 'Cuenta Corriente',
   rut: '20461083-5',
+  accountNumber: '19842966505',
   email: 'carlos.saez.finanzas@gmail.com',
 };
 
@@ -52,7 +66,7 @@ Titular: ${BANK_DATA.accountHolder}
 RUT: ${BANK_DATA.rut}
 Banco: ${BANK_DATA.bankName}
 Tipo de cuenta: ${BANK_DATA.accountType}
-N° de cuenta: ${BANK_DATA.rut.slice(0, 8)}
+N° de cuenta: ${BANK_DATA.accountNumber}
 Email: ${BANK_DATA.email}
     `.trim();
 
@@ -340,13 +354,11 @@ Email: ${BANK_DATA.email}
                           ))}
                       </ul>
                     ) : (
-                      <p className="text-base-content/70 text-sm">
-                        Todas las clases del curso.
-                      </p>
+                      <p className="text-base-content/70 text-sm">Todas las clases del curso.</p>
                     )}
                   </div>
                 ) : (
-                  <div className="border-base-200 rounded-lg border border-dashed bg-base-200/50 px-4 py-3">
+                  <div className="border-base-200 bg-base-200/50 rounded-lg border border-dashed px-4 py-3">
                     <p className="text-base-content/70 text-sm">
                       Sin reserva de horario. Podrás elegir tu clase desde{' '}
                       <Link to="/app/reservas" className="link link-primary font-medium">
@@ -420,9 +432,7 @@ Email: ${BANK_DATA.email}
                       <div className="text-base-content/60 mb-1 text-xs font-medium">
                         N° de cuenta
                       </div>
-                      <div className="font-mono text-base font-bold">
-                        {BANK_DATA.rut.slice(0, 8)}
-                      </div>
+                      <div className="font-mono text-base font-bold">{BANK_DATA.accountNumber}</div>
                     </div>
                     <div>
                       <div className="text-base-content/60 mb-1 text-xs font-medium">Monto</div>
@@ -470,7 +480,9 @@ Email: ${BANK_DATA.email}
                       >
                         {BANK_DATA.email}
                       </a>{' '}
-                      {isMaterialsOnly ? 'para activar tu acceso a los materiales.' : 'para confirmar tu reserva.'}
+                      {isMaterialsOnly
+                        ? 'para activar tu acceso a los materiales.'
+                        : 'para confirmar tu reserva.'}
                     </div>
                   </div>
                 </div>
