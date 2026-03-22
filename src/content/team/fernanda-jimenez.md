@@ -1,18 +1,14 @@
 ---
 name: "Fernanda Jiménez"
-degree: "Ingeniería Comercial Universidad de Chile · Magíster en Gestión de Personas (est.)"
-image: "/team/fernanda-jimenez.jpg"
-role: "Equipo de Marketing"
+degree: "Estudiante Ingeniería Comercial Universidad de Chile · Estudiante Magíster en Gestión de Personas"
+image: "src/assets/team/fernanda-jimenez.svg"
+role: "Coordinadora de Diseño y Marca"
 type: marketing
+funFact: "Sé tocar música clásica."
 ---
 
-**Equipo de Marketing**
+**Equipo de marketing**
 
-Especialista en gestión de personas, marca y desarrollo de proyectos.
+**Coordinadora de Diseño y Marca**
 
-**Experiencia**
-
-- Marketing digital
-- Diseño de marca
-- Emprendimientos
-- Gestión de personas
+Experiencia en emprendimientos, marketing digital, diseño de marca y gestión de personas.

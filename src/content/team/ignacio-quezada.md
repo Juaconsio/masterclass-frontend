@@ -1,21 +1,19 @@
 ---
 name: "Ignacio Quezada"
-degree: "Ingeniería Civil Industrial UC · MSc. Políticas Públicas UC (est.)"
-image: "src/assets/team/Ignacio Quezada.svg"
-role: "CMO"
+degree: "Estudiante Magíster Políticas Públicas UC · Estudiante Ingeniería Civil Industrial UC"
+image: "src/assets/team/ignacio-quezada.svg"
+role: "Co-Founder / CMO"
 type: board
 heroOrder: 2
+funFact: "Soy cantante y co-dirijo un sello musical «BlackLionRecords»."
 ---
 
 **Co-Founder / CMO**
 
 Encargado de estrategia, marketing y crecimiento de la plataforma.
 
-Ha participado activamente en organizaciones estudiantiles y proyectos de emprendimiento dentro de la universidad.
-
 **Experiencia**
 
-- Co-Founder de SalvaRamos
-- Ex Coordinador General Major League UC
-
-**Dato freak:** Soy cantante y co-dirijo el sello musical *BlackLionRecords*.
+- Co-founder de Salva Ramos
+- Ex coordinador general Major League UC
+- Miembro Comunidad Global Shapers – WEF

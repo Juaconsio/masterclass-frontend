@@ -70,6 +70,10 @@ const teamSchema = z.object({
   professorId: z.number().optional(),
   classesCount: z.number().optional(),
   studies: z.string().optional(),
+  /** Tarjeta lateral «destacados» en /nosotros/[slug] */
+  favoriteCourse: z.string().optional(),
+  leastFavoriteCourse: z.string().optional(),
+  funFact: z.string().optional(),
 });
 
 const teamCollection = defineCollection({

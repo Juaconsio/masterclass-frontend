@@ -1,21 +1,18 @@
 ---
 name: "Santiago Leiva Rojas"
-degree: "Ingeniería Civil en Minería UC · Subespecialidad Investigación Operativa y Geociencia"
-image: "/team/santiago-leiva.jpg"
-role: "Equipo de Marketing"
+degree: "Estudiante de Ingeniería Civil en Minas UC"
+image: "src/assets/team/santiago-leiva.svg"
+role: "Productor y editor audiovisual"
 type: marketing
 professorId: 1
+funFact: "Hablo francés fluido."
 ---
 
-**Equipo de Marketing**
+**Equipo de marketing**
 
-Perfil emprendedor con experiencia en desarrollo de proyectos digitales y marketing.
+Estudiante de Ingeniería Civil en Minas UC. Experiencia en marketing digital, e-commerce y desarrollo de proyectos web y marcas propias. Profesor particular de Pre-Cálculo y Cálculo I.
 
 **Experiencia**
 
-- Marketing digital
-- E-commerce
-- Desarrollo de proyectos web
-- Profesor particular de matemáticas
-
-Realiza clases de **Pre-Cálculo y Cálculo I** y prepara estudiantes para la **PAES**.
+- Marketing digital, e-commerce y desarrollo web
+- Embajador de preuniversitarios: apoyo y guía a estudiantes en su preparación académica

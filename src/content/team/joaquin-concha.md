@@ -1,26 +1,20 @@
 ---
-name: "Joaquin Concha"
-degree: "Ingeniero Civil Industrial UC · Diploma en Ingenieria en Computación"
-image: "src/assets/team/Joaquin Concha.svg"
-role: CTO
+name: "Joaquín Concha"
+degree: "Ingeniero Civil de Industrias UC · Diploma en Ingeniería en Computación"
+image: "src/assets/team/joaquin-concha.svg"
+role: "Co-Founder / CTO"
 type: board
 heroOrder: 3
+funFact: "Llegué al final de la Carretera Austral en Tierra del Fuego."
 ---
 
-**Profesor Titular**
+**Co-Founder / CTO**
 
-Especialista en cursos de ingeniería mecánica y fenómenos físicos.
+Lidera la visión técnica y el desarrollo de la plataforma.
 
 **Experiencia académica**
 
-- Ayudante de Dinámica
-- Ayudante de Termodinámica
-- Ayudante de Electricidad y Magnetismo
-- Coordinador Mecánica de Fluidos
-- Ayudante Conversión de Energía
-- Ayudante Transferencia de Calor
-
-**Ramo favorito:** Transferencia de Calor  
-**Ramo odiado:** Probabilidad y Estadística  
-
-**Dato freak:** Siempre que me preguntan un dato freak respondo otra cosa.
+- Ex ayudante de Diseño Detallado de Software
+- Ex ayudante de Sistemas de Información
+- Ex ayudante de Económica para Políticas Públicas
+- Ex coach (ayudante experto) Capstone – Proyecto de especialidad

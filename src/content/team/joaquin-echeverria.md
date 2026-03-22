@@ -1,9 +1,10 @@
 ---
-name: "Joaquin Echeverria"
-degree: "Ingeniero Civil Mecánico UC · Magíster en Ciencias de la Ingeniería UC"
-image: "/team/joaquin-echeverria.jpg"
+name: "Joaquín Echeverría"
+degree: "Estudiante Ingeniería Civil Mecánica UC · Magíster en Ciencias de la Ingeniería UC"
+image: "src/assets/team/joaquin-echeverria.svg"
 role: "Profesor Titular"
 type: professor
+funFact: "Las 2 veces que he ido a Torres del Paine no he podido ver las torres."
 ---
 
 **Profesor Titular**
@@ -12,14 +13,9 @@ Especialista en cursos de ingeniería mecánica y fenómenos físicos.
 
 **Experiencia académica**
 
-- Ayudante de Dinámica
-- Ayudante de Termodinámica
-- Ayudante de Electricidad y Magnetismo
-- Coordinador Mecánica de Fluidos
-- Ayudante Conversión de Energía
-- Ayudante Transferencia de Calor
-
-**Ramo favorito:** Transferencia de Calor  
-**Ramo odiado:** Probabilidad y Estadística  
-
-**Dato freak:** Siempre que me preguntan un dato freak respondo otra cosa.
+- Ex ayudante de Dinámica
+- Ex ayudante de Termodinámica
+- Ex ayudante de Electricidad y Magnetismo
+- Ex ayudante coordinador de Mecánica de Fluidos
+- Ex ayudante de Conversión de Energía
+- Ex ayudante de Transferencia de Calor

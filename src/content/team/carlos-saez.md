@@ -1,7 +1,7 @@
 ---
 name: "Carlos Saez"
 degree: "MSc. Engineering – Centrale Paris · Ingeniero Civil de Industrias UC"
-image: "src/assets/team/Carlos.svg"
+image: "src/assets/team/carlos-saez.svg"
 role: "CEO"
 type: board
 heroOrder: 1

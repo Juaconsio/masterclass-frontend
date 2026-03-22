@@ -1,22 +1,16 @@
 ---
-name: "Martin Bauerle"
-degree: "Ingeniería Civil Industrial UC · Major Mecánica (est.)"
-image: "/team/martin-bauerle.jpg"
+name: "Martín Bauerle"
+degree: "Estudiante Ingeniería Civil Industrial UC"
+image: "src/assets/team/martin-bauerle.svg"
 role: "Profesor Titular"
 type: professor
+funFact: "Cuando me sacan sangre me desmayo."
 ---
 
 **Profesor Titular**
 
-Profesor con enfoque analítico y experiencia enseñando matemática a estudiantes de enseñanza básica y media.
-
 **Perfil**
 
-- Fuerte orientación a resolución de problemas
-- Experiencia en análisis con Excel
-- Interés en sistemas energéticos y modelación
-
-**Ramo favorito:** Transferencia de Calor  
-**Ramo odiado:** Probabilidades y Estadística  
-
-**Dato freak:** Me gusta analizar todo como si fuera un sistema de energía.
+- Experiencia como profesor de reforzamiento en matemática a cursos de básica y media
+- Tutor durante 2 años
+- Jefe de packing en procesos agrícolas de frutas de exportación
