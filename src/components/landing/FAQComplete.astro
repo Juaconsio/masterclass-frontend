@@ -50,15 +50,9 @@ const faqItems = [
     question: '¿Por qué nosotros?',
     answer: `Hoy en día existen muchos marketplaces de profesores donde cada uno enseña a su manera, sin una metodología o herramientas comunes, y también plataformas de videos donde terminas estudiando solo frente a una pantalla.
 
-Nosotros proponemos algo distinto: una preparación integral para enfrentar el ramo. Este enfoque se basa en cuatro pilares fundamentales:
-
-**Excelencia**: Profesores que realmente conocen los cursos. Ingenieros, ex ayudantes y estudiantes destacados con amplia experiencia docente y pasión por enseñar. Personas que ya pasaron por lo mismo que tú y saben exactamente dónde se complican los alumnos.
-
-**Metodología**: Aterrizamos los contenidos del ramo y los resumimos en lo que realmente importa para la prueba. Preparamos material específico estructurado y estandarizado, que incluye cápsulas de explicación, ejercicios resueltos, guías de práctica, formularios y evaluaciones breves para reforzar el aprendizaje. Combinamos clases en vivo con material digital y recursos en la plataforma para que cada estudiante pueda avanzar a su propio ritmo.
-
-**Herramientas digitales**: Todo en una sola plataforma. Puedes reservar clases, acceder a material, ver sesiones grabadas, realizar controles y recibir avisos importantes. Un sistema pensado para organizar tu estudio y tener todo lo que necesitas en un solo lugar.
-
-**Comunidad**: Más que clases, construimos una red de estudiantes. Workshops con alumnos de cursos superiores, grupos donde compartir dudas y material, y actividades de comunidad para que no tengas que enfrentar el ramo solo.`,
+Nosotros proponemos algo distinto: una preparación integral para enfrentar y salvar el ramo.`,
+    ctaHref: '#pilares',
+    ctaLabel: 'Ver nuestros pilares',
   },
 ];
 ---
@@ -83,24 +77,27 @@ Nosotros proponemos algo distinto: una preparación integral para enfrentar el r
               {item.question}
             </div>
             <div class="collapse-content">
-              <div class="text-base-content/80 prose prose-sm max-w-none pt-2 text-base leading-relaxed prose-p:my-2 prose-strong:text-base-content">
-                {
-                  item.answer.split('\n\n').map((paragraph) => {
-                    const parts = paragraph.split(/(\*\*.+?\*\*)/g);
-                    return (
-                      <p>
-                        {
-                          parts.map((part) => {
-                            if (part.startsWith('**') && part.endsWith('**')) {
-                              return <strong>{part.replace(/\*\*/g, '')}</strong>;
-                            }
-                            return part;
-                          })
+              <div class="text-base-content/80 prose prose-sm prose-p:my-2 prose-strong:text-base-content max-w-none pt-2 text-base leading-relaxed">
+                {item.answer.split('\n\n').map((paragraph) => {
+                  const parts = paragraph.split(/(\*\*.+?\*\*)/g);
+                  return (
+                    <p>
+                      {parts.map((part) => {
+                        if (part.startsWith('**') && part.endsWith('**')) {
+                          return <strong>{part.replace(/\*\*/g, '')}</strong>;
                         }
-                      </p>
-                    );
-                  })
-                }
+                        return part;
+                      })}
+                    </p>
+                  );
+                })}
+                {item.ctaHref && item.ctaLabel ? (
+                  <p class="not-prose pt-2">
+                    <a href={item.ctaHref} class="link link-primary font-medium">
+                      {item.ctaLabel}
+                    </a>
+                  </p>
+                ) : null}
               </div>
             </div>
           </div>

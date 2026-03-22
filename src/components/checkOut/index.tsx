@@ -4,7 +4,7 @@ import { createPurchase } from '@/client/purchases';
 import { useSessionContext } from '../../context/SessionContext';
 import type { IPricingPlan, ISlot, ICourse } from '../../interfaces/models';
 import { ArrowLeft, TriangleAlert } from 'lucide-react';
-import { getHttpErrorMessage } from '@/lib/errorMessages';
+import { getHttpErrorMessage, PURCHASE_ERROR_MESSAGES } from '@/lib/errorMessages';
 import { clearAuthStorage } from '@client/authStorage';
 import { useNavigate } from 'react-router';
 import { getPricingPlanPresentation } from '@/lib/pricingPlanPresentation';
@@ -49,6 +49,10 @@ function getReservationUiError(error: any) {
     };
   }
 
+  if (status === 409 && code === 'FREE_TRIAL_ALREADY_USED') {
+    return { message: PURCHASE_ERROR_MESSAGES.FREE_TRIAL_ALREADY_USED };
+  }
+
   return { message: getHttpErrorMessage(error) };
 }
 
@@ -75,7 +79,22 @@ export default function CheckoutView(props: CheckoutProps) {
   const role = (user as any)?.role as string | undefined;
   const isStudent = !role || role === 'user';
   const hasSlot = slot != null;
-  const selectedPlan = pricingPlans.find((p) => p.id === selectedPricingPlanId);
+
+  const visiblePricingPlans = useMemo(
+    () =>
+      isAuthenticated
+        ? pricingPlans.filter((p) => p.planType !== 'free_trial')
+        : pricingPlans,
+    [isAuthenticated, pricingPlans],
+  );
+
+  useEffect(() => {
+    if (selectedPricingPlanId == null) return;
+    const stillVisible = visiblePricingPlans.some((p) => p.id === selectedPricingPlanId);
+    if (!stillVisible) setSelectedPricingPlanId(null);
+  }, [visiblePricingPlans, selectedPricingPlanId]);
+
+  const selectedPlan = visiblePricingPlans.find((p) => p.id === selectedPricingPlanId);
   const selectedPlanPresentation = selectedPlan ? getPricingPlanPresentation(selectedPlan) : null;
   const isMaterialsOnly = selectedPlan?.accessMode === 'materials_only';
   const canSubmitReservation =
@@ -404,12 +423,12 @@ export default function CheckoutView(props: CheckoutProps) {
                     </div>
                   </div>
                 )}
-                {!error && pricingPlans.length === 0 && (
+                {!error && visiblePricingPlans.length === 0 && (
                   <div className="alert alert-warning">
                     <span>No hay planes disponibles para este horario.</span>
                   </div>
                 )}
-                {!error && pricingPlans.length > 0 && (
+                {!error && visiblePricingPlans.length > 0 && (
                   <form
                     className="grid gap-4 md:grid-cols-2"
                     onSubmit={(e) => {
@@ -417,7 +436,7 @@ export default function CheckoutView(props: CheckoutProps) {
                       handleSubmit();
                     }}
                   >
-                    {pricingPlans.map((p) => (
+                    {visiblePricingPlans.map((p) => (
                       (() => {
                         const presentation = getPricingPlanPresentation(p);
                         return (

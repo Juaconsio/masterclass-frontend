@@ -60,12 +60,12 @@ const board = boardEntries.map((e) => ({
   degree: e.data.degree,
 }));
 
-const professorsForHero = professorEntries.slice(0, 3).map((e) => ({
+const professorsForHero = professorEntries.map((e) => ({
   name: e.data.name,
   image: resolveTeamImageForImg(e.data.image),
 }));
 
-const marketingForHero = marketingEntries.slice(0, 3).map((e) => ({
+const marketingForHero = marketingEntries.map((e) => ({
   name: e.data.name,
   image: resolveTeamImageForImg(e.data.image),
 }));
@@ -103,16 +103,19 @@ const professors = await Promise.all(
 
     <div class="px-4 py-16 sm:px-6 sm:py-20 md:py-24">
       <section id="equipo" class="mb-24 rounded-2xl py-12 md:mb-32 md:py-16">
-        <div class="mb-12 text-center sm:mb-16">
-          <h2 class="font-display text-primary mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">
-            <span class="">Equipo Salva</span>
-            <span class="font-gebuk">Ramos</span>
-          </h2>
-          <p class="text-base-content mx-auto max-w-3xl text-base leading-relaxed sm:text-lg">
-            Ayudantes, ex ayudantes y profesionales que conocen los desafíos universitarios
-            dispuestos a ayudar, guiar y acompañar a los alumnos en su camino de aprendizaje.
+        <header class="mx-auto mb-12 max-w-3xl text-center sm:mb-14 md:mb-16" data-usal="fade-up">
+          <p class="text-primary mb-3 text-xs font-semibold tracking-[0.2em] uppercase sm:text-sm">
+            Liderazgo
           </p>
-        </div>
+          <h2
+            class="font-display text-base-content mb-3 text-3xl font-bold text-balance sm:text-4xl md:text-5xl"
+          >
+            <span class="font-gebuk text-primary">Líderes</span> del proyecto
+          </h2>
+          <p class="text-base-content/70 mx-auto max-w-2xl text-base leading-relaxed sm:text-lg">
+            Responsables del proyecto y líderes de marketing, docencia y operación.
+          </p>
+        </header>
         <div class="mx-auto grid max-w-3xl grid-cols-2 gap-3 sm:gap-4 md:max-w-4xl md:grid-cols-3">
           {
             teamLeaders.map((entry) => (
@@ -130,15 +133,20 @@ const professors = await Promise.all(
       </section>
 
       <section id="marketing" class="mb-24 rounded-2xl py-12 md:mb-32 md:py-16">
-        <div class="mb-12 text-center sm:mb-16">
-          <h2 class="font-display mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">
-            Equipo de Marketing
+        <header class="mx-auto mb-12 max-w-3xl text-center sm:mb-14 md:mb-16" data-usal="fade-up">
+          <p class="text-primary mb-3 text-xs font-semibold tracking-[0.2em] uppercase sm:text-sm">
+            Marketing
+          </p>
+          <h2
+            class="font-display text-base-content mb-3 text-3xl font-bold text-balance sm:text-4xl md:text-5xl"
+          >
+            Equipo de <span class="font-gebuk text-primary">Marketing</span>
           </h2>
           <p class="text-base-content/70 mx-auto max-w-2xl text-base leading-relaxed sm:text-lg">
             Se encargan de ofrecer los cursos, resolver dudas y llevar las redes sociales para que
             puedas enfocarte en lo que importa: aprender.
           </p>
-        </div>
+        </header>
         <div class="mx-auto grid max-w-3xl grid-cols-2 gap-3 sm:gap-4 md:max-w-4xl md:grid-cols-3">
           {
             marketingEntries.map((entry) => (
@@ -156,15 +164,24 @@ const professors = await Promise.all(
       </section>
 
       <section class="py-12 md:py-16">
-        <div class="mb-12 text-center sm:mb-16">
-          <h2 class="font-display mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">
-            Nuestros profesores
+        <header class="mx-auto mb-12 max-w-3xl text-center sm:mb-14 md:mb-16" data-usal="fade-up">
+          <p class="text-primary mb-3 text-xs font-semibold tracking-[0.2em] uppercase sm:text-sm">
+            Docencia
+          </p>
+          <h2
+            class="font-display text-base-content mb-3 text-3xl font-bold text-balance sm:text-4xl md:text-5xl"
+          >
+            Nuestros <span class="font-gebuk text-primary">profesores</span>
           </h2>
           <p class="text-base-content/70 mx-auto max-w-xl text-base leading-relaxed sm:text-lg">
-            Profesores que dominan la materia y saben enseñarla. Ex ayudantes y estudiantes
+            Profesores que dominan la materia y saben enseñarla. <span
+              class="text-primary font-semibold">Ingenieros</span
+            >, <span class="text-primary font-semibold">ex ayudantes</span> y <span
+              class="text-primary font-semibold">estudiantes</span
+            >
             destacados.
           </p>
-        </div>
+        </header>
         <div
           class="mx-auto grid max-w-5xl grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 lg:gap-6"
         >

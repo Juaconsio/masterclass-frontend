@@ -17,7 +17,7 @@ const { course } = Astro.props;
 >
   <a
     class="absolute inset-0 z-10 block"
-    href={'/courses/' + course.slug}
+    href={'/cursos/' + course.slug}
     aria-label={`Abrir curso ${course.data.acronym} - ${course.data.title}`}></a>
   <!-- Course Image -->
   {
@@ -59,7 +59,7 @@ const { course } = Astro.props;
     <!-- Card Actions -->
     <div class="card-actions justify-end">
       <a
-        href={'/courses/' + course.slug}
+        href={'/cursos/' + course.slug}
         class="btn btn-primary btn-sm sm:btn-md btn-block hover:btn-primary-focus group relative z-20 transition-colors"
       >
         Ver horarios

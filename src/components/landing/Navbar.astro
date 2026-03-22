@@ -5,8 +5,8 @@ import Logo from '/src/assets/imagotipo.svg';
 
 const links = [
   { href: '/', label: 'Inicio', icon: 'mdi:home' },
-  { href: '/courses', label: 'Cursos', icon: 'mdi:book' },
-  // { href: '/nosotros', label: 'Nosotros', icon: 'mdi:account-group' }, // Oculto temporalmente
+  { href: '/cursos', label: 'Cursos', icon: 'mdi:book' },
+  { href: '/nosotros', label: 'Nosotros', icon: 'mdi:account-group' }, // Oculto temporalmente
   // { href: '/#contact', label: 'Contacto', icon: 'mdi:contact-mail' },
 ];
 
@@ -69,7 +69,7 @@ const isActive = (href: string) => href === current;
       Iniciar Sesión
     </a>
     <a
-      href="/courses"
+      href="/cursos"
       aria-label="Ver cursos"
       class="btn btn-primary btn-sm sm:btn-md rounded-xl sm:px-4"
     >
