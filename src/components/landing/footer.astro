@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import Logo from '/src/assets/logo.svg';
 import { Icon } from 'astro-icon/components';
 const year = new Date().getFullYear();
+import waUrl, { phoneNumber } from '@/lib/waMessage';
 ---
 
 <footer class="text-neutral-content bg-black">
@@ -44,9 +45,9 @@ const year = new Date().getFullYear();
           <li>
             <a
               class="link link-hover text-base-100/90 hover:text-primary"
-              href="https://wa.me/56934476377"
+              href={waUrl}
               rel="noopener"
-              target="_blank">+56 9 3447 6377</a
+              target="_blank">{phoneNumber}</a
             >
           </li>
           <li>
