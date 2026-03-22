@@ -7,7 +7,7 @@ import { useSessionContext } from '../../context/SessionContext';
 import clsx from 'clsx';
 import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import type { UserRole } from '@/interfaces/enums';
-import { AUTH_ERROR_MESSAGES } from '@/lib/errorMessages';
+import { AUTH_ERROR_MESSAGES, PURCHASE_ERROR_MESSAGES } from '@/lib/errorMessages';
 import { Info } from 'lucide-react';
 
 interface FormData {
@@ -199,19 +199,25 @@ export default function SignInForm({ initialUserRole }: SignInFormProps) {
             const result = await createPurchase(payload);
             localStorage.removeItem('pendingPurchase');
             localStorage.setItem('purchase.success', JSON.stringify(result));
+            navigate('/app/confirmacion-pago');
           } catch (purchaseError: any) {
             console.error('Error creating purchase after login:', purchaseError);
+            const code = purchaseError?.response?.data?.code as string | undefined;
             localStorage.removeItem('pendingPurchase');
+            if (code === 'FREE_TRIAL_ALREADY_USED') {
+              setFeedback(PURCHASE_ERROR_MESSAGES.FREE_TRIAL_ALREADY_USED);
+              return;
+            }
             localStorage.setItem(
               'purchase.error',
               JSON.stringify({
                 message:
                   purchaseError?.response?.data?.message || 'Error al completar la compra del plan',
                 details: purchaseError?.response?.data || {},
-              })
+              }),
             );
+            navigate('/app/confirmacion-pago');
           }
-          navigate('/app/confirmacion-pago');
         }
       }
     } catch (error: any) {

@@ -1,3 +1,9 @@
+/** Códigos devueltos por POST /purchases (checkout) y afines */
+export const PURCHASE_ERROR_MESSAGES: Record<string, string> = {
+  FREE_TRIAL_ALREADY_USED:
+    'Ya usaste tu prueba gratis en la plataforma. Elige un plan de pago para continuar.',
+};
+
 export const AUTH_ERROR_MESSAGES: Record<string, string> = {
   'Incorrect email.': 'El correo no está registrado.',
   'Incorrect password.': 'La contraseña es incorrecta.',

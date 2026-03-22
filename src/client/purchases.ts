@@ -29,7 +29,7 @@ export interface CreatePurchaseResult {
 }
 
 export async function getMyPurchases(): Promise<StudentPlanPurchase[]> {
-  const res = await httpClient.get<StudentPlanPurchase[]>('/students/me/purchases');
+  const res = await httpClient.get<StudentPlanPurchase[]>('/purchases');
   return res.data ?? [];
 }
 
@@ -65,7 +65,7 @@ export interface SlotsForPurchaseResponse {
 
 export async function getSlotsForPurchase(purchaseId: number): Promise<SlotsForPurchaseResponse> {
   const res = await httpClient.get<SlotsForPurchaseResponse>(
-    `/students/me/purchases/${purchaseId}/slots`
+    `/purchases/${purchaseId}/slots`
   );
   return res.data;
 }
@@ -75,6 +75,6 @@ export async function createPurchase(payload: {
   slotId?: number;
   paymentMethod?: 'mercadopago' | 'manual';
 }): Promise<CreatePurchaseResult> {
-  const res = await httpClient.post<CreatePurchaseResult>('/students/me/purchases', payload);
+  const res = await httpClient.post<CreatePurchaseResult>('/purchases', payload);
   return res.data;
 }
