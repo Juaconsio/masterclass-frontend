@@ -27,12 +27,24 @@ const { useFullText = true } = Astro.props;
 
 <section id="mission-vision" class="py-20 sm:py-24 md:py-28">
   <div class="container mx-auto px-4 sm:px-6">
-    <div class="mb-14 text-center sm:mb-16 md:mb-20">
-      <h2 class="font-display mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">Misión y visión</h2>
+    <header
+      class="mx-auto mb-12 max-w-3xl text-center sm:mb-14 md:mb-16"
+      data-usal="fade-up"
+    >
+      <p class="text-primary mb-3 text-xs font-semibold tracking-[0.2em] uppercase sm:text-sm">
+        Propósito
+      </p>
+      <h2
+        class="font-display text-base-content mb-3 text-3xl font-bold text-balance sm:text-4xl md:text-5xl"
+      >
+        Nuestra <span class="font-gebuk text-primary">misión</span> y <span
+          class="font-gebuk text-neutral">visión</span
+        >
+      </h2>
       <p class="text-base-content/70 mx-auto max-w-xl text-base leading-relaxed sm:text-lg">
         Los objetivos que perseguimos.
       </p>
-    </div>
+    </header>
 
     <div class="grid gap-8 md:grid-cols-2 lg:gap-12">
       <div
@@ -53,13 +65,13 @@ const { useFullText = true } = Astro.props;
       </div>
 
       <div
-        class="bg-primary/5 border-primary/20 rounded-2xl border p-6 shadow-lg sm:p-8"
+        class="bg-neutral/5 border-neutral/20 rounded-2xl border p-6 shadow-lg sm:p-8"
         data-usal="fade-up"
         data-usal-delay="100"
       >
         <div class="mb-4 flex items-center gap-3">
           <div
-            class="bg-primary text-primary-content flex h-12 w-12 items-center justify-center rounded-xl"
+            class="bg-neutral text-neutral-content flex h-12 w-12 items-center justify-center rounded-xl"
           >
             <Icon name={vision.icon} size={28} />
           </div>

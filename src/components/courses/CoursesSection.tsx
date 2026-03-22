@@ -19,7 +19,7 @@ export function CoursesSection({ courses: propCourses, loading }: CoursesSection
           <p className="text-muted-foreground">Continúa aprendiendo y sigue tu progreso</p>
         </div>
         <div>
-          <a href="/courses" className="btn btn-primary hover:underline">
+          <a href="/cursos" className="btn btn-primary hover:underline">
             Ver todos los cursos aquí
           </a>
         </div>

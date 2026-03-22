@@ -3,10 +3,9 @@ import TeamCard from './TeamCard.astro';
 
 interface Props {
   members: { name: string; image: string }[];
-  extraCount?: number;
 }
 
-const { members, extraCount = 2 } = Astro.props;
+const { members } = Astro.props;
 ---
 
 <TeamCard
@@ -15,7 +14,6 @@ const { members, extraCount = 2 } = Astro.props;
   titleSuffix="Marketing"
   description="Estrategia y comunicación para conectar con estudiantes"
   members={members}
-  extraCount={extraCount}
   ariaLabel="Ver todo el equipo de marketing"
   showIsotipo={true}
   variant="accent"

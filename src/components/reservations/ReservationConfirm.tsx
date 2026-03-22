@@ -133,9 +133,9 @@ Email: ${BANK_DATA.email}
                 )}
 
                 <div className="card-actions mt-6 justify-center gap-3">
-                  <Link to="/courses" className="btn btn-primary">
+                  <a href="/cursos" className="btn btn-primary">
                     Ver Cursos
-                  </Link>
+                  </a>
                   <Link to="/app" className="btn btn-outline">
                     Ir al Inicio
                   </Link>
@@ -485,7 +485,7 @@ Email: ${BANK_DATA.email}
             <Link to="/app/reservas" className="btn btn-primary btn-lg shadow-lg hover:shadow-xl">
               Ver mis reservas
             </Link>
-            <a href="/courses" className="btn btn-outline btn-lg shadow-md hover:shadow-lg">
+            <a href="/cursos" className="btn btn-outline btn-lg shadow-md hover:shadow-lg">
               Ver otros cursos
             </a>
           </div>
