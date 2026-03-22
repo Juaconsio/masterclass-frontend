@@ -61,7 +61,7 @@ const { name, degree, image, classesCount, type, favoriteCourse, leastFavoriteCo
   teamEntry.data;
 const resolvedImage = resolveImage(image);
 const hasCourses = specialties.length > 0;
-const catalogHref = hasCourses ? `/courses?professor=${slug}` : '/courses';
+const catalogHref = hasCourses ? `/cursos?professor=${slug}` : '/cursos';
 
 const heroBadge =
   type === 'professor'
@@ -315,7 +315,7 @@ const initials = name
                   <div class="flex flex-wrap gap-2">
                     {specialties.map((course) => (
                       <a
-                        href={`/courses/${course!.slug}`}
+                        href={`/cursos/${course!.slug}`}
                         class="bg-base-100 text-primary hover:bg-primary hover:text-primary-content border-base-content/10 rounded-full border px-4 py-2 text-xs font-bold transition-colors"
                       >
                         {course!.data.acronym}
@@ -323,7 +323,7 @@ const initials = name
                     ))}
                   </div>
                 ) : (
-                  <a href="/courses" class="btn btn-primary btn-sm w-fit rounded-full">
+                  <a href="/cursos" class="btn btn-primary btn-sm w-fit rounded-full">
                     Ver catálogo
                   </a>
                 )
