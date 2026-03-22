@@ -1,6 +1,7 @@
 # project root
 .agents/
 
+docs/
 # build output
 dist/
 

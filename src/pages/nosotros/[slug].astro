@@ -1,0 +1,374 @@
+---
+export const prerender = false;
+import { getEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import Layout from '@layouts/Layout.astro';
+import Navbar from '@components/landing/Navbar.astro';
+import Footer from '@components/landing/footer.astro';
+import { Icon } from 'astro-icon/components';
+import { getPublicCourseCatalog } from '@/lib/courseCatalog';
+import { fetchProfessorCourses, professorCoursesToSlugs } from '@/client/publicProfessors';
+import waUrl from '@/lib/waMessage';
+
+const teamAssetImages = import.meta.glob<{ default: import('astro').ImageMetadata }>(
+  '/src/assets/team/*.{svg,png,jpg,jpeg,webp}',
+  { eager: true }
+);
+
+function resolveImage(imagePath: string | undefined) {
+  if (!imagePath) return null;
+  if (imagePath.startsWith('/') && !imagePath.includes('src/'))
+    return { type: 'url' as const, src: imagePath };
+  if (imagePath.startsWith('http')) return { type: 'url' as const, src: imagePath };
+  const filename = imagePath.split('/').pop() ?? '';
+  const key = Object.keys(teamAssetImages).find((k) => k.endsWith(filename));
+  if (key && teamAssetImages[key]?.default)
+    return { type: 'asset' as const, src: teamAssetImages[key].default };
+  return { type: 'url' as const, src: imagePath.startsWith('/') ? imagePath : `/${imagePath}` };
+}
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/404');
+
+const teamEntry = await getEntry('team', slug);
+if (!teamEntry) return Astro.redirect('/404');
+
+let academicEntry = null;
+try {
+  academicEntry = await getEntry('teamAcademic', slug);
+} catch {
+  academicEntry = null;
+}
+
+const catalog = await getPublicCourseCatalog({ includeInactive: true });
+const courseSlugs =
+  teamEntry.data.professorId != null
+    ? professorCoursesToSlugs(await fetchProfessorCourses(teamEntry.data.professorId))
+    : [];
+const specialties = courseSlugs.map((s) => catalog.find((c) => c.slug === s)).filter(Boolean);
+
+/** Muestra CTA de catálogo / cursos: profesores, quienes tienen professorId en backend, o directivos explícitos. */
+const showCourseCatalog =
+  teamEntry.data.type === 'professor' ||
+  teamEntry.data.professorId != null ||
+  slug === 'carlos-saez' ||
+  slug === 'ignacio-quezada';
+
+const { Content: SobreMiContent } = await teamEntry.render();
+const experienciaRendered = academicEntry ? await academicEntry.render() : null;
+const ExperienciaContent = experienciaRendered?.Content ?? null;
+const { name, degree, image, classesCount, type, favoriteCourse, leastFavoriteCourse, funFact } =
+  teamEntry.data;
+const resolvedImage = resolveImage(image);
+const hasCourses = specialties.length > 0;
+const catalogHref = hasCourses ? `/courses?professor=${slug}` : '/courses';
+
+const heroBadge =
+  type === 'professor'
+    ? 'Profesor'
+    : type === 'board'
+      ? 'Equipo directivo'
+      : type === 'marketing'
+        ? 'Marketing'
+        : 'Equipo Salva Ramos';
+
+const showIcebreakers = !!(favoriteCourse || leastFavoriteCourse || funFact);
+/** Para grid bento: Tailwind debe ver clases estáticas; no usar ternarios en `class`. */
+const teamBentoBioLayout = showIcebreakers ? 'split' : 'full';
+const showExperienciaSection = ExperienciaContent != null;
+
+const initials = name
+  .split(' ')
+  .map((n) => n[0])
+  .join('')
+  .slice(0, 2)
+  .toUpperCase();
+---
+
+<Layout title={`${name} - Nosotros Salva Ramos`} description={`Perfil de ${name}. ${degree}.`}>
+  <Navbar />
+  <main
+    class="bg-base-200/40 mx-auto max-w-screen-2xl px-4 pt-[calc(var(--navbar-height)+1rem)] pb-16 sm:px-6"
+  >
+    <a
+      href="/nosotros"
+      class="btn btn-ghost btn-sm text-base-content/70 hover:text-base-content mb-8 gap-2 lg:mb-10"
+      aria-label="Volver a nosotros"
+    >
+      <Icon name="mdi:arrow-left" size={20} aria-hidden="true" />
+      Volver a nosotros
+    </a>
+
+    <!-- Bento: 1 col en móvil; desde md parrilla 12 (Sobre mí + Destacados lado a lado) -->
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-8">
+      <!-- Perfil / descripción (misma fila bento) -->
+      <div id="perfil-hero" class="scroll-mt-28 md:col-span-12">
+        <div
+          class="from-primary to-primary/80 text-primary-content relative flex flex-col items-center gap-8 overflow-hidden rounded-[2rem] bg-gradient-to-br p-6 sm:gap-10 sm:p-10 md:flex-row md:gap-10 md:p-12 lg:gap-12 lg:p-14 xl:p-16"
+        >
+          <div
+            class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.12),transparent_50%)]"
+            aria-hidden="true"
+          >
+          </div>
+          <div class="relative z-10 w-full flex-1 text-center md:text-left">
+            <span
+              class="mb-3 inline-block rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold backdrop-blur-md sm:mb-4"
+            >
+              {heroBadge}
+            </span>
+            <h1
+              class="font-gebuk mb-2 text-3xl font-extrabold tracking-tight sm:mb-3 sm:text-4xl lg:text-5xl xl:text-6xl"
+            >
+              {name}
+            </h1>
+            <p
+              class="text-primary-content/90 mx-auto max-w-xl text-base leading-relaxed font-light sm:text-lg md:mx-0 md:text-xl"
+            >
+              {degree}
+            </p>
+            {
+              classesCount != null && (
+                <p class="text-primary-content/75 mt-3 text-sm sm:mt-4">
+                  <span class="text-primary-content font-semibold">{classesCount}</span> clases con
+                  Salva Ramos
+                </p>
+              )
+            }
+            <div
+              class="mt-6 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center md:mx-0 md:max-w-none md:justify-start"
+            >
+              {
+                showCourseCatalog && (
+                  <a
+                    href={catalogHref}
+                    class="btn btn-neutral text-primary rounded-xl border-0 bg-white px-6 font-bold hover:bg-white/90"
+                  >
+                    Ver cursos
+                  </a>
+                )
+              }
+              <a
+                href={waUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-outline rounded-xl border-white/40 bg-transparent px-6 font-bold text-white hover:bg-white/10"
+              >
+                Reservar / consultar
+              </a>
+            </div>
+          </div>
+          <div
+            class="relative z-10 mx-auto h-52 w-52 shrink-0 sm:h-64 sm:w-64 md:mx-0 md:h-72 md:w-72 lg:h-80 lg:w-80 xl:h-96 xl:w-96"
+          >
+            <div
+              class="absolute inset-0 animate-pulse rounded-full bg-white/10 blur-3xl"
+              aria-hidden="true"
+            >
+            </div>
+            <div
+              class="relative z-10 h-full w-full overflow-hidden rounded-full border-8 border-white/20 shadow-2xl"
+            >
+              {
+                resolvedImage ? (
+                  resolvedImage.type === 'asset' ? (
+                    <Image
+                      src={resolvedImage.src}
+                      alt={name}
+                      class="h-full w-full object-cover object-top"
+                      loading="eager"
+                    />
+                  ) : (
+                    <img
+                      src={resolvedImage.src}
+                      alt={name}
+                      class="h-full w-full object-cover object-top"
+                      loading="eager"
+                    />
+                  )
+                ) : (
+                  <div class="bg-primary-content/20 flex h-full w-full items-center justify-center text-4xl font-bold text-white sm:text-5xl md:text-6xl">
+                    {initials}
+                  </div>
+                )
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila bento explícita: evita que el grid de 12 celdas desalinee bio + destacados -->
+      <div class="grid grid-cols-1 gap-6 md:col-span-12 md:grid-cols-12 md:gap-8">
+        <div
+          data-team-bento-bio={teamBentoBioLayout}
+          class="border-base-300/60 hover:shadow-lg rounded-[2rem] border bg-base-100 p-6 shadow-md transition-shadow duration-300 sm:p-8 md:col-span-8 data-[team-bento-bio=full]:md:col-span-12 lg:p-12 xl:p-14"
+        >
+          <h2
+            id="sobre-mi"
+            class="font-display text-primary mb-6 flex scroll-mt-28 items-center gap-3 text-xl font-bold sm:mb-8 sm:text-2xl lg:text-3xl"
+          >
+            <Icon
+              name="mdi:account-details"
+              class="text-primary/80 shrink-0"
+              size={32}
+              aria-hidden="true"
+            />
+            Sobre mí
+          </h2>
+          <div
+            class="prose prose-base sm:prose-lg text-base-content prose-p:text-base-content/90 prose-headings:font-display prose-headings:text-base-content prose-strong:text-base-content prose-li:text-base-content/90 prose-blockquote:border-primary prose-blockquote:text-base-content/80 max-w-none leading-relaxed"
+          >
+            <SobreMiContent />
+          </div>
+        </div>
+
+        {
+          showIcebreakers && (
+            <div class="flex flex-col md:col-span-4 md:row-span-1">
+              <div class="bg-primary text-primary-content border-primary/20 h-full flex-1 rounded-[2rem] border p-6 shadow-md sm:p-8">
+                <h3 class="font-display mb-6 flex items-center gap-2 text-xl font-bold">
+                  <Icon
+                    name="mdi:lightbulb-on-outline"
+                    class="text-accent shrink-0"
+                    size={26}
+                    aria-hidden="true"
+                  />
+                  Destacados
+                </h3>
+                <div class="space-y-6">
+                  {favoriteCourse && (
+                    <div>
+                      <p class="text-accent mb-1 text-xs font-bold tracking-widest uppercase">
+                        Ramo favorito
+                      </p>
+                      <p class="text-lg font-semibold">{favoriteCourse}</p>
+                    </div>
+                  )}
+                  {favoriteCourse && (leastFavoriteCourse || funFact) && (
+                    <div class="h-px bg-white/15" />
+                  )}
+                  {leastFavoriteCourse && (
+                    <div>
+                      <p class="text-accent mb-1 text-xs font-bold tracking-widest uppercase">
+                        Ramo menos querido
+                      </p>
+                      <p class="text-lg font-semibold">{leastFavoriteCourse}</p>
+                    </div>
+                  )}
+                  {leastFavoriteCourse && funFact && <div class="h-px bg-white/15" />}
+                  {funFact && (
+                    <div>
+                      <p class="text-accent mb-1 text-xs font-bold tracking-widest uppercase">
+                        Dato freak
+                      </p>
+                      <p class="text-primary-content/85 text-sm leading-relaxed italic">
+                        {funFact}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )
+        }
+      </div>
+
+      {
+        showExperienciaSection && ExperienciaContent && (
+          <div
+            id="experiencia"
+            class="border-base-300/60 bg-base-100 scroll-mt-28 rounded-[2rem] border p-6 shadow-md sm:p-8 md:col-span-12 lg:p-12 xl:p-14"
+          >
+            <h2 class="font-display text-primary mb-6 flex items-center gap-3 text-xl font-bold sm:mb-8 sm:text-2xl lg:text-3xl">
+              <Icon
+                name="mdi:timeline-text-outline"
+                class="text-primary/80 shrink-0"
+                size={32}
+                aria-hidden="true"
+              />
+              Experiencia académica
+            </h2>
+            <div class="prose prose-base sm:prose-lg text-base-content prose-p:text-base-content/90 prose-ul:text-base-content/90 prose-li:my-1 max-w-none">
+              <ExperienciaContent />
+            </div>
+          </div>
+        )
+      }
+
+      {
+        showCourseCatalog && (
+          <div
+            id="cursos-cta"
+            class="mt-2 flex scroll-mt-28 flex-col gap-6 md:col-span-12 md:mt-0 md:flex-row md:items-stretch md:gap-8"
+          >
+            <div
+              class="bg-primary border-primary text-primary-content flex w-full flex-1 flex-col justify-center rounded-[2rem] border p-6 shadow-md sm:p-8 lg:p-10"
+            >
+              <h3 class="font-display text-primary-content mb-3 text-xl font-bold sm:text-2xl">
+                ¿Necesitas ayuda con tu próximo examen?
+              </h3>
+              <p class="text-primary-content/75 mb-6 leading-relaxed">
+                Revisa los cursos que dicta {name.split(' ')[0]} y agenda cuando te acomode.
+              </p>
+              {
+                specialties.length > 0 ? (
+                  <div class="flex flex-wrap gap-2">
+                    {specialties.map((course) => (
+                      <a
+                        href={`/courses/${course!.slug}`}
+                        class="bg-base-100 text-primary hover:bg-primary hover:text-primary-content border-base-content/10 rounded-full border px-4 py-2 text-xs font-bold transition-colors"
+                      >
+                        {course!.data.acronym}
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <a href="/courses" class="btn btn-primary btn-sm w-fit rounded-full">
+                    Ver catálogo
+                  </a>
+                )
+              }
+            </div>
+            <div
+              class="bg-neutral text-neutral-content border-neutral/30 flex min-h-[180px] w-full flex-col justify-between rounded-[2rem] border p-6 shadow-md sm:min-h-[200px] sm:p-8 md:w-auto md:max-w-sm md:shrink-0"
+            >
+              <Icon
+                name="mdi:school"
+                class="text-accent shrink-0 opacity-90"
+                size={40}
+                aria-hidden="true"
+              />
+              <div class="mt-6">
+                {
+                  classesCount != null ? (
+                    <>
+                      <p class="font-display text-4xl font-black sm:text-5xl">{classesCount}</p>
+                      <p class="text-neutral-content/75 mt-2 text-sm leading-snug">
+                        Clases realizadas con Salva Ramos.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p class="font-display text-2xl font-bold">Salva Ramos</p>
+                      <p class="text-neutral-content/75 mt-2 text-sm leading-snug">
+                        Clases en vivo, material y acompañamiento para rendir con más tranquilidad.
+                      </p>
+                    </>
+                  )
+                }
+              </div>
+              <a
+                href="/nosotros"
+                class="text-accent mt-6 inline-flex items-center text-sm font-bold hover:underline"
+              >
+                Conocer al equipo
+                <Icon name="mdi:arrow-right" class="ml-1" size={18} aria-hidden="true" />
+              </a>
+            </div>
+          </div>
+        )
+      }
+    </div>
+  </main>
+  <Footer />
+</Layout>

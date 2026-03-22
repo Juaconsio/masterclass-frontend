@@ -1,0 +1,65 @@
+---
+import { Image } from 'astro:assets';
+import { Icon } from 'astro-icon/components';
+import originPhoto from '/src/assets/origin.jpg';
+---
+
+<div id="origen" class="relative overflow-hidden py-20 sm:py-24 md:py-28">
+  <div
+    class="from-primary/[0.07] pointer-events-none absolute inset-0 bg-gradient-to-b via-transparent to-transparent"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="relative container mx-auto max-w-6xl px-4 sm:px-6">
+    <header class="mx-auto mb-12 max-w-3xl text-center sm:mb-14 md:mb-16" data-usal="fade-up">
+      <p class="text-primary mb-3 text-xs font-semibold tracking-[0.2em] uppercase sm:text-sm">
+        Origen
+      </p>
+      <h2
+        class="font-display text-base-content mb-5 text-3xl font-bold text-balance sm:text-4xl md:text-5xl"
+      >
+        De la ayudantía a una plataforma que acompaña
+      </h2>
+    </header>
+
+    <div
+      class="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(280px,42%)] lg:gap-14 xl:gap-16"
+    >
+      <div class="flex flex-col gap-6" data-usal="fade-up" data-usal-delay="80">
+        <div class="space-y-5 text-base leading-relaxed sm:text-lg">
+          <p class="text-base-content/90 text-pretty">
+            Varios ayudantes y ex ayudantes de la UC impulsaron la idea de complementar la educación
+            universitaria: preparación concreta para las pruebas, con el criterio de quienes ya
+            vivieron el plan común y saben dónde están los obstáculos a superar.
+          </p>
+          <p class="text-base-content/90 text-pretty">
+            Hoy llevamos esa experiencia a una plataforma donde buenos profesores, material que
+            ordena lo importante y un ritmo pensado para el estudiante de hoy trabajan juntos, para
+            que estudiar deje de sentirse como empezar de cero cada semana.
+          </p>
+        </div>
+      </div>
+
+      <figure
+        class="relative mx-auto w-full max-w-lg lg:mx-0 lg:max-w-none"
+        data-usal="fade-up"
+        data-usal-delay="120"
+      >
+        <div
+          class="from-primary/20 ring-base-content/5 relative overflow-hidden rounded-2xl shadow-xl ring-1 ring-inset"
+        >
+          <Image
+            src={originPhoto}
+            alt="Integrantes del equipo Salva Ramos en un encuentro grupal."
+            class="aspect-[4/3] h-auto w-full object-cover sm:aspect-[5/4] lg:aspect-auto lg:max-h-[480px] lg:min-h-[320px]"
+            widths={[640, 960, 1200, originPhoto.width]}
+            sizes="(min-width: 1024px) 42vw, 100vw"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </figure>
+    </div>
+  </div>
+</div>

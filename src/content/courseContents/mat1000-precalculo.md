@@ -1,4 +1,4 @@
-# MAT1000 – Precálculo
+# Precálculo
 
 ## Contenidos del curso
 

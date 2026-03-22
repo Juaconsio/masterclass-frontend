@@ -128,13 +128,24 @@ export interface IAdmin {
 }
 
 export type PricingPlanAccessMode = 'sessions_and_materials' | 'materials_only';
+export type PricingPlanType = 'digital' | 'hybrid' | 'premium' | 'free_trial' | 'massive';
 
 export interface IPricingPlan {
   id: string | number;
   name: string;
   description?: string | null;
   price: number;
+  listPrice?: number;
+  finalPrice?: number;
+  discountAmount?: number;
+  discountPercent?: number;
+  hasActiveDiscount?: boolean;
+  campaignLabel?: string | null;
+  campaignDiscountPercent?: number | null;
+  campaignStartsAt?: string | null;
+  campaignEndsAt?: string | null;
   isActive: boolean;
+  planType?: PricingPlanType;
   reservationCount?: number;
   courseId?: number | null;
   allowReschedule?: boolean;

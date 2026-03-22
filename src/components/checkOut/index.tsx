@@ -4,10 +4,10 @@ import { createPurchase } from '@/client/purchases';
 import { useSessionContext } from '../../context/SessionContext';
 import type { IPricingPlan, ISlot, ICourse } from '../../interfaces/models';
 import { ArrowLeft, TriangleAlert } from 'lucide-react';
-import toast from 'react-hot-toast';
 import { getHttpErrorMessage } from '@/lib/errorMessages';
 import { clearAuthStorage } from '@client/authStorage';
 import { useNavigate } from 'react-router';
+import { getPricingPlanPresentation } from '@/lib/pricingPlanPresentation';
 
 type CheckoutProps = {
   courseId?: string | number;
@@ -75,8 +75,8 @@ export default function CheckoutView(props: CheckoutProps) {
   const role = (user as any)?.role as string | undefined;
   const isStudent = !role || role === 'user';
   const hasSlot = slot != null;
-  const hasPlan = planIdFromQuery != null;
   const selectedPlan = pricingPlans.find((p) => p.id === selectedPricingPlanId);
+  const selectedPlanPresentation = selectedPlan ? getPricingPlanPresentation(selectedPlan) : null;
   const isMaterialsOnly = selectedPlan?.accessMode === 'materials_only';
   const canSubmitReservation =
     !!selectedPricingPlanId &&
@@ -313,22 +313,25 @@ export default function CheckoutView(props: CheckoutProps) {
                   <div className="flex justify-between">
                     <span className="text-base-content/60">Plan</span>
                     <span className="font-medium">
-                      {pricingPlans.find((p) => p.id === selectedPricingPlanId)?.name || '—'}
+                      {selectedPlanPresentation?.name || '—'}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-base-content/60">Total</span>
                     <span className="font-semibold">
-                      {selectedPricingPlanId
-                        ? new Intl.NumberFormat('es-CL', {
-                            style: 'currency',
-                            currency: 'CLP',
-                          }).format(
-                            pricingPlans.find((p) => p.id === selectedPricingPlanId)?.price || 0
-                          )
+                      {selectedPlanPresentation
+                        ? selectedPlanPresentation.pricing.finalPriceLabel
                         : '—'}
                     </span>
                   </div>
+                  {selectedPlanPresentation?.pricing.hasDiscount && (
+                    <div className="flex justify-between">
+                      <span className="text-base-content/60">Precio lista</span>
+                      <span className="text-base-content/50 line-through">
+                        {selectedPlanPresentation.pricing.listPriceLabel}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {authLoading && (
@@ -415,34 +418,59 @@ export default function CheckoutView(props: CheckoutProps) {
                     }}
                   >
                     {pricingPlans.map((p) => (
-                      <label
-                        key={p.id}
-                        className={`card bg-base-100 border ${selectedPricingPlanId === p.id ? 'border-primary ring-primary/30 ring-2' : 'border-base-300'} cursor-pointer shadow-sm transition hover:shadow-md`}
-                      >
-                        <div className="card-body gap-3">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <h3 className="text-lg font-semibold">{p.name}</h3>
-                              {p.description && (
-                                <p className="text-base-content/60 text-sm">{p.description}</p>
-                              )}
+                      (() => {
+                        const presentation = getPricingPlanPresentation(p);
+                        return (
+                          <label
+                            key={p.id}
+                            className={`card bg-base-100 border ${selectedPricingPlanId === p.id ? 'border-primary ring-primary/30 ring-2' : 'border-base-300'} cursor-pointer shadow-sm transition hover:shadow-md`}
+                          >
+                            <div className="card-body gap-3">
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <p className="text-base-content/60 text-xs font-semibold uppercase tracking-wide">
+                                    {presentation.planTypeLabel}
+                                  </p>
+                                  <h3 className="text-lg font-semibold">{presentation.name}</h3>
+                                  {presentation.description && (
+                                    <p className="text-base-content/60 text-sm">{presentation.description}</p>
+                                  )}
+                                </div>
+                                <input
+                                  type="radio"
+                                  name="plan"
+                                  className="radio radio-primary"
+                                  checked={selectedPricingPlanId === p.id}
+                                  onChange={() => setSelectedPricingPlanId(p.id)}
+                                />
+                              </div>
+                              <div>
+                                {presentation.pricing.hasDiscount && (
+                                  <p className="text-base-content/50 text-xs line-through">
+                                    {presentation.pricing.listPriceLabel}
+                                  </p>
+                                )}
+                                <div className="text-2xl font-bold">{presentation.pricing.finalPriceLabel}</div>
+                                {presentation.pricing.discountLabel && (
+                                  <p className="text-success text-xs font-medium">
+                                    {presentation.pricing.discountLabel}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="text-base-content/70 space-y-1 text-xs">
+                                <p>{presentation.sessionsLabel}</p>
+                                <p>Modalidad: {presentation.constraints.modalityText}</p>
+                                <p>Grupo: {presentation.constraints.groupText}</p>
+                              </div>
+                              <ul className="text-base-content/70 list-disc space-y-1 pl-4 text-xs">
+                                {presentation.features.slice(0, 2).map((feature) => (
+                                  <li key={feature}>{feature}</li>
+                                ))}
+                              </ul>
                             </div>
-                            <input
-                              type="radio"
-                              name="plan"
-                              className="radio radio-primary"
-                              checked={selectedPricingPlanId === p.id}
-                              onChange={() => setSelectedPricingPlanId(p.id)}
-                            />
-                          </div>
-                          <div className="text-2xl font-bold">
-                            {new Intl.NumberFormat('es-CL', {
-                              style: 'currency',
-                              currency: 'CLP',
-                            }).format(p.price)}
-                          </div>
-                        </div>
-                      </label>
+                          </label>
+                        );
+                      })()
                     ))}
                     {/* Payment method selector */}
                     <div className="md:col-span-2">

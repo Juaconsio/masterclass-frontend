@@ -19,7 +19,7 @@ function slugifyTitle(value: string) {
     .replace(/(^-|-$)+/g, '');
 }
 
-function buildSlug(acronym: string, title: string) {
+export function buildSlug(acronym: string, title: string) {
   return `${acronym.toLowerCase()}-${slugifyTitle(title)}`;
 }
 

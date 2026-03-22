@@ -83,6 +83,10 @@
 }
 
 @layer components {
+  .font-gebuk {
+    font-size: 1.08em;
+  }
+
   .card {
     @apply border-base-300 bg-base-100;
   }
@@ -166,6 +170,7 @@
 @layer base {
   html {
     @apply w-full overflow-x-hidden;
+    scroll-behavior: smooth;
   }
 
   body {

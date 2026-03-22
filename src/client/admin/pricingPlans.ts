@@ -1,5 +1,5 @@
 import { httpClient } from '../config';
-import type { IPricingPlan, PricingPlanAccessMode } from '@/interfaces';
+import type { IPricingPlan, PricingPlanAccessMode, PricingPlanType } from '@/interfaces';
 
 export interface AdminPricingPlanListItem extends IPricingPlan {
   id: number;
@@ -29,6 +29,11 @@ export interface CreatePricingPlanPayload {
   courseId?: number | null;
   allowReschedule?: boolean;
   accessMode?: 'sessions_and_materials' | 'materials_only';
+  planType?: PricingPlanType;
+  campaignLabel?: string;
+  campaignDiscountPercent?: number;
+  campaignStartsAt?: string;
+  campaignEndsAt?: string;
   allowedModalities?: string[];
   allowedStudentsGroups?: string[];
   classIds?: number[];
@@ -42,6 +47,11 @@ export interface UpdatePricingPlanPayload {
   reservationCount?: number;
   allowReschedule?: boolean;
   accessMode?: 'sessions_and_materials' | 'materials_only';
+  planType?: PricingPlanType;
+  campaignLabel?: string | null;
+  campaignDiscountPercent?: number | null;
+  campaignStartsAt?: string | null;
+  campaignEndsAt?: string | null;
   allowedModalities?: string[];
   allowedStudentsGroups?: string[];
   classIds?: number[];

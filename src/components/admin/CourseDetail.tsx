@@ -1,4 +1,6 @@
-import { useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState, useRef } from 'react';
+import type { CSSProperties, Dispatch, ReactNode, RefObject, SetStateAction } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router';
 import {
   adminCoursesClient,
@@ -19,7 +21,7 @@ import {
 } from '@components/UI';
 import { FileInput, MATERIAL_ICONS, MATERIAL_LABELS } from '@components/content';
 import { fetchProfessors } from '@/client/admin/professors';
-import type { IProfessor } from '@/interfaces/models';
+import type { IProfessor, PricingPlanType } from '@/interfaces/models';
 import { makeUploadUrl, uploadFileToBucket, confirmUpload } from '@/client/admin/material';
 import { createModule, updateModule, deleteModule } from '@/client/admin/modules';
 import {
@@ -30,18 +32,26 @@ import {
 } from '@/client/materials';
 import clsx from 'clsx';
 import {
+  BookOpen,
+  CalendarClock,
+  Coins,
   FileText,
   FolderOpen,
+  MapPin,
   Pencil,
   Plus,
+  Tag,
+  Ticket,
   Trash2,
   UserPlus,
+  Users,
   RotateCw,
   ChevronDown,
   ChevronRight,
   Check,
   X,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useConfirmAction } from '@/hooks/useConfirmAction';
 import { showToast } from '@/lib/toast';
 import {
@@ -49,6 +59,404 @@ import {
   type AdminPricingPlanListItem,
   type CreatePricingPlanPayload,
 } from '@/client/admin/pricingPlans';
+
+const PLAN_TYPE_OPTIONS = [
+  { value: 'digital', label: 'Digital', accessMode: 'materials_only' },
+  { value: 'hybrid', label: 'Híbrido', accessMode: 'sessions_and_materials' },
+  { value: 'premium', label: 'Premium', accessMode: 'sessions_and_materials' },
+  { value: 'free_trial', label: 'Prueba gratis', accessMode: 'sessions_and_materials' },
+  { value: 'massive', label: 'Clase masiva', accessMode: 'sessions_and_materials' },
+] as const;
+
+/**
+ * Converts API ISO date into datetime-local input value.
+ */
+function isoToLocalDateTime(value?: string | null): string {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16);
+}
+
+/**
+ * Converts datetime-local input value into API ISO date.
+ */
+function localDateTimeToIso(value?: string): string | undefined {
+  if (!value) return undefined;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return undefined;
+  return date.toISOString();
+}
+
+function getPlanTypeMeta(planType?: string) {
+  if (planType === 'hibrido')
+    return PLAN_TYPE_OPTIONS.find((option) => option.value === 'hybrid') ?? PLAN_TYPE_OPTIONS[0];
+  if (planType === 'prueba_gratis')
+    return (
+      PLAN_TYPE_OPTIONS.find((option) => option.value === 'free_trial') ?? PLAN_TYPE_OPTIONS[0]
+    );
+  if (planType === 'masiva')
+    return PLAN_TYPE_OPTIONS.find((option) => option.value === 'massive') ?? PLAN_TYPE_OPTIONS[0];
+  return PLAN_TYPE_OPTIONS.find((option) => option.value === planType) ?? PLAN_TYPE_OPTIONS[0];
+}
+
+function adminPlanHasCampaign(plan: AdminPricingPlanListItem): boolean {
+  return Boolean(
+    (plan.campaignLabel && plan.campaignLabel.trim()) ||
+      (plan.campaignDiscountPercent != null && plan.campaignDiscountPercent > 0) ||
+      plan.campaignStartsAt ||
+      plan.campaignEndsAt
+  );
+}
+
+const PLAN_TABLE_PANEL_MIN_WIDTH = 320;
+const PLAN_TABLE_PANEL_MAX_WIDTH = 440;
+
+function usePlanTableAnchoredPanel(
+  open: boolean,
+  setOpen: Dispatch<SetStateAction<boolean>>,
+  panelId: string
+): { triggerRef: RefObject<HTMLButtonElement | null>; panelStyle: CSSProperties } {
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [panelStyle, setPanelStyle] = useState<CSSProperties>({
+    top: 0,
+    left: 0,
+    width: PLAN_TABLE_PANEL_MAX_WIDTH,
+  });
+
+  const updatePanelPosition = useCallback(() => {
+    const el = triggerRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const pad = 12;
+    const gap = 8;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const width = Math.min(
+      PLAN_TABLE_PANEL_MAX_WIDTH,
+      Math.max(PLAN_TABLE_PANEL_MIN_WIDTH, vw - pad * 2)
+    );
+    let left = r.right - width;
+    if (left < pad) left = pad;
+    if (left + width > vw - pad) left = vw - width - pad;
+
+    const spaceBelow = vh - r.bottom - pad;
+    const spaceAbove = r.top - pad;
+    const minSpaceToPreferBelow = 200;
+    const placeBelow = spaceBelow >= minSpaceToPreferBelow || spaceBelow >= spaceAbove;
+    const maxPanelBody = 480;
+    const maxHBelow = Math.min(maxPanelBody, Math.max(100, spaceBelow - gap));
+    const maxHAbove = Math.min(maxPanelBody, Math.max(100, spaceAbove - gap));
+
+    if (placeBelow) {
+      setPanelStyle({
+        position: 'fixed',
+        top: r.bottom + gap,
+        left,
+        width,
+        bottom: undefined,
+        maxHeight: maxHBelow,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      });
+    } else {
+      setPanelStyle({
+        position: 'fixed',
+        top: undefined,
+        bottom: vh - r.top + gap,
+        left,
+        width,
+        maxHeight: maxHAbove,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      });
+    }
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    updatePanelPosition();
+  }, [open, updatePanelPosition]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onReposition = () => updatePanelPosition();
+    window.addEventListener('scroll', onReposition, true);
+    window.addEventListener('resize', onReposition);
+    return () => {
+      window.removeEventListener('scroll', onReposition, true);
+      window.removeEventListener('resize', onReposition);
+    };
+  }, [open, updatePanelPosition]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      const node = e.target as Node;
+      if (triggerRef.current?.contains(node)) return;
+      const panel = document.getElementById(panelId);
+      if (panel?.contains(node)) return;
+      setOpen(false);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [open, panelId, setOpen]);
+
+  return { triggerRef, panelStyle };
+}
+
+function formatPlanAccessLabel(accessMode: string) {
+  return accessMode === 'materials_only' ? 'Solo materiales' : 'Sesiones y materiales';
+}
+
+function formatPlanModalitiesLabel(modalities: string[] | undefined, accessMode: string) {
+  if (accessMode === 'materials_only') return 'No aplica';
+  const mods = modalities ?? [];
+  if (mods.length === 0) return 'Todas';
+  return mods
+    .map((m) => (m === 'remote' ? 'Remoto' : m === 'onsite' ? 'Presencial' : m))
+    .join(', ');
+}
+
+function formatPlanGroupsLabel(groups: string[] | undefined, accessMode: string) {
+  if (accessMode === 'materials_only') return 'No aplica';
+  const g = groups ?? [];
+  if (g.length === 0) return 'Todas';
+  return g.map((x) => (x === 'group' ? 'Grupal' : x === 'private' ? 'Privado' : x)).join(', ');
+}
+
+function formatPlanCampaignDateLabel(iso: string) {
+  return new Date(iso).toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' });
+}
+
+/** Campaña: nombre y % en la misma línea; vigencia debajo. */
+function PlanConditionsCampaignBlock({ plan }: { plan: AdminPricingPlanListItem }) {
+  const pct = plan.campaignDiscountPercent;
+  if (!pct || Number(pct) <= 0) {
+    return <p className="text-base-content/55 text-sm leading-relaxed">Sin campaña</p>;
+  }
+  const title = plan.campaignLabel?.trim();
+  const start = plan.campaignStartsAt;
+  const end = plan.campaignEndsAt;
+  const hasRange = Boolean(start || end);
+
+  return (
+    <div className="space-y-2.5">
+      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        {title ? (
+          <span className="text-base-content text-base leading-snug font-semibold tracking-tight">
+            {title}
+          </span>
+        ) : null}
+        {title ? (
+          <span className="text-base-content/30 select-none" aria-hidden>
+            ·
+          </span>
+        ) : null}
+        <span className="badge badge-primary badge-lg font-semibold tabular-nums">{pct}%</span>
+      </div>
+      {hasRange ? (
+        <div className="border-base-300/80 bg-base-200/35 mt-1 grid gap-2 rounded-lg border px-3 py-2.5">
+          {start ? (
+            <div className="flex items-baseline justify-between gap-4 text-xs">
+              <span className="text-base-content/45 shrink-0 font-medium tracking-wide uppercase">
+                Inicio
+              </span>
+              <span className="text-base-content text-right text-sm font-medium tabular-nums">
+                {formatPlanCampaignDateLabel(start)}
+              </span>
+            </div>
+          ) : null}
+          {end ? (
+            <div className="flex items-baseline justify-between gap-4 text-xs">
+              <span className="text-base-content/45 shrink-0 font-medium tracking-wide uppercase">
+                Fin
+              </span>
+              <span className="text-base-content text-right text-sm font-medium tabular-nums">
+                {formatPlanCampaignDateLabel(end)}
+              </span>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function PlanConditionsSection({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: LucideIcon;
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <dt className="text-base-content/40 flex items-center gap-2 text-[11px] font-semibold tracking-wider uppercase">
+        <Icon className="h-3.5 w-3.5 shrink-0 opacity-55" strokeWidth={2} aria-hidden />
+        {label}
+      </dt>
+      <dd className="text-base-content pl-5 text-sm leading-relaxed font-medium">{children}</dd>
+    </div>
+  );
+}
+
+function PlanConditionsDropdown({ plan }: { plan: AdminPricingPlanListItem }) {
+  const [open, setOpen] = useState(false);
+  const panelId = `plan-conditions-panel-${plan.id}`;
+  const { triggerRef, panelStyle } = usePlanTableAnchoredPanel(open, setOpen, panelId);
+
+  const creditsLabel =
+    plan.accessMode === 'materials_only' ? 'No aplica' : String(plan.reservationCount ?? '—');
+  const reagendaLabel =
+    plan.accessMode === 'materials_only' ? 'No aplica' : plan.allowReschedule ? 'Sí' : 'No';
+
+  return (
+    <>
+      <button
+        ref={triggerRef}
+        type="button"
+        className="btn btn-ghost btn-sm h-auto min-h-9 gap-1.5 py-1.5 font-normal"
+        aria-expanded={open}
+        aria-controls={panelId}
+        aria-haspopup="dialog"
+        title="Ver condiciones del plan"
+        onClick={() => setOpen((v) => !v)}
+      >
+        Condiciones
+        <ChevronDown
+          className={clsx('h-4 w-4 shrink-0 opacity-70 transition-transform', open && 'rotate-180')}
+          aria-hidden
+        />
+      </button>
+      {open &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            id={panelId}
+            role="dialog"
+            aria-label="Condiciones del plan"
+            className="border-base-300 bg-base-100 z-[9999] rounded-xl border p-4 shadow-xl"
+            style={panelStyle}
+          >
+            <p className="text-base-content border-base-200 mb-3 shrink-0 border-b pb-2 text-sm font-semibold tracking-tight">
+              Condiciones del plan
+            </p>
+            <dl className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain pr-1">
+              <PlanConditionsSection icon={BookOpen} label="Acceso">
+                {formatPlanAccessLabel(plan.accessMode)}
+              </PlanConditionsSection>
+
+              <div className="space-y-1.5">
+                <dt className="text-base-content/40 flex items-center gap-2 text-[11px] font-semibold tracking-wider uppercase">
+                  <Ticket className="h-3.5 w-3.5 shrink-0 opacity-55" strokeWidth={2} aria-hidden />
+                  Créditos y reagenda
+                </dt>
+                <dd className="text-base-content pl-5">
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-medium">
+                    <span className="inline-flex items-center gap-2">
+                      <Coins className="text-base-content/35 h-4 w-4 shrink-0" aria-hidden />
+                      <span className="text-base-content/45 text-xs font-normal">Créditos</span>
+                      <span>{creditsLabel}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-2">
+                      <CalendarClock
+                        className="text-base-content/35 h-4 w-4 shrink-0"
+                        aria-hidden
+                      />
+                      <span className="text-base-content/45 text-xs font-normal">Reagenda</span>
+                      <span>{reagendaLabel}</span>
+                    </span>
+                  </div>
+                </dd>
+              </div>
+
+              <PlanConditionsSection icon={Tag} label="Campaña">
+                <PlanConditionsCampaignBlock plan={plan} />
+              </PlanConditionsSection>
+
+              <PlanConditionsSection icon={MapPin} label="Modalidades">
+                {formatPlanModalitiesLabel(plan.allowedModalities, plan.accessMode)}
+              </PlanConditionsSection>
+
+              <PlanConditionsSection icon={Users} label="Grupos">
+                {formatPlanGroupsLabel(plan.allowedStudentsGroups, plan.accessMode)}
+              </PlanConditionsSection>
+            </dl>
+          </div>,
+          document.body
+        )}
+    </>
+  );
+}
+
+/**
+ * Lista de clases en panel fijo (portal) anclado al botón, para no quedar recortado por overflow de la tabla.
+ */
+function PlanAllowedClassesDropdown({ plan }: { plan: AdminPricingPlanListItem }) {
+  const classes = plan.allowedClasses ?? [];
+  const [open, setOpen] = useState(false);
+  const panelId = `plan-classes-panel-${plan.id}`;
+  const { triggerRef, panelStyle } = usePlanTableAnchoredPanel(open, setOpen, panelId);
+
+  if (classes.length === 0) {
+    return <span className="text-base-content/60 text-sm">Todas</span>;
+  }
+
+  return (
+    <>
+      <button
+        ref={triggerRef}
+        type="button"
+        className="btn btn-ghost btn-sm h-auto min-h-9 gap-1.5 py-1.5 font-normal"
+        aria-expanded={open}
+        aria-controls={panelId}
+        aria-haspopup="listbox"
+        onClick={() => setOpen((v) => !v)}
+      >
+        {classes.length} {classes.length === 1 ? 'clase' : 'clases'}
+        <ChevronDown
+          className={clsx('h-4 w-4 shrink-0 opacity-70 transition-transform', open && 'rotate-180')}
+          aria-hidden
+        />
+      </button>
+      {open &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            id={panelId}
+            role="listbox"
+            className="border-base-300 bg-base-100 z-[9999] rounded-xl border p-4 shadow-xl"
+            style={panelStyle}
+          >
+            <p className="text-base-content/60 mb-3 shrink-0 text-sm font-semibold">
+              Clases permitidas
+            </p>
+            <ul
+              className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain pr-1"
+              role="presentation"
+            >
+              {classes.map((c) => (
+                <li
+                  key={c.id}
+                  className="text-base-content/90 px-1 py-1 text-base leading-snug"
+                  role="option"
+                >
+                  {c.title ?? `Clase #${c.id}`}
+                </li>
+              ))}
+            </ul>
+          </div>,
+          document.body
+        )}
+    </>
+  );
+}
 
 export default function CourseDetail() {
   const [course, setCourse] = useState<AdminCourseDetail | null>(null);
@@ -75,15 +483,20 @@ export default function CourseDetail() {
     name: '',
     description: '',
     price: 0,
+    planType: 'digital',
+    campaignLabel: '',
+    campaignDiscountPercent: undefined,
+    campaignStartsAt: '',
+    campaignEndsAt: '',
     isActive: true,
     reservationCount: 1,
     courseId: null,
     allowReschedule: true,
-    accessMode: 'sessions_and_materials',
     allowedModalities: [],
     allowedStudentsGroups: [],
     classIds: [],
   });
+  const [planCampaignEnabled, setPlanCampaignEnabled] = useState(false);
   const [editingClass, setEditingClass] = useState<Class | null>(null);
   const [descriptionModalClass, setDescriptionModalClass] = useState<Class | null>(null);
   const [materialsDrawerClass, setMaterialsDrawerClass] = useState<Class | null>(null);
@@ -525,15 +938,20 @@ export default function CourseDetail() {
       name: '',
       description: '',
       price: 0,
+      planType: 'digital',
+      campaignLabel: '',
+      campaignDiscountPercent: undefined,
+      campaignStartsAt: '',
+      campaignEndsAt: '',
       isActive: true,
       reservationCount: 1,
       courseId: courseId,
       allowReschedule: true,
-      accessMode: 'sessions_and_materials',
       allowedModalities: [],
       allowedStudentsGroups: [],
       classIds: [],
     });
+    setPlanCampaignEnabled(false);
     setEditingPlan(null);
   };
 
@@ -544,26 +962,33 @@ export default function CourseDetail() {
   };
 
   const handleOpenEditPlan = (plan: AdminPricingPlanListItem) => {
+    const planTypeFromExisting =
+      plan.planType ?? (plan.accessMode === 'materials_only' ? 'digital' : 'hybrid');
     setEditingPlan(plan);
     setPlanFormData({
       name: plan.name,
       description: plan.description ?? '',
       price: plan.price,
+      planType: planTypeFromExisting,
+      campaignLabel: plan.campaignLabel ?? '',
+      campaignDiscountPercent: plan.campaignDiscountPercent ?? undefined,
+      campaignStartsAt: isoToLocalDateTime(plan.campaignStartsAt),
+      campaignEndsAt: isoToLocalDateTime(plan.campaignEndsAt),
       isActive: plan.isActive,
       reservationCount: plan.reservationCount,
       courseId: plan.courseId ?? courseId,
       allowReschedule: plan.allowReschedule,
-      accessMode:
-        plan.accessMode === 'materials_only' ? 'materials_only' : 'sessions_and_materials',
       allowedModalities: plan.allowedModalities ?? [],
       allowedStudentsGroups: plan.allowedStudentsGroups ?? [],
       classIds: (plan.allowedClasses ?? []).map((c) => c.id),
     });
+    setPlanCampaignEnabled(adminPlanHasCampaign(plan));
     planDrawerRef.current?.open();
   };
 
   const handleSubmitPlan = async () => {
-    const isMaterialsOnly = planFormData.accessMode === 'materials_only';
+    const selectedPlanType = getPlanTypeMeta(planFormData.planType).value;
+    const isMaterialsOnly = getPlanTypeMeta(selectedPlanType).accessMode === 'materials_only';
     const needsCredits =
       !isMaterialsOnly &&
       (planFormData.reservationCount === undefined || planFormData.reservationCount === null);
@@ -577,35 +1002,47 @@ export default function CourseDetail() {
     }
     try {
       setSubmittingPlan(true);
-      const payload = {
+      const campaignDiscountPercent =
+        Number(planFormData.campaignDiscountPercent) > 0
+          ? Number(planFormData.campaignDiscountPercent)
+          : undefined;
+      const campaignWhenEnabled = {
+        campaignLabel: planFormData.campaignLabel?.trim() || undefined,
+        campaignDiscountPercent,
+        campaignStartsAt: localDateTimeToIso(planFormData.campaignStartsAt),
+        campaignEndsAt: localDateTimeToIso(planFormData.campaignEndsAt),
+      };
+      const clearCampaignOnUpdate = {
+        campaignLabel: null,
+        campaignDiscountPercent: null,
+        campaignStartsAt: null,
+        campaignEndsAt: null,
+      } as const;
+      const basePlanPayload = {
         name: planFormData.name,
         description: planFormData.description ?? '',
         price: Number(planFormData.price),
+        planType: selectedPlanType,
         isActive: planFormData.isActive,
         reservationCount: isMaterialsOnly ? 0 : Number(planFormData.reservationCount),
         courseId: courseId,
         allowReschedule: isMaterialsOnly ? false : planFormData.allowReschedule,
-        accessMode: planFormData.accessMode,
         allowedModalities: isMaterialsOnly ? [] : (planFormData.allowedModalities ?? []),
         allowedStudentsGroups: isMaterialsOnly ? [] : (planFormData.allowedStudentsGroups ?? []),
         classIds: planFormData.classIds ?? [],
       };
       if (editingPlan) {
         await adminPricingPlansClient.update(editingPlan.id, {
-          name: payload.name,
-          description: payload.description,
-          price: payload.price,
-          isActive: payload.isActive,
-          reservationCount: payload.reservationCount,
-          allowReschedule: payload.allowReschedule,
-          accessMode: payload.accessMode,
-          allowedModalities: payload.allowedModalities,
-          allowedStudentsGroups: payload.allowedStudentsGroups,
-          classIds: payload.classIds,
+          ...basePlanPayload,
+          ...(planCampaignEnabled ? campaignWhenEnabled : clearCampaignOnUpdate),
         });
         showToast.success('Plan actualizado correctamente');
       } else {
-        await adminPricingPlansClient.create(payload);
+        const createPayload: CreatePricingPlanPayload = {
+          ...basePlanPayload,
+          ...(planCampaignEnabled ? campaignWhenEnabled : {}),
+        };
+        await adminPricingPlansClient.create(createPayload);
         showToast.success('Plan creado correctamente');
       }
       planDrawerRef.current?.close();
@@ -653,8 +1090,6 @@ export default function CourseDetail() {
       </div>
     );
   }
-
-  const allMaterialTypes = Object.keys(MATERIAL_LABELS);
 
   const classColumns: TableColumn<(typeof course.classes)[0]>[] = [
     {
@@ -781,6 +1216,9 @@ export default function CourseDetail() {
     },
   ];
 
+  const formatPlanPriceCl = (value: number) =>
+    new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(Number(value));
+
   const planColumns: TableColumn<AdminPricingPlanListItem>[] = [
     {
       key: 'name',
@@ -789,34 +1227,39 @@ export default function CourseDetail() {
       formatter: (v) => <span className="font-semibold">{v}</span>,
     },
     {
+      key: 'planType',
+      label: 'Tipo',
+      formatter: (v) => {
+        const meta = getPlanTypeMeta(typeof v === 'string' ? v : undefined);
+        return meta.label;
+      },
+    },
+    {
       key: 'price',
       label: 'Precio',
+      formatter: (v) => formatPlanPriceCl(Number(v)),
+    },
+    {
+      key: 'isActive',
+      label: 'Estado',
       formatter: (v) =>
-        new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(Number(v)),
+        v ? (
+          <span className="badge badge-success badge-sm">Activo</span>
+        ) : (
+          <span className="badge badge-error badge-sm">Inactivo</span>
+        ),
     },
     {
-      key: 'reservationCount',
-      label: 'Créditos',
-      formatter: (v, row) => (row.accessMode === 'materials_only' ? '—' : String(v ?? '—')),
-    },
-    {
-      key: 'allowReschedule',
-      label: 'Reagenda',
-      formatter: (v) => (v ? 'Sí' : 'No'),
-    },
-    {
-      key: 'accessMode',
-      label: 'Acceso',
-      formatter: (v) => (v === 'materials_only' ? 'Solo materiales' : 'Sesiones y materiales'),
+      key: '_conditions',
+      label: 'Condiciones del plan',
+      className: 'min-w-[8rem] whitespace-nowrap',
+      render: (row) => <PlanConditionsDropdown plan={row} />,
     },
     {
       key: 'allowedClasses',
       label: 'Clases',
-      formatter: (_, row) => {
-        const classes = row.allowedClasses ?? [];
-        if (classes.length === 0) return <span className="text-base-content/60">Todas</span>;
-        return <span>{classes.map((c) => c.title ?? c.id).join(', ')}</span>;
-      },
+      className: 'min-w-[10rem] whitespace-nowrap',
+      render: (row) => <PlanAllowedClassesDropdown plan={row} />,
     },
   ];
 
@@ -1211,8 +1654,9 @@ export default function CourseDetail() {
             loading: submittingPlan,
             disabled:
               !planFormData.name ||
+              !planFormData.planType ||
               planFormData.price === undefined ||
-              (planFormData.accessMode !== 'materials_only' &&
+              (getPlanTypeMeta(planFormData.planType).accessMode !== 'materials_only' &&
                 (planFormData.reservationCount === undefined ||
                   planFormData.reservationCount === null)),
           },
@@ -1244,17 +1688,19 @@ export default function CourseDetail() {
           </div>
           <div className="form-control">
             <label className="label">
-              <span className="label-text font-semibold">Tipo de paquete</span>
+              <span className="label-text font-semibold">Tipo de plan *</span>
             </label>
             <select
               className="select select-bordered w-full"
-              value={planFormData.accessMode}
+              value={planFormData.planType ?? 'digital'}
               onChange={(e) => {
-                const mode = e.target.value as 'sessions_and_materials' | 'materials_only';
+                const nextPlanType = e.target.value as PricingPlanType;
+                const isMaterialsOnly =
+                  getPlanTypeMeta(nextPlanType).accessMode === 'materials_only';
                 setPlanFormData({
                   ...planFormData,
-                  accessMode: mode,
-                  ...(mode === 'materials_only'
+                  planType: nextPlanType,
+                  ...(isMaterialsOnly
                     ? {
                         reservationCount: 0,
                         allowReschedule: false,
@@ -1265,12 +1711,27 @@ export default function CourseDetail() {
                 });
               }}
             >
-              <option value="sessions_and_materials">Sesiones y materiales</option>
-              <option value="materials_only">Solo materiales</option>
+              {PLAN_TYPE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
+            <label className="label">
+              <span className="label-text-alt text-base-content/70">
+                Acceso derivado:{' '}
+                {getPlanTypeMeta(planFormData.planType).accessMode === 'materials_only'
+                  ? 'Solo materiales'
+                  : 'Sesiones y materiales'}
+              </span>
+            </label>
           </div>
           <div
-            className={planFormData.accessMode === 'materials_only' ? '' : 'grid grid-cols-2 gap-4'}
+            className={
+              getPlanTypeMeta(planFormData.planType).accessMode === 'materials_only'
+                ? ''
+                : 'grid grid-cols-2 gap-4'
+            }
           >
             <div className="form-control">
               <label className="label">
@@ -1287,7 +1748,7 @@ export default function CourseDetail() {
                 }
               />
             </div>
-            {planFormData.accessMode === 'sessions_and_materials' && (
+            {getPlanTypeMeta(planFormData.planType).accessMode === 'sessions_and_materials' && (
               <div className="form-control">
                 <label className="label">
                   <span className="label-text font-semibold">Créditos (sesiones) *</span>
@@ -1318,7 +1779,7 @@ export default function CourseDetail() {
               <span className="label-text font-semibold">Plan activo</span>
             </label>
           </div>
-          {planFormData.accessMode === 'sessions_and_materials' && (
+          {getPlanTypeMeta(planFormData.planType).accessMode === 'sessions_and_materials' && (
             <>
               <div className="form-control">
                 <label className="label cursor-pointer justify-start gap-3">
@@ -1388,6 +1849,81 @@ export default function CourseDetail() {
                 </div>
               </div>
             </>
+          )}
+          <div className="form-control">
+            <label className="label cursor-pointer justify-start gap-3">
+              <input
+                type="checkbox"
+                className="toggle toggle-primary"
+                checked={planCampaignEnabled}
+                onChange={(e) => setPlanCampaignEnabled(e.target.checked)}
+              />
+              <span className="label-text font-semibold">Campaña promocional</span>
+            </label>
+          </div>
+          {planCampaignEnabled && (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="form-control md:col-span-2">
+                <label className="label">
+                  <span className="label-text font-semibold">Etiqueta de campaña</span>
+                </label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full"
+                  value={planFormData.campaignLabel ?? ''}
+                  onChange={(e) =>
+                    setPlanFormData({ ...planFormData, campaignLabel: e.target.value })
+                  }
+                  placeholder="Ej: Cyber Masterclass"
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-semibold">Descuento (%)</span>
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={99}
+                  step={1}
+                  className="input input-bordered w-full"
+                  value={planFormData.campaignDiscountPercent ?? ''}
+                  onChange={(e) =>
+                    setPlanFormData({
+                      ...planFormData,
+                      campaignDiscountPercent: e.target.value ? Number(e.target.value) : undefined,
+                    })
+                  }
+                  placeholder="Ej: 20"
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-semibold">Inicio campaña</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  className="input input-bordered w-full"
+                  value={planFormData.campaignStartsAt ?? ''}
+                  onChange={(e) =>
+                    setPlanFormData({ ...planFormData, campaignStartsAt: e.target.value })
+                  }
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-semibold">Fin campaña</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  className="input input-bordered w-full"
+                  value={planFormData.campaignEndsAt ?? ''}
+                  onChange={(e) =>
+                    setPlanFormData({ ...planFormData, campaignEndsAt: e.target.value })
+                  }
+                />
+              </div>
+            </div>
           )}
           <div className="form-control">
             <label className="label">
@@ -1663,8 +2199,7 @@ export default function CourseDetail() {
                   <FileInput
                     acceptedFileTypes={['image/*', 'application/pdf', 'video/mp4', '.mp4']}
                     onFileUpload={async (file, type, displayName) => {
-                      const classId =
-                        materialsDrawerClassIdRef.current ?? materialsDrawerClass.id;
+                      const classId = materialsDrawerClassIdRef.current ?? materialsDrawerClass.id;
                       await handleFileUpload(file, classId, type, { displayName });
                     }}
                     maxSizeMB={500}
@@ -1708,7 +2243,7 @@ export default function CourseDetail() {
                           <>
                             <input
                               type="text"
-                              className="input input-bordered input-sm flex-1 min-w-0"
+                              className="input input-bordered input-sm min-w-0 flex-1"
                               value={editingModuleTitle}
                               onChange={(e) => setEditingModuleTitle(e.target.value)}
                               onClick={(e) => e.stopPropagation()}
@@ -1749,7 +2284,7 @@ export default function CourseDetail() {
                           </>
                         ) : (
                           <>
-                            <span className="font-medium min-w-0 flex-1 truncate">
+                            <span className="min-w-0 flex-1 truncate font-medium">
                               {mod.orderIndex + 1}. {mod.title}
                             </span>
                             <span className="badge badge-ghost badge-sm shrink-0">

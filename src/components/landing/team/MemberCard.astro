@@ -1,0 +1,111 @@
+---
+import { Icon } from 'astro-icon/components';
+import clsx from 'clsx';
+
+interface Props {
+  name: string;
+  role: string;
+  image?: string;
+  degree?: string;
+  slug?: string;
+  variant?: 'neutral' | 'accent' | 'secondary' | 'primary';
+  /** Tarjeta más compacta (listados en /nosotros). */
+  size?: 'default' | 'sm';
+}
+
+const { name, role, image, degree, slug, variant = 'neutral', size = 'default' } = Astro.props;
+
+const compact = size === 'sm';
+
+const href = slug ? `/nosotros/${slug}` : '#equipo';
+
+const getInitials = (name: string) =>
+  name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+---
+
+<a
+  href={href}
+  class={clsx(
+    'group relative flex min-w-0 flex-col overflow-hidden transition-all hover:shadow-lg',
+    compact ? 'rounded-lg' : 'rounded-xl',
+    variant === 'neutral' && 'bg-neutral',
+    variant === 'accent' && 'bg-accent',
+    variant === 'secondary' && 'bg-secondary',
+    variant === 'primary' && 'bg-primary'
+  )}
+  aria-label={slug ? `Ver perfil de ${name}` : undefined}
+>
+  <div class={clsx('relative overflow-hidden', compact ? 'aspect-[5/6]' : 'aspect-[4/5]')}>
+    {
+      image ? (
+        <img
+          src={image}
+          alt={name}
+          class="h-full w-full object-cover object-top transition-all duration-300 group-hover:scale-105"
+          loading="lazy"
+        />
+      ) : (
+        <div
+          class={clsx(
+            'bg-primary text-primary-content flex h-full w-full items-center justify-center font-bold',
+            compact ? 'text-lg sm:text-xl' : 'text-2xl'
+          )}
+        >
+          {getInitials(name)}
+        </div>
+      )
+    }
+    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent">
+    </div>
+    <div class={clsx('absolute right-0 bottom-0 left-0', compact ? 'pt-1' : 'pt-2')}>
+      <div
+        class={clsx(
+          'rounded-md bg-black/50 shadow-lg',
+          compact ? 'px-2 py-1 sm:px-2 sm:py-1.5' : 'rounded-lg px-2.5 py-1.5'
+        )}
+      >
+        <p
+          class={clsx(
+            'font-display font-bold text-white',
+            compact ? 'text-xs leading-tight sm:text-sm' : 'text-sm'
+          )}
+        >
+          {name}
+        </p>
+        <p
+          class={clsx(
+            'line-clamp-2 text-white/80',
+            compact ? 'text-[0.65rem] leading-snug sm:text-xs' : 'text-xs'
+          )}
+        >
+          {role}
+        </p>
+        {
+          degree && (
+            <p
+              class={clsx(
+                'mt-0.5 line-clamp-1 text-white/60',
+                compact ? 'text-[0.6rem] sm:text-[0.65rem]' : 'text-xs'
+              )}
+            >
+              {degree}
+            </p>
+          )
+        }
+      </div>
+    </div>
+  </div>
+  <div class={clsx('absolute text-white/90', compact ? 'top-1 right-1 sm:top-1.5 sm:right-1.5' : 'top-2 right-2')}>
+    <Icon
+      name="mdi:arrow-top-right"
+      class="transition-all duration-300 group-hover:-translate-x-1 group-hover:translate-y-1"
+      size={compact ? 16 : 20}
+      aria-hidden="true"
+    />
+  </div>
+</a>

@@ -1,0 +1,113 @@
+---
+import { Icon } from 'astro-icon/components';
+import { pilares } from '@/data/pilares';
+import MemberCard from './team/MemberCard.astro';
+import ProfesoresCard from './team/ProfesoresCard.astro';
+import MarketingCard from './team/MarketingCard.astro';
+import PilarCard from './PilarCard.astro';
+interface BoardMember {
+  name: string;
+  role: string;
+  image: string;
+  degree?: string;
+}
+
+interface TeamMember {
+  name: string;
+  image: string;
+}
+
+interface Props {
+  board: BoardMember[];
+  professors: TeamMember[];
+  marketing: TeamMember[];
+}
+
+const { board, professors, marketing } = Astro.props;
+
+const variants = ['accent', 'accent', 'accent'] as const;
+const positions = [
+  { col: 'md:col-start-1', row: 'md:row-start-1' },
+  { col: 'md:col-start-3', row: 'md:row-start-1' },
+  { col: 'md:col-start-2', row: 'md:row-start-2' },
+];
+---
+
+<div class="relative overflow-hidden">
+  <div class="grid lg:grid-cols-[3fr_4fr]">
+    <div
+      class="bg-primary text-primary-content flex flex-col justify-center px-4 py-16 sm:px-6 sm:py-20 md:px-8 md:py-24 lg:px-12"
+    >
+      <div class="mx-auto w-full max-w-xl" data-usal="fade-up" data-usal-delay="0">
+        <div class="mb-4 inline-block text-xs font-semibold tracking-widest uppercase sm:text-sm">
+          Ex alumnos, estudiantes y nuevos estudiantes
+        </div>
+        <h1
+          class="font-display mb-6 text-3xl leading-tight font-bold sm:text-4xl md:text-5xl lg:text-6xl"
+        >
+          Salva <span class="font-gebuk text-3xl sm:text-4xl md:text-5xl lg:text-6xl">Ramos</span>
+        </h1>
+        <p class="text-neutral-content/80 mb-8 max-w-md text-base leading-relaxed sm:text-lg">
+          No somos solo tutores. Somos la red de apoyo que transforma la frustración académica en
+          éxito universitario a través de tecnología, cercanía y excelencia.
+        </p>
+        <a
+          href="#origen"
+          class="btn btn-accent text-accent-content hover:btn-accent/90 inline-flex w-fit items-center gap-2 border-none font-semibold"
+        >
+          Conoce más del proyecto
+          <Icon name="mdi:arrow-right" size={20} aria-hidden="true" />
+        </a>
+      </div>
+    </div>
+
+    <div class="bg-primary flex items-center overflow-x-hidden p-4 sm:p-6">
+      <div
+        class="grid w-full grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3 md:gap-4"
+        data-usal="split-item split-fade-up split-delay-200"
+      >
+        {
+          board.slice(0, 3).map((member, i) => (
+            <div class={`min-w-0 ${positions[i]?.col} ${positions[i]?.row}`}>
+              <MemberCard
+                name={member.name}
+                role={member.role}
+                image={member.image}
+                degree={member.degree}
+                variant={variants[i]}
+              />
+            </div>
+          ))
+        }
+        <div
+          class="flex gap-3 sm:gap-4 md:hidden"
+          data-usal="split-item split-fade-up split-delay-200"
+        >
+          <div class="min-w-0 flex-1">
+            <ProfesoresCard members={professors} extraCount={10} />
+          </div>
+          <div class="min-w-0 flex-1">
+            <MarketingCard members={marketing} extraCount={2} />
+          </div>
+        </div>
+        <div
+          class="hidden min-w-0 md:col-start-1 md:row-start-2 md:block"
+          data-usal="split-item split-fade-up split-delay-200"
+        >
+          <ProfesoresCard members={professors} extraCount={10} />
+        </div>
+        <div
+          class="hidden min-w-0 md:col-start-3 md:row-start-2 md:block"
+          data-usal="split-item split-fade-up split-delay-200"
+        >
+          <MarketingCard members={marketing} extraCount={2} />
+        </div>
+        <div
+          class="grid min-w-0 grid-cols-2 grid-rows-2 gap-2 md:col-span-1 md:col-start-2 md:row-start-1"
+        >
+          {pilares.map((p) => <PilarCard item={p} grid />)}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

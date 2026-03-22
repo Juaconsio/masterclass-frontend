@@ -1,0 +1,22 @@
+---
+import TeamCard from './TeamCard.astro';
+
+interface Props {
+  members: { name: string; image: string }[];
+  extraCount?: number;
+}
+
+const { members, extraCount = 10 } = Astro.props;
+---
+
+<TeamCard
+  titlePrefix="#"
+  title="Equipo"
+  titleSuffix="Docente"
+  description="Ex ayudantes con las mejores herramientas para tu aprendizaje"
+  members={members}
+  extraCount={extraCount}
+  ariaLabel="Ver todo el equipo de profesores"
+  showIsotipo={true}
+  variant="accent"
+/>

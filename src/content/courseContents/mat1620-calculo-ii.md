@@ -1,4 +1,4 @@
-# MAT1620 – Cálculo II
+# Cálculo II
 
 ## Contenidos del curso
 

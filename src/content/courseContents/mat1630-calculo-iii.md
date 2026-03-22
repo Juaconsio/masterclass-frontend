@@ -1,4 +1,4 @@
-# MAT1630 – Cálculo III
+# Cálculo III
 
 ## Contenidos del curso
 
@@ -24,7 +24,7 @@ Curvatura de una curva
 Torsión de una curva
 Vectores tangente, normal y binormal
 Planos normal, osculador y rectificador
-# Fórmulas de Frenet–Serret
+Fórmulas de Frenet–Serret
 ## Interrogación 2
 
 **Clase 4 — Campos e integrales de línea**

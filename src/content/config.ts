@@ -64,9 +64,16 @@ const teamSchema = z.object({
   name: z.string(),
   degree: z.string(),
   image: z.string().optional(),
+  role: z.string().optional(),
+  type: z.enum(['board', 'professor', 'marketing']).optional(),
+  heroOrder: z.number().optional(),
   professorId: z.number().optional(),
-  courseSlugs: z.array(z.string()).optional(),
   classesCount: z.number().optional(),
+  studies: z.string().optional(),
+  /** Tarjeta lateral «destacados» en /nosotros/[slug] */
+  favoriteCourse: z.string().optional(),
+  leastFavoriteCourse: z.string().optional(),
+  funFact: z.string().optional(),
 });
 
 const teamCollection = defineCollection({

@@ -1,0 +1,111 @@
+---
+import { Icon } from 'astro-icon/components';
+
+const faqItems = [
+  {
+    question: '¿Qué es SalvaRamos?',
+    answer:
+      'SalvaRamos es un proyecto de apoyo académico para estudiantes universitarios que cursan ramos STEM. Combinamos profesores con experiencia, material digital y acompañamiento académico para ofrecer una preparación integral para cada evaluación. Nuestro enfoque se basa en cuatro pilares: excelencia, metodología, herramientas digitales y comunidad.',
+  },
+  {
+    question: '¿Qué incluye el curso?',
+    answer:
+      'Cada curso está organizado en clases que cubren los distintos temas del ramo. Cada clase incluye: cápsulas de teoría con explicación de los conceptos, cápsulas de ejercicios resueltos paso a paso, notas en PDF, guía de ejercicios, solución detallada de la guía, formulario resumen y quiz de evaluación.',
+  },
+  {
+    question: '¿Cuántas clases incluye cada preparación?',
+    answer:
+      'Cada preparación está diseñada para cubrir el contenido de una evaluación específica. Por lo general incluye entre 3 y 4 clases, dependiendo del ramo.',
+  },
+  {
+    question: '¿Cuánto dura el acceso al curso?',
+    answer:
+      'El acceso al curso se mantiene durante el semestre académico correspondiente. Esto permite que puedas revisar el material durante todo el período en que estás cursando el ramo.',
+  },
+  {
+    question: '¿Puedo compartir mi cuenta con otra persona?',
+    answer:
+      'No. Las cuentas son personales e intransferibles. El acceso al curso está asociado al estudiante que realiza la compra y no está permitido compartir la cuenta con terceros.',
+  },
+  {
+    question: '¿Qué pasa si tengo dudas sobre los ejercicios o el contenido?',
+    answer:
+      'Nuestro equipo está disponible para resolver dudas mediante WhatsApp o redes del proyecto.',
+  },
+  {
+    question: '¿Los videos se pueden ver más de una vez?',
+    answer: 'Sí. Durante el semestre puedes ver los videos todas las veces que necesites.',
+  },
+  {
+    question: '¿Hay clases en vivo o solo material grabado?',
+    answer:
+      'Dependiendo del plan, los estudiantes pueden acceder a clases de repaso en vivo antes de las pruebas, además del material digital disponible en la plataforma.',
+  },
+  {
+    question: '¿Para quién está pensado este curso?',
+    answer:
+      'Estos cursos están pensados para estudiantes que están cursando ramos STEM en las principales universidades de Chile y necesitan reforzar conceptos, practicar ejercicios y prepararse mejor para sus evaluaciones.',
+  },
+  {
+    question: '¿Por qué nosotros?',
+    answer: `Hoy en día existen muchos marketplaces de profesores donde cada uno enseña a su manera, sin una metodología o herramientas comunes, y también plataformas de videos donde terminas estudiando solo frente a una pantalla.
+
+Nosotros proponemos algo distinto: una preparación integral para enfrentar el ramo. Este enfoque se basa en cuatro pilares fundamentales:
+
+**Excelencia**: Profesores que realmente conocen los cursos. Ingenieros, ex ayudantes y estudiantes destacados con amplia experiencia docente y pasión por enseñar. Personas que ya pasaron por lo mismo que tú y saben exactamente dónde se complican los alumnos.
+
+**Metodología**: Aterrizamos los contenidos del ramo y los resumimos en lo que realmente importa para la prueba. Preparamos material específico estructurado y estandarizado, que incluye cápsulas de explicación, ejercicios resueltos, guías de práctica, formularios y evaluaciones breves para reforzar el aprendizaje. Combinamos clases en vivo con material digital y recursos en la plataforma para que cada estudiante pueda avanzar a su propio ritmo.
+
+**Herramientas digitales**: Todo en una sola plataforma. Puedes reservar clases, acceder a material, ver sesiones grabadas, realizar controles y recibir avisos importantes. Un sistema pensado para organizar tu estudio y tener todo lo que necesitas en un solo lugar.
+
+**Comunidad**: Más que clases, construimos una red de estudiantes. Workshops con alumnos de cursos superiores, grupos donde compartir dudas y material, y actividades de comunidad para que no tengas que enfrentar el ramo solo.`,
+  },
+];
+---
+
+<section id="faq-completo" class="py-20 sm:py-24 md:py-28">
+  <div class="container mx-auto px-4 sm:px-6">
+    <div class="mb-14 text-center sm:mb-16 md:mb-20">
+      <h2 class="font-display mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">
+        Preguntas frecuentes
+      </h2>
+      <p class="text-base-content/70 mx-auto max-w-xl text-base leading-relaxed sm:text-lg">
+        Resolvemos tus dudas sobre cursos, metodología y proceso.
+      </p>
+    </div>
+
+    <div class="mx-auto max-w-3xl space-y-3">
+      {
+        faqItems.map((item, index) => (
+          <div class="collapse-plus bg-base-200 collapse rounded-2xl shadow-lg">
+            <input type="checkbox" id={`faq-complete-${index}`} />
+            <div class="collapse-title text-base-content text-lg font-semibold sm:text-xl">
+              {item.question}
+            </div>
+            <div class="collapse-content">
+              <div class="text-base-content/80 prose prose-sm max-w-none pt-2 text-base leading-relaxed prose-p:my-2 prose-strong:text-base-content">
+                {
+                  item.answer.split('\n\n').map((paragraph) => {
+                    const parts = paragraph.split(/(\*\*.+?\*\*)/g);
+                    return (
+                      <p>
+                        {
+                          parts.map((part) => {
+                            if (part.startsWith('**') && part.endsWith('**')) {
+                              return <strong>{part.replace(/\*\*/g, '')}</strong>;
+                            }
+                            return part;
+                          })
+                        }
+                      </p>
+                    );
+                  })
+                }
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

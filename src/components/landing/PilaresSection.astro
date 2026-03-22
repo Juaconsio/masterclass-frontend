@@ -1,0 +1,19 @@
+---
+import { pilares } from '@/data/pilares';
+import PilarCard from './PilarCard.astro';
+---
+
+<section id="pilares" class="py-20 sm:py-24 md:py-28">
+  <div class="container mx-auto px-4 sm:px-6">
+    <div class="mb-14 text-center sm:mb-16 md:mb-20">
+      <h2 class="font-display mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">Nuestros pilares</h2>
+      <p class="text-base-content/70 mx-auto max-w-xl text-base leading-relaxed sm:text-lg">
+        Los valores que guían nuestro trabajo.
+      </p>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-2 sm:gap-8 lg:gap-10">
+      {pilares.map((item) => <PilarCard item={item} />)}
+    </div>
+  </div>
+</section>

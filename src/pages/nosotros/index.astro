@@ -1,0 +1,195 @@
+---
+export const prerender = false;
+import { getCollection } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import Navbar from '@components/landing/Navbar.astro';
+import NosotrosHero from '@components/landing/NosotrosHero.astro';
+import OrigenSection from '@components/landing/OrigenSection.astro';
+import MissionVision from '@components/landing/MissionVision.astro';
+import PilaresSection from '@components/landing/PilaresSection.astro';
+import MemberCard from '@components/landing/team/MemberCard.astro';
+import ProfessorCard from '@components/landing/team/ProfessorCard.astro';
+import FAQComplete from '@components/landing/FAQComplete.astro';
+import CTA from '@components/landing/CTA.astro';
+import Footer from '@components/landing/footer.astro';
+import { getPublicCourseCatalog } from '@/lib/courseCatalog';
+import { fetchProfessorCourses, professorCoursesToSlugs } from '@/client/publicProfessors';
+import type { ImageMetadata } from 'astro';
+
+const teamAssetImages = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/assets/team/*.{svg,png,jpg,jpeg,webp}',
+  { eager: true }
+);
+
+/** Resolves content `image` paths to a URL usable in `<img src>`. */
+function resolveTeamImageForImg(imagePath: string | undefined): string {
+  if (!imagePath) return '';
+  if (imagePath.startsWith('http')) return imagePath;
+  if (imagePath.startsWith('/') && !imagePath.includes('src/')) return imagePath;
+  const filename = imagePath.split('/').pop() ?? '';
+  const key = Object.keys(teamAssetImages).find((k) => k.endsWith(filename));
+  if (key && teamAssetImages[key]?.default) return teamAssetImages[key].default.src;
+  return imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+}
+
+function excerpt(body: string, max = 160): string {
+  const plain = body
+    .replace(/\n/g, ' ')
+    .replace(/#{1,6}\s/g, '')
+    .trim();
+  return plain.length > max ? plain.slice(0, max) + '…' : plain;
+}
+
+const catalog = await getPublicCourseCatalog({ includeInactive: true });
+const teamEntries = await getCollection('team');
+
+const hasProfessorId = (e: (typeof teamEntries)[0]) => e.data.professorId != null;
+
+const boardEntries = teamEntries
+  .filter((e) => e.data.type === 'board')
+  .sort((a, b) => (a.data.heroOrder ?? 99) - (b.data.heroOrder ?? 99));
+const professorEntries = teamEntries.filter(
+  (e) => e.data.type === 'professor' || hasProfessorId(e)
+);
+const marketingEntries = teamEntries.filter((e) => e.data.type === 'marketing');
+
+const board = boardEntries.map((e) => ({
+  name: e.data.name,
+  role: e.data.role ?? '',
+  image: resolveTeamImageForImg(e.data.image),
+  degree: e.data.degree,
+}));
+
+const professorsForHero = professorEntries.slice(0, 3).map((e) => ({
+  name: e.data.name,
+  image: resolveTeamImageForImg(e.data.image),
+}));
+
+const marketingForHero = marketingEntries.slice(0, 3).map((e) => ({
+  name: e.data.name,
+  image: resolveTeamImageForImg(e.data.image),
+}));
+
+const teamLeaders = teamEntries.filter((e) => e.data.type === 'board');
+const professorEntriesFiltered = teamEntries.filter(
+  (e) => e.data.type === 'professor' || hasProfessorId(e)
+);
+const professors = await Promise.all(
+  professorEntriesFiltered.map(async (entry) => {
+    const slugs =
+      entry.data.professorId != null
+        ? professorCoursesToSlugs(await fetchProfessorCourses(entry.data.professorId))
+        : [];
+    const courses = slugs
+      .map((slug) => catalog.find((c) => c.slug === slug))
+      .filter(Boolean)
+      .map((c) => ({ slug: c!.slug, acronym: c!.data.acronym }));
+    return { entry, courses };
+  })
+);
+---
+
+<Layout
+  title="Nosotros - Salva Ramos"
+  description="Conoce a Salva Ramos: nuestra misión, visión, valores, equipo y más información sobre nuestro proyecto."
+>
+  <Navbar />
+  <div class="mt-16">
+    <NosotrosHero board={board} professors={professorsForHero} marketing={marketingForHero} />
+
+    <OrigenSection />
+    <PilaresSection />
+    <MissionVision useFullText={true} />
+
+    <div class="px-4 py-16 sm:px-6 sm:py-20 md:py-24">
+      <section id="equipo" class="mb-24 rounded-2xl py-12 md:mb-32 md:py-16">
+        <div class="mb-12 text-center sm:mb-16">
+          <h2 class="font-display text-primary mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">
+            <span class="">Equipo Salva</span>
+            <span class="font-gebuk">Ramos</span>
+          </h2>
+          <p class="text-base-content mx-auto max-w-3xl text-base leading-relaxed sm:text-lg">
+            Ayudantes, ex ayudantes y profesionales que conocen los desafíos universitarios
+            dispuestos a ayudar, guiar y acompañar a los alumnos en su camino de aprendizaje.
+          </p>
+        </div>
+        <div class="mx-auto grid max-w-3xl grid-cols-2 gap-3 sm:gap-4 md:max-w-4xl md:grid-cols-3">
+          {
+            teamLeaders.map((entry) => (
+              <MemberCard
+                slug={entry.slug}
+                name={entry.data.name}
+                role={entry.data.role ?? entry.data.degree}
+                image={resolveTeamImageForImg(entry.data.image)}
+                variant={'primary'}
+                size="sm"
+              />
+            ))
+          }
+        </div>
+      </section>
+
+      <section id="marketing" class="mb-24 rounded-2xl py-12 md:mb-32 md:py-16">
+        <div class="mb-12 text-center sm:mb-16">
+          <h2 class="font-display mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">
+            Equipo de Marketing
+          </h2>
+          <p class="text-base-content/70 mx-auto max-w-2xl text-base leading-relaxed sm:text-lg">
+            Se encargan de ofrecer los cursos, resolver dudas y llevar las redes sociales para que
+            puedas enfocarte en lo que importa: aprender.
+          </p>
+        </div>
+        <div class="mx-auto grid max-w-3xl grid-cols-2 gap-3 sm:gap-4 md:max-w-4xl md:grid-cols-3">
+          {
+            marketingEntries.map((entry) => (
+              <MemberCard
+                slug={entry.slug}
+                name={entry.data.name}
+                role={entry.data.role ?? entry.data.degree}
+                image={resolveTeamImageForImg(entry.data.image)}
+                variant={'primary'}
+                size="sm"
+              />
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="py-12 md:py-16">
+        <div class="mb-12 text-center sm:mb-16">
+          <h2 class="font-display mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">
+            Nuestros profesores
+          </h2>
+          <p class="text-base-content/70 mx-auto max-w-xl text-base leading-relaxed sm:text-lg">
+            Profesores que dominan la materia y saben enseñarla. Ex ayudantes y estudiantes
+            destacados.
+          </p>
+        </div>
+        <div
+          class="mx-auto grid max-w-5xl grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 lg:gap-6"
+        >
+          {
+            professors.map(({ entry, courses }) => {
+              const desc = entry.body ? excerpt(entry.body) : '';
+              return (
+                <ProfessorCard
+                  slug={entry.slug}
+                  name={entry.data.name}
+                  degree={entry.data.degree}
+                  description={desc}
+                  image={resolveTeamImageForImg(entry.data.image)}
+                  courses={courses}
+                  classesCount={entry.data.classesCount}
+                />
+              );
+            })
+          }
+        </div>
+      </section>
+    </div>
+
+    <FAQComplete />
+    <CTA />
+    <Footer />
+  </div>
+</Layout>
