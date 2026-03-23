@@ -4,7 +4,7 @@ degree: "Estudiante Ingeniería Civil Industrial UC"
 image: "src/assets/team/juan-enrique.svg"
 role: "Profesor Titular"
 type: professor
-professorId: 8
+professorId: 9
 funFact: "Cuando chico tuve una minifábrica de huevos de codornices."
 ---
 

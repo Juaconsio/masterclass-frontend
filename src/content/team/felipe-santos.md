@@ -4,7 +4,7 @@ degree: "Licenciado en Ciencias de la Ingeniería UC · Estudiante de Medicina U
 image: "src/assets/team/felipe-santos.svg"
 role: "Profesor Titular"
 type: professor
-professorId: 10
+professorId: 6
 funFact: "Investigué cómo hacer brujería para pasar Señales (pd: funcionó xd)."
 ---
 

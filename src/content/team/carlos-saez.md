@@ -5,7 +5,7 @@ image: "src/assets/team/carlos-saez.svg"
 role: "Founder / CEO"
 type: board
 heroOrder: 1
-professorId: 3
+professorId: 1
 ---
 
 **Founder / CEO**

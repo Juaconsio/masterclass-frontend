@@ -4,7 +4,7 @@ degree: "Estudiante de Ingeniería Civil en Minas UC"
 image: "src/assets/team/santiago-leiva.svg"
 role: "Productor y editor audiovisual"
 type: marketing
-professorId: 1
+professorId: 8
 funFact: "Hablo francés fluido."
 ---
 
