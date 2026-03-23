@@ -4,6 +4,7 @@ degree: "Estudiante Ingeniería Civil Industrial UC"
 image: "src/assets/team/martin-bauerle.svg"
 role: "Profesor Titular"
 type: professor
+professorId: 9
 funFact: "Cuando me sacan sangre me desmayo."
 ---
 

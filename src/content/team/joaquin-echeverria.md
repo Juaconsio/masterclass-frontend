@@ -4,6 +4,7 @@ degree: "Estudiante Ingeniería Civil Mecánica UC · Magíster en Ciencias de l
 image: "src/assets/team/joaquin-echeverria.svg"
 role: "Profesor Titular"
 type: professor
+professorId: 7
 funFact: "Las 2 veces que he ido a Torres del Paine no he podido ver las torres."
 ---
 

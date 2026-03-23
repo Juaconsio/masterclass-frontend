@@ -3,7 +3,7 @@ department: "Física"
 level: "Plan Común"
 basePrice: 15000
 featured: false
-image: "course-electromagnetismo.jpg"
+image: "course-1.jpg"
 ---
 
 ## Descripción general

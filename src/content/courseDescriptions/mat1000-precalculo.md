@@ -3,7 +3,7 @@ department: "Matemática"
 level: "Plan Común"
 basePrice: 15000
 featured: false
-image: "course-precalculo.jpg"
+image: "course-6.jpg"
 ---
 
 ## Descripción general

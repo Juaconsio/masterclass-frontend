@@ -1,5 +1,5 @@
 ---
-import { getEntry } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 import Layout from '@layouts/Layout.astro';
 import NavBar from '@components/landing/Navbar.astro';
 import Header from '@components/landing/courses/header.astro';
@@ -10,6 +10,7 @@ import CourseProfessorsSection from '@/components/landing/islands/CourseProfesso
 import { getPublicCourseCatalog } from '@/lib/courseCatalog';
 import { fetchPublicCoursePlans } from '@/client/publicCourses';
 import type { CourseListingData } from '@/types/course';
+import { resolveTeamImageForImg } from '@/lib/teamAssets';
 
 export const prerender = false;
 
@@ -44,6 +45,17 @@ const relatedCourses = catalog
 
 const plansResponse = await fetchPublicCoursePlans(course.acronym);
 const coursePlans = plansResponse?.plans ?? [];
+
+const teamEntries = await getCollection('team');
+const teamProfilesPayload = teamEntries
+  .filter((e) => e.data.professorId != null)
+  .map((e) => ({
+    professorId: e.data.professorId as number,
+    slug: e.slug,
+    name: e.data.name,
+    degree: e.data.degree,
+    imageSrc: resolveTeamImageForImg(e.data.image),
+  }));
 ---
 
 <Layout title={`${course.acronym} - ${course.title}`}>
@@ -142,7 +154,11 @@ const coursePlans = plansResponse?.plans ?? [];
           </div>
 
           <aside class="md:sticky md:top-24 md:col-span-2 md:self-start">
-            <CourseProfessorsSection courseAcronym={course.acronym} client:load />
+            <CourseProfessorsSection
+              courseAcronym={course.acronym}
+              teamProfiles={teamProfilesPayload}
+              client:load
+            />
           </aside>
         </div>
 

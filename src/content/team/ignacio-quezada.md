@@ -5,6 +5,7 @@ image: "src/assets/team/ignacio-quezada.svg"
 role: "Co-Founder / CMO"
 type: board
 heroOrder: 2
+professorId: 6
 funFact: "Soy cantante y co-dirijo un sello musical «BlackLionRecords»."
 ---
 

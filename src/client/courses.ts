@@ -48,6 +48,20 @@ async function getSlotsByCourseAcronym(acronym: string) {
   return res.data;
 }
 
+/** Course faculty from M2M (not derived from slots). */
+async function fetchPublicCourseProfessors(
+  acronym: string
+): Promise<{ id: number; name: string }[]> {
+  try {
+    const res = await httpClient.get<{ professors: { id: number; name: string }[] }>(
+      `/public/courses/${encodeURIComponent(acronym)}/professors`
+    );
+    return res.data?.professors ?? [];
+  } catch {
+    return [];
+  }
+}
+
 /** Preview for non-enrolled: classes + material titles. Requires auth. No file access. */
 export interface CoursePreviewClass {
   id: number;
@@ -67,6 +81,7 @@ export {
   fetchCoursesByCurrentUser,
   fetchStudentCourseById,
   getSlotsByCourseAcronym,
+  fetchPublicCourseProfessors,
   getCourseEnroll,
   fetchCoursePreview,
 };
