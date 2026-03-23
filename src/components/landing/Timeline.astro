@@ -30,7 +30,7 @@ const { events = defaultEvents } = Astro.props;
 <section id="timeline" class="py-12 sm:py-16 md:py-20">
   <div class="container mx-auto px-4 sm:px-6">
     <div class="mb-10 text-center sm:mb-14 md:mb-16">
-      <h2 class="font-display mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl md:text-5xl">
+      <h2 class="mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl md:text-5xl">
         Nuestra historia
       </h2>
       <p class="text-base-content/70 mx-auto max-w-2xl text-base sm:text-lg">
@@ -65,7 +65,7 @@ const { events = defaultEvents } = Astro.props;
                   <div
                     class={`bg-base-200 rounded-2xl p-6 shadow-lg sm:p-8 ${isEven ? 'sm:text-right' : ''}`}
                   >
-                    <h3 class="font-display mb-2 text-xl font-bold sm:text-2xl">{event.title}</h3>
+                    <h3 class="mb-2 text-xl font-bold sm:text-2xl">{event.title}</h3>
                     <p class="text-base-content/80 text-base leading-relaxed">{event.description}</p>
                   </div>
                 </div>

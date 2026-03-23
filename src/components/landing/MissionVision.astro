@@ -35,7 +35,7 @@ const { useFullText = true } = Astro.props;
         Propósito
       </p>
       <h2
-        class="font-display text-base-content mb-3 text-3xl font-bold text-balance sm:text-4xl md:text-5xl"
+        class="text-base-content mb-3 text-3xl font-bold text-balance sm:text-4xl md:text-5xl"
       >
         Nuestra <span class="font-gebuk text-primary">misión</span> y <span
           class="font-gebuk text-neutral">visión</span
@@ -57,7 +57,7 @@ const { useFullText = true } = Astro.props;
           >
             <Icon name={mission.icon} size={28} />
           </div>
-          <h3 class="font-display text-2xl font-bold sm:text-3xl">{mission.title}</h3>
+          <h3 class="text-2xl font-bold sm:text-3xl">{mission.title}</h3>
         </div>
         <p class="text-base-content/90 text-base leading-relaxed sm:text-lg">
           {useFullText ? mission.fullText : mission.synthesis}
@@ -75,7 +75,7 @@ const { useFullText = true } = Astro.props;
           >
             <Icon name={vision.icon} size={28} />
           </div>
-          <h3 class="font-display text-2xl font-bold sm:text-3xl">{vision.title}</h3>
+          <h3 class="text-2xl font-bold sm:text-3xl">{vision.title}</h3>
         </div>
         <p class="text-base-content/90 text-base leading-relaxed sm:text-lg">
           {useFullText ? vision.fullText : vision.synthesis}

@@ -30,7 +30,7 @@ const formatDate = (value: string) =>
         class="mb-8 flex flex-col gap-4 sm:mb-10 md:flex-row md:items-end md:justify-between md:gap-6"
       >
         <div>
-          <h2 class="font-display text-base-content text-3xl font-bold sm:text-4xl md:text-5xl">
+          <h2 class="text-base-content text-3xl font-bold sm:text-4xl md:text-5xl">
             Comunidad SalvaRamos
           </h2>
           <p class="text-base-content/70 mt-2 text-base sm:text-lg">
@@ -80,7 +80,7 @@ const formatDate = (value: string) =>
                       </span>
                     )}
                     <p class="text-base-content/60 text-sm">{formatDate(post.data.date)}</p>
-                    <h3 class="font-display card-title mt-1 line-clamp-2 text-lg leading-snug font-bold">
+                    <h3 class="card-title mt-1 line-clamp-2 text-lg leading-snug font-bold">
                       <a href={`/blog/${post.slug}`} class="hover:text-primary">
                         {post.data.title}
                       </a>
