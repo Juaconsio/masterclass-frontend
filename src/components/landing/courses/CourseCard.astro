@@ -22,16 +22,18 @@ const { course } = Astro.props;
   <!-- Course Image -->
   {
     course.data.image ? (
-      <figure class="relative">
+      <figure class="relative aspect-[5/2] w-full overflow-hidden bg-base-200">
         <img
           src={course.data.image}
           alt={course.data.title}
-          class="h-18 w-full object-cover sm:h-18 md:h-24"
+          class="h-full w-full object-cover object-center [transform:translateZ(0)]"
           loading="lazy"
+          decoding="async"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px"
         />
       </figure>
     ) : (
-      <figure class="from-primary/20 to-secondary/20 relative flex h-18 items-center justify-center bg-gradient-to-br md:h-24">
+      <figure class="from-primary/20 to-secondary/20 relative flex aspect-[5/2] w-full items-center justify-center bg-gradient-to-br">
         <div class="text-4xl opacity-50 sm:text-5xl md:text-6xl">
           {DEPARTMENT_ICONS[course.data.department]}
         </div>

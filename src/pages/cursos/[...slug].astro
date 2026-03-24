@@ -22,9 +22,14 @@ let descriptionEntry = null;
 
 try {
   contentEntry = await getEntry('courseContents', slug as string);
+} catch (error) {
+  console.error('Error fetching content entry:', error);
+  contentEntry = null;
+}
+try {
   descriptionEntry = await getEntry('courseDescriptions', slug as string);
 } catch (error) {
-  contentEntry = null;
+  console.error('Error fetching description entry:', error);
   descriptionEntry = null;
 }
 
@@ -71,82 +76,82 @@ const teamProfilesPayload = teamEntries
         />
         <div class="grid grid-cols-1 gap-8 pt-8 md:grid-cols-7">
           <div class="flex flex-col gap-6 md:col-span-5">
-            <div role="tablist" class="tabs tabs-border mb-2 p-1">
-              <input
-                type="radio"
-                name="course_tabs"
-                role="tab"
-                class="tab font-semibold"
-                aria-label="Descripción del Curso"
-                checked
-              />
-              <div role="tabpanel" class="tab-content pt-6">
-                {
-                  descriptionRender ? (
-                    <div class="card bg-base-100 shadow-xl">
-                      <div class="card-body">
-                        <div class="prose-course">
-                          <descriptionRender.Content />
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div class="card bg-base-100 shadow-xl">
-                      <div class="card-body">
-                        <p class="text-base-content/70">
-                          Este curso aun no tiene contenido publicado. Puedes reservar una sesión y
-                          un tutor te guiará con el material.
-                        </p>
-                      </div>
-                    </div>
-                  )
-                }
-              </div>
-              <input
-                type="radio"
-                name="course_tabs"
-                role="tab"
-                class="tab font-semibold"
-                aria-label="Contenidos del Curso"
-              />
-              <div role="tabpanel" class="tab-content pt-6">
-                {
-                  contentRender ? (
-                    <div class="card bg-base-100 shadow-xl">
-                      <div class="card-body">
-                        <div class="prose-course">
-                          <contentRender.Content />
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div class="card bg-base-100 shadow-xl">
-                      <div class="card-body">
-                        <p class="text-base-content/70">
-                          Este curso aun no tiene contenido publicado. Puedes reservar una sesión y
-                          un tutor te guiará con el material.
-                        </p>
-                      </div>
-                    </div>
-                  )
-                }
-              </div>
-              <input
-                id="tab-sessions"
-                type="radio"
-                name="course_tabs"
-                role="tab"
-                class="tab font-semibold"
-                aria-label="Próximas Sesiones"
-              />
-              <div role="tabpanel" class="tab-content pt-6">
-                <div class="card bg-base-100 shadow-xl">
-                  <div class="card-body">
-                    <CourseSessionsTab
-                      courseAcronym={course.acronym}
-                      courseTitle={course.title}
-                      client:load
+            <div class="card bg-base-100 overflow-hidden shadow-xl">
+              <div class="card-body p-0">
+                <div
+                  class="card-title border-base-300/80 bg-base-200/65 !mb-0 border-b px-3 py-2.5 sm:px-5 sm:py-3"
+                >
+                  <div
+                    role="tablist"
+                    class="tabs tabs-border w-full border-0 border-b-0 bg-transparent p-0"
+                  >
+                    <input
+                      type="radio"
+                      name="course_tabs"
+                      role="tab"
+                      class="tab text-base font-bold tracking-tight"
+                      aria-label="Descripción del Curso"
+                      checked
                     />
+                    <div
+                      role="tabpanel"
+                      class="tab-content border-t-0 px-4 pt-5 pb-6 text-base font-normal sm:px-6"
+                    >
+                      {
+                        descriptionRender ? (
+                          <div class="prose-course">
+                            <descriptionRender.Content />
+                          </div>
+                        ) : (
+                          <p class="text-base-content/70">
+                            Este curso aun no tiene contenido publicado. Puedes reservar una sesión
+                            y un tutor te guiará con el material.
+                          </p>
+                        )
+                      }
+                    </div>
+                    <input
+                      type="radio"
+                      name="course_tabs"
+                      role="tab"
+                      class="tab text-base font-bold tracking-tight"
+                      aria-label="Contenidos del Curso"
+                    />
+                    <div
+                      role="tabpanel"
+                      class="tab-content border-t-0 px-4 pt-5 pb-6 text-base font-normal sm:px-6"
+                    >
+                      {
+                        contentRender ? (
+                          <div class="prose-course">
+                            <contentRender.Content />
+                          </div>
+                        ) : (
+                          <p class="text-base-content/70">
+                            Este curso aun no tiene contenido publicado. Puedes reservar una sesión
+                            y un tutor te guiará con el material.
+                          </p>
+                        )
+                      }
+                    </div>
+                    <input
+                      id="tab-sessions"
+                      type="radio"
+                      name="course_tabs"
+                      role="tab"
+                      class="tab text-base font-bold tracking-tight"
+                      aria-label="Próximas Sesiones"
+                    />
+                    <div
+                      role="tabpanel"
+                      class="tab-content border-t-0 px-4 pt-5 pb-6 text-base font-normal sm:px-6"
+                    >
+                      <CourseSessionsTab
+                        courseAcronym={course.acronym}
+                        courseTitle={course.title}
+                        client:load
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
