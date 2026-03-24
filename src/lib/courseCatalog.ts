@@ -56,8 +56,6 @@ function mergeCourse(
       description: baseCourse.description,
       department: data?.department ?? defaultMarketing.department,
       level: data?.level ?? defaultMarketing.level,
-      basePrice: data?.basePrice ?? defaultMarketing.basePrice,
-      featured: data?.featured ?? defaultMarketing.featured,
       image,
     },
   };

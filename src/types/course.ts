@@ -28,9 +28,7 @@ export interface CourseListingData {
   description: string;
   department: Department;
   level: Level;
-  basePrice: number;
   image?: string;
-  featured: boolean;
 }
 
 export interface CourseListingEntry {

@@ -20,9 +20,7 @@ const currentSemesterReviews = await getCollection('reviews', ({ id }) => {
   return id.startsWith('2025-2/');
 });
 
-const featuredCourses = allCourses.filter((course) => course.data.featured);
-const coursesToShow =
-  featuredCourses.length >= 3 ? featuredCourses.slice(0, 3) : allCourses.slice(0, 3);
+const coursesToShow = allCourses.length >= 3 ? allCourses.slice(0, 3) : allCourses.slice(0, 3);
 
 const reviewsToShow = currentSemesterReviews.slice(0, 6);
 
