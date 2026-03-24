@@ -1,6 +1,3 @@
-# Contenidos del Curso
-Electricidad y Magnetismo
-
 ## Interrogación 1
 
 ### Clase 0 — Vectores y operadores vectoriales

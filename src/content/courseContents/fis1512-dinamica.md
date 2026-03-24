@@ -1,7 +1,3 @@
----
----
-
-
 ## Clases
 
 ### Clase 0 — Herramientas Matemáticas

@@ -1,8 +1,3 @@
----
----
-
-
-## Contenidos Principales
 ### Clase 1 — Modelación I
 
 - Identificación de **variables de decisión**, conjuntos, parámetros y restricciones.
