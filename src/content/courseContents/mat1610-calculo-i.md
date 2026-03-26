@@ -7,11 +7,11 @@
 - Límites laterales
 - Asíntotas verticales
 - Leyes de los límites
+- Teorema del sandwich
 
 ### Clase 2 — Límites notables y al infinito
-- Repaso de trigonometría y funciones
+- Repaso trigonometría y funciones
 - Límites notables
-- Teorema del sándwich
 - Límites al infinito
 - Asíntotas horizontales
 
@@ -20,8 +20,6 @@
 - Continuidad en intervalos
 - Teorema del valor intermedio
 
-## Interrogación 2
-
 ### Clase 4 — Introducción a la derivada
 - Recta tangente
 - Derivabilidad
@@ -29,21 +27,24 @@
 - Derivadas exponenciales
 - Derivadas trigonométricas
 
+
+## Interrogación 2
+
 ### Clase 5 — Reglas de derivación
-- Regla del producto
-- Regla del cociente
+- Regla del producto y el cociente
 - Regla de la cadena
 - Derivadas exponenciales y trigonométricas
 
-### Clase 6 — Derivada logarítmica, implícita e inversa
+### Clase 6 — Derivada logarítmica implícita e inversa
 - Derivadas logarítmicas
 - Derivada implícita
-- Derivada de la función inversa
+- Derivada inversa
 
 ### Clase 7 — Mínimos, máximos y aplicaciones
-- Máximos y mínimos locales y absolutos
+- Máximos y mínimos, locales y absolutos
 - Razones de cambio
 - Aproximación lineal
+
 
 ## Interrogación 3
 
@@ -51,20 +52,21 @@
 - Derivada en forma gráfica
 - Crecimiento y decrecimiento
 - Asíntotas oblicuas
-- Teorema del valor medio (TVM)
+- TVM
 
-### Clase 9 — Optimización y regla de L’Hôpital
+### Clase 9 — Optimización + L’Hopital
 - Problemas de optimización
 - Formas indeterminadas
-- Regla de L’Hôpital
+- Regla de L’Hopital
 
 ### Clase 10 — Introducción al cálculo integral
 - Antiderivadas
 - Sumatorias
 - Sumas de Riemann
 - Integral definida
-- Teorema Fundamental del Cálculo
+- Teorema fundamental del cálculo
 - Valor promedio
+
 
 ## Examen
 

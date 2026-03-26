@@ -1,8 +1,8 @@
 ---
 department: "Matemática"
 level: "Plan Común"
-
-
 image: "course-6.jpg"
 ---
-Este curso introduce los fundamentos del cálculo diferencial e integral. Se comienza con el estudio de límites y continuidad para analizar el comportamiento de las funciones. Luego se introduce la derivada como pendiente de la recta tangente y razón de cambio, junto con sus reglas de derivación y aplicaciones al estudio de crecimiento, concavidad y optimización. Posteriormente se desarrolla el cálculo integral mediante antiderivadas e integrales definidas, estableciendo el Teorema Fundamental del Cálculo y métodos básicos de integración. Finalmente se estudian aplicaciones de la integral como el cálculo de áreas entre curvas y volúmenes de sólidos.
+
+El curso introduce los fundamentos del cálculo diferencial e integral. Se estudian los **límites** y la **continuidad** de funciones, así como la **derivada** y sus reglas, interpretándose como pendiente y razón de cambio. Se analizan aplicaciones de la derivada, incluyendo **optimización, monotonía, concavidad y límites indeterminados** mediante la regla de L’Hôpital.
+Posteriormente, se desarrolla el cálculo integral, abordando antiderivadas, la integral definida y el **Teorema Fundamental del Cálculo**, junto con métodos de integración y aplicaciones como el cálculo de áreas y volúmenes.
