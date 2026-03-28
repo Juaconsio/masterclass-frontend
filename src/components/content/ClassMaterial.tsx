@@ -6,12 +6,21 @@ import { useBreadCrumbRoute } from '@/context/BreadCrumbRouteContext';
 import { MATERIAL_LABELS, MATERIAL_ICONS } from './MaterialLabels';
 import PDFViewer from './PDFViewer';
 import VideoPlayer from './VideoPlayer';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Download } from 'lucide-react';
 import type { ClassModuleWithMaterials } from '@client/student/materials';
 import type { MaterialWithUrl } from '@client/student/materials';
 
 function getDisplayLabel(mat: MaterialWithUrl): string {
   return mat.displayName ?? MATERIAL_LABELS[mat.filename] ?? mat.filename ?? 'Material';
+}
+
+/** Suggested filename for PDF download (avoids path-like characters). */
+function getMaterialDownloadName(mat: MaterialWithUrl): string {
+  const raw = (mat.displayName?.trim() || mat.filename || 'documento').replace(
+    /[/\\?%*:|"<>]/g,
+    '_'
+  );
+  return /\.pdf$/i.test(raw) ? raw : `${raw}.pdf`;
 }
 
 export default function ClassMaterial() {
@@ -235,8 +244,20 @@ export default function ClassMaterial() {
 
     return (
       <div className="flex flex-1 flex-col">
-        <div className="border-base-300 bg-base-100 flex shrink-0 items-center justify-between border-b px-2 py-1">
-          <span className="truncate text-sm font-medium">{label}</span>
+        <div className="border-base-300 bg-base-100 flex shrink-0 items-center justify-between gap-2 border-b px-2 py-1">
+          <span className="min-w-0 truncate text-sm font-medium">{label}</span>
+          {!isVideo && (
+            <a
+              href={selectedMaterial.downloadUrl}
+              download={getMaterialDownloadName(selectedMaterial)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-ghost btn-sm shrink-0 gap-1"
+            >
+              <Download className="h-4 w-4" aria-hidden />
+              Descargar
+            </a>
+          )}
         </div>
         <div className="min-h-0 flex-1">{content}</div>
       </div>
