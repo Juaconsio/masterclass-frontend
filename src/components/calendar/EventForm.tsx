@@ -6,6 +6,7 @@ import { adminCoursesClient, type IPlainCourse } from '@/client/admin/courses';
 import { professorCoursesClient } from '@/client/professor/courses';
 import { CircleX } from 'lucide-react';
 import { useSessionContext } from '../../context/SessionContext';
+import { extractApiError } from '@/lib/extractApiError';
 
 interface EventFormProps {
   formId?: string;
@@ -103,14 +104,7 @@ export default function EventForm({
       await onSubmit(data);
       reset();
     } catch (error: unknown) {
-      let message = 'Ocurrió un error al guardar el evento';
-      if (error && typeof error === 'object') {
-        const e = error as { response?: { data?: { error?: string } }; message?: string };
-        message = e.response?.data?.error ?? e.message ?? message;
-      } else if (error instanceof Error) {
-        message = error.message || message;
-      }
-      setRequestError(message);
+      setRequestError(extractApiError(error, 'Ocurrió un error al guardar el evento'));
     }
   };
 

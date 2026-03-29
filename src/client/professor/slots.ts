@@ -5,11 +5,12 @@ export interface CreateSlotPayload {
   classId: number;
   startTime: string;
   endTime: string;
-  modality?: 'online' | 'presencial';
+  modality?: 'remote' | 'onsite' | 'online' | 'presencial';
   studentsGroup?: string | null;
   location?: string | null;
   maxStudents?: number;
   minStudents?: number;
+  status?: string;
   link?: string | null;
 }
 

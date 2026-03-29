@@ -1,7 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  ChevronDown,
+  ChevronRight,
+  Table as TableEmptyIcon,
+} from 'lucide-react';
+
+import { cn } from '@/lib/cn';
 
 // ==================== TYPES ====================
 
@@ -130,43 +139,48 @@ export default function Table<T extends Record<string, any>>({
   };
 
   return (
-    <div className={`w-full ${className}`}>
+    <div className={cn('w-full', className)}>
       {/* Table Container */}
       <div
-        className={`border-base-300 overflow-x-auto rounded-lg border ${
-          scroll ? 'overflow-y-auto' : ''
-        }`}
+        className={cn(
+          'border-base-300 overflow-x-auto rounded-lg border',
+          scroll && 'overflow-y-auto'
+        )}
         style={scroll ? { maxHeight: scroll.maxHeight } : undefined}
       >
         <table
-          className={`table w-full min-w-max ${striped ? 'table-zebra' : ''} ${
-            hoverable ? 'table-hover' : ''
-          } ${compact ? 'table-compact' : ''}`}
+          className={cn(
+            'table w-full min-w-max',
+            striped && 'table-zebra',
+            hoverable && 'table-hover',
+            compact && 'table-compact'
+          )}
         >
           {/* Table Header */}
-          <thead className={`bg-base-200 ${scroll ? 'sticky top-0 z-10' : ''}`}>
+          <thead className={cn('bg-primary text-primary-content', scroll && 'sticky top-0 z-10')}>
             <tr>
               {expandableRow && <th className="w-10" />}
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`${column.className || ''} ${
-                    column.sortable && onSort ? 'cursor-pointer select-none' : ''
-                  }`}
+                  className={cn(
+                    column.className,
+                    column.sortable && onSort && 'cursor-pointer select-none'
+                  )}
                   onClick={() => (column.sortable && onSort ? handleSort(column.key) : undefined)}
                 >
                   <div className="flex items-center gap-2">
                     <span>{column.label}</span>
                     {column.sortable && onSort && (
-                      <span className="text-xs">
+                      <span className="inline-flex shrink-0" aria-hidden>
                         {sortConfig?.key === column.key ? (
                           sortConfig.order === 'asc' ? (
-                            <span>↑</span>
+                            <ArrowUp className="text-primary-content h-3.5 w-3.5 opacity-90" />
                           ) : (
-                            <span>↓</span>
+                            <ArrowDown className="text-primary-content h-3.5 w-3.5 opacity-90" />
                           )
                         ) : (
-                          <span className="opacity-30">↕</span>
+                          <ArrowUpDown className="text-primary-content h-3.5 w-3.5 opacity-60" />
                         )}
                       </span>
                     )}
@@ -196,20 +210,11 @@ export default function Table<T extends Record<string, any>>({
                   className="py-8 text-center"
                 >
                   <div className="flex flex-col items-center gap-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
+                    <TableEmptyIcon
                       className="text-base-content/30 h-12 w-12"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                      />
-                    </svg>
+                      strokeWidth={1.5}
+                      aria-hidden
+                    />
                     <p className="text-base-content/60">{emptyMessage}</p>
                   </div>
                 </td>
@@ -239,7 +244,7 @@ export default function Table<T extends Record<string, any>>({
                         </td>
                       )}
                       {columns.map((column) => (
-                        <td key={column.key} className={column.className || ''}>
+                        <td key={column.key} className={cn(column.className)}>
                           {getCellValue(row, column)}
                         </td>
                       ))}
@@ -255,9 +260,11 @@ export default function Table<T extends Record<string, any>>({
                                 return (
                                   <button
                                     key={actionIndex}
-                                    className={`btn btn-xs ${getActionVariantClass(
-                                      action.variant
-                                    )} ${action.className || ''}`}
+                                    className={cn(
+                                      'btn btn-xs',
+                                      getActionVariantClass(action.variant),
+                                      action.className
+                                    )}
                                     onClick={() => action.onClick?.(row)}
                                     disabled={action.isDisabled ? action.isDisabled(row) : false}
                                     title={action.label}
@@ -296,14 +303,14 @@ export default function Table<T extends Record<string, any>>({
         <div className="mt-4 flex flex-col items-center justify-between gap-4 px-2 sm:flex-row">
           <div className="text-base-content/60 text-sm">
             Mostrando{' '}
-            <span className="font-medium text-base-content">
+            <span className="text-base-content font-medium">
               {(pagination.currentPage - 1) * pagination.pageSize + 1}
             </span>{' '}
             -{' '}
-            <span className="font-medium text-base-content">
+            <span className="text-base-content font-medium">
               {Math.min(pagination.currentPage * pagination.pageSize, pagination.totalItems)}
             </span>{' '}
-            de <span className="font-medium text-base-content">{pagination.totalItems}</span>{' '}
+            de <span className="text-base-content font-medium">{pagination.totalItems}</span>{' '}
             resultados
           </div>
 
@@ -312,7 +319,7 @@ export default function Table<T extends Record<string, any>>({
               <div className="flex items-center gap-2">
                 <span className="text-base-content/70 text-sm">Filas:</span>
                 <select
-                  className="select select-bordered select-sm h-8 min-h-8 rounded-md border-base-300 bg-base-100 text-sm"
+                  className="select select-bordered select-sm border-base-300 bg-base-100 h-8 min-h-8 rounded-md text-sm"
                   value={pagination.pageSize}
                   onChange={(e) => pagination.onPageSizeChange?.(Number(e.target.value))}
                 >
@@ -324,10 +331,10 @@ export default function Table<T extends Record<string, any>>({
               </div>
             )}
 
-            <div className="flex items-center gap-0.5 rounded-lg border border-base-300 bg-base-100 p-0.5">
+            <div className="border-base-300 bg-base-100 flex items-center gap-0.5 rounded-lg border p-0.5">
               <button
                 type="button"
-                className="btn btn-ghost btn-sm h-8 min-h-8 w-8 rounded-md px-2 disabled:opacity-40 disabled:pointer-events-none hover:bg-base-200"
+                className="btn btn-ghost btn-sm hover:bg-base-200 h-8 min-h-8 w-8 rounded-md px-2 disabled:pointer-events-none disabled:opacity-40"
                 onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
                 disabled={pagination.currentPage === 1}
                 aria-label="Primera página"
@@ -350,17 +357,18 @@ export default function Table<T extends Record<string, any>>({
                   return (
                     <div key={page} className="flex items-center gap-0.5">
                       {showEllipsis && (
-                        <span className="flex h-8 w-8 items-center justify-center text-base-content/50 text-sm">
+                        <span className="text-base-content/50 flex h-8 w-8 items-center justify-center text-sm">
                           …
                         </span>
                       )}
                       <button
                         type="button"
-                        className={`btn btn-sm h-8 min-h-8 w-8 rounded-md px-2 ${
+                        className={cn(
+                          'btn btn-sm h-8 min-h-8 w-8 rounded-md px-2',
                           isActive
                             ? 'btn-primary text-primary-content'
                             : 'btn-ghost hover:bg-base-200'
-                        }`}
+                        )}
                         onClick={() => pagination.onPageChange(page)}
                         aria-current={isActive ? 'page' : undefined}
                       >
@@ -372,7 +380,7 @@ export default function Table<T extends Record<string, any>>({
 
               <button
                 type="button"
-                className="btn btn-ghost btn-sm h-8 min-h-8 w-8 rounded-md px-2 disabled:opacity-40 disabled:pointer-events-none hover:bg-base-200"
+                className="btn btn-ghost btn-sm hover:bg-base-200 h-8 min-h-8 w-8 rounded-md px-2 disabled:pointer-events-none disabled:opacity-40"
                 onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
                 disabled={pagination.currentPage === pagination.totalPages}
                 aria-label="Última página"

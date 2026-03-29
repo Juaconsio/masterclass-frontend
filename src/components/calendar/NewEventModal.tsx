@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import type { IEvent, EventFormValues, EventCreatePayload } from '@interfaces/events/IEvent';
 import EventForm from './EventForm';
 
@@ -7,6 +6,7 @@ interface NewEventModalProps {
   onClose: (res?: IEvent) => void;
   handleCreate: (data: EventCreatePayload) => Promise<void>;
   initialDate?: Date | null;
+  formRemountKey: number;
 }
 
 export default function NewEventModal({
@@ -14,6 +14,7 @@ export default function NewEventModal({
   onClose,
   handleCreate,
   initialDate,
+  formRemountKey,
 }: NewEventModalProps) {
   if (!open) return null;
 
@@ -38,14 +39,13 @@ export default function NewEventModal({
     start: initialDate || undefined,
   };
 
-  if (!open) return null;
-
   return (
     <dialog open className="modal modal-open modal-bottom sm:modal-middle">
       <div className="modal-box w-full max-w-3xl sm:w-11/12 max-h-[90dvh] overflow-hidden">
         <h3 className="mb-4 text-lg font-bold">Crear nuevo horario de clases</h3>
         <div className="max-h-[75dvh] overflow-y-auto pr-1">
           <EventForm
+            key={`new-slot-${formRemountKey}`}
             submitLabel="Crear"
             onSubmit={submit}
             onCancel={onClose}
