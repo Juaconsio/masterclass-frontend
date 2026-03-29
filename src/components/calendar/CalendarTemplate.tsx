@@ -11,6 +11,7 @@ import { useSessionContext } from '../../context/SessionContext';
 import { useNavigate } from 'react-router';
 import { useConfirmAction } from '@/hooks';
 import { showToast } from '@/lib/toast';
+import { extractApiError } from '@/lib/extractApiError';
 
 export default function CalendarTemplate() {
   const { user } = useSessionContext();
@@ -32,6 +33,7 @@ export default function CalendarTemplate() {
   const [events, setEvents] = useState<IEvent[]>([]);
   const [showNewEventModal, setShowNewEventModal] = useState(false);
   const [showEventDetailsModal, setShowEventDetailsModal] = useState(false);
+  const [newEventFormKey, setNewEventFormKey] = useState(0);
   const [loading, setLoading] = useState(false);
   const [requestError, setRequestError] = useState<string | null>(null);
 
@@ -75,12 +77,7 @@ export default function CalendarTemplate() {
       showToast.success('Slot actualizado correctamente');
     } catch (error) {
       console.error('Error updating slot:', error);
-      const message =
-        (error as any)?.response?.data?.message ??
-        (error as any)?.response?.data?.error ??
-        (error as any)?.message ??
-        'Error al actualizar el slot';
-      showToast.error(String(message));
+      showToast.error(extractApiError(error, 'Error al actualizar el slot'));
       throw error;
     }
   }
@@ -109,15 +106,19 @@ export default function CalendarTemplate() {
       }
     } catch (error) {
       console.error('Error creating slot:', error);
-      showToast.error('Error al crear el slot');
+
+      showToast.error(extractApiError(error, 'Error al crear el slot'));
       throw error;
     }
   }
 
   function openCreateEventModal(date: Date) {
     setSelectedDate(date);
+    setNewEventFormKey((k) => k + 1);
     setShowNewEventModal(true);
   }
+
+  const allowSlotDragInteractions = user?.role === 'professor' || user?.role === 'admin';
 
   async function handleDelete(id: number) {
     showConfirmation({
@@ -134,15 +135,37 @@ export default function CalendarTemplate() {
           setShowEventDetailsModal(false);
         } catch (error) {
           console.error('Error deleting slot:', error);
-          const message =
-            (error as any)?.response?.data?.message ??
-            (error as any)?.response?.data?.error ??
-            (error as any)?.message ??
-            'Error al eliminar el slot';
-          showToast.error(String(message));
+          showToast.error(extractApiError(error, 'Error al eliminar el slot'));
         }
       },
     });
+  }
+
+  async function handleDuplicateSlotAtTime(source: IEvent, startTime: string, endTime: string) {
+    try {
+      const payload: any = {
+        classId: source.classId,
+        professorId: isProfessor ? user?.id : source.professorId,
+        startTime,
+        endTime,
+        modality: source.modality === 'remote' ? 'remote' : 'onsite',
+        studentsGroup: source.studentsGroup || null,
+        location: source.location || null,
+        maxStudents: source.maxStudents,
+        minStudents: source.minStudents,
+        status: source.status,
+        link: null,
+      };
+      const createdEvent = await slotsClient.create(payload);
+      showToast.success('Horario duplicado');
+      if (createdEvent) {
+        setEvents((prev) => [...prev, createdEvent]);
+      }
+    } catch (error) {
+      console.error('Error duplicating slot:', error);
+      showToast.error(extractApiError(error, 'Error al duplicar el slot'));
+      throw error;
+    }
   }
 
   function handleClickOnEventSlot(event: IEvent) {
@@ -152,14 +175,7 @@ export default function CalendarTemplate() {
 
   return (
     <>
-      <div className="mx-auto w-full space-y-6">
-        {isProfessor && (
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold">Mis Horarios</h1>
-            <p className="text-base-content/70 mt-2">Gestiona tus slots y reservas</p>
-          </div>
-        )}
-
+      <div className="mx-auto h-full w-full space-y-3">
         {requestError && (
           <div className="alert alert-error">
             <span>{requestError}</span>
@@ -179,6 +195,11 @@ export default function CalendarTemplate() {
           loading={loading}
           onEventClick={handleClickOnEventSlot}
           openCreateEventModal={(initialDate) => openCreateEventModal(initialDate ?? new Date())}
+          allowSlotDrag={allowSlotDragInteractions}
+          onSlotTimeChange={async (id, startTime, endTime) => {
+            await handleEdit(id, { startTime, endTime });
+          }}
+          onSlotDuplicateAtTime={handleDuplicateSlotAtTime}
         />
         <EventDetailsModal
           event={selectedEvent}
@@ -193,6 +214,7 @@ export default function CalendarTemplate() {
           handleCreate={handleCreate}
           onClose={() => setShowNewEventModal(false)}
           initialDate={selectedDate ?? null}
+          formRemountKey={newEventFormKey}
         />
       </div>
 
