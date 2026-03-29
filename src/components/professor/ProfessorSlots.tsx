@@ -80,11 +80,6 @@ export default function ProfessorSlots() {
 
   return (
     <div className="space-y-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Mis Horarios</h1>
-        <p className="text-base-content/70 mt-2">Gestiona tus slots y reservas</p>
-      </div>
-
       <div className="tabs tabs-boxed bg-base-200">
         <button
           className={`tab ${filter === 'all' ? 'tab-active' : ''}`}
