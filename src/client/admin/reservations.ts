@@ -14,6 +14,18 @@ export interface ReservationsFilters {
   slotId?: number;
   paymentStatus?: 'pending' | 'paid' | 'failed' | 'refunded';
   transactionReference?: string;
+  /** ISO 8601 — filtra por `payment.createdAt` (inclusive) */
+  paymentCreatedFrom?: string;
+  paymentCreatedTo?: string;
+}
+
+export interface AdminReservationStats {
+  year: number;
+  month: number;
+  periodStart: string;
+  periodEnd: string;
+  reservationsByStatus: Record<string, number>;
+  paymentsLinkedByStatus: Record<string, { count: number; amountSum: number }>;
 }
 
 export async function getReservations(
@@ -30,6 +42,31 @@ export async function getReservations(
 
 export async function getReservation(id: number): Promise<IReservation> {
   const response = await httpClient.get(`/admin/reservations/${id}`);
+  return response.data;
+}
+
+export type ReservationStatsParams = {
+  year: number;
+  month: number;
+} & Partial<
+  Pick<
+    ReservationsFilters,
+    | 'id'
+    | 'status'
+    | 'paymentStatus'
+    | 'transactionReference'
+    | 'paymentCreatedFrom'
+    | 'paymentCreatedTo'
+    | 'studentId'
+    | 'slotId'
+  >
+>;
+
+export async function getReservationStats(
+  params: ReservationStatsParams
+): Promise<AdminReservationStats> {
+  const queryString = buildQueryString(params);
+  const response = await httpClient.get(`/admin/reservations/stats${queryString}`);
   return response.data;
 }
 

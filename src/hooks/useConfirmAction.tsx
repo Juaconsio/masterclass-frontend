@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-interface ConfirmActionOptions {
+export interface ConfirmActionOptions {
   title?: string;
   message: string;
   confirmText?: string;
