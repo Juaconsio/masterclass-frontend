@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 import Logo from '/src/assets/logo.svg';
 import { Icon } from 'astro-icon/components';
 const year = new Date().getFullYear();
-import waUrl, { phoneNumber } from '@/lib/waMessage';
+import waUrl, { waPhoneDisplay } from '@/lib/waMessage';
 ---
 
 <footer class="text-neutral-content bg-black">
@@ -28,7 +28,9 @@ import waUrl, { phoneNumber } from '@/lib/waMessage';
           <li><a class="link link-hover link-white" href="/cursos">Cursos</a></li>
           <li><a class="link link-hover link-white" href="/nosotros">Sobre nosotros</a></li>
           <li>
-            <a class="link link-hover link-white" href="/nosotros#faq">Preguntas frecuentes</a>
+            <a class="link link-hover link-white" href="/nosotros#faq-completo"
+              >Preguntas frecuentes</a
+            >
           </li>
           <li><a class="link link-hover link-white" href="/#contact">Contacto</a></li>
         </ul>
@@ -39,22 +41,18 @@ import waUrl, { phoneNumber } from '@/lib/waMessage';
         <h3 id="footer-contact-title" class="text-base font-semibold sm:text-lg">Contacto</h3>
         <ul class="space-y-1.5 text-sm sm:space-y-2 sm:text-base">
           <li>
-            <a
-              class="link link-hover text-base-100/90 hover:text-primary break-all"
-              href="mailto:salvaramos.ing@gmail.com">salvaramos.ing@gmail.com</a
+            <a class="link link-hover break-all" href="mailto:salvaramos.ing@gmail.com"
+              >salvaramos.ing@gmail.com</a
+            >
+          </li>
+          <li>
+            <a class="link link-hover" href={waUrl} rel="noopener" target="_blank"
+              >{waPhoneDisplay}</a
             >
           </li>
           <li>
             <a
-              class="link link-hover text-base-100/90 hover:text-primary"
-              href={waUrl}
-              rel="noopener"
-              target="_blank">{phoneNumber}</a
-            >
-          </li>
-          <li>
-            <a
-              class="link link-hover text-base-100/90 hover:text-primary"
+              class="link link-hover"
               href="https://instagram.com/salvaramos_ing"
               rel="noopener"
               target="_blank">@salvaramos_ing</a
