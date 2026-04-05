@@ -20,6 +20,7 @@ const signUpSchema = z
     phone: phoneSchema,
     rut: rutSchema,
     name: z.string(),
+    address: z.string().min(1, 'La dirección es obligatoria.'),
   })
   .refine((data) => data.password === data.confirmed_password, {
     message: 'Las contraseñas no coinciden.',
@@ -163,6 +164,16 @@ export default function SignUpForm() {
           )}
         />
         {errors.phone && <span className="text-error text-xs">{errors.phone.message}</span>}
+        <input
+          type="text"
+          {...register('address')}
+          placeholder="Dirección (ej: Av. Providencia 1234, Santiago)"
+          className={clsx('input input-bordered w-full', { 'input-error': errors.address })}
+        />
+        {errors.address && <span className="text-error text-xs">{errors.address.message}</span>}
+        <label htmlFor="address" className="text-base-content/60 text-[10px]">
+          Soliciamos tu dirección para la facturación
+        </label>
         <button type="submit" className="btn btn-primary w-full" disabled={isSubmitting}>
           {isSubmitting ? 'Registrandote...' : 'Regístrate'}
         </button>

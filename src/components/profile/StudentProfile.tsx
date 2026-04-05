@@ -39,6 +39,14 @@ const studentProfileConfig: ProfileConfig = {
       format: 'phone',
       helpText: 'Formato chileno',
     },
+    {
+      name: 'address',
+      label: 'Dirección',
+      type: 'text',
+      placeholder: 'Av. Providencia 1234, Santiago',
+      required: true,
+      helpText: 'Necesaria para facturación',
+    },
   ],
 };
 
