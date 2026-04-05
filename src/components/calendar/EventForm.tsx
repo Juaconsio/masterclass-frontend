@@ -39,11 +39,11 @@ function normalizeInitialValues(values?: Partial<EventFormValues>): EventFormVal
     start: startDate,
     end: endDate,
     modality: values?.modality || 'remote',
-    studentsGroup: values?.studentsGroup || 'private',
+    studentsGroup: values?.studentsGroup ?? 'group',
     status: values?.status || 'candidate',
     location: values?.location,
-    minStudents: values?.minStudents,
-    maxStudents: values?.maxStudents ?? 1,
+    minStudents: values?.minStudents ?? 2,
+    maxStudents: values?.maxStudents ?? 8,
   };
 }
 
@@ -244,10 +244,10 @@ export default function EventForm({
                                   : cls.professors?.some((prof) => prof.id === watchProfessorId)
                               )
                           ).map((cls: IPlainCourse) => (
-                              <option key={cls.id} value={cls.id}>
-                                {cls.title}
-                              </option>
-                            ))}
+                            <option key={cls.id} value={cls.id}>
+                              {cls.title}
+                            </option>
+                          ))}
                         </select>
                       )}
                     />
@@ -330,9 +330,7 @@ export default function EventForm({
                       )}
                     />
                   )}
-                  {errors.classId && (
-                    <p className="text-error text-sm">{errors.classId.message}</p>
-                  )}
+                  {errors.classId && <p className="text-error text-sm">{errors.classId.message}</p>}
                 </div>
               </div>
             )}
@@ -372,7 +370,7 @@ export default function EventForm({
                         const currentEnd = watch('end');
 
                         const [year, month, day] = e.target.value.split('-').map(Number);
-                        
+
                         if (isNaN(year) || isNaN(month) || isNaN(day)) return;
 
                         const newStart = new Date(
@@ -427,7 +425,7 @@ export default function EventForm({
                       <input
                         type="time"
                         className="input input-bordered w-full"
-                          disabled={isSubmitting || isLocked}
+                        disabled={isSubmitting || isLocked}
                         value={
                           field.value instanceof Date
                             ? `${String(field.value.getHours()).padStart(2, '0')}:${String(field.value.getMinutes()).padStart(2, '0')}`
@@ -438,12 +436,12 @@ export default function EventForm({
 
                           const current = field.value instanceof Date ? field.value : new Date();
                           const [hours, minutes] = e.target.value.split(':').map(Number);
-                          
+
                           if (isNaN(hours) || isNaN(minutes)) return;
 
                           const newDate = new Date(current);
                           newDate.setHours(hours, minutes);
-                          
+
                           if (isNaN(newDate.getTime())) return;
 
                           field.onChange(newDate);
@@ -482,7 +480,7 @@ export default function EventForm({
                       <input
                         type="time"
                         className="input input-bordered w-full"
-                          disabled={isSubmitting || isLocked}
+                        disabled={isSubmitting || isLocked}
                         value={
                           field.value instanceof Date
                             ? `${String(field.value.getHours()).padStart(2, '0')}:${String(field.value.getMinutes()).padStart(2, '0')}`
@@ -494,11 +492,11 @@ export default function EventForm({
                           const start = watch('start');
                           const current = start instanceof Date ? new Date(start) : new Date();
                           const [hours, minutes] = e.target.value.split(':').map(Number);
-                          
+
                           if (isNaN(hours) || isNaN(minutes)) return;
 
                           current.setHours(hours, minutes);
-                          
+
                           if (isNaN(current.getTime())) return;
 
                           field.onChange(current);
@@ -592,6 +590,7 @@ export default function EventForm({
                         },
                       })}
                       placeholder="Mín."
+                      value={2}
                       className={`input input-bordered w-full ${errors.minStudents ? 'input-error' : ''}`}
                       disabled={isSubmitting}
                     />
@@ -616,6 +615,7 @@ export default function EventForm({
                         },
                       })}
                       placeholder="Máx."
+                      value={8}
                       className={`input input-bordered w-full ${errors.maxStudents ? 'input-error' : ''}`}
                       disabled={isSubmitting}
                     />
