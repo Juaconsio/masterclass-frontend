@@ -1,9 +1,10 @@
 ---
 import type { CourseListingData } from '@/types/course';
+import { waHrefWithMessage } from '@/lib/waMessage';
 
 const { course } = Astro.props as { course: CourseListingData };
 const waMessage = `Hola, tengo dudas sobre el curso ${course.acronym} - ${course.title}. ¿Me pueden ayudar?`;
-const waHref = `https://wa.me/56934476377?text=${encodeURIComponent(waMessage)}`;
+const waHref = waHrefWithMessage(waMessage);
 ---
 
 <div class="card bg-base-100 w-full shadow-xl">
