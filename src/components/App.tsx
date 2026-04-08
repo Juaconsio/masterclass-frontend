@@ -20,7 +20,8 @@ import {
   AdminCourseDetail,
   AdminProfessors,
   AdminProfessorDetail,
-  AdminReservationsPayments,
+  AdminPayments,
+  AdminReservationRecords,
 } from '@components/admin';
 import { ProfessorDashboard, ProfessorCourses } from '@components/professor';
 import Profile from '@/components/profile/Profile';
@@ -167,8 +168,9 @@ export default function Spa() {
               <Route path=":professorId" element={<AdminProfessorDetail />} />
             </Route>
 
-            <Route path="reservas" element={<CalendarTemplate />} />
-            <Route path="pagos" element={<AdminReservationsPayments />} />
+            <Route path="calendario" element={<CalendarTemplate />} />
+            <Route path="pagos" element={<AdminPayments />} />
+            <Route path="registro-reservas" element={<AdminReservationRecords />} />
           </Route>
 
           {/* 404 */}

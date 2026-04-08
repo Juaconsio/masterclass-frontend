@@ -1,8 +1,7 @@
 export type PaymentStatusFilter = 'all' | 'pending' | 'paid' | 'failed' | 'refunded';
 
-export type QuickFilter = 'all' | 'pending_confirm' | 'pending_refund';
-
-export type TabKind = 'payments' | 'reservations';
+/** Filtros rápidos del registro de reservas (sin criterios de pago de clase). */
+export type ReservationQuickFilter = 'all' | 'pending_refund';
 
 export type AppliedPaymentAdvanced = {
   id?: number;

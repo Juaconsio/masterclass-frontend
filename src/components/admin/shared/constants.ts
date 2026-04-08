@@ -1,4 +1,4 @@
-import type { PaymentStatusFilter, QuickFilter } from './types';
+import type { PaymentStatusFilter, ReservationQuickFilter } from './types';
 
 export const RESERVATION_STATUS_LABELS: Record<string, string> = {
   pending: 'Pendiente',
@@ -18,8 +18,6 @@ export const PAYMENT_STATUS_LABELS: Record<string, string> = {
   refunded: 'Reembolsado',
 };
 
-export const ADMIN_PAYMENTS_TABS_RADIO_NAME = 'admin_reservations_payments_tabs_v1';
-
 export const BADGE_CLASS = 'badge badge-sm min-w-[5.5rem] justify-center';
 
 export const PAYMENT_STATUS_CARD_ORDER: PaymentStatusFilter[] = [
@@ -38,8 +36,7 @@ export const PAYMENT_STATUS_CARD_LABELS: Record<PaymentStatusFilter, string> = {
   refunded: 'Reembolsados',
 };
 
-export const QUICK_FILTER_LABELS: Record<QuickFilter, string> = {
+export const RESERVATION_QUICK_FILTER_LABELS: Record<ReservationQuickFilter, string> = {
   all: 'Todas',
-  pending_confirm: 'Pago clase pendiente',
   pending_refund: 'Pend. reembolso',
 };

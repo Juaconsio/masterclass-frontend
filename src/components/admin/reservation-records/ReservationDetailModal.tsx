@@ -1,16 +1,11 @@
 import type { IReservation } from '@/interfaces';
-import { formatSlotDateParts } from './dateUtils';
-import { PaymentStatusBadge, ReservationStatusBadge } from './StatusBadges';
-import {
-  useAdminReservationsLegacyTab,
-  useReservationsPaymentsFormats,
-} from './ReservationsPaymentsContext';
+import { formatSlotDateParts } from '../shared/dateUtils';
+import { ReservationStatusBadge } from '../shared/StatusBadges';
+import { useAdminReservationRecordsTab } from './AdminReservationRecordsContext';
 
 interface ReservationDetailModalViewProps {
   reservation: IReservation;
   onClose: () => void;
-  formatCurrency: (n: number) => string;
-  formatDate: (s?: string) => string;
   processing: boolean;
   onProcessRefund: (r: IReservation) => void;
 }
@@ -18,8 +13,6 @@ interface ReservationDetailModalViewProps {
 function ReservationDetailModalView({
   reservation,
   onClose,
-  formatCurrency,
-  formatDate,
   processing,
   onProcessRefund,
 }: ReservationDetailModalViewProps) {
@@ -34,15 +27,9 @@ function ReservationDetailModalView({
         </div>
         <div className="divider my-3" />
         <div className="flex flex-col gap-6">
-          <div className="grid w-fit grid-cols-[4.5rem_1fr] items-center gap-x-2 gap-y-1">
-            <span className="text-base-content/60 text-xs">Reserva:</span>
+          <div className="flex items-center gap-2">
+            <span className="text-base-content/60 text-xs">Estado:</span>
             <ReservationStatusBadge status={reservation.status} />
-            {reservation.payment && (
-              <>
-                <span className="text-base-content/60 text-xs">Pago:</span>
-                <PaymentStatusBadge status={reservation.payment.status} />
-              </>
-            )}
           </div>
 
           <section>
@@ -77,29 +64,8 @@ function ReservationDetailModalView({
             </section>
           )}
 
-          {reservation.payment && (
-            <section>
-              <h4 className="text-base-content/60 mb-1 text-xs font-semibold tracking-wide uppercase">
-                Pago
-              </h4>
-              <p className="font-semibold">{formatCurrency(reservation.payment.amount)}</p>
-              <p className="text-base-content/60 font-mono text-xs">
-                Ref: {reservation.payment.transactionReference || '—'}
-              </p>
-              <p className="text-base-content/60 text-xs">
-                {formatDate(reservation.payment.createdAt)}
-              </p>
-            </section>
-          )}
-
-          <section className="border-base-300 flex flex-wrap gap-2 border-t pt-4">
-            {reservation.payment?.status === 'pending' && (
-              <p className="text-base-content/60 text-sm">
-                Para confirmar o rechazar pagos de plan usa la pestaña «Pagos (planes)». Los pagos
-                de clase se gestionan desde la fila de reservas o el flujo de confirmación de sesión.
-              </p>
-            )}
-            {reservation.status === 'to_refund' && (
+          {reservation.status === 'to_refund' && (
+            <section className="border-base-300 flex flex-wrap gap-2 border-t pt-4">
               <button
                 type="button"
                 className="btn btn-primary btn-sm"
@@ -108,8 +74,8 @@ function ReservationDetailModalView({
               >
                 {processing ? 'Procesando...' : 'Marcar reembolso'}
               </button>
-            )}
-          </section>
+            </section>
+          )}
         </div>
       </div>
       <form
@@ -127,19 +93,16 @@ function ReservationDetailModalView({
 }
 
 export function ReservationDetailModal() {
-  const reservations = useAdminReservationsLegacyTab();
-  const { formatCurrency, formatDate } = useReservationsPaymentsFormats();
+  const records = useAdminReservationRecordsTab();
 
-  if (!reservations.detailReservation) return null;
+  if (!records.detailReservation) return null;
 
   return (
     <ReservationDetailModalView
-      reservation={reservations.detailReservation}
-      onClose={() => reservations.setDetailReservation(null)}
-      formatCurrency={formatCurrency}
-      formatDate={formatDate}
-      processing={reservations.processing}
-      onProcessRefund={reservations.handleProcessRefund}
+      reservation={records.detailReservation}
+      onClose={() => records.setDetailReservation(null)}
+      processing={records.processing}
+      onProcessRefund={records.handleProcessRefund}
     />
   );
 }

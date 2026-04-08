@@ -8,6 +8,7 @@ import {
   GraduationCap,
   Calendar,
   CreditCard,
+  ClipboardList,
   Menu,
   X,
   Package,
@@ -62,11 +63,12 @@ const NavBar: React.FC = () => {
           href: '/admin/estudiantes',
           icon: <GraduationCap className="h-5 w-5" />,
         },
-        { label: 'Reservas', href: '/admin/reservas', icon: <Calendar className="h-5 w-5" /> },
+        { label: 'Calendario', href: '/admin/calendario', icon: <Calendar className="h-5 w-5" /> },
+        { label: 'Pagos', href: '/admin/pagos', icon: <CreditCard className="h-5 w-5" /> },
         {
-          label: 'Pagos y reservas',
-          href: '/admin/pagos',
-          icon: <CreditCard className="h-5 w-5" />,
+          label: 'Registro de reservas',
+          href: '/admin/registro-reservas',
+          icon: <ClipboardList className="h-5 w-5" />,
         },
       ];
     } else if (isProfessor) {

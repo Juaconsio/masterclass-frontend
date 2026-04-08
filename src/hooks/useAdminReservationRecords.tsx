@@ -12,28 +12,27 @@ import { useTableData } from '@/hooks/useTableData';
 import type { TableAction, TableColumn } from '@components/UI';
 import { showToast } from '@/lib/toast';
 import type { ConfirmActionOptions } from '@/hooks/useConfirmAction';
-import { utcMonthInclusiveISO } from '@/components/admin/reservations-payments/dateUtils';
-import { buildReservationFilterBadgeItems } from '@/components/admin/reservations-payments/filterBadgeUtils';
-import { createReservationTableColumns } from '@/components/admin/reservations-payments/reservationTableColumns';
-import { ReservationTableActions } from '@/components/admin/reservations-payments/ReservationTableActions';
-import type { QuickFilter } from '@/components/admin/reservations-payments/types';
+import { utcMonthInclusiveISO } from '@/components/admin/shared/dateUtils';
+import { buildReservationFilterBadgeItems } from '@/components/admin/shared/filterBadgeUtils';
+import { createReservationTableColumns } from '@/components/admin/reservation-records/reservationTableColumns';
+import { ReservationTableActions } from '@/components/admin/reservation-records/ReservationTableActions';
+import type { ReservationQuickFilter } from '@/components/admin/shared/types';
 
-export interface UseAdminReservationsLegacyOptions {
+export interface UseAdminReservationRecordsOptions {
   showConfirmation: (options: ConfirmActionOptions) => void;
-  formatCurrency: (n: number) => string;
 }
 
 /**
- * Pestaña legacy de reservas admin (tabla, stats mensuales, reembolsos). Sin lógica de pagos de plan.
+ * Listado admin de reservas por mes (tabla, totales, reembolsos). La UI de pagos de plan vive en Pagos.
  */
-export function useAdminReservationsLegacy(
+export function useAdminReservationRecords(
   periodYear: number,
   periodMonth: number,
-  { showConfirmation, formatCurrency }: UseAdminReservationsLegacyOptions
+  { showConfirmation }: UseAdminReservationRecordsOptions
 ) {
   const initialRange = utcMonthInclusiveISO(periodYear, periodMonth);
 
-  const [quickFilter, setQuickFilter] = useState<QuickFilter>('all');
+  const [quickFilter, setQuickFilter] = useState<ReservationQuickFilter>('all');
   const [reservationStats, setReservationStats] = useState<AdminReservationStats | null>(null);
   const [detailReservation, setDetailReservation] = useState<IReservation | null>(null);
   const [processing, setProcessing] = useState(false);
@@ -74,22 +73,38 @@ export function useAdminReservationsLegacy(
     [updateReservationsFilters]
   );
 
+  const statsQueryParams = useMemo(
+    () => ({
+      year: periodYear,
+      month: periodMonth,
+      id: reservationsFilters.id,
+      status: reservationsFilters.status,
+      paymentStatus: reservationsFilters.paymentStatus,
+      transactionReference: reservationsFilters.transactionReference,
+      paymentCreatedFrom: reservationsFilters.paymentCreatedFrom,
+      paymentCreatedTo: reservationsFilters.paymentCreatedTo,
+      studentId: reservationsFilters.studentId,
+      slotId: reservationsFilters.slotId,
+    }),
+    [
+      periodYear,
+      periodMonth,
+      reservationsFilters.id,
+      reservationsFilters.status,
+      reservationsFilters.paymentStatus,
+      reservationsFilters.transactionReference,
+      reservationsFilters.paymentCreatedFrom,
+      reservationsFilters.paymentCreatedTo,
+      reservationsFilters.studentId,
+      reservationsFilters.slotId,
+    ]
+  );
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const r = await getReservationStats({
-          year: periodYear,
-          month: periodMonth,
-          id: reservationsFilters.id,
-          status: reservationsFilters.status,
-          paymentStatus: reservationsFilters.paymentStatus,
-          transactionReference: reservationsFilters.transactionReference,
-          paymentCreatedFrom: reservationsFilters.paymentCreatedFrom,
-          paymentCreatedTo: reservationsFilters.paymentCreatedTo,
-          studentId: reservationsFilters.studentId,
-          slotId: reservationsFilters.slotId,
-        });
+        const r = await getReservationStats(statsQueryParams);
         if (!cancelled) setReservationStats(r);
       } catch {
         if (!cancelled) setReservationStats(null);
@@ -98,31 +113,19 @@ export function useAdminReservationsLegacy(
     return () => {
       cancelled = true;
     };
-  }, [
-    periodYear,
-    periodMonth,
-    reservationsFilters.id,
-    reservationsFilters.status,
-    reservationsFilters.paymentStatus,
-    reservationsFilters.transactionReference,
-    reservationsFilters.paymentCreatedFrom,
-    reservationsFilters.paymentCreatedTo,
-    reservationsFilters.studentId,
-    reservationsFilters.slotId,
-  ]);
+  }, [statsQueryParams]);
 
   const applyQuickFilter = useCallback(
-    (filter: QuickFilter) => {
+    (filter: ReservationQuickFilter) => {
       setQuickFilter(filter);
       const { createdFrom, createdTo } = utcMonthInclusiveISO(periodYear, periodMonth);
       const base = {
         page: 1 as const,
         paymentCreatedFrom: createdFrom,
         paymentCreatedTo: createdTo,
+        transactionReference: undefined as string | undefined,
       };
-      if (filter === 'pending_confirm') {
-        updateReservationsFilters({ ...base, paymentStatus: 'pending', status: undefined });
-      } else if (filter === 'pending_refund') {
+      if (filter === 'pending_refund') {
         updateReservationsFilters({ ...base, status: 'to_refund', paymentStatus: undefined });
       } else {
         updateReservationsFilters({ ...base, status: undefined, paymentStatus: undefined });
@@ -178,10 +181,8 @@ export function useAdminReservationsLegacy(
       (a, b) => a + b,
       0
     );
-    const paidAmountMonth = reservationStats.paymentsLinkedByStatus.paid?.amountSum ?? 0;
-    const pendingPayments = reservationStats.paymentsLinkedByStatus.pending?.count ?? 0;
     const toRefund = reservationStats.reservationsByStatus.to_refund ?? 0;
-    return { resCountSum, paidAmountMonth, pendingPayments, toRefund };
+    return { resCountSum, toRefund };
   }, [reservationStats]);
 
   const reservationFilterBadgeItems = useMemo(
@@ -190,8 +191,8 @@ export function useAdminReservationsLegacy(
   );
 
   const reservationColumns: TableColumn<IReservation>[] = useMemo(
-    () => createReservationTableColumns(formatCurrency),
-    [formatCurrency]
+    () => createReservationTableColumns(),
+    []
   );
 
   const reservationActions: TableAction<IReservation>[] = useMemo(
@@ -237,4 +238,4 @@ export function useAdminReservationsLegacy(
   };
 }
 
-export type AdminReservationsLegacyTabApi = ReturnType<typeof useAdminReservationsLegacy>;
+export type AdminReservationRecordsApi = ReturnType<typeof useAdminReservationRecords>;
