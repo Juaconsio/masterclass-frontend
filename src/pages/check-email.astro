@@ -8,31 +8,31 @@ import Layout from '../layouts/Layout.astro';
   description="Te hemos enviado un correo de confirmación"
 >
   <div
-    class="min-h-screen bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 flex items-center"
+    class="from-primary/5 via-base-100 to-primary/5 flex min-h-screen items-center bg-gradient-to-br"
   >
     <div class="container mx-auto px-4 py-8">
-      <div class="max-w-2xl mx-auto">
+      <div class="mx-auto max-w-2xl">
         <!-- Contenido principal -->
         <div class="card shadow-2xl">
-          <div class="card-body text-center space-y-4 p-6 lg:p-8">
+          <div class="card-body space-y-4 p-6 text-center lg:p-8">
             <!-- Icono compacto inline -->
             <div class="flex justify-center">
-              <div class="bg-primary/10 rounded-full p-4 border-2 border-primary/20">
-                <Icon name="mdi:envelope-fast-outline" class="h-12 w-12 text-primary" />
+              <div class="bg-primary/10 border-primary/20 rounded-full border-2 p-4">
+                <Icon name="mdi:envelope-fast-outline" class="text-primary h-12 w-12" />
               </div>
             </div>
 
-            <h1 class="text-2xl lg:text-3xl font-bold text-primary">
+            <h1 class="text-primary text-2xl font-bold lg:text-3xl">
               ¡Revisa tu correo electrónico!
             </h1>
 
-            <p class="text-sm lg:text-base text-base-content/80">
+            <p class="text-base-content/80 text-sm lg:text-base">
               Te hemos enviado un correo de confirmación a la dirección que proporcionaste.
             </p>
 
-            <div class="bg-secondary/5 rounded-lg p-4">
-              <p class="text-sm font-semibold text-secondary mb-2">Pasos a seguir:</p>
-              <ol class="text-left space-y-1.5 text-sm">
+            <div class="bg-primary/5 rounded-lg p-4">
+              <p class="text-primary mb-2 text-sm font-semibold">Pasos a seguir:</p>
+              <ol class="space-y-1.5 text-left text-sm">
                 <li class="flex items-start gap-2">
                   <span class="badge badge-primary badge-sm mt-0.5 font-bold">1</span>
                   <span>Abre tu bandeja de entrada</span>
@@ -48,7 +48,7 @@ import Layout from '../layouts/Layout.astro';
               </ol>
             </div>
 
-            <div class="alert alert-info text-left py-3">
+            <div class="alert alert-info py-3 text-left">
               <Icon name="mdi:alert-circle" class="h-6 w-6 shrink-0" />
               <span class="text-xs lg:text-sm">
                 <strong>Tip:</strong> Si no encuentras el correo, revisa tu carpeta de spam.
@@ -56,15 +56,13 @@ import Layout from '../layouts/Layout.astro';
             </div>
 
             <!-- Botones de navegación -->
-            <div class="card-actions justify-center flex-col sm:flex-row gap-3 pt-2">
-              <a href="/" class="btn btn-secondary btn-sm lg:btn-md"> Ir al inicio </a>
-              <a href="/ingresar" class="btn btn-outline btn-primary btn-sm lg:btn-md">
-                Ya tengo cuenta
-              </a>
+            <div class="card-actions flex-col justify-center gap-3 pt-2 sm:flex-row">
+              <a href="/" class="btn btn-primary btn-outline btn-sm lg:btn-md"> Ir al inicio </a>
+              <a href="/ingresar" class="btn btn-primary btn-sm lg:btn-md"> Iniciar sesión </a>
             </div>
 
             <!-- Links adicionales compactos -->
-            <div class="flex flex-wrap justify-center gap-3 text-sm pt-2">
+            <div class="flex flex-wrap justify-center gap-3 pt-2 text-sm">
               <a href="/cursos" class="link link-hover text-primary">Ver cursos</a>
               <span class="text-base-content/30">•</span>
 

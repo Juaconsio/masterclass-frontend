@@ -34,11 +34,10 @@ const features = [
     comingSoon: true,
   },
   {
-    title: 'Pagos Automáticos',
-    desc: 'Pago seguro con Webpay, transferencia o tarjeta. Sin sorpresas, todo automatizado.',
+    title: 'Pagos seguros',
+    desc: 'Paga tus clases con transferencia o tarjeta mediante pasarela de pagos.',
     icon: 'mdi:credit-card-check',
     iconColor: 'text-success/10',
-    comingSoon: true,
   },
 ];
 ---
@@ -76,9 +75,7 @@ const features = [
               </div>
             )}
             <div class={`relative z-10 flex flex-col ${item.comingSoon ? 'opacity-50' : ''}`}>
-              <h3 class="text-complement mb-3 text-xl font-bold sm:text-2xl">
-                {item.title}
-              </h3>
+              <h3 class="text-complement mb-3 text-xl font-bold sm:text-2xl">{item.title}</h3>
               <p class="text-base-content text-sm leading-relaxed sm:text-base">{item.desc}</p>
             </div>
           </article>

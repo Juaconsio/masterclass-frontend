@@ -10,8 +10,8 @@ function materialTypeFromFile(file: File): string {
 
 interface FileInputProps {
   acceptedFileTypes: string[];
-  /** Receives file, type (derived or fixed), and display name. */
-  onFileUpload: (file: File, type: string, displayName: string) => Promise<void>;
+  /** Receives file, type (derived or fixed), display name, and an optional progress callback (0–100). */
+  onFileUpload: (file: File, type: string, displayName: string, onProgress: (percent: number) => void) => Promise<void>;
   maxSizeMB?: number;
   buttonText?: string;
   modalTitle?: string;
@@ -172,7 +172,9 @@ export default function FileInput({
       setLoadingMessage('Subiendo archivo...');
       setError(null);
 
-      await onFileUpload(selectedFile, selectedType, trimmedName);
+      await onFileUpload(selectedFile, selectedType, trimmedName, (percent) => {
+        setLoadingMessage(`Subiendo archivo... ${percent}%`);
+      });
       closeModal();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al subir el archivo');

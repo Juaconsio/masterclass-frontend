@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
 import { getMyClassModules } from '@client/student/materials';
+import type { ClassModulesResponse } from '@client/student/materials';
 import type React from 'react';
 import { useBreadCrumbRoute } from '@/context/BreadCrumbRouteContext';
 import { MATERIAL_LABELS, MATERIAL_ICONS } from './MaterialLabels';
@@ -23,7 +24,11 @@ function getMaterialDownloadName(mat: MaterialWithUrl): string {
   return /\.pdf$/i.test(raw) ? raw : `${raw}.pdf`;
 }
 
-export default function ClassMaterial() {
+interface ClassMaterialProps {
+  fetchModules?: (classId: number) => Promise<ClassModulesResponse>;
+}
+
+export default function ClassMaterial({ fetchModules }: ClassMaterialProps = {}) {
   const { courseId, classId } = useParams<{ courseId: string; classId: string }>();
   const navigate = useNavigate();
   const setBreadCrumbRoute = useBreadCrumbRoute()?.setBreadCrumbRoute;
@@ -40,6 +45,7 @@ export default function ClassMaterial() {
   } | null>(null);
   const [expandedModuleIds, setExpandedModuleIds] = useState<Set<number>>(new Set());
   const [selectedMaterial, setSelectedMaterial] = useState<MaterialWithUrl | null>(null);
+  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
 
   useEffect(() => {
     if (!courseId || !classId) {
@@ -53,7 +59,8 @@ export default function ClassMaterial() {
       setIsLoading(true);
       setErrorMessage('');
       try {
-        const data = await getMyClassModules(Number(classId));
+        const loader = fetchModules ?? getMyClassModules;
+        const data = await loader(Number(classId));
         if (cancelled) return;
         setModulesData({
           modules: data.modules,
@@ -232,9 +239,11 @@ export default function ClassMaterial() {
     const label = getDisplayLabel(selectedMaterial);
     const isVideo = selectedMaterial.mimeType === 'video/mp4';
 
+    const SPEED_OPTIONS = [1, 1.25, 1.5, 1.75, 2];
+
     const content = isVideo ? (
       <div className="h-full min-h-0 flex-1">
-        <VideoPlayer url={selectedMaterial.downloadUrl} title={label} />
+        <VideoPlayer url={selectedMaterial.downloadUrl} title={label} playbackRate={playbackSpeed} />
       </div>
     ) : (
       <div className="h-full min-h-0 flex-1">
@@ -246,6 +255,21 @@ export default function ClassMaterial() {
       <div className="flex flex-1 flex-col">
         <div className="border-base-300 bg-base-100 flex shrink-0 items-center justify-between gap-2 border-b px-2 py-1">
           <span className="min-w-0 truncate text-sm font-medium">{label}</span>
+          {isVideo && (
+            <div className="flex shrink-0 items-center gap-1">
+              <span className="text-base-content/50 mr-1 text-xs">Velocidad:</span>
+              {SPEED_OPTIONS.map((speed) => (
+                <button
+                  key={speed}
+                  type="button"
+                  onClick={() => setPlaybackSpeed(speed)}
+                  className={`btn btn-xs ${playbackSpeed === speed ? 'btn-primary' : 'btn-ghost'}`}
+                >
+                  {speed === 1 ? 'x1' : `x${speed}`}
+                </button>
+              ))}
+            </div>
+          )}
           {!isVideo && (
             <a
               href={selectedMaterial.downloadUrl}

@@ -20,13 +20,15 @@ import {
   AdminCourseDetail,
   AdminProfessors,
   AdminProfessorDetail,
-  AdminReservationsPayments,
+  AdminPayments,
+  AdminReservationRecords,
 } from '@components/admin';
 import { ProfessorDashboard, ProfessorCourses } from '@components/professor';
 import Profile from '@/components/profile/Profile';
 import ForgotPassword from './auth/forgotPassword';
 import ResetPassword from './auth/resetPassword';
 import ClassMaterial from '@components/content/ClassMaterial';
+import { getAdminClassPreview } from '@/client/admin/modules';
 import ReservationConfirm from '@components/reservations/ReservationConfirm';
 import RescheduleReservation from '@components/reservations/RescheduleReservation';
 import MyPlans from '@components/plans/MyPlans';
@@ -160,6 +162,10 @@ export default function Spa() {
             <Route path="cursos">
               <Route index element={<AdminCourses />} />
               <Route path=":courseId" element={<AdminCourseDetail />} />
+              <Route
+                path=":courseId/clases/:classId"
+                element={<ClassMaterial fetchModules={getAdminClassPreview} />}
+              />
             </Route>
             <Route path="estudiantes" element={<AdminStudents />} />
             <Route path="profesores">
@@ -167,8 +173,9 @@ export default function Spa() {
               <Route path=":professorId" element={<AdminProfessorDetail />} />
             </Route>
 
-            <Route path="reservas" element={<CalendarTemplate />} />
-            <Route path="pagos" element={<AdminReservationsPayments />} />
+            <Route path="calendario" element={<CalendarTemplate />} />
+            <Route path="pagos" element={<AdminPayments />} />
+            <Route path="registro-reservas" element={<AdminReservationRecords />} />
           </Route>
 
           {/* 404 */}

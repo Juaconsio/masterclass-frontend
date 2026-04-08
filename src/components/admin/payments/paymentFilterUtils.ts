@@ -1,6 +1,6 @@
 import type { PaymentsFilters } from '@/client/admin/payments';
-import type { AppliedPaymentAdvanced, PaymentStatusFilter } from './types';
-import { utcDayRangeInclusiveISO, utcMonthInclusiveISO } from './dateUtils';
+import type { AppliedPaymentAdvanced, PaymentStatusFilter } from '../shared/types';
+import { utcDayRangeInclusiveISO, utcMonthInclusiveISO } from '../shared/dateUtils';
 
 export function paymentCreatedBounds(
   periodYear: number,

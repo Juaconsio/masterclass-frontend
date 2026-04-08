@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import {
   initialUtcYearMonth,
   periodLabelFromUtc,
-} from '@/components/admin/reservations-payments/dateUtils';
+} from '@/components/admin/shared/dateUtils';
 
 /**
  * Mes calendario UTC para filtros admin (sin acoplar tablas ni API).

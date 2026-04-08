@@ -1,11 +1,9 @@
 import type { TableColumn } from '@components/UI';
 import type { IReservation } from '@/interfaces';
-import { formatSlotDateParts } from './dateUtils';
-import { PaymentStatusBadge, ReservationStatusBadge } from './StatusBadges';
+import { formatSlotDateParts } from '../shared/dateUtils';
+import { ReservationStatusBadge } from '../shared/StatusBadges';
 
-export function createReservationTableColumns(
-  formatCurrency: (n: number) => string
-): TableColumn<IReservation>[] {
+export function createReservationTableColumns(): TableColumn<IReservation>[] {
   return [
     {
       key: 'id',
@@ -73,28 +71,7 @@ export function createReservationTableColumns(
       key: 'status',
       label: 'Estado',
       className: 'min-w-[10rem]',
-      render: (r) => (
-        <div className="grid grid-cols-[4.5rem_1fr] items-center gap-x-2 gap-y-1">
-          <span className="text-base-content/60 text-xs">Reserva:</span>
-          <ReservationStatusBadge status={r.status} />
-          {r.payment && (
-            <>
-              <span className="text-base-content/60 text-xs">Pago:</span>
-              <PaymentStatusBadge status={r.payment.status} />
-            </>
-          )}
-        </div>
-      ),
-    },
-    {
-      key: 'amount',
-      label: 'Monto',
-      render: (r) =>
-        r.payment ? (
-          <span className="font-semibold">{formatCurrency(r.payment.amount)}</span>
-        ) : (
-          <span className="text-base-content/60 text-sm">—</span>
-        ),
+      render: (r) => <ReservationStatusBadge status={r.status} />,
     },
   ];
 }

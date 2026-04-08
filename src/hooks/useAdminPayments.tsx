@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState, useEffect, useRef } from 'react';
+import { useMemo, useCallback, useState, useEffect } from 'react';
 import {
   getPayments,
   getPaymentSummary,
@@ -13,17 +13,17 @@ import type { TableAction, TableColumn } from '@components/UI';
 import { showToast } from '@/lib/toast';
 import type { ConfirmActionOptions } from '@/hooks/useConfirmAction';
 import { adminPricingPlansClient, type AdminPricingPlanListItem } from '@/client/admin/pricingPlans';
-import { utcMonthInclusiveISO } from '@/components/admin/reservations-payments/dateUtils';
-import { buildPaymentFilterUpdates } from '@/components/admin/reservations-payments/paymentFilterUtils';
-import { buildPaymentFilterBadgeItems } from '@/components/admin/reservations-payments/filterBadgeUtils';
-import { PAYMENT_STATUS_CARD_LABELS } from '@/components/admin/reservations-payments/constants';
-import { createPaymentTableColumns } from '@/components/admin/reservations-payments/paymentTableColumns';
-import { PaymentTableActions } from '@/components/admin/reservations-payments/PaymentTableActions';
+import { utcMonthInclusiveISO } from '@/components/admin/shared/dateUtils';
+import { buildPaymentFilterUpdates } from '@/components/admin/payments/paymentFilterUtils';
+import { buildPaymentFilterBadgeItems } from '@/components/admin/shared/filterBadgeUtils';
+import { PAYMENT_STATUS_CARD_LABELS } from '@/components/admin/shared/constants';
+import { createPaymentTableColumns } from '@/components/admin/payments/paymentTableColumns';
+import { PaymentTableActions } from '@/components/admin/payments/PaymentTableActions';
 import type {
   AppliedPaymentAdvanced,
   PaymentSearchDraft,
   PaymentStatusFilter,
-} from '@/components/admin/reservations-payments/types';
+} from '@/components/admin/shared/types';
 
 const emptyPaymentSearchDraft = (): PaymentSearchDraft => ({
   id: '',
@@ -38,8 +38,6 @@ export interface UseAdminPaymentsOptions {
   showConfirmation: (options: ConfirmActionOptions) => void;
   formatCurrency: (n: number) => string;
   formatDate: (s?: string) => string;
-  /** Tras confirmar un pago de plan, refrescar listados externos (p. ej. reservas legacy). */
-  onAfterPaymentConfirmed?: () => void;
 }
 
 /**
@@ -48,18 +46,11 @@ export interface UseAdminPaymentsOptions {
 export function useAdminPayments(
   periodYear: number,
   periodMonth: number,
-  {
-    showConfirmation,
-    formatCurrency,
-    formatDate,
-    onAfterPaymentConfirmed,
-  }: UseAdminPaymentsOptions
-) {
+  { showConfirmation, formatCurrency, formatDate }: UseAdminPaymentsOptions) {
   const initialRange = utcMonthInclusiveISO(periodYear, periodMonth);
 
   const [paymentStatusFilter, setPaymentStatusFilter] = useState<PaymentStatusFilter>('all');
   const [appliedPaymentAdvanced, setAppliedPaymentAdvanced] = useState<AppliedPaymentAdvanced>({});
-  const appliedAdvancedRef = useRef<AppliedPaymentAdvanced>({});
   const [paymentSearchOpen, setPaymentSearchOpen] = useState(false);
   const [planOptions, setPlanOptions] = useState<AdminPricingPlanListItem[]>([]);
   const [paymentSearchDraft, setPaymentSearchDraft] = useState<PaymentSearchDraft>(
@@ -68,10 +59,6 @@ export function useAdminPayments(
   const [paymentSummary, setPaymentSummary] = useState<AdminPaymentSummary | null>(null);
   const [processing, setProcessing] = useState(false);
   const [processingId, setProcessingId] = useState<number | null>(null);
-
-  useEffect(() => {
-    appliedAdvancedRef.current = appliedPaymentAdvanced;
-  }, [appliedPaymentAdvanced]);
 
   useEffect(() => {
     adminPricingPlansClient
@@ -119,29 +106,28 @@ export function useAdminPayments(
   const onUtcMonthChange = useCallback(
     (y: number, m: number) => {
       const adv: AppliedPaymentAdvanced = {
-        ...appliedAdvancedRef.current,
+        ...appliedPaymentAdvanced,
         paymentDateFrom: undefined,
         paymentDateTo: undefined,
       };
-      appliedAdvancedRef.current = adv;
       setAppliedPaymentAdvanced(adv);
       updatePaymentsFilters(buildPaymentFilterUpdates(adv, paymentStatusFilter, y, m));
     },
-    [paymentStatusFilter, updatePaymentsFilters]
+    [appliedPaymentAdvanced, paymentStatusFilter, updatePaymentsFilters]
   );
 
   const selectPaymentStatusFilter = useCallback(
     (f: PaymentStatusFilter) => {
       setPaymentStatusFilter(f);
       updatePaymentsFilters(
-        buildPaymentFilterUpdates(appliedAdvancedRef.current, f, periodYear, periodMonth)
+        buildPaymentFilterUpdates(appliedPaymentAdvanced, f, periodYear, periodMonth)
       );
     },
-    [periodYear, periodMonth, updatePaymentsFilters]
+    [appliedPaymentAdvanced, periodYear, periodMonth, updatePaymentsFilters]
   );
 
   const openPaymentSearchModal = useCallback(() => {
-    const a = appliedAdvancedRef.current;
+    const a = appliedPaymentAdvanced;
     setPaymentSearchDraft({
       id: a.id ? String(a.id) : '',
       transactionReference: a.transactionReference ?? '',
@@ -151,11 +137,7 @@ export function useAdminPayments(
       paymentDateTo: a.paymentDateTo ?? '',
     });
     setPaymentSearchOpen(true);
-    adminPricingPlansClient
-      .list({ pageSize: 100 })
-      .then((r) => setPlanOptions(r.data))
-      .catch(() => setPlanOptions([]));
-  }, []);
+  }, [appliedPaymentAdvanced]);
 
   const applyPaymentSearchFromModal = useCallback(() => {
     const idNum = paymentSearchDraft.id.trim() ? Number(paymentSearchDraft.id) : NaN;
@@ -178,7 +160,6 @@ export function useAdminPayments(
       paymentDateTo: paymentSearchDraft.paymentDateTo.trim() || undefined,
     };
     setAppliedPaymentAdvanced(adv);
-    appliedAdvancedRef.current = adv;
     updatePaymentsFilters(
       buildPaymentFilterUpdates(adv, paymentStatusFilter, periodYear, periodMonth)
     );
@@ -188,7 +169,6 @@ export function useAdminPayments(
   const clearPaymentAdvanced = useCallback(() => {
     const adv: AppliedPaymentAdvanced = {};
     setAppliedPaymentAdvanced(adv);
-    appliedAdvancedRef.current = adv;
     updatePaymentsFilters(
       buildPaymentFilterUpdates(adv, paymentStatusFilter, periodYear, periodMonth)
     );
@@ -255,7 +235,6 @@ export function useAdminPayments(
             await confirmPayment(p.id);
             showToast.success('Pago confirmado. Plan activo.');
             reloadPayments();
-            onAfterPaymentConfirmed?.();
           } catch (err: any) {
             showToast.error(err?.response?.data?.message ?? 'Error al confirmar');
           } finally {
@@ -265,7 +244,7 @@ export function useAdminPayments(
         },
       });
     },
-    [showConfirmation, reloadPayments, onAfterPaymentConfirmed]
+    [showConfirmation, reloadPayments]
   );
 
   const handleRejectPayment = useCallback(

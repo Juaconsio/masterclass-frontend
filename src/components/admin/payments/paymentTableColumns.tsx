@@ -1,6 +1,6 @@
 import type { TableColumn } from '@components/UI';
 import type { AdminPayment } from '@/client/admin/payments';
-import { PaymentStatusBadge } from './StatusBadges';
+import { PaymentStatusBadge } from '../shared/StatusBadges';
 
 export function createPaymentTableColumns(
   formatCurrency: (n: number) => string,

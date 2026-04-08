@@ -1,13 +1,10 @@
 import { Table } from '@components/UI';
-import { PAYMENT_STATUS_CARD_LABELS, PAYMENT_STATUS_CARD_ORDER } from './constants';
-import {
-  useAdminPaymentsTab,
-  useReservationsPaymentsFormats,
-} from './ReservationsPaymentsContext';
+import { PAYMENT_STATUS_CARD_LABELS, PAYMENT_STATUS_CARD_ORDER } from '../shared/constants';
+import { useAdminPaymentsFormats, useAdminPaymentsTab } from './AdminPaymentsContext';
 
 export function PaymentsTabPanel() {
   const payments = useAdminPaymentsTab();
-  const { formatCurrency } = useReservationsPaymentsFormats();
+  const { formatCurrency } = useAdminPaymentsFormats();
 
   return (
     <div className="space-y-4">

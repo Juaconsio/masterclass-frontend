@@ -1,5 +1,6 @@
 import { httpClient } from '../config';
 import type { ClassModule } from './courses';
+import type { ClassModulesResponse } from '@/client/student/materials';
 
 /** Creates a module; backend assigns orderIndex as last. */
 export async function createModule(
@@ -30,4 +31,11 @@ export async function updateModule(
 
 export async function deleteModule(id: number): Promise<void> {
   await httpClient.delete(`/admin/modules/${id}`);
+}
+
+export async function getAdminClassPreview(classId: number): Promise<ClassModulesResponse> {
+  const { data } = await httpClient.get<ClassModulesResponse>(
+    `/admin/classes/${classId}/preview`
+  );
+  return data;
 }

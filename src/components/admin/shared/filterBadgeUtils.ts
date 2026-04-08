@@ -1,7 +1,7 @@
 import type { AdminPricingPlanListItem } from '@/client/admin/pricingPlans';
 import type { ReservationsFilters } from '@/client/admin/reservations';
-import type { AppliedPaymentAdvanced, FilterBadgeItem, QuickFilter } from './types';
-import { QUICK_FILTER_LABELS } from './constants';
+import type { AppliedPaymentAdvanced, FilterBadgeItem, ReservationQuickFilter } from './types';
+import { RESERVATION_QUICK_FILTER_LABELS } from './constants';
 
 export function buildPaymentFilterBadgeItems(
   adv: AppliedPaymentAdvanced,
@@ -37,14 +37,11 @@ export function buildPaymentFilterBadgeItems(
 }
 
 export function buildReservationFilterBadgeItems(
-  quickFilter: QuickFilter,
+  quickFilter: ReservationQuickFilter,
   rf: ReservationsFilters
 ): FilterBadgeItem[] {
   const items: FilterBadgeItem[] = [];
-  items.push({ key: 'quick', label: 'Vista', value: QUICK_FILTER_LABELS[quickFilter] });
+  items.push({ key: 'quick', label: 'Vista', value: RESERVATION_QUICK_FILTER_LABELS[quickFilter] });
   if (rf.id) items.push({ key: 'rid', label: 'ID reserva', value: `#${rf.id}` });
-  if (rf.transactionReference?.trim()) {
-    items.push({ key: 'rref', label: 'Ref. pago', value: rf.transactionReference.trim() });
-  }
   return items;
 }

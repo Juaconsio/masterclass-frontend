@@ -1,4 +1,4 @@
-import { useAdminPaymentsTab } from './ReservationsPaymentsContext';
+import { useAdminPaymentsTab } from './AdminPaymentsContext';
 
 export function PaymentSearchModal() {
   const {
