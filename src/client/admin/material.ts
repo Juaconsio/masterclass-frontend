@@ -22,11 +22,18 @@ export async function makeUploadUrl(payload: makeUploadUrlPayload): Promise<Uplo
 export async function uploadFileToBucket(
   uploadUrl: string,
   file: File,
-  contentType?: string
+  contentType?: string,
+  onProgress?: (percent: number) => void
 ): Promise<void> {
   await axios.put(uploadUrl, file, {
     headers: {
       'Content-Type': contentType || file.type || 'application/octet-stream',
+    },
+    timeout: 600_000, // 10 min — evita colgarse si S3 no responde
+    onUploadProgress: (event) => {
+      if (onProgress && event.total) {
+        onProgress(Math.round((event.loaded * 100) / event.total));
+      }
     },
   });
 }

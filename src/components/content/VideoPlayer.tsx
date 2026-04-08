@@ -7,6 +7,7 @@ interface VideoPlayerProps {
   title?: string;
   controls?: boolean;
   playing?: boolean;
+  playbackRate?: number;
   onPlay?: () => void;
   onPause?: () => void;
   onProgress?: (state: { played: number; playedSeconds: number; loaded: number; loadedSeconds: number }) => void;
@@ -19,6 +20,7 @@ export default function VideoPlayer({
   title,
   controls = true,
   playing = false,
+  playbackRate = 1,
   onPlay,
   onPause,
   onProgress,
@@ -84,6 +86,7 @@ export default function VideoPlayer({
         url={url}
         controls={controls}
         playing={playing}
+        playbackRate={playbackRate}
         width={width}
         height={height}
         onPlay={onPlay}

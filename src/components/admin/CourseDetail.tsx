@@ -39,6 +39,7 @@ import {
   FolderOpen,
   MapPin,
   Pencil,
+  Play,
   Plus,
   Tag,
   Ticket,
@@ -589,7 +590,8 @@ export default function CourseDetail() {
     file: File,
     classId: number,
     filename: string,
-    options?: { moduleId?: number; displayName?: string; orderIndex?: number }
+    options?: { moduleId?: number; displayName?: string; orderIndex?: number },
+    onProgress?: (percent: number) => void
   ) => {
     const id = Number(classId);
     if (!id || Number.isNaN(id)) {
@@ -608,7 +610,7 @@ export default function CourseDetail() {
         contentType: requestedContentType,
         ext,
       });
-      await uploadFileToBucket(uploadUrl, file, requestedContentType);
+      await uploadFileToBucket(uploadUrl, file, requestedContentType, onProgress);
       await confirmUpload({
         classId: String(id),
         filename,
@@ -627,9 +629,14 @@ export default function CourseDetail() {
         // TODO [tech-debt]: Drawer se cierra al actualizar estado; reabrir con setTimeout es un workaround. Preferible: Drawer controlado por estado (open prop) o evitar que el re-render cierre el drawer.
         setTimeout(() => materialsDrawerRef.current?.open(), 0);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading file to bucket:', error);
-      showToast.error('Error al subir el material');
+      const isTimeout = error?.code === 'ECONNABORTED' || error?.message?.includes('timeout');
+      showToast.error(
+        isTimeout
+          ? 'Tiempo de espera agotado al subir el archivo. Verifica tu conexión o el servicio de almacenamiento.'
+          : 'Error al subir el material'
+      );
       throw error;
     }
   };
@@ -742,7 +749,8 @@ export default function CourseDetail() {
     materialId: number,
     file: File,
     filename: string,
-    displayName: string
+    displayName: string,
+    onProgress?: (percent: number) => void
   ) => {
     try {
       const ext = (file.name.split('.').pop() || '').toLowerCase();
@@ -756,7 +764,7 @@ export default function CourseDetail() {
         ext,
       });
 
-      await uploadFileToBucket(uploadUrl, file, requestedContentType);
+      await uploadFileToBucket(uploadUrl, file, requestedContentType, onProgress);
 
       await confirmReplaceMaterial(materialId, {
         filename,
@@ -773,9 +781,14 @@ export default function CourseDetail() {
         // TODO [tech-debt]: idem workaround drawer materiales (reabrir tras actualizar).
         setTimeout(() => materialsDrawerRef.current?.open(), 0);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error replacing material:', error);
-      showToast.error('Error al reemplazar el material');
+      const isTimeout = error?.code === 'ECONNABORTED' || error?.message?.includes('timeout');
+      showToast.error(
+        isTimeout
+          ? 'Tiempo de espera agotado al subir el archivo. Verifica tu conexión o el servicio de almacenamiento.'
+          : 'Error al reemplazar el material'
+      );
       throw error;
     }
   };
@@ -1142,6 +1155,12 @@ export default function CourseDetail() {
       icon: <FileText className="h-4 w-4" />,
       variant: 'secondary',
       onClick: (classItem) => setDescriptionModalClass(classItem),
+    },
+    {
+      label: 'Ver materiales',
+      icon: <Play className="h-4 w-4" />,
+      variant: 'secondary',
+      onClick: (classItem) => navigate(`/admin/cursos/${courseId}/clases/${classItem.id}`),
     },
     {
       label: 'Editar',
@@ -2165,8 +2184,8 @@ export default function CourseDetail() {
                       <div className="flex shrink-0 items-center gap-1">
                         <FileInput
                           acceptedFileTypes={[...acceptedFileTypes]}
-                          onFileUpload={async (file, _, displayName) =>
-                            handleReplaceMaterial(material.id, file, type, displayName)
+                          onFileUpload={async (file, _, displayName, onProgress) =>
+                            handleReplaceMaterial(material.id, file, type, displayName, onProgress)
                           }
                           maxSizeMB={maxSizeMB}
                           buttonText=""
@@ -2198,9 +2217,9 @@ export default function CourseDetail() {
                 <div className="pt-1">
                   <FileInput
                     acceptedFileTypes={['image/*', 'application/pdf', 'video/mp4', '.mp4']}
-                    onFileUpload={async (file, type, displayName) => {
+                    onFileUpload={async (file, type, displayName, onProgress) => {
                       const classId = materialsDrawerClassIdRef.current ?? materialsDrawerClass.id;
-                      await handleFileUpload(file, classId, type, { displayName });
+                      await handleFileUpload(file, classId, type, { displayName }, onProgress);
                     }}
                     maxSizeMB={500}
                     buttonText="Añadir material (sin módulo)"
@@ -2341,8 +2360,8 @@ export default function CourseDetail() {
                                 <div className="flex shrink-0 items-center gap-1">
                                   <FileInput
                                     acceptedFileTypes={[...acceptedFileTypes]}
-                                    onFileUpload={async (file, _, displayName) =>
-                                      handleReplaceMaterial(mat.id, file, type, displayName)
+                                    onFileUpload={async (file, _, displayName, onProgress) =>
+                                      handleReplaceMaterial(mat.id, file, type, displayName, onProgress)
                                     }
                                     maxSizeMB={maxSizeMB}
                                     buttonText=""
@@ -2379,14 +2398,16 @@ export default function CourseDetail() {
                                 'video/mp4',
                                 '.mp4',
                               ]}
-                              onFileUpload={async (file, type, displayName) => {
+                              onFileUpload={async (file, type, displayName, onProgress) => {
                                 const classId =
                                   materialsDrawerClassIdRef.current ?? materialsDrawerClass.id;
-                                await handleFileUpload(file, classId, type, {
-                                  moduleId: mod.id,
-                                  orderIndex: materials.length,
-                                  displayName,
-                                });
+                                await handleFileUpload(
+                                  file,
+                                  classId,
+                                  type,
+                                  { moduleId: mod.id, orderIndex: materials.length, displayName },
+                                  onProgress
+                                );
                               }}
                               maxSizeMB={500}
                               buttonText="Añadir material"

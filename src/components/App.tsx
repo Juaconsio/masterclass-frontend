@@ -28,6 +28,7 @@ import Profile from '@/components/profile/Profile';
 import ForgotPassword from './auth/forgotPassword';
 import ResetPassword from './auth/resetPassword';
 import ClassMaterial from '@components/content/ClassMaterial';
+import { getAdminClassPreview } from '@/client/admin/modules';
 import ReservationConfirm from '@components/reservations/ReservationConfirm';
 import RescheduleReservation from '@components/reservations/RescheduleReservation';
 import MyPlans from '@components/plans/MyPlans';
@@ -161,6 +162,10 @@ export default function Spa() {
             <Route path="cursos">
               <Route index element={<AdminCourses />} />
               <Route path=":courseId" element={<AdminCourseDetail />} />
+              <Route
+                path=":courseId/clases/:classId"
+                element={<ClassMaterial fetchModules={getAdminClassPreview} />}
+              />
             </Route>
             <Route path="estudiantes" element={<AdminStudents />} />
             <Route path="profesores">
