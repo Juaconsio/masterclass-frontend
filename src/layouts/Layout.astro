@@ -5,12 +5,15 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  /** When false, Google Analytics (gtag) is not injected. Default: true. */
+  enableGoogleAnalytics?: boolean;
 }
 
 // Get props with defaults
 const {
   title = 'Salva Ramos | Clases particulares y grupales',
   description = 'Salva tus Ramos con sesiones en vivo de profesores expertos. Clases particulares y grupales de ingeniería.',
+  enableGoogleAnalytics = true,
 } = Astro.props;
 ---
 
@@ -34,6 +37,22 @@ const {
     <meta name="twitter:image" content="/favicon.png" />
 
     <script src="https://cdn.usal.dev/latest" defer></script>
+
+    {
+      enableGoogleAnalytics && (
+        <>
+          <script async src="https://www.googletagmanager.com/gtag/js?id=G-SRHMXK4GGB"></script>
+          <script is:inline>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', 'G-SRHMXK4GGB');
+          </script>
+        </>
+      )
+    }
   </head>
   <body class="bg-accent">
     <script is:inline>
